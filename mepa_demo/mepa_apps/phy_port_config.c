@@ -325,7 +325,6 @@ static void cli_cmd_force_speed(cli_req_t *req)
     demo_phy_info_t phy_family;
     port_cli_req_t *mreq = req->module_req;
     mepa_conf_t  conf;
-    mepa_conf_t  conf_get;
     mepa_port_no_t  port_no;
 
     for(int iport = 0; iport < 20; iport++) {
@@ -335,29 +334,26 @@ static void cli_cmd_force_speed(cli_req_t *req)
         }
         if(meba_phy_inst->phy_devices[iport] == NULL) {
             cli_printf(" Dev is Not Created for the port : %d\n", iport);
-            return;
+            continue;
         }
         if ((rc = phy_family_detect(meba_phy_inst, iport, &phy_family)) != MEPA_RC_OK) {
             T_E("\n Error in Detecting PHY Family on Port %d\n", iport);
-            return;
+            continue;
         }
         if(phy_family.family == PHY_FAMILY_MALIBU_10G) {
             if(mreq->speed != MESA_SPEED_10G && mreq->speed != MESA_SPEED_1G) {
                 T_E("\n Error: Speed Not Support on Port %d\n", iport);
-                return;
+                continue;
             }
         }
         memset(&conf, 0, sizeof(mepa_conf_t));
-        memset(&conf_get, 0, sizeof(mepa_conf_t));
 
-        if ((rc = mepa_conf_get(meba_phy_inst->phy_devices[iport], &conf_get)) != MESA_RC_OK) {
-            T_E("mepa_conf_get failed on port %u", iport);
-            return;
+        if ((rc = mepa_conf_get(meba_phy_inst->phy_devices[iport], &conf)) != MESA_RC_OK) {
+            T_E("\n mepa_conf_get failed on port %d\n", iport);
+            continue;
         }
         conf.speed = mreq->speed;
         conf.fdx = mreq->fdx;
-        conf.adv_dis = 1;
-
         if(phy_family.family == PHY_FAMILY_VIPER || phy_family.family == PHY_FAMILY_TESLA || phy_family.family == PHY_FAMILY_LAN8814) {
             conf.flow_control = 1;
             conf.admin.enable = 1;  
@@ -370,12 +366,11 @@ static void cli_cmd_force_speed(cli_req_t *req)
             conf.conf_10g.interface_mode = MEPA_PHY_SFI_XFI;
             conf.conf_10g.h_media = MEPA_MEDIA_TYPE_SR;
             conf.conf_10g.l_media = MEPA_MEDIA_TYPE_SR;
-            conf.conf_10g.channel_id = conf_get.conf_10g.channel_id;
             conf.conf_10g.channel_high_to_low = 1;
         }
         if ((rc = mepa_conf_set(meba_phy_inst->phy_devices[iport], &conf)) != MESA_RC_OK) {
             T_E("mepa_conf_set failed on port %u", iport);
-            return;
+            continue;
         }
     }
     return;
@@ -466,7 +461,7 @@ static int cli_parm_speed_select(cli_req_t *req)
 
     if (!strncasecmp(req->cmd, "10hdx", strlen(req->cmd))) {
         mreq->speed = MESA_SPEED_10M;
-        mreq->fdx   = 0;	
+        mreq->fdx   = 0;
     } else if (!strncasecmp(req->cmd, "10fdx", strlen(req->cmd))) {
         mreq->speed = MESA_SPEED_10M;
         mreq->fdx   = 1;
@@ -485,7 +480,7 @@ static int cli_parm_speed_select(cli_req_t *req)
     } else if (!strncasecmp(req->cmd, "25g", strlen(req->cmd))) {
         mreq->speed = MESA_SPEED_25G;
         mreq->fdx   = 1;
-    } 
+    }
     return 0;
 }
 
@@ -529,7 +524,7 @@ static cli_parm_t cli_parm_table[] = {
         "1000fdx : 1   Gbps Full Duplex"
         "10g     : 10  Gbps Full Duplex"
         "25g     : 25  Gbps Full Duplex",
-	CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
+        CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
         cli_parm_speed_select,
     },
 };

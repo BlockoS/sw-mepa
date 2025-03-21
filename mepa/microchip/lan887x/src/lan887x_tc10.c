@@ -321,13 +321,33 @@ static mepa_rc lan887x_phy_tc10_send_sleep_request(struct mepa_device           
 
     if (data->tc10_cfg.sleep_enable == PHY_TRUE &&
             data->conf.admin.enable == PHY_TRUE) {
-        rc = MEPA_RC_ERR_PARM;
         if (req == MEPA_TC10_LPS ) {
             MEPA_RC_GOTO(rc, phy_mmd_reg_rd(dev, MDIO_MMD_VEND1,
                                             LAN887X_DEV30_COMMON_TC10_REG_REG16, &reg_data));
             reg_data |= LAN887X_DEV30_COMMON_TC10_REG_REG16_RW_SEND_LPS;
             MEPA_RC_GOTO(rc, phy_mmd_reg_wr(dev, MDIO_MMD_VEND1,
                                             LAN887X_DEV30_COMMON_TC10_REG_REG16, reg_data));
+        } else if (req == MEPA_TC10_SLEEP_REJECT) {
+            MEPA_RC_GOTO(rc, phy_mmd_reg_rd(dev, MDIO_MMD_VEND1,
+                                            LAN887X_DEV30_COMMON_TC10_SLEEP_ABRT, &reg_data));
+            reg_data |= LAN887X_DEV30_COMMON_TC10_SLEEP_ABRT_SLEEP_ABORT;
+            MEPA_RC_GOTO(rc, phy_mmd_reg_wr(dev, MDIO_MMD_VEND1,
+                                            LAN887X_DEV30_COMMON_TC10_SLEEP_ABRT, reg_data));
+        } else if (req == MEPA_TC10_SLEEP_ABORT) {
+            MEPA_RC_GOTO(rc, phy_mmd_reg_rd(dev, MDIO_MMD_VEND1,
+                                            LAN887X_DEV30_COMMON_TC10_SLEEP_ABRT, &reg_data));
+            reg_data |= LAN887X_DEV30_COMMON_TC10_SLEEP_ABRT_SLEEP_RJCT;
+            MEPA_RC_GOTO(rc, phy_mmd_reg_wr(dev, MDIO_MMD_VEND1,
+                                            LAN887X_DEV30_COMMON_TC10_SLEEP_ABRT, reg_data));
+        } else if (req == MEPA_TC10_ABORT_CLEAR) {
+            MEPA_RC_GOTO(rc, phy_mmd_reg_rd(dev, MDIO_MMD_VEND1,
+                                            LAN887X_DEV30_COMMON_TC10_SLEEP_ABRT, &reg_data));
+            reg_data &= ~(LAN887X_DEV30_COMMON_TC10_SLEEP_ABRT_SLEEP_RJCT |
+                          LAN887X_DEV30_COMMON_TC10_SLEEP_ABRT_SLEEP_ABORT);
+            MEPA_RC_GOTO(rc, phy_mmd_reg_wr(dev, MDIO_MMD_VEND1,
+                                            LAN887X_DEV30_COMMON_TC10_SLEEP_ABRT, reg_data));
+        } else {
+            return MEPA_RC_ERR_PARM;
         }
     }
 
@@ -440,6 +460,19 @@ mepa_rc lan887x_phy_tc10_set_config(struct mepa_device *dev, lan887x_tc10_data_t
 error:
     return rc;
 }
+
+static mepa_rc lan887x_phy_tc10_get_indication(struct mepa_device     *dev,
+                                               uint16_t     *const indication)
+{
+    mepa_rc rc = MEPA_RC_OK;
+
+    MEPA_RC_GOTO(rc, phy_mmd_reg_rd(dev, MDIO_MMD_VEND1,
+                                    LAN887X_DEV30_COMMON_TC10_REG_REG24, indication));
+
+error:
+    return rc;
+}
+
 /**********************************
  * Internal APIs must be above this
  *********************************/
@@ -633,6 +666,19 @@ static mepa_rc lan887x_tc10_send_wake_request(struct mepa_device *dev)
     return rc;
 }
 
+static mepa_rc lan887x_tc10_get_indication(struct mepa_device *dev, uint16_t *const indication)
+{
+    mepa_rc rc = MEPA_RC_ERROR;
+
+    if (dev != NULL && indication != NULL) {
+        MEPA_ENTER(dev);
+        rc = lan887x_phy_tc10_get_indication(dev, indication);
+        MEPA_EXIT(dev);
+    }
+
+    return rc;
+}
+
 mepa_tc10_driver_t lan887x_tc10_drivers = {
     .mepa_tc10_set_sleep_support           = lan887x_tc10_set_sleep_support,
     .mepa_tc10_get_sleep_support           = lan887x_tc10_get_sleep_support,
@@ -647,4 +693,5 @@ mepa_tc10_driver_t lan887x_tc10_drivers = {
     .mepa_tc10_send_sleep_request          = lan887x_tc10_send_sleep_request,
     .mepa_tc10_get_state                   = lan887x_tc10_get_state,
     .mepa_tc10_send_wake_request           = lan887x_tc10_send_wake_request,
+    .mepa_tc10_get_indication              = lan887x_tc10_get_indication,
 };

@@ -596,7 +596,7 @@ static mepa_rc mscc_1g_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
     phy_data_t *data = (phy_data_t *)dev->data;
     vtss_phy_conf_t phy_config = {};
     vtss_phy_conf_1g_t cfg_neg = {};
-
+    mepa_rc rc = MEPA_RC_OK;
     if (vtss_phy_conf_get(data->vtss_instance, data->port_no, &phy_config) == MESA_RC_OK) {
         if (config->admin.enable) {
             if (config->speed == MESA_SPEED_AUTO ||
@@ -650,7 +650,11 @@ static mepa_rc mscc_1g_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
             phy_config.force_ams_sel = MEPA_PHY_MEDIA_FORCE_AMS_SEL_NORMAL;
         }
 
-        (void)vtss_phy_conf_1g_set(data->vtss_instance, data->port_no, &cfg_neg);
+        rc = vtss_phy_conf_1g_set(data->vtss_instance, data->port_no, &cfg_neg);
+        if (rc != MEPA_RC_OK) {
+            T_E(data, MEPA_TRACE_GRP_GEN, "Failed to confiured speed\n");
+            return MEPA_RC_ERROR;
+        }   
         phy_config.forced.speed = config->speed;
         phy_config.forced.fdx = config->fdx;
 
@@ -1397,15 +1401,15 @@ static mepa_rc phy_eee_mode_conf_get(mepa_device_t *dev, mepa_phy_eee_conf_t *co
     phy_data_t *data = (phy_data_t *)(dev->data);
     mepa_rc rc = MEPA_RC_OK;
     mepa_bool_t capable = FALSE;
-    vtss_phy_eee_conf_t *eee_conf = (vtss_phy_eee_conf_t*)malloc(sizeof(vtss_phy_eee_conf_t));
+    vtss_phy_eee_conf_t eee_conf = {0};
     if ((rc = vtss_phy_port_eee_capable(data->vtss_instance, data->port_no, &capable)) != MEPA_RC_OK) {
         return rc;
     }
-    if ((rc = vtss_phy_eee_conf_get(data->vtss_instance, data->port_no, eee_conf)) != MEPA_RC_OK) {
+    if ((rc = vtss_phy_eee_conf_get(data->vtss_instance, data->port_no, &eee_conf)) != MEPA_RC_OK) {
         return rc;
     }
-    conf->eee_mode = (eee_conf->eee_mode == VTSS_EEE_DISABLE ? MEPA_EEE_DISABLE : eee_conf->eee_mode == VTSS_EEE_ENABLE ? MEPA_EEE_ENABLE : MEPA_EEE_REG_UPDATE);
-    conf->eee_ena_phy = eee_conf->eee_ena_phy;
+    conf->eee_mode = (eee_conf.eee_mode == VTSS_EEE_DISABLE ? MEPA_EEE_DISABLE : eee_conf.eee_mode == VTSS_EEE_ENABLE ? MEPA_EEE_ENABLE : MEPA_EEE_REG_UPDATE);
+    conf->eee_ena_phy = eee_conf.eee_ena_phy;
     return MEPA_RC_OK;
 }
 
@@ -1506,7 +1510,7 @@ static mepa_rc phy_10g_clause45_read(struct mepa_device *dev,
     uint16_t page_add = (address >> 16) & 0xffff;
     uint16_t mmd = (page_add & 0x1f);
     uint16_t addr = address & 0xffff;
-    uint32_t data_val;
+    uint32_t data_val = 0;
 
     if (mmd) {
         rc = vtss_phy_10g_csr_read(data->vtss_instance, data->port_no, mmd, addr, &data_val);

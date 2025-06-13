@@ -326,6 +326,7 @@ static mesa_rc eds2_port_reorder(meba_inst_t inst, const uint32_t port_cnt, port
     }
     return MESA_RC_OK;
 }
+
 static mesa_rc eds2_ptp_rs422_conf_get(meba_inst_t inst,
                                        meba_ptp_rs422_conf_t *conf)
 {

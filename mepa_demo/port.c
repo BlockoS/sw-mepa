@@ -1060,7 +1060,7 @@ static void cli_cmd_phy_id(cli_req_t *req)
             meba_phy_if_get(meba_global_inst, port_no, 1, &mac_if);
             sprintf(spd, "%s", phy_id.cap & MEPA_CAP_SPEED_MASK_2G5 ? "2G5" : phy_id.cap & MEPA_CAP_SPEED_MASK_10G ? "10G" :
                     phy_id.cap & MEPA_CAP_SPEED_MASK_25G ? "25G" : "1G");
-            cli_printf("%-10d %-10d 0x%-8x %-10s %s\n", port_no, phy_id.part_number, phy_id.revision, spd, mesa_port_if2txt(mac_if));
+            cli_printf("%-10d %-10d 0x%-8x %-10s %s\n", (port_no+1), phy_id.part_number, phy_id.revision, spd, mesa_port_if2txt(mac_if));
         }
     }
 }

@@ -254,7 +254,6 @@ static mepa_rc lan80xx_ts_init_conf_set(mepa_device_t *dev, const mepa_ts_init_c
     init_conf.chk_ing_modified = FALSE;
     init_conf.one_step_txfifo = FALSE;
     init_conf.mch_conf = ts_init_conf->mch_pch_conf;
-    data->phy_ts_port_conf.port_ts_init_done = TRUE;
     return lan80xx_phy_ts_init(dev, data->port_no, &init_conf);
 }
 

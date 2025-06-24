@@ -738,8 +738,8 @@ static mepa_rc lan80xx_ts_base_port_get_priv(const mepa_device_t *dev,
     phy25g_phy_state_t *base_data = (phy25g_phy_state_t *)data->base_dev->data;
 
     *base_port_no = base_data->port_no;
-    *ptrbase_data = (phy25g_phy_state_t *)data->base_dev->data;
-    T_D(MEPA_TRACE_GRP_TS, "Pcs retiming mode enabling in port %u, Baseport=%u, base_addr=%x", data->port_no, *base_port_no, data->base_dev->data);
+    *ptrbase_data = base_data;
+    T_D(MEPA_TRACE_GRP_TS, "TS baseport get port %u, Baseport=%u, base_addr=%x", data->port_no, *base_port_no, data->base_dev->data);
     return MEPA_RC_OK;
 }
 
@@ -983,7 +983,6 @@ static mepa_rc lan80xx_ts_block_init(const mepa_device_t  *dev, const mepa_port_
                         LAN80XX_M_CLK_CFG_LTCPLL_DIVQ_REG_LTCPLL_DIVQ);
 
         if ((clk_src == MEPA_TS_CLOCK_SRC_EXTERNAL) || (clk_src == MEPA_TS_CLOCK_SRC_EXT_1588_REF_CLOCK)) {
-
             //configure the LSC differential pin.
             value = PTP1588_LSC_3_P_N;
             LAN80XX_CSR_WRM(base_port, LAN80XX_PTP_LTC_PTP_CLK_REF_CFG, LAN80XX_F_PTP_LTC_PTP_CLK_REF_CFG_PTP_CLK_REF_SELECT(value),
@@ -1447,10 +1446,23 @@ mepa_rc lan80xx_ts_hard_reset_private(mepa_device_t *dev, mepa_port_no_t port_no
 {
 
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
+    u32 u32Val = 0;
+
+    /* MEPA-1149
+     * Added the 1588 reset logic for the given port
+     */
+    u32Val = 0;
+    u32Val = LAN80XX_F_LINE_SLICE_LINE_IP1588_RESET_IP1588_INGR_RST(1) |
+            LAN80XX_F_LINE_SLICE_LINE_IP1588_RESET_IP1588_EGR_RST(1);
 
     LAN80XX_CSR_COLD_WR(port_no, LAN80XX_LINE_SLICE_LINE_IP1588_RESET,
-                        LAN80XX_M_LINE_SLICE_LINE_IP1588_RESET_IP1588_INGR_RST |
-                        LAN80XX_M_LINE_SLICE_LINE_IP1588_RESET_IP1588_EGR_RST );
+                        u32Val );
+
+    u32Val = 0;
+    u32Val = LAN80XX_F_LINE_SLICE_LINE_IP1588_RESET_IP1588_INGR_RST(0) |
+            LAN80XX_F_LINE_SLICE_LINE_IP1588_RESET_IP1588_EGR_RST(0);
+    LAN80XX_CSR_COLD_WR(port_no, LAN80XX_LINE_SLICE_LINE_IP1588_RESET,
+                        u32Val );
 
     return MEPA_RC_OK;
 }
@@ -1481,10 +1493,10 @@ mepa_rc lan80xx_phy_ts_init(const mepa_device_t *dev,
                             const  mepa_port_no_t port_no,
                             const phy25g_phy_ts_init_conf_t  *const conf)
 {
-    mepa_rc  rc = MEPA_RC_OK;
+    mepa_rc  rc = MEPA_RC_ERROR;
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
     phy25g_phy_state_t *base_data;
-    mepa_port_no_t           base_port_no = port_no ; // (TODO : to be fixed next PR)
+    mepa_port_no_t           base_port_no = 0;
     phy25g_phy_ts_init_conf_t  base_conf;
     u32  revision = 0, value = 0, mask = 0;
 
@@ -1506,7 +1518,7 @@ mepa_rc lan80xx_phy_ts_init(const mepa_device_t *dev,
             T_E(MEPA_TRACE_GRP_GEN, "Base port not assigned for port %u\n", __FUNCTION__, port_no);
             break;
         } else {
-            T_I(MEPA_TRACE_GRP_GEN, "port base port mapping port %u , baseport %u \n", port_no, base_port_no);
+            T_I(MEPA_TRACE_GRP_GEN, "Base port mapping: port %u , baseport %u \n", port_no, base_port_no);
         }
 
 
@@ -1603,7 +1615,7 @@ mepa_rc lan80xx_phy_ts_init(const mepa_device_t *dev,
         data->phy_ts_port_conf.egress_latency  = 0;
         if (port_no != base_port_no) {
             data->phy_ts_port_conf.alt_port = port_no;
-            data->phy_ts_port_conf.alt_port = port_no;
+            base_data->phy_ts_port_conf.alt_port = port_no;
         }
 
         /* Initialize the 1588 block */

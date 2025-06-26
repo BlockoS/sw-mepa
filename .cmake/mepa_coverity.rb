@@ -173,14 +173,12 @@ puts "Total: #{$cnt_ok + $cnt_err}, OK: #{$cnt_ok}, Error: #{$cnt_err}"
 coding_standards = {
   certc: {
     config: "/opt/coverity/analysis/config/coding-standards/cert-c/cert-c-all.config",
-    html:   "#{$opt_path}/cov_output/html_output_certc",
     json:   "#{$opt_path}/cov_output/coverity_certc.json",
     csv:    "#{$opt_path}/cov_output/coverity_certc.csv"
   },
 
   misra2023_mandatory_req: {
     config: "/opt/coverity/analysis/config/coding-standards/misrac2023/misrac2023-mandatory-required.config",
-    html:   "#{$opt_path}/cov_output/html_output_misra2023_mandatory_req",
     json:   "#{$opt_path}/cov_output/coverity_misra2023_mandatory_req.json",
     csv:    "#{$opt_path}/cov_output/coverity_misra2023_mandatory_req.csv"
   },
@@ -196,10 +194,6 @@ coding_standards.each do |key, cfg|
   # Generate JSON report
   system "/opt/coverity/analysis/bin/cov-format-errors --dir #{$opt_path}/cov_output  --json-output-v10 #{cfg[:json]}"
 
-  # Generate HTML report
-  system "rm -rf #{cfg[:html]}"
-  system "/opt/coverity/analysis/bin/cov-format-errors --dir #{$opt_path}/cov_output  --html-output #{cfg[:html]}"
-
   data = JSON.parse(File.read("#{cfg[:json]}"))
 
   if data["issues"].empty?
@@ -207,15 +201,16 @@ coding_standards.each do |key, cfg|
   end
 
   CSV.open("#{cfg[:csv]}", "wb") do |csv|
-    csv << ["Checker Name", "File Path", "Line Number", "Function", "Impact"]
+    csv << ["Checker Name", "File Path", "Line Number", "Function", "Impact", "Category"]
     data["issues"].each do |issue|
       checker_name = issue["checkerName"] || ""
       filepath = issue["strippedMainEventFilePathname"] || ""
       line_number = issue["mainEventLineNumber"] || ""
       function = issue["functionDisplayName"] || ""
       impact = issue.dig("checkerProperties", "impact") || ""
+      category = issue.dig("checkerProperties", "MISRACategory") || ""
 
-      csv << [checker_name, filepath, line_number, function, impact]
+      csv << [checker_name, filepath, line_number, function, impact, category]
       # Increment error count only for High or Medium impact
       if impact.casecmp?("High") || impact.casecmp?("Medium")
         $cnt_err += 1

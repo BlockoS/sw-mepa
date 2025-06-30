@@ -86,11 +86,11 @@ $ cd mepa-<version>
 == Create a CMake project (and download BSP and toolchain)
 
 To build the sources a CMake project is needed. The easiest way to create a
-CMake project is to run  `./.cmake/create_cmake_project_new.rb` script:
+CMake project is to run  `./.cmake/create_cmake_project.rb` script:
 
 ----
-$ ./.cmake/create_cmake_project_new.rb
-Usage: create_cmake_project_new <preset name> [output-folder]
+$ ./.cmake/create_cmake_project.rb
+Usage: create_cmake_project <preset name> [output-folder]
 
 Valid presets:
     mipsel
@@ -106,7 +106,7 @@ Valid presets:
 Lets prepare a project for arm64 based targets:
 
 ----
-$ ./.cmake/create_cmake_project_new.rb arm64
+$ ./.cmake/create_cmake_project.rb arm64
 ----
 
 Once the script is run the appropriate released package will be extracted in /opt/mchp/ folder. The BSP source package will be also be
@@ -118,7 +118,7 @@ Following is the expected result to be displayed while creating CMake Project.
 
 ----
 
-$ ./.cmake/create_cmake_project_new.rb arm64
+$ ./.cmake/create_cmake_project.rb arm64
 Removing old code base...
 Fetching latest copy...
 mchp-brsdk-arm64-2024.02.6-6-2024.12-soak.jenkins_unge

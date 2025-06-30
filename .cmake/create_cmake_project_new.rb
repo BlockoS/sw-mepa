@@ -235,7 +235,7 @@ if c[:mesa]
   
   if not File.exist? mesa_base
     if is_internal?
-      sys "wget --quiet -O- #{$mesa_deps["build-artifact-url"]}/#{mesa_name}.tar.gz | tar -xz -C /opt/mchp/"
+      sys "wget -O- #{$mesa_deps["build-artifact-url"]}/#{mesa_name}.tar.gz | tar -xz -C /opt/mchp/"
     else
       package = "mesa-#{$mesa_deps["release-version"]}"
       puts "Please install the latest MESA package: #{mesa_base}"
@@ -251,14 +251,18 @@ end
 
 # Not all presets uses a brsdk, some only uses the toolchain
 if c[:brsdk_arch]
-  brsdk_name = "mchp-brsdk-#{c[:arch]}-#{$bsp_deps["build-artifact-version-string"]}"
+  if is_internal?
+    brsdk_name = "mchp-brsdk-#{c[:arch]}-#{$bsp_deps["build-artifact-version-string"]}"
+  else
+    brsdk_name = "mchp-brsdk-#{c[:arch]}-#{$bsp_deps["build-artifact-version-string-ext"]}"
+  end
   brsdk_base = "/opt/mchp/#{brsdk_name}"
   base = brsdk_base
   puts brsdk_name
 
   if not File.exist? brsdk_base
     if is_internal?
-      sys "wget --quiet -O- #{$bsp_deps["build-artifact-url"]}/#{brsdk_name}.tar.gz | tar -xz -C /opt/mchp/"
+      sys "wget -O- #{$bsp_deps["build-artifact-url"]}/#{brsdk_name}.tar.gz | tar -xz -C /opt/mchp/"
     else
       puts "Please install the BSP: #{brsdk_base}"
       puts ""
@@ -279,7 +283,7 @@ end
 if not File.exist? $tc_path
   if is_internal?
     tc_link = "#{$tc["build-artifact-url"]}/#{$tc_name}.tar.gz"
-    sys "wget --quiet -O- #{tc_link} | tar -xz -C /opt/mchp/"
+    sys "wget -O- #{tc_link} | tar -xz -C /opt/mchp/"
   else
     raise "not implemented!"
     puts "Please install the toolchain: #{$tc_name} into /opt/mchp/"

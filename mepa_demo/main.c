@@ -264,7 +264,6 @@ static mesa_bool_t get_uboot_env_int(const char *env, int *res)
     fp = popen(cmd, "r");
 
     if (fp == NULL) {
-        pclose(fp);
         return 0;
     }
 

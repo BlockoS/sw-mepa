@@ -118,6 +118,10 @@ add_library(mepa_demo_examples_lib INTERFACE)
 target_sources(mepa_demo_examples_lib INTERFACE ${EXAMPLE_SRC} ${EXAMPLE_SRC_MEPA})
 #target_include_directories(mepa_demo_examples_lib PUBLIC ${CMAKE_BINARY_DIR}/mesa-ag/)
 
+add_library(chip_specific_api_stub STATIC ../mepa/microchip/lan_stubs.c)
+
+target_include_directories(chip_specific_api_stub PUBLIC ../mepa/include ../mepa/microchip/lan80xx/include)
+
 macro(APP_TARGET)
     set(options )
     set(oneValueArgs NAME MESA MEBA)
@@ -136,6 +140,7 @@ macro(APP_TARGET)
                 json-c
                 ${A_MESA}
                 ${A_MEBA}_static
+                chip_specific_api_stub
             )
     target_compile_options(mepa_demo_lib PUBLIC ${A_APP_TARGET_DEFINES})
     target_compile_options(mepa_demo_examples_lib INTERFACE ${A_APP_TARGET_DEFINES})

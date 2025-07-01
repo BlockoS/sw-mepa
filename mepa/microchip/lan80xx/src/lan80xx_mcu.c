@@ -2259,7 +2259,7 @@ mepa_rc lan80xx_KRLog_Enable(const mepa_device_t *dev, mepa_bool_t bkrlog_enable
     uint8_t au8CmdBuffer[32] = { 0 };
     uint8_t au8CmdParam[8] = { 0 };
     uint16_t u16PktLen = 0, u16PayloadLen = 0x00;
-    uint8_t  byKRportsToEnable =0, KRNOfports = 0;
+    uint8_t  byKRportsToEnable = 0, KRNOfports = 0;
 
     phy25g_phy_state_t *data = (phy25g_phy_state_t *) dev->data;
     mepa_device_t *base_dev;
@@ -2267,7 +2267,7 @@ mepa_rc lan80xx_KRLog_Enable(const mepa_device_t *dev, mepa_bool_t bkrlog_enable
     LAN80XX_BASE_DEV(data, base_dev, base_data);
 
     T_D(MEPA_TRACE_GRP_GEN, "Enabling KR Log on port : %d, channel id: %d, kr log enabled ports: %x\n\n", data->port_no, data->channel_id, base_data->krlog_en_ports);
-    
+
     T_I(MEPA_TRACE_GRP_GEN, "%s", __FUNCTION__);
     if (!dev) {
         T_E(MEPA_TRACE_GRP_GEN, "No device found!");
@@ -2275,37 +2275,31 @@ mepa_rc lan80xx_KRLog_Enable(const mepa_device_t *dev, mepa_bool_t bkrlog_enable
         return rc;
     }
 
-    // Step 1: Create Packet 
+    // Step 1: Create Packet
     // Check if KR Log Maximum port supported (4 - host + line)
     byKRportsToEnable = base_data->krlog_en_ports;
-    
-    if(bline_port_en & bhost_port_en)
-    {
-        if(bkrlog_enable) {
+
+    if (bline_port_en & bhost_port_en) {
+        if (bkrlog_enable) {
             byKRportsToEnable |= (1 << data->channel_id) | (1 << (data->channel_id + 4));
         } else {
             byKRportsToEnable &= ~((1 << data->channel_id) | (1 << (data->channel_id + 4)));;
         }
-        
-    }
-    else if(bline_port_en)
-    {
-        if(bkrlog_enable) {
+
+    } else if (bline_port_en) {
+        if (bkrlog_enable) {
             byKRportsToEnable |= (1 << data->channel_id);
         } else {
             byKRportsToEnable &= ~(1 << data->channel_id);
         }
-    }
-    else if(bhost_port_en) 
-    {
-        if(bkrlog_enable) {
+    } else if (bhost_port_en) {
+        if (bkrlog_enable) {
             byKRportsToEnable |= (1 << (data->channel_id + 4));
         } else {
             byKRportsToEnable &= ~(1 << (data->channel_id + 4));
         }
     }
-    if(!bkrlog_enable)
-    {
+    if (!bkrlog_enable) {
         base_data->krlog_en_ports = byKRportsToEnable;
         return rc;
     }
@@ -2313,21 +2307,19 @@ mepa_rc lan80xx_KRLog_Enable(const mepa_device_t *dev, mepa_bool_t bkrlog_enable
 
     while (byKRportsToEnable != 0) {
         byKRportsToEnable = byKRportsToEnable & (byKRportsToEnable - 1);
-		KRNOfports++;
+        KRNOfports++;
     }
 
     // Check if the number of ports exceeds the maximum allowed
-    if (KRNOfports > 4)
-	{
+    if (KRNOfports > 4) {
         T_E(MEPA_TRACE_GRP_GEN, "%s KR Logging is allowed only for maximum of 4 ports", \
-                __FUNCTION__);
+            __FUNCTION__);
         rc = MESA_RC_ERR_PARM;
         return rc;
     }
-    if(KRNOfports <= 0)
-    {
+    if (KRNOfports <= 0) {
         T_E(MEPA_TRACE_GRP_GEN, "%s Atleast one port needs to enabled for KR Logging ", \
-                __FUNCTION__);
+            __FUNCTION__);
         rc = MESA_RC_ERR_PARM;
         return rc;
     }
@@ -2360,12 +2352,11 @@ mepa_rc lan80xx_KRLog_Enable(const mepa_device_t *dev, mepa_bool_t bkrlog_enable
         base_data->krlog_en_ports = au8CmdParam[0];
         T_I(MEPA_TRACE_GRP_GEN, "%s: Success", __FUNCTION__);
     } else {
-        if (recvPkt->u8PktId == eENABLE_KR_LOG + 0x81)
-		{
+        if (recvPkt->u8PktId == eENABLE_KR_LOG + 0x81) {
             T_E(MEPA_TRACE_GRP_GEN, "%s. Fail", __FUNCTION__);
             rc = MEPA_RC_ERR_MB_FAIL_RESPONSE;
         } else {
-             T_E(MEPA_TRACE_GRP_GEN, "%s Wrong packet received (%d), expected (%d)", \
+            T_E(MEPA_TRACE_GRP_GEN, "%s Wrong packet received (%d), expected (%d)", \
                 __FUNCTION__, (recvPkt->u8PktId - 0x80), eENABLE_KR_LOG);
             rc = MEPA_RC_ERR_MB_CMD_PROTO_NO_SYNC;
         }
@@ -2392,7 +2383,7 @@ mepa_rc lan80xx_KRLog_Reset(const mepa_device_t *dev, uint32_t u32RamAddr, uint1
     /*16 bit length */
     au8CmdParam[4] = (u16Len) & 0xFF;
     au8CmdParam[5] = (u16Len >> 8) & 0xFF;
-   
+
     u16PktLen = lan80xx_CreatePacket(eRESET_KR_LOG_MEMORY, 6, au8CmdBuffer, au8CmdParam, RESERVED_ID);
 
     // Step 2: Send Request Packet
@@ -2420,12 +2411,11 @@ mepa_rc lan80xx_KRLog_Reset(const mepa_device_t *dev, uint32_t u32RamAddr, uint1
     if (recvPkt->u8PktId == eRESET_KR_LOG_MEMORY + 0x80) {
         T_I(MEPA_TRACE_GRP_GEN, "%s: Success", __FUNCTION__);
     } else {
-        if (recvPkt->u8PktId == eRESET_KR_LOG_MEMORY + 0x81)
-		{
+        if (recvPkt->u8PktId == eRESET_KR_LOG_MEMORY + 0x81) {
             T_E(MEPA_TRACE_GRP_GEN, "%s. Fail", __FUNCTION__);
             rc = MEPA_RC_ERR_MB_FAIL_RESPONSE;
         } else {
-             T_E(MEPA_TRACE_GRP_GEN, "%s Wrong packet received (%d), expected (%d)", \
+            T_E(MEPA_TRACE_GRP_GEN, "%s Wrong packet received (%d), expected (%d)", \
                 __FUNCTION__, (recvPkt->u8PktId - 0x80), eRESET_KR_LOG_MEMORY);
             rc = MEPA_RC_ERR_MB_CMD_PROTO_NO_SYNC;
         }

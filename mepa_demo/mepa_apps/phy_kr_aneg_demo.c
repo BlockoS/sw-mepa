@@ -1731,11 +1731,10 @@ void processKrLogging(struct mepa_device *dev, phy_kr_log_sel_t *mreq, mepa_port
 
     }
 
-
     if (mreq->all) {
         if (fileHandlePortKRAll != NULL) {
             fclose(fileHandlePortKRAll);
-            fileHandlePortKRAll = NULL; // Optional: avoid double close
+            fileHandlePortKRAll = NULL; 
         }
 
         char *PortKRStatusbuffer = NULL;

@@ -2261,13 +2261,6 @@ mepa_rc lan80xx_KRLog_Enable(const mepa_device_t *dev, mepa_bool_t bkrlog_enable
     uint16_t u16PktLen = 0, u16PayloadLen = 0x00;
     uint8_t  byKRportsToEnable = 0, KRNOfports = 0;
 
-    phy25g_phy_state_t *data = (phy25g_phy_state_t *) dev->data;
-    mepa_device_t *base_dev;
-    phy25g_phy_state_t *base_data;
-    LAN80XX_BASE_DEV(data, base_dev, base_data);
-
-    T_D(MEPA_TRACE_GRP_GEN, "Enabling KR Log on port : %d, channel id: %d, kr log enabled ports: %x\n\n", data->port_no, data->channel_id, base_data->krlog_en_ports);
-
     T_I(MEPA_TRACE_GRP_GEN, "%s", __FUNCTION__);
     if (!dev) {
         T_E(MEPA_TRACE_GRP_GEN, "No device found!");
@@ -2275,35 +2268,36 @@ mepa_rc lan80xx_KRLog_Enable(const mepa_device_t *dev, mepa_bool_t bkrlog_enable
         return rc;
     }
 
-    // Step 1: Create Packet
+    phy25g_phy_state_t *data = (phy25g_phy_state_t *) dev->data;
+    mepa_device_t *base_dev;
+    phy25g_phy_state_t *base_data;
+    LAN80XX_BASE_DEV(data, base_dev, base_data);
+
+    T_D(MEPA_TRACE_GRP_GEN, "Enabling KR Log on port : %d, channel id: %d, kr log enabled ports: %x\n\n", data->port_no, data->channel_id, base_data->krlog_en_ports);
+    
     // Check if KR Log Maximum port supported (4 - host + line)
     byKRportsToEnable = base_data->krlog_en_ports;
 
-    if (bline_port_en & bhost_port_en) {
-        if (bkrlog_enable) {
-            byKRportsToEnable |= (1 << data->channel_id) | (1 << (data->channel_id + 4));
-        } else {
-            byKRportsToEnable &= ~((1 << data->channel_id) | (1 << (data->channel_id + 4)));;
-        }
-
-    } else if (bline_port_en) {
+    if (bline_port_en) {
         if (bkrlog_enable) {
             byKRportsToEnable |= (1 << data->channel_id);
         } else {
             byKRportsToEnable &= ~(1 << data->channel_id);
         }
-    } else if (bhost_port_en) {
+    } 
+    if (bhost_port_en) {
         if (bkrlog_enable) {
             byKRportsToEnable |= (1 << (data->channel_id + 4));
         } else {
             byKRportsToEnable &= ~(1 << (data->channel_id + 4));
         }
     }
+    au8CmdParam[0] = byKRportsToEnable;
+
     if (!bkrlog_enable) {
         base_data->krlog_en_ports = byKRportsToEnable;
         return rc;
     }
-    au8CmdParam[0] = byKRportsToEnable;
 
     while (byKRportsToEnable != 0) {
         byKRportsToEnable = byKRportsToEnable & (byKRportsToEnable - 1);
@@ -2324,6 +2318,7 @@ mepa_rc lan80xx_KRLog_Enable(const mepa_device_t *dev, mepa_bool_t bkrlog_enable
         return rc;
     }
 
+    // Step 1: Create Packet
     u16PktLen = lan80xx_CreatePacket(eENABLE_KR_LOG, 1, au8CmdBuffer, au8CmdParam, RESERVED_ID);
 
     // Step 2: Send Request Packet
@@ -2364,22 +2359,29 @@ mepa_rc lan80xx_KRLog_Enable(const mepa_device_t *dev, mepa_bool_t bkrlog_enable
     return rc;
 }
 
-mepa_rc lan80xx_KRLog_Reset(const mepa_device_t *dev, uint32_t u32RamAddr, uint16_t u16Len)
+mepa_rc lan80xx_KRLog_Reset(const mepa_device_t *dev, uint32_t u32KRLogOffset, uint16_t u16Len)
 {
     mepa_rc rc = MEPA_RC_OK;
     uint8_t au8CmdBuffer[32] = { 0 };
     uint8_t au8CmdParam[8] = { 0 };
     uint16_t u16PktLen = 0, u16PayloadLen = 0x00;
 
-    T_D(MEPA_TRACE_GRP_GEN, "Sending RESET KR Log Memory at address:%2X, length: %2X \n\n", u32RamAddr, u16Len);
     T_I(MEPA_TRACE_GRP_GEN, "%s", __FUNCTION__);
+
+    if (!dev) {
+        T_E(MEPA_TRACE_GRP_GEN, "No device found!");
+        rc = MEPA_RC_ERR_PARM;
+        return rc;
+    }
+
+    T_D(MEPA_TRACE_GRP_GEN, "Sending RESET KR Log Memory at address:%2X, length: %2X \n\n", u32KRLogOffset, u16Len);
 
     // Step 1: Create Packet for Device Info
     /* 32 bit address */
-    au8CmdParam[0] = (u32RamAddr) & 0xff;
-    au8CmdParam[1] = (u32RamAddr >> 8) & 0xff;
-    au8CmdParam[2] = (u32RamAddr >> 16) & 0xff;
-    au8CmdParam[3] = (u32RamAddr >> 24) & 0xff;
+    au8CmdParam[0] = (u32KRLogOffset) & 0xff;
+    au8CmdParam[1] = (u32KRLogOffset >> 8) & 0xff;
+    au8CmdParam[2] = (u32KRLogOffset >> 16) & 0xff;
+    au8CmdParam[3] = (u32KRLogOffset >> 24) & 0xff;
     /*16 bit length */
     au8CmdParam[4] = (u16Len) & 0xFF;
     au8CmdParam[5] = (u16Len >> 8) & 0xFF;

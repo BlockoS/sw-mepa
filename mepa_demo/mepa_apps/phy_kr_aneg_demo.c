@@ -1711,6 +1711,7 @@ void processKrLogging(struct mepa_device *dev, phy_kr_log_sel_t *mreq, mepa_port
                     fileHandlePortKRAll = fopen(szFileNamePortKRStatusAll, "w");
                     if (fileHandlePortKRAll == NULL) {
                         T_E("Error in file open\n");
+                        fclose(file);
                         return;
                     }
                     fprintf(fileHandlePortKRAll, "BER State: BGT_MIN - BER_GO_TO_MIN, BER_CALC - BER_CALCULATE_BER, BMT_MM - BER_MOVE_TO_MID_MARK, BLRXT - BER_LOCAL_RX_TRAINED\n");
@@ -1742,6 +1743,7 @@ void processKrLogging(struct mepa_device *dev, phy_kr_log_sel_t *mreq, mepa_port
 
         if (PortKRStatusbuffer == NULL) {
             T_E("Memory allocation failed\n");
+            fclose(file);
             return;
         }
 

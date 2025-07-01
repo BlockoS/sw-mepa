@@ -1562,6 +1562,7 @@ void processKrLogging(struct mepa_device *dev, phy_kr_log_sel_t *mreq, mepa_port
             prev_Timestamp_value = asANEGLog.timestamp;
 
             if (!bHeaderUpdate) {
+                cli_printf("\nPort : %d %s\n", port_no, side);
                 cli_printf("\nS-Selector, EN-Echoed Nonce, PA-Pause Ability, TN - Transmitted nonce, FC - FEC Capability\n\n");
                 cli_printf("\n%-3s %-10s %-10s %-20s %-20s %-10s %-10s %-10s %-10s %-10s %-10s\n",
                            "S.No", "TimeStamp", "Delta", "IRQ", "Statemachine",
@@ -1666,6 +1667,7 @@ void processKrLogging(struct mepa_device *dev, phy_kr_log_sel_t *mreq, mepa_port
             // Format and print the log entry
             if (mreq->irq) {
                 if (!bHeaderUpdate) {
+                    cli_printf("\nPort : %d %s\n", port_no, side);
                     cli_printf("\n%-5s %-20s %-20s %-30s %-20s\n", "S.No", "TimeStamp", "Delta", "IRQ", "Statemachine");
                     cli_printf("---------------------------------------------------------------------------------------------\n");
 
@@ -1678,6 +1680,7 @@ void processKrLogging(struct mepa_device *dev, phy_kr_log_sel_t *mreq, mepa_port
             }
             if (mreq->ber) {
                 if (!bHeaderUpdate) {
+                    cli_printf("\nPort : %d %s\n", port_no, side);
                     cli_printf("\nRx LPS: KRCNU - KR_COEF_NOT_UPDATED, KRCU - KR_COEF_UPDATED, KRCM - KR_COEF_MINIMUM, KRCX - KR_COEF_MAXIMUM\n\n");
                     cli_printf("\n%-5s %-20s %-20s %-20s %-20s %-20s %-20s\n", "S.No", "RxTAP", "RxLPS", "TxLPC", "BER State", "Timestamp", "IRQ's");
                     cli_printf("----------------------------------------------------------------------------------------------------------------------------\n");
@@ -1691,6 +1694,7 @@ void processKrLogging(struct mepa_device *dev, phy_kr_log_sel_t *mreq, mepa_port
             }
             if (mreq->eq) {
                 if (!bHeaderUpdate) {
+                    cli_printf("\nPort : %d %s\n", port_no, side);
                     cli_printf("\n%-5s %-20s %-20s %-20s %-20s %-20s %-20s %-20s\n", "S.No", "TAP(LP)", "CMD(LP)", "CM1(LD)", "Ampl(LD)", "CP1(LD)", "Status(LD)", "TimeStamp");
                     cli_printf("----------------------------------------------------------------------------------------------------------------------------------------------\n");
 
@@ -1703,6 +1707,7 @@ void processKrLogging(struct mepa_device *dev, phy_kr_log_sel_t *mreq, mepa_port
             }
             if (mreq->all) {
                 if (!bHeaderUpdate) {
+                    cli_printf("\nPort : %d %s\n", port_no, side);
                     fileHandlePortKRAll = fopen(szFileNamePortKRStatusAll, "w");
                     if (fileHandlePortKRAll == NULL) {
                         T_E("Error in file open\n");
@@ -1853,21 +1858,21 @@ void processKrLogging(struct mepa_device *dev, phy_kr_log_sel_t *mreq, mepa_port
                 "ANEG Completed : %s \n"
                 "Speed : %s \n"
                 "R-FEC (CL-74) : %s \n"
-                "RS-FEC (CL-108) : %s \n"
+                "RS-FEC (CL-108) : %s \n\n"
                 "Training Results: \n"
                 "LP CM1 MAX/END : %d/%d \n"
                 "LP C0  MAX/END : %d/%d \n"
                 "LP CP1 MAX/END : %d/%d \n"
                 "Eye Height CM1 : %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d \n"
                 "Eye Height C0 : %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d \n"
-                "Eye Height CP1 : %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d \n"
+                "Eye Height CP1 : %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d \n\n"
                 "LD CM (tap_dly) : %d \n"
                 "LD C0 (amplitude) : %d \n"
-                "LD CP (tap_adv) : %d \n"
+                "LD CP (tap_adv) : %d \n\n"
                 "LD VGA : %d \n"
                 "LD EDC : %d \n"
-                "LD EQR : %d \n"
-                "FEC Corr./Uncor.  : %d/%d \n"
+                "LD EQR : %d \n\n"
+                "FEC Corr./Uncor.  : %d/%d \n\n"
                 "Current eye height : %d \n"
                 "Training time : %d micro seconds\n"
                 "Training status : %s\n"
@@ -2039,7 +2044,6 @@ static void cli_cmd_phy_kr_logging(cli_req_t *req)
         // Check if logging is enabled for the line side of the port
         if (mreq->line_port == 1) {
             if (u8KRLogEnabledPorts & (1 << data->channel_id)) {
-                cli_printf("\nPort : %d LINE\n", iport);
                 if (mreq->clr) {
                     if ((rc = lan80xx_KRLog_Reset(meba_phy_kr_inst->phy_devices[iport], lineMemory[iport], u16DataLength )) != MEPA_RC_OK) {
                         T_E("Failed to Reset KR Log Memory Address: %x, length: %x\n", lineMemory[iport], u16DataLength);
@@ -2057,7 +2061,6 @@ static void cli_cmd_phy_kr_logging(cli_req_t *req)
 
         if (mreq->host_port == 1) {
             if (u8KRLogEnabledPorts & (1 << (data->channel_id + 4))) {
-                cli_printf("\nPort : %d HOST\n", iport);
                 if (mreq->clr) {
                     if ((rc = lan80xx_KRLog_Reset(meba_phy_kr_inst->phy_devices[iport], hostMemory[iport], u16DataLength )) != MEPA_RC_OK) {
                         T_E("Failed to Reset KR Log Memory Address: %x, length: %x\n", hostMemory[iport], u16DataLength);

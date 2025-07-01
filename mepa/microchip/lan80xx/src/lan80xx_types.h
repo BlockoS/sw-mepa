@@ -271,6 +271,7 @@ typedef struct phy25g_state_s {
     lan80xx_phy_ts_fifo_read        ts_fifo_cb;
     void                            *cntxt;
     phy25g_gpio_read_t              ft_gpio_read;
+    mepa_port_no_t                  krlog_en_ports;
 } phy25g_phy_state_t;
 
 

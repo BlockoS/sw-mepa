@@ -249,3 +249,90 @@ NOTE: If 'disable' is along with advertisement abilities, then KR ANEG will be s
 
 NOTE: Next page 'np' feature to work / handle for HCD calculation, the 'fw-res' must be enabled.
 
+=== ANEG/KR Logging
+ANEG/KR logging captures the detailed information about the auto-negotiation and link training process on KR Ethernet links. 
+
+To get KR Logging User needs to flash `.ext4` image on eMMC flash, the application will not work with `.itb` image because it doesn't 
+have the Linux File System. To save KR status log we use .log file format in Linux File System.
+
+
+==== Enable ANEG/KR Logging
+To enable logging, the below command can be used.
+
+	mepa-cmd Phy kr_log enable <port_list> [host] [line]
+
+Example: 
+----
+mepa-cmd phy kr_log enable 3 host line
+----
+
+NOTE: KR logging is supported maximum of 4 Ports (line, host)
+
+==== Get KR Logging status
+To get ANEG/KR status log below command can be used.
+
+	mepa-cmd Phy kr_log status <port_list> [host] [line] [aneg|eq|ber|irq|all|clr]
+
+Example 1: To get ANEG log
+----
+mepa-cmd phy kr_log status 3 line aneg
+----
+
+NOTE: Executing this command will generate Port_KR_Log_Memory_Dump (.log) and Port_KR_Status_ANEG (.log) files 
+inside /mepa_scripts folder for selected ports
+
+Example 2: To get KR Equalizers status Log
+----
+mepa-cmd phy kr_log status 3 line eq
+----
+
+NOTE: Executing this command will generate Port_KR_Log_Memory_Dump (.log) and Port_KR_Status_EQ (.log) files 
+inside /mepa_scripts folder for selected ports
+
+Example 3: To get KR BER status Log
+----
+mepa-cmd phy kr_log status 3 line ber
+----
+
+NOTE: Executing this command will generate Port_KR_Log_Memory_Dump (.log) and Port_KR_Status_BER (.log) files 
+inside /mepa_scripts folder for selected ports
+
+Example 4: To get KR IRQ status Log
+----
+mepa-cmd phy kr_log status 3 line irq
+----
+
+NOTE: Executing this command will generate Port_KR_Log_Memory_Dump (.log) and Port_KR_Status_IRQ (.log) files 
+inside /mepa_scripts folder for selected ports
+
+Example 5: To get over all ANEG/KR summary status
+----
+mepa-cmd phy kr_log status 3 line all
+----
+
+NOTE: Executing this command will generate Port_KR_Log_Memory_Dump (.log), Port_KR_Status_Summary (.log) and 
+Port_KR_Status_All (.log) files inside /mepa_scripts folder for selected ports
+
+==== Clear KR Log RAM memory
+To Reset KR Logging RAM Memory, below command can be used.
+
+	mepa-cmd Phy kr_log status <port_list> [host] [line] clr
+
+Example:
+----
+mepa-cmd Phy kr_log status 3 host line clr
+----
+
+==== Disable KR Logging
+To disable logging, the below command can be used.
+
+	mepa-cmd Phy kr_log disable <port_list> [host] [line]
+
+Example:
+---- 
+	mepa-cmd phy kr_log disable 3,4 host line
+----
+
+
+
+

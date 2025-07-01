@@ -465,4 +465,9 @@ mepa_rc lan80xx_check_mcu_rdy(mepa_device_t *dev);
 mepa_rc lan80xx_get_serdes_config(const mepa_device_t *dev, SD_CFG_SPEED_IDX_t speed, eSERDES_CFG_T cfgType, __SERDES_CONFIG_T *const data);
 mepa_rc lan80xx_set_serdes_config(const mepa_device_t *dev, SD_CFG_SPEED_IDX_t speed, eSERDES_CFG_T cfgType, const __SERDES_CONFIG_T *data);
 
+
+// kr logging
+mepa_rc lan80xx_KRLog_Enable(const mepa_device_t *dev, mepa_bool_t bkrlog_enable, mepa_bool_t bline_port_en, mepa_bool_t  bhost_port_en);
+mepa_rc lan80xx_KRLog_Reset(const mepa_device_t *dev, uint32_t u32RamAddr, uint16_t u16Len);
+
 #endif //  end of _LAN80XX_MCU_H_

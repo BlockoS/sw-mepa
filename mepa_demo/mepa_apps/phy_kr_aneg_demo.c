@@ -14,6 +14,8 @@
 #include "lan80xx.h"
 #include <unistd.h>
 #include "lan80xx_mcu.h"
+#include "phy_kr_aneg_demo.h"
+
 
 meba_inst_t meba_phy_kr_inst;
 
@@ -56,6 +58,23 @@ typedef struct phy_sd_cli_req {
     uint8_t    speed_idx;
 
 } phy_sd_cli_req_t;
+
+typedef struct phy_kr_log_sel {
+    // Fields for KR Log state
+    mesa_bool_t krlog_enable;
+
+    // Fields for Port Select
+    mesa_bool_t host_port;
+    mesa_bool_t line_port;
+
+    // Fields for Log Select
+    mesa_bool_t aneg;
+    mesa_bool_t eq;
+    mesa_bool_t ber;
+    mesa_bool_t irq;
+    mesa_bool_t all;
+    mesa_bool_t clr;
+} phy_kr_log_sel_t;
 
 ////////////////////////////////////////////////////////////
 /////////////////   CLI Command functions   ////////////////
@@ -667,6 +686,1341 @@ static void cli_cmd_phy_kr(cli_req_t *req)
     }
     return;
 }
+static void phy_kr_log_enable_disable (cli_req_t *req)
+{
+    phy_kr_log_sel_t *mreq = req->module_req;
+    mepa_rc rc = MEPA_RC_OK;
+    mepa_port_no_t  port_no = 0;
+    
+    for (int iport = 0; iport < meba_phy_kr_inst->phy_device_cnt - 1; iport++) {
+        port_no = iport2uport(iport);
+        if (req->port_list[port_no] == 0) {
+            continue;
+        }
+        if (!meba_phy_kr_inst->phy_devices[iport]) {
+            cli_printf(" Dev is Not Created for the port : %d\n", iport);
+            return;
+        }
+
+        if((rc = lan80xx_KRLog_Enable(meba_phy_kr_inst->phy_devices[iport], mreq->krlog_enable, mreq->line_port, mreq->host_port)) != MEPA_RC_OK) {
+            if(mreq->line_port)
+            {
+                if(mreq->krlog_enable) {
+                    T_E("KR Log Enable Failed for Line side Port %d\n", iport);
+                } else {
+                    T_E("KR Log Disable Failed for Line side Port %d\n", iport);
+                }
+            }
+            if(mreq->host_port)
+            {
+                if(mreq->krlog_enable) {   
+                    T_E("KR Log Enable Failed for host side Port %d\n", iport);
+                } else {
+                    T_E("KR Log Disable for host side Port %d\n", iport);
+                }
+            }
+            return;
+        } else {
+            if(mreq->line_port)
+            {
+                if(mreq->krlog_enable) {
+                    cli_printf("\n KR Log Enable Success for Line side Port %d\n", iport);
+                } else {
+                    cli_printf("\n KR Log Disable Success for Line side Port %d\n", iport);
+                }
+            }
+            if(mreq->host_port)
+            {
+                if(mreq->krlog_enable) {
+                    cli_printf("\n KR Log Enable Success for host side Port %d\n", iport);
+                } else {
+                    cli_printf("\n KR Log Disable Success for host side Port %d\n", iport);
+                }
+                
+            }
+        }
+    }   
+    return;
+
+}
+static void cli_cmd_phy_kr_log_disable(cli_req_t *req)
+{
+    phy_kr_log_sel_t *mreq = req->module_req;
+    mreq->krlog_enable = 0;
+    phy_kr_log_enable_disable(req);
+}
+static void cli_cmd_phy_kr_log_enable(cli_req_t *req)
+{
+    phy_kr_log_sel_t *mreq = req->module_req;
+    mreq->krlog_enable = 1;
+    phy_kr_log_enable_disable(req);
+   
+}
+char* converttoenum(const char *input[], int val) {
+    char *output = (char*)malloc(256);
+   if (output == NULL) {
+        // Handle memory allocation failure
+        return NULL;
+    }
+
+    // Copy the selected string into the output buffer
+    strncpy(output, input[val], 256 - 1);
+    output[256 - 1] = '\0'; // Ensure null termination
+
+    return output;
+}
+
+void appendIRQString(char *strValue, uint32_t dummyValue, uint32_t irqMask, int enumIndex) {
+    if (dummyValue & irqMask) {
+        char *sdummyString = converttoenum(enum_irq_string, enumIndex);
+        if (sdummyString != NULL) {
+            if (strValue[0] == '\0') {
+                // strValue is empty, just copy
+                strcat(strValue, sdummyString);
+            } else {
+                // strValue is not empty, append separator and string
+                strcat(strValue, "/");
+                strcat(strValue, sdummyString);
+            }
+            free(sdummyString); // Free the allocated memory
+        }
+    }
+}
+
+char* getIRQ(uint32_t dwIRQ) {
+    char *strValue = (char*)malloc(256);
+    if (strValue == NULL) {
+        // Handle memory allocation failure
+        return NULL;
+    }
+    strValue[0] = '\0'; // Initialize the string
+
+    uint32_t dummyValue = (dwIRQ & 0xFFFFFFFF);
+    appendIRQString(strValue, dummyValue, IRQ_VEC0_AN_RATE, 0);
+    appendIRQString(strValue, dummyValue, IRQ_VEC0_GEN1_DONE, 1);
+    appendIRQString(strValue, dummyValue, IRQ_VEC0_GEN0_DONE, 2);
+    appendIRQString(strValue, dummyValue, IRQ_VEC0_INCP_LINK, 3);
+    appendIRQString(strValue, dummyValue, IRQ_VEC0_NP_RX, 4);
+    appendIRQString(strValue, dummyValue, IRQ_VEC0_NP_FAIL, 5);
+    appendIRQString(strValue, dummyValue, IRQ_VEC0_ACK_FAIL, 6);
+    appendIRQString(strValue, dummyValue, IRQ_VEC0_ABD_FAIL, 7);
+    appendIRQString(strValue, dummyValue, IRQ_VEC0_LINK_FAIL, 8);
+    appendIRQString(strValue, dummyValue, IRQ_VEC0_AN_GOOD, 9);
+    appendIRQString(strValue, dummyValue, IRQ_VEC0_CMPL_ACK, 10);
+    appendIRQString(strValue, dummyValue, IRQ_VEC0_AN_RATE_DET, 11);
+    appendIRQString(strValue, dummyValue, IRQ_VEC0_AN_TRAIN, 12);
+    appendIRQString(strValue, dummyValue, IRQ_VEC1_AN_XMIT_DISABLE, 13);
+    appendIRQString(strValue, dummyValue, IRQ_VEC1_DME_VIOL_1, 14);
+    appendIRQString(strValue, dummyValue, IRQ_VEC1_DME_VIOL_0, 15);
+    appendIRQString(strValue, dummyValue, IRQ_VEC1_FRLOCK_1, 16);
+    appendIRQString(strValue, dummyValue, IRQ_VEC1_FRLOCK_0, 17);
+    appendIRQString(strValue, dummyValue, IRQ_VEC1_REM_RDY_1, 18);
+    appendIRQString(strValue, dummyValue, IRQ_VEC1_REM_RDY_0, 19);
+    appendIRQString(strValue, dummyValue, IRQ_VEC1_BER_BUSY_1, 20);
+    appendIRQString(strValue, dummyValue, IRQ_VEC1_BER_BUSY_0, 21);
+    appendIRQString(strValue, dummyValue, IRQ_VEC1_MW_DONE, 22);
+    appendIRQString(strValue, dummyValue, IRQ_VEC1_WT_DONE, 23);
+    appendIRQString(strValue, dummyValue, IRQ_VEC1_LPCVALID, 24);
+    appendIRQString(strValue, dummyValue, IRQ_VEC1_LPSVALID, 25);
+    appendIRQString(strValue, dummyValue, IRQ_VEC1_KR_ACTV, 26);
+    appendIRQString(strValue, dummyValue, IRQ_VEC1_ACK_FIN, 27);
+    appendIRQString(strValue, dummyValue, IRQ_VEC1_NP_REQ, 28);
+
+    return strValue;
+}
+
+
+char* DecodeBasePage0(uint16_t u16Lp_Bp) {
+    static char str[100]; // Static buffer to hold the decoded string
+    char sdummyString[20]; // Temporary buffer for each string component
+
+    str[0] = '\0'; // Initialize the output string
+
+    int matched = 0; // Flag to check if any condition matched
+    if (u16Lp_Bp & AN_BP0_Selector) {
+        //strcpy(sdummyString, "Selector");
+        strcpy(sdummyString, "S");
+        if (strlen(str) == 0) {
+            strcat(str, sdummyString);
+        } else {
+            strcat(str, "/");
+            strcat(str, sdummyString);
+        }
+        matched = 1;
+    }
+    if (u16Lp_Bp & AN_BP0_Echoed_Nonce) {
+        //strcpy(sdummyString, "Echoed Nonce");
+        strcpy(sdummyString, "EN");
+        if (strlen(str) == 0) {
+            strcat(str, sdummyString);
+        } else {
+            strcat(str, "/");
+            strcat(str, sdummyString);
+        }
+        matched = 1;
+    }
+    if (u16Lp_Bp & AN_BP0_Pause_Ability) {
+        //strcpy(sdummyString, "Pause Ability");
+        strcpy(sdummyString, "PA");
+        if (strlen(str) == 0) {
+            strcat(str, sdummyString);
+        } else {
+            strcat(str, "/");
+            strcat(str, sdummyString);
+        }
+        matched = 1;
+    }
+    if (u16Lp_Bp & AN_BP0_RF) {
+        strcpy(sdummyString, "RF");
+        if (strlen(str) == 0) {
+            strcat(str, sdummyString);
+        } else {
+            strcat(str, "/");
+            strcat(str, sdummyString);
+        }
+        matched = 1;
+    }
+    if (u16Lp_Bp & AN_BP0_Ack) {
+        strcpy(sdummyString, "ACK");
+        if (strlen(str) == 0) {
+            strcat(str, sdummyString);
+        } else {
+            strcat(str, "/");
+            strcat(str, sdummyString);
+        }
+        matched = 1;
+    }
+    if (u16Lp_Bp & AN_BP0_NP) {
+        strcpy(sdummyString, "NP");
+        if (strlen(str) == 0) {
+            strcat(str, sdummyString);
+        } else {
+            strcat(str, "/");
+            strcat(str, sdummyString);
+        }
+        matched = 1;
+    }
+
+    if (!matched) {
+        sprintf(str, "%X", u16Lp_Bp);
+    }
+    return str;
+}
+
+char* DecodeBasePage1(uint16_t u16Lp_Bp) {
+    static char str[100]; // Static buffer to hold the decoded string
+    char sdummyString[20]; // Temporary buffer for each string component
+
+    str[0] = '\0'; // Initialize the output string
+
+    int matched = 0; // Flag to check if any condition matched
+    if (u16Lp_Bp & AN_BP1_Transmitted_Nonce) {
+        //strcpy(sdummyString, "Transmitted Nonce");
+        strcpy(sdummyString, "TN");
+        if (strlen(str) == 0) {
+            strcat(str, sdummyString);
+        } else {
+            strcat(str, "/");
+            strcat(str, sdummyString);
+        }
+        matched = 1;
+    }
+    if (u16Lp_Bp & AN_BP1_TA_1G) {
+        strcpy(sdummyString, "1G");
+        if (strlen(str) == 0) {
+            strcat(str, sdummyString);
+        } else {
+            strcat(str, "/");
+            strcat(str, sdummyString);
+        }
+        matched = 1;
+    }
+    if (u16Lp_Bp & AN_BP1_TA_10G) {
+        strcpy(sdummyString, "10G");
+        if (strlen(str) == 0) {
+            strcat(str, sdummyString);
+        } else {
+            strcat(str, "/");
+            strcat(str, sdummyString);
+        }
+        matched = 1;
+    }
+    if (u16Lp_Bp & AN_BP1_TA_25G) {
+        strcpy(sdummyString, "25G");
+        if (strlen(str) == 0) {
+            strcat(str, sdummyString);
+        } else {
+            strcat(str, "/");
+            strcat(str, sdummyString);
+        }
+        matched = 1;
+    }
+    if (!matched) {
+        sprintf(str, "%X", u16Lp_Bp);
+    }
+    return str;
+}
+
+char* DecodeBasePage2(uint16_t u16Lp_Bp) {
+    static char str[100]; // Static buffer to hold the decoded string
+    char sdummyString[20]; // Temporary buffer for each string component
+
+    str[0] = '\0'; // Initialize the output string
+
+    int matched = 0; // Flag to check if any condition matched
+
+    if (u16Lp_Bp & AN_BP2_FEC_Capability) {
+        //strcpy(sdummyString, "FEC Capability");
+        strcpy(sdummyString, "FC");
+        if (strlen(str) == 0) {
+            strcat(str, sdummyString);
+        } else {
+            strcat(str, "/");
+            strcat(str, sdummyString);
+        }
+        matched = 1;
+    }
+    if (!matched) {
+        sprintf(str, "%X", u16Lp_Bp);
+    }
+    return str;
+}
+
+char* DecodeNextPage1(uint16_t u16Lp_Bp) {
+    static char str[100]; // Static buffer to hold the decoded string
+    char sdummyString[20]; // Temporary buffer for each string component
+
+    str[0] = '\0'; // Initialize the output string
+
+    int matched = 0; // Flag to check if any condition matched
+
+    if (u16Lp_Bp & AN_NP1_25GKR) {
+        strcpy(sdummyString, "25GKR");
+        if (strlen(str) == 0) {
+            strcat(str, sdummyString);
+        } else {
+            strcat(str, "/");
+            strcat(str, sdummyString);
+        }
+        matched = 1;
+    }
+    if (u16Lp_Bp & AN_NP1_25GCR) {
+        strcpy(sdummyString, "25GCR");
+        if (strlen(str) == 0) {
+            strcat(str, sdummyString);
+        } else {
+            strcat(str, "/");
+            strcat(str, sdummyString);
+        }
+        matched = 1;
+    }
+    if (!matched) {
+        sprintf(str, "%X", u16Lp_Bp);
+    }
+    return str;
+}
+
+char* DecodeNextPage2(uint16_t u16Lp_Bp) {
+    static char str[100]; // Static buffer to hold the decoded string
+    char sdummyString[20]; // Temporary buffer for each string component
+
+    str[0] = '\0'; // Initialize the output string
+
+    int matched = 0; // Flag to check if any condition matched
+
+    if (u16Lp_Bp & AN_NP2_F1) {
+        strcpy(sdummyString, "F1_FEC");
+        if (strlen(str) == 0) {
+            strcat(str, sdummyString);
+        } else {
+            strcat(str, "/");
+            strcat(str, sdummyString);
+        }
+        matched = 1;
+    }
+    if (u16Lp_Bp & AN_NP2_F2) {
+        strcpy(sdummyString, "F2_FEC");
+        if (strlen(str) == 0) {
+            strcat(str, sdummyString);
+        } else {
+            strcat(str, "/");
+            strcat(str, sdummyString);
+        }
+        matched = 1;
+    }
+    if (u16Lp_Bp & AN_NP2_F3) {
+        strcpy(sdummyString, "F3_FEC");
+        if (strlen(str) == 0) {
+            strcat(str, sdummyString);
+        } else {
+            strcat(str, "/");
+            strcat(str, sdummyString);
+        }
+        matched = 1;
+    }
+    if (u16Lp_Bp & AN_NP2_F4) {
+        strcpy(sdummyString, "F4_FEC");
+        if (strlen(str) == 0) {
+            strcat(str, sdummyString);
+        } else {
+            strcat(str, "/");
+            strcat(str, sdummyString);
+        }
+        matched = 1;
+    }
+    if (!matched) {
+        sprintf(str, "%X", u16Lp_Bp);
+    }
+    return str;
+}
+char* getTap(uint32_t u32LD_TAPRecieved) {
+
+    switch(u32LD_TAPRecieved){
+        case eKR_COEF_CM1:
+            return "CM1";
+        case eKR_COEF_C0:
+            return "C0";
+        case eKR_COEF_CP1:
+            return "CP1";
+        case eKR_COEF_INIT:
+            return "INIT";
+        default:
+            return "PRESET";
+    }
+}
+
+char* getStatusReportSentToLP(uint32_t u32StatusReportSentToLP) {
+    switch (u32StatusReportSentToLP) {
+        case KR_COEF_NOT_UPDATED:
+            return "KRCNU";
+        case KR_COEF_UPDATED:
+            return "KRCU";
+        case KR_COEF_MINIMUM:
+            return "KRCM";
+        case KR_COEF_MAXIMUM:
+            return "KRCX ";
+        default:
+            return "UNKNOWN";
+    }
+}
+
+char* getCommandReceived(KR_Log *log) {
+    if (log->LD_TAPRecieved == eKR_COEF_INIT) {
+        return "INIT";
+    }
+
+    switch (log->LD_CommandReceived) {
+        case eKR_COEF_INCR:
+            return "INCR";
+        case eKR_COEF_DECR:
+            return "DECR";
+        case eKR_COEF_HOLD:
+            return "HOLD";
+        default:
+            return "UNKNOWN";
+    }
+}
+
+char* getCommandBER(uint32_t u32BER_STATE) {
+    switch(u32BER_STATE) {
+        case BER_GO_TO_MIN:
+            return "BGT_MIN";
+        case BER_CALCULATE_BER:
+            return "BER_CAL";
+        case BER_MOVE_TO_MID_MARK:
+            return "BMT_MM";
+        default:
+            return "BLRXT";
+    }
+}
+void LogEntryAll(FILE *file, int rowNo, KR_Log *log, unsigned int delta) {
+    
+    fprintf(file,"%-5d %-10u %-10d %-30s %-30s %-10s %-10s %-10d %-10d %-10d %-20s %-20s %-20u %-20u %-20u %-20u\n",
+        rowNo,
+        log->timestamp,
+        delta,
+        getIRQ(log->IRQ),
+        converttoenum(enum_state_machine_string, log->Statemachine),
+        getTap(log->LD_TAPRecieved),
+        getCommandReceived(log),
+        log->CM1,
+        log->C0,
+        log->CP1,
+        getCommandBER(log->BER_STATE),
+        getStatusReportSentToLP(log->StatusReportSentToLP),
+        log->EYE_HIGHT,
+        log->CommandSentToLP,
+        log->TAPSentToLP,
+        log->StatusReportReceivedFromLP);
+}
+void LogEntryBER(FILE *file, int rowNo, KR_Log *log)
+{
+    // Print to console
+    cli_printf("%-5d %-20s %-20s %-20s %-20s %-20u %-20s\n",
+        rowNo,
+        getTap(log->LD_TAPRecieved),
+        getStatusReportSentToLP(log->StatusReportSentToLP),
+        getCommandReceived(log),
+        getCommandBER(log->BER_STATE),
+        log->timestamp,
+        getIRQ(log->IRQ));
+
+    // Write to file
+    fprintf(file,"%-5d %-20s %-20s %-30s %-20s\n",
+        rowNo,
+        getTap(log->LD_TAPRecieved),
+        getStatusReportSentToLP(log->StatusReportSentToLP),
+        getCommandReceived(log),
+        getIRQ(log->IRQ));
+}
+void LogEntryIRQ(FILE *file, int rowNo, KR_Log *log, unsigned int delta)
+{
+    // Print to console
+    cli_printf("%-5d %-20u %-20d %-30s %-20s\n",
+        rowNo,
+        log->timestamp,
+        delta,
+        getIRQ(log->IRQ),
+        converttoenum(enum_state_machine_string, log->Statemachine));
+
+    // Write to file
+    fprintf(file, "%-5d %-20u %-20d %-30s %-20s\n",
+        rowNo,
+        log->timestamp,
+        delta,
+        getIRQ(log->IRQ),
+        converttoenum(enum_state_machine_string, log->Statemachine));
+}
+
+void LogEntryEQ(FILE *file, int rowNo, KR_Log *log)
+{
+    // Print to console
+    cli_printf("%-5d %-20s %-20s %-20d %-20d %-20d %-20s %-20u\n",
+        rowNo,
+        getTap(log->LD_TAPRecieved),
+        getCommandReceived(log),
+        log->CM1,
+        log->C0,
+        log->CP1,
+        getStatusReportSentToLP(log->StatusReportSentToLP),
+        log->timestamp
+        );
+
+    // Write to file
+    fprintf(file, "%-5d %-20s %-20s %-20d %-20d %-20d %-20s %-20u\n",
+        rowNo,
+        getTap(log->LD_TAPRecieved),
+        getCommandReceived(log),
+        log->CM1,
+        log->C0,
+        log->CP1,
+        getStatusReportSentToLP(log->StatusReportSentToLP),
+        log->timestamp);
+}
+
+void LogEntryANEG(FILE *file, int rowNo, ANEG_Log *log, unsigned int delta) {
+    // Print to console
+    cli_printf("%-3d %-10u %-10u %-20s %-20s %-10s %-10s %-10s %-10s %-10s %-10s\n",
+           rowNo,
+           log->timestamp,
+           delta,
+           getIRQ(log->IRQ),
+           converttoenum(enum_state_machine_string, log->Statemachine),
+           DecodeBasePage0(log->LPage_BP0),
+           DecodeBasePage1(log->LPage_BP1),
+           DecodeBasePage2(log->LPage_BP2),
+           DecodeNextPage1(log->LPage_NP0),
+           DecodeNextPage2(log->LPage_NP1),
+           DecodeNextPage2(log->LPage_NP2));
+
+
+    // Write to file
+    fprintf(file, "%-3d %-10u %-10u %-20s %-20s %-10s %-10s %-10s %-10s %-10s %-10s\n",
+            rowNo,
+            log->timestamp,
+            delta,
+            getIRQ(log->IRQ),
+            converttoenum(enum_state_machine_string, log->Statemachine),
+            DecodeBasePage0(log->LPage_BP0),
+            DecodeBasePage1(log->LPage_BP1),
+            DecodeBasePage2(log->LPage_BP2),
+            DecodeNextPage1(log->LPage_NP0),
+            DecodeNextPage2(log->LPage_NP1),
+            DecodeNextPage2(log->LPage_NP2));
+}
+
+char* HexToStr(const uint8_t* bytes, int length) {
+    int bufferSize = length * 3 + 1; // Calculate required buffer size
+    char* hexStr = (char*)malloc(bufferSize);
+    if (hexStr == NULL) {
+        fprintf(stderr, "Memory allocation failed\n");
+        return NULL;
+    }
+
+    char* ptr = hexStr;
+    for (int i = 0; i < length; i++) {
+        ptr += sprintf(ptr, "%02X ", bytes[i]);
+    }
+
+    if (length > 0) {
+        *(ptr - 1) = '\0'; // Null-terminate the string
+    }
+    
+    return hexStr;
+}
+
+
+void SaveMemoryBytesToFile(FILE *file, uint8_t* bytes, uint16_t wLen, uint32_t memAddr) {
+    char szMessage[4096];
+    uint8_t abyNewLine[2] = { 0x0D, 0x0A };
+
+    // Write bytes to file as 16-byte chunks with address value for each chunk
+    int i = 0, j = 16;
+    while (wLen > i) {
+        if ((wLen - i) < 16)
+            j = wLen - i;
+
+        // Convert bytes to hex string
+        char* hexString = HexToStr(&bytes[i], j);
+        if (hexString == NULL) {
+            fprintf(stderr, "Failed to convert bytes to hex string\n");
+            return; // Handle error appropriately
+        }
+
+        snprintf(szMessage, sizeof(szMessage), "0x%08x : %s", memAddr + i, hexString);
+
+        fwrite(szMessage, 1, strlen(szMessage), file);
+        fwrite(abyNewLine, 1, sizeof(abyNewLine), file);
+
+        // Free the allocated memory for hexString
+        free(hexString);
+
+        i += 16;
+    }
+}
+void little_to_big_endian(uint8_t* buffer, int size) {
+	for (int i = 0; i < size / 2; i++) {
+		uint8_t temp = buffer[i];
+		buffer[i] = buffer[size - i - 1];
+		buffer[size - i - 1] = temp;
+	}
+}
+int findMax(int arr[], int n) {
+	int max = arr[0];
+	for (int i = 1; i < n; i++)
+		if (arr[i] > max)
+			max = arr[i];
+	return max;
+}
+
+int findMin(int arr[], int n) {
+	int min = arr[0];
+	for (int i = 1; i < n; i++)
+		if (arr[i] < min)
+			min = arr[i];
+	return min;
+}
+/*
+u8Line_host - 0 - line, 1 - host
+*/
+void processKrLogging(struct mepa_device *dev, phy_kr_log_sel_t *mreq, mepa_port_no_t port_no, uint8_t u8Line_host, uint32_t u32MemReadAddress, uint16_t u16DataLength) {
+
+    KR_Log asKRLog;
+    memset(&asKRLog, 0, sizeof(KR_Log));
+
+    KR_Summary_Log asKRSummaryLog;
+    memset(&asKRSummaryLog, 0, sizeof(KR_Summary_Log));
+
+    ANEG_Log asANEGLog;
+    memset(&asANEGLog, 0, sizeof(ANEG_Log));
+
+    mepa_rc rc = MESA_RC_OK;
+
+    char szFileNamePortKRStatus[256];
+    char szFileNamePortKRStatusAll[256];
+    FILE *fileHandlePortKRAll = NULL;
+
+    const char *side = (u8Line_host == 0) ? "LINE" : "HOST";
+    if(mreq->eq)
+    {
+        snprintf(szFileNamePortKRStatus, sizeof(szFileNamePortKRStatus), "/root/mepa_scripts/Port_KR_Status_EQ_%s_PORT%d.log", side, port_no);
+    }
+    else if(mreq->ber)
+    {
+        snprintf(szFileNamePortKRStatus, sizeof(szFileNamePortKRStatus), "/root/mepa_scripts/Port_KR_Status_BER_%s_PORT%d.log", side, port_no);
+    }
+    else if(mreq->irq)
+    {
+        snprintf(szFileNamePortKRStatus, sizeof(szFileNamePortKRStatus), "/root/mepa_scripts/Port_KR_Status_IRQ_%s_PORT%d.log", side, port_no);
+    } else if(mreq->all)
+    {
+        snprintf(szFileNamePortKRStatus, sizeof(szFileNamePortKRStatus), "/root/mepa_scripts/Port_KR_Status_Summary_%s_PORT%d.log", side, port_no);
+        snprintf(szFileNamePortKRStatusAll, sizeof(szFileNamePortKRStatusAll), "/root/mepa_scripts/Port_KR_Status_All_%s_PORT%d.log", side, port_no);
+    } else if(mreq->aneg)
+    {
+        snprintf(szFileNamePortKRStatus, sizeof(szFileNamePortKRStatus), "/root/mepa_scripts/Port_KR_Status_ANEG_%s_PORT%d.log", side, port_no);
+    }
+    
+
+    int rowNo = 0;
+	unsigned int Delta = 0;
+	int isCP1 = 0;
+	int isC0  = 0;
+	int prev_Timestamp_value = 0;
+	int arrcm1[3001] = { 0 };
+	int arrc0[3001] = {0};
+	int arrcp1[3001]={0};
+	int aEYEHTCM1[3001] = {0};
+	int aEYEHTCP1[3001] = { 0 };
+	int aEYEHTC0[3001] = {0};
+	int ixe=0,iye=0,ize=0;
+	uint8_t isLogAvailable = 0;
+	uint8_t istimestampAvailable = 0;
+	int timestamp0 = 0, timestamp1 = 0;
+
+    // Read from memory
+    uint16_t u16DataLen = 0;
+    uint8_t u8DataBuffer[MAX_MEMRW_DATA_LEN];
+
+    uint8_t pu8DataBuffer[u16DataLength];
+
+    uint32_t u32MemAddr = u32MemReadAddress;
+    u16DataLen = MAX_MEMRW_DATA_LEN;
+    uint16_t u16Temp = u16DataLength;
+    int i=0;
+    while (u16Temp)
+	{
+        rc = lan80xx_memory_read(dev, u32MemAddr, u8DataBuffer, u16DataLen);
+        if(rc != MESA_RC_OK)
+        {
+            T_E(" Read Failed Address: 0x%x, Length: 0x%x  \n", u32MemAddr, u16DataLen);
+            break;
+        }
+
+        memcpy(&pu8DataBuffer[i], u8DataBuffer, u16DataLen);
+        
+        u32MemAddr += MAX_MEMRW_DATA_LEN;
+        i +=u16DataLen;
+
+        u16Temp = u16Temp - u16DataLen;
+		if (u16Temp < MAX_MEMRW_DATA_LEN)
+		{
+			u16DataLen = u16Temp;
+		}
+    }
+
+    char szFileNamePortKRLogMemoryDump[256];
+
+    // Format the file name
+    snprintf(szFileNamePortKRLogMemoryDump, sizeof(szFileNamePortKRLogMemoryDump), "/root/mepa_scripts/Port_KR_Log_Memory_Dump_%s_PORT%d.log", side, port_no);
+
+    // Open the file for writing
+    FILE *fileHandlePortKRLogMemoryDump = fopen(szFileNamePortKRLogMemoryDump, "wb");
+    if (fileHandlePortKRLogMemoryDump == NULL) {
+        // Handle error if file cannot be opened
+        perror("Failed to open file");
+        return;
+    }
+
+    // Save memory bytes to the file
+    SaveMemoryBytesToFile(fileHandlePortKRLogMemoryDump, pu8DataBuffer,u16DataLength, u32MemReadAddress);
+
+    // Close the file
+    fclose(fileHandlePortKRLogMemoryDump);
+
+    FILE *file = fopen(szFileNamePortKRStatus, "w");
+    if (file == NULL) {
+        T_E("Error in file open\n");
+        return;
+    }
+
+    mepa_bool_t bHeaderUpdate = 0;
+    int ischecktime = 0;
+    if(mreq->aneg)
+    {
+        for (int j = 0; j < (u16DataLength);)
+        {
+            memcpy((uint32_t*)&asANEGLog, &pu8DataBuffer[j], sizeof(ANEG_Log));
+            if (asANEGLog.IRQ & 0xC0017FCF)
+            {
+                //No Operation
+            }
+            else
+            {
+                j += sizeof(KR_Log);
+                continue;
+            }
+            Delta = (j == 0) ? 0 : (asANEGLog.timestamp - prev_Timestamp_value);
+            prev_Timestamp_value = asANEGLog.timestamp;
+
+            if(!bHeaderUpdate) {
+                cli_printf("\nS-Selector, EN-Echoed Nonce, PA-Pause Ability, TN - Transmitted nonce, FC - FEC Capability\n\n");
+                cli_printf("\n%-3s %-10s %-10s %-20s %-20s %-10s %-10s %-10s %-10s %-10s %-10s\n",
+                "S.No", "TimeStamp", "Delta", "IRQ", "Statemachine",
+                "LP_BP0", "LP_BP1", "LP_BP2", "LP_NP0", "LP_NP1", "LP_NP2");
+                cli_printf("-----------------------------------------------------------------------------------------------------------------------------------\n");
+
+                fprintf(file, "S-Selector, EN-Echoed Nonce, PA-Pause Ability, TN - Transmitted nonce, FC - FEC Capability\n\n");
+                fprintf(file, "%-3s %-10s %-10s %-20s %-20s %-10s %-10s %-10s %-10s %-10s %-10s\n", 
+                    "S.No", "TimeStamp", "Delta", "IRQ", "Statemachine",
+                    "LP_BP0", "LP_BP1", "LP_BP2", "LP_NP0", "LP_NP1", "LP_NP2");
+                fprintf(file, "-----------------------------------------------------------------------------------------------------------------------------------\n");
+                bHeaderUpdate = 1;
+            }
+            LogEntryANEG(file, rowNo, &asANEGLog, Delta);
+
+            if (asANEGLog.IRQ & 0xC0017FCF)
+            {
+                j += sizeof(ANEG_Log);
+            }
+            else if (asANEGLog.IRQ & 0x18E00000)
+            {
+                j += sizeof(KR_Log);
+            }
+            if (asANEGLog.IRQ & IRQ_VEC0_AN_GOOD)
+            {
+                break;
+            }
+
+            
+            rowNo++;
+        }
+
+    } else {   
+        for (int j = 0; j < (u16DataLength);)
+        {
+            memcpy((uint32_t*)&asKRLog, &pu8DataBuffer[j], sizeof(KR_Log));
+            
+            if ((asKRLog.IRQ & 0x18E00000)) {
+                if (!ischecktime)
+                {
+                    timestamp0 = asKRLog.timestamp;
+                    ischecktime = 1;
+                }
+            }
+            else {
+                memcpy((uint32_t*)&asANEGLog, &pu8DataBuffer[j], sizeof(ANEG_Log));
+                if (asANEGLog.IRQ & IRQ_VEC0_AN_GOOD)
+                {
+                    timestamp1 = asANEGLog.timestamp;
+                    break;
+                }
+                j += sizeof(ANEG_Log);
+                continue;
+            }
+
+            if(asKRLog.timestamp == 0 && istimestampAvailable==0)
+            {
+                isLogAvailable++;
+                if (isLogAvailable == 10)
+                {
+                    cli_printf("No Logs Available\n");
+                    T_E("No Logs available\n");
+                    fprintf(file,"No Logs available\n");
+                    fclose(file);
+                    return;
+                }
+                continue;
+            }
+            
+            if ((asKRLog.LD_CommandReceived == 7) && (asKRLog.LD_TAPRecieved == 7)) {
+                j += sizeof(KR_Log);
+                continue;
+            }
+
+            Delta = (j == 0) ? 0 : (asKRLog.timestamp - prev_Timestamp_value);
+            prev_Timestamp_value = asKRLog.timestamp;
+
+            Delta = (j == 0) ? 0 : (asKRLog.timestamp - prev_Timestamp_value);
+            prev_Timestamp_value = asKRLog.timestamp;
+
+            if (asKRLog.LD_TAPRecieved == eKR_COEF_CM1 && isCP1) {
+                asKRLog.LD_TAPRecieved = eKR_COEF_CP1;
+            }
+            if (asKRLog.LD_TAPRecieved == eKR_COEF_CM1 && isC0) {
+                asKRLog.LD_TAPRecieved = eKR_COEF_C0;
+            }
+            if (asKRLog.LD_TAPRecieved == eKR_COEF_CP1) {
+                isCP1 = 1;
+            }
+            if (asKRLog.LD_TAPRecieved == eKR_COEF_C0) {
+                isC0 = 1;
+                isCP1 = 0;
+            }
+
+            istimestampAvailable = 1;
+            arrcm1[rowNo] = asKRLog.CM1;
+            arrc0[rowNo] = asKRLog.C0;
+            arrcp1[rowNo] = asKRLog.CP1;
+
+            if (asKRLog.BER_STATE == BER_LOCAL_RX_TRAINED)
+            {
+                asKRSummaryLog.wAneg_status |= 0x80;
+            }
+
+            if ((asKRLog.LD_TAPRecieved == eKR_COEF_CM1) && (asKRLog.IRQ & IRQ_VEC1_LPCVALID))
+            {
+                aEYEHTCM1[ixe++] = asKRLog.EYE_HIGHT;
+            }
+            else if ((asKRLog.LD_TAPRecieved == eKR_COEF_CP1) && (asKRLog.IRQ & IRQ_VEC1_LPCVALID))
+            {
+                aEYEHTCP1[iye++] = asKRLog.EYE_HIGHT;
+            }
+            else if ((asKRLog.LD_TAPRecieved == eKR_COEF_C0) && (asKRLog.IRQ & IRQ_VEC1_LPCVALID))
+            {
+                aEYEHTC0[ize++] = asKRLog.EYE_HIGHT;
+            }
+
+            // Format and print the log entry
+            if(mreq->irq)
+            {
+                if(!bHeaderUpdate)
+                {
+                    cli_printf("\n%-5s %-20s %-20s %-30s %-20s\n", "S.No", "TimeStamp", "Delta", "IRQ", "Statemachine");
+                    cli_printf("---------------------------------------------------------------------------------------------\n");
+
+                    fprintf(file, "%-5s %-20s %-20s %-30s %-20s\n", "S.No", "TimeStamp", "Delta", "IRQ", "Statemachine");
+                    fprintf(file, "----------------------------------------------------------------------------------------\n");
+
+                    bHeaderUpdate = 1;
+                }
+                LogEntryIRQ(file, rowNo, &asKRLog, Delta);
+            }
+            if(mreq->ber)
+            {
+                if(!bHeaderUpdate)
+                {
+                    cli_printf("\nRx LPS: KRCNU - KR_COEF_NOT_UPDATED, KRCU - KR_COEF_UPDATED, KRCM - KR_COEF_MINIMUM, KRCX - KR_COEF_MAXIMUM\n\n");
+                    cli_printf("\n%-5s %-20s %-20s %-20s %-20s %-20s %-20s\n", "S.No", "RxTAP", "RxLPS", "TxLPC", "BER State", "Timestamp", "IRQ's");
+                    cli_printf("----------------------------------------------------------------------------------------------------------------------------\n");
+
+                    fprintf(file, "\nRx LPS: KRCNU - KR_COEF_NOT_UPDATED, KRCU - KR_COEF_UPDATED, KRCM - KR_COEF_MINIMUM, KRCX - KR_COEF_MAXIMUM\n");
+                    fprintf(file, "\n%-5s %-20s %-20s %-20s %-20s %-20s %-20s\n", "S.No", "RxTAP", "RxLPS", "TxLPC", "BER State", "Timestamp", "IRQ's");
+                    fprintf(file, "--------------------------------------------------------------------------------------------------------------------------\n");
+                    bHeaderUpdate = 1;
+                }
+                LogEntryBER(file, rowNo, &asKRLog);
+            }       
+            if(mreq->eq)
+            {
+                if(!bHeaderUpdate)
+                {
+                    cli_printf("\n%-5s %-20s %-20s %-20s %-20s %-20s %-20s %-20s\n", "S.No", "TAP(LP)", "CMD(LP)", "CM1(LD)", "Ampl(LD)", "CP1(LD)", "Status(LD)", "TimeStamp");
+                    cli_printf("----------------------------------------------------------------------------------------------------------------------------------------------\n");
+
+                    fprintf(file, "%-5s %-20s %-20s %-20s %-20s %-20s %-20s %-20s\n", "S.No", "TAP(LP)", "CMD(LP)", "CM1(LD)", "Ampl(LD)", "CP1(LD)", "Status(LD)", "TimeStamp");
+                    fprintf(file, "--------------------------------------------------------------------------------------------------------------------------------------------\n");
+
+                    bHeaderUpdate = 1;
+                }
+                LogEntryEQ(file, rowNo, &asKRLog);
+            }
+            if(mreq->all)
+            {
+                if(!bHeaderUpdate)
+                {
+                    fileHandlePortKRAll = fopen(szFileNamePortKRStatusAll, "w");
+                    if (fileHandlePortKRAll == NULL) {
+                        T_E("Error in file open\n");
+                        return;
+                    }
+                    fprintf(fileHandlePortKRAll, "BER State: BGT_MIN - BER_GO_TO_MIN, BER_CALC - BER_CALCULATE_BER, BMT_MM - BER_MOVE_TO_MID_MARK, BLRXT - BER_LOCAL_RX_TRAINED\n");
+                    fprintf(fileHandlePortKRAll, "Rx LPS: KRCNU - KR_COEF_NOT_UPDATED, KRCU - KR_COEF_UPDATED, KRCM - KR_COEF_MINIMUM, KRCX - KR_COEF_MAXIMUM\n");
+
+                    fprintf(fileHandlePortKRAll, "%-5s %-10s %-10s %-30s %-30s %-10s %-10s %-10s %-10s %-10s %-20s %-20s %-20s %-20s %-20s %-20s\n", 
+                        "S.No", "TimeStamp", "Delta", "IRQ", "Statemachine", "TAP", "Tx LPC", "CM1", "CM0", "CP1", "BER State", "Rx LPS", "Eye Height", "CMD Sent To LP", "TAP Sent To LP", "Status Received from LP");
+                    fprintf(fileHandlePortKRAll, "----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
+
+                    bHeaderUpdate = 1;
+                }
+                LogEntryAll(fileHandlePortKRAll, rowNo, &asKRLog, Delta);
+            }
+            
+            j += sizeof(KR_Log);
+            rowNo++;
+        }
+
+    }
+    
+
+    if(mreq->all)
+    {
+        if (fileHandlePortKRAll != NULL) {
+            fclose(fileHandlePortKRAll);
+            fileHandlePortKRAll = NULL; // Optional: avoid double close
+        }
+
+        char* PortKRStatusbuffer = NULL;
+        PortKRStatusbuffer = (char *)calloc(8192, sizeof(char));
+
+        if (PortKRStatusbuffer == NULL)
+        {
+            T_E("Memory allocation failed\n");
+            return;
+        }
+    
+        uint8_t bydatabuf[5] = { 0 };
+        lan80xx_memory_read(dev, 0x40040048,bydatabuf,4);
+        little_to_big_endian(bydatabuf, 4);
+
+        uint32_t dwANstatus;
+        if (u8Line_host == 0)
+        {
+            lan80xx_phy_csr_read(dev, port_no, LINE_KR_ANEG_DEVICE, AN_STS0, &dwANstatus);
+        }
+        else
+        {
+            lan80xx_phy_csr_read(dev, port_no, HOST_KR_ANEG_DEVICE, AN_STS0, &dwANstatus);
+        }
+
+        //speed and rfec values required for Port KR Status
+        uint32_t u32EthSts;
+        mesa_bool_t bSpeed25G, bSpeed25GKRS, bSpeed10G, bRfec, bRsfec,bSpeed1G;
+        if (dwANstatus & AN_COMPLETE)
+        {
+            asKRSummaryLog.wAneg_status |= 0x01;
+        }
+        else
+        {
+            asKRSummaryLog.wAneg_status |= 0x0;
+        }
+        if (u8Line_host == 0)
+        {
+            lan80xx_phy_csr_read(dev, port_no, LINE_KR_ANEG_DEVICE, ETH_STS, &u32EthSts);
+        }
+        else
+        {
+            lan80xx_phy_csr_read(dev, port_no, HOST_KR_ANEG_DEVICE, ETH_STS, &u32EthSts);
+        }
+        bSpeed25G = (u32EthSts & AN_BP_ETH_STS_NEG_25G_KR) ? TRUE : FALSE;
+        bSpeed25GKRS = (u32EthSts & AN_BP_ETH_STS_NEG_25G_KR_S) ? TRUE : FALSE;
+        bSpeed10G = (u32EthSts & AN_BP_ETH_STS_NEG_10G_KR) ? TRUE : FALSE;
+        bRfec = (u32EthSts & AN_BP_ETH_STS_NEG_R_FEC) ? TRUE : FALSE;
+        bRsfec = (u32EthSts & AN_BP_ETH_STS_NEG_RS_FEC) ? TRUE : FALSE;
+        bSpeed1G = (u32EthSts & AN_BP_ETH_STS_NEG_1G_KX) ? TRUE : FALSE;
+
+        if (bSpeed25G | bSpeed25GKRS)
+        {
+            asKRSummaryLog.wAneg_status |= 0x08;
+        }
+        else if(bSpeed10G)
+        {
+            asKRSummaryLog.wAneg_status |= 0x04;
+        }
+        else if (bSpeed1G)
+        {
+            asKRSummaryLog.wAneg_status |= 0x02;
+        }
+
+        if (bRfec)
+        {
+            asKRSummaryLog.wAneg_status |= 0x20;
+        }
+        if (bRsfec)
+        {
+            asKRSummaryLog.wAneg_status |= 0x40;
+        }
+
+        asKRSummaryLog.LP_CM1_MAX = findMax(arrcm1,rowNo);
+        asKRSummaryLog.LP_CM1_END = findMin(arrcm1,rowNo);
+        asKRSummaryLog.LP_C0_MAX = findMax(arrc0,rowNo);
+        asKRSummaryLog.LP_C0_END = findMin(arrc0,rowNo);
+        asKRSummaryLog.LP_CP1_MAX = findMax(arrcp1, rowNo);
+        asKRSummaryLog.LP_CP1_END = findMin(arrcp1, rowNo);
+
+        /*LD VGA, LD EDC, LDEQR*/
+        uint32_t u32ldvga = 0;
+        uint32_t u32ldedc = 0;
+        uint32_t u32ldEQR = 0;
+        if (u8Line_host == 0)
+        {
+            lan80xx_phy_csr_read(dev, port_no, KR_LINEID, GRP0_LANE_21, &u32ldvga);
+            lan80xx_phy_csr_read(dev, port_no, KR_LINEID, GRP1_LANE_DD, &u32ldedc);
+            lan80xx_phy_csr_read(dev, port_no, KR_LINEID, GRP0_LANE_22, &u32ldEQR);
+        }
+        else
+        {
+            lan80xx_phy_csr_read(dev, port_no, KR_HOSTID, GRP0_LANE_21, &u32ldvga);
+            lan80xx_phy_csr_read(dev, port_no, KR_HOSTID, GRP1_LANE_DD, &u32ldedc);
+            lan80xx_phy_csr_read(dev, port_no, KR_HOSTID, GRP0_LANE_22, &u32ldEQR);
+        }
+
+        asKRSummaryLog.LD_VGA = u32ldvga & 0x1F;
+        asKRSummaryLog.LD_EDC = u32ldedc & 0x0F;
+        asKRSummaryLog.LD_EQR = (u32ldEQR & 0xF0)>>4;
+
+        asKRSummaryLog.CURR_EYE_HT = findMax(aEYEHTC0,rowNo);
+        asKRSummaryLog.TRAINING_TIME_MS = timestamp1-timestamp0;
+
+        for (int ii = 0; ii < 64; ii++)
+        {
+            asKRSummaryLog.EYE_HT_CM1[ii] = aEYEHTCM1[ii];
+            asKRSummaryLog.EYE_HT_CP1[ii] = aEYEHTCP1[ii];
+            asKRSummaryLog.EYE_HT_C0[ii] = aEYEHTC0[ii];
+        }
+ 
+        /* LD_CM1, LD_C0, LD_CP */
+        asKRSummaryLog.LD_CM1 = asKRLog.CM1;
+        asKRSummaryLog.LD_CP = asKRLog.CP1;
+        asKRSummaryLog.LD_C0 = asKRLog.C0;
+
+        /*FEC Corrected Error*/
+        uint32_t dwPCS25G_FEC74_CERR_CNT_L = 0, dwPCS25G_FEC74_CERR_CNT_H = 0;
+        if (u8Line_host == 0)
+        {
+            lan80xx_phy_csr_read(dev, port_no, LINE_PCS_CFG, 0xF3, &dwPCS25G_FEC74_CERR_CNT_L);
+            lan80xx_phy_csr_read(dev, port_no, LINE_PCS_CFG, 0xF4, &dwPCS25G_FEC74_CERR_CNT_H);
+        }
+        else
+        {
+            lan80xx_phy_csr_read(dev, port_no, HOST_PCS_CFG, 0xF3, &dwPCS25G_FEC74_CERR_CNT_L);
+            lan80xx_phy_csr_read(dev, port_no, HOST_PCS_CFG, 0xF4, &dwPCS25G_FEC74_CERR_CNT_H);
+        }
+        asKRSummaryLog.FEC_CORRECTION = MAKEDWORD(dwPCS25G_FEC74_CERR_CNT_L, dwPCS25G_FEC74_CERR_CNT_H);
+
+
+	    /*FEC UnCorrected Error*/
+        uint32_t dwPCS25G_FEC74_NCERR_CNT_L = 0, dwPCS25G_FEC74_NCERR_CNT_H = 0;
+        if (u8Line_host == 0)
+        {
+            lan80xx_phy_csr_read(dev, port_no, LINE_PCS_CFG, 0xF5, &dwPCS25G_FEC74_NCERR_CNT_L);
+            lan80xx_phy_csr_read(dev, port_no, LINE_PCS_CFG, 0xF6, &dwPCS25G_FEC74_NCERR_CNT_H);
+        }
+        else
+        {
+            lan80xx_phy_csr_read(dev, port_no, HOST_PCS_CFG, 0xF5, &dwPCS25G_FEC74_NCERR_CNT_L);
+            lan80xx_phy_csr_read(dev, port_no, HOST_PCS_CFG, 0xF6, &dwPCS25G_FEC74_NCERR_CNT_H);
+        }
+        asKRSummaryLog.FEC_UNCORRECTION = MAKEDWORD(dwPCS25G_FEC74_NCERR_CNT_L, dwPCS25G_FEC74_NCERR_CNT_H);
+
+        sprintf(PortKRStatusbuffer, 
+            "ANEG Completed : %s \n"
+            "Speed : %s \n"
+            "R-FEC (CL-74) : %s \n"
+            "RS-FEC (CL-108) : %s \n"
+            "Training Results: \n"
+            "LP CM1 MAX/END : %d/%d \n"
+            "LP C0  MAX/END : %d/%d \n"
+            "LP CP1 MAX/END : %d/%d \n"
+            "Eye Height CM1 : %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d \n"
+            "Eye Height C0 : %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d \n"
+            "Eye Height CP1 : %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d \n"
+            "LD CM (tap_dly) : %d \n"
+            "LD C0 (amplitude) : %d \n"
+            "LD CP (tap_adv) : %d \n"
+            "LD VGA : %d \n"
+            "LD EDC : %d \n"
+            "LD EQR : %d \n"
+            "FEC Corr./Uncor.  : %d/%d \n"
+            "Current eye height : %d \n"
+            "Training time : %d micro seconds\n"
+            "Training status : %s\n"
+            "DME_Violation_Count: %s\n", 
+            ((asKRSummaryLog.wAneg_status & 0x01) == 1) ? "Yes" : "No",
+            ((asKRSummaryLog.wAneg_status & 0x02) == 0x02) ? "1G" :
+            ((asKRSummaryLog.wAneg_status & 0x04) == 0x04) ? "10G" : 
+            ((asKRSummaryLog.wAneg_status & 0x08) == 0x08)? "25G":"Undefined", 
+            ((asKRSummaryLog.wAneg_status & 0x20) == 0x20) ? "Enabled" : "Disabled",
+            ((asKRSummaryLog.wAneg_status & 0x40) == 0x40) ? "Enabled" : "Disabled", 
+            asKRSummaryLog.LP_CM1_MAX, asKRSummaryLog.LP_CM1_END, 
+            asKRSummaryLog.LP_C0_MAX, asKRSummaryLog.LP_C0_END, 
+            asKRSummaryLog.LP_CP1_MAX, asKRSummaryLog.LP_CP1_END, 
+            asKRSummaryLog.EYE_HT_CM1[0], asKRSummaryLog.EYE_HT_CM1[1], asKRSummaryLog.EYE_HT_CM1[2], 
+            asKRSummaryLog.EYE_HT_CM1[3], asKRSummaryLog.EYE_HT_CM1[4], asKRSummaryLog.EYE_HT_CM1[5], 
+            asKRSummaryLog.EYE_HT_CM1[6], asKRSummaryLog.EYE_HT_CM1[7], asKRSummaryLog.EYE_HT_CM1[8], 
+            asKRSummaryLog.EYE_HT_CM1[9], asKRSummaryLog.EYE_HT_CM1[10], asKRSummaryLog.EYE_HT_CM1[11], 
+            asKRSummaryLog.EYE_HT_CM1[12], asKRSummaryLog.EYE_HT_CM1[13], asKRSummaryLog.EYE_HT_CM1[14], 
+            asKRSummaryLog.EYE_HT_CM1[15], asKRSummaryLog.EYE_HT_CM1[16], asKRSummaryLog.EYE_HT_CM1[17], 
+            asKRSummaryLog.EYE_HT_CM1[18], asKRSummaryLog.EYE_HT_CM1[19], asKRSummaryLog.EYE_HT_CM1[20], 
+            asKRSummaryLog.EYE_HT_CM1[21], asKRSummaryLog.EYE_HT_CM1[22], asKRSummaryLog.EYE_HT_CM1[23], 
+            asKRSummaryLog.EYE_HT_CM1[24], asKRSummaryLog.EYE_HT_CM1[25], asKRSummaryLog.EYE_HT_CM1[26], 
+            asKRSummaryLog.EYE_HT_CM1[27], asKRSummaryLog.EYE_HT_CM1[28], asKRSummaryLog.EYE_HT_CM1[29], 
+            asKRSummaryLog.EYE_HT_CM1[30], asKRSummaryLog.EYE_HT_CM1[31], asKRSummaryLog.EYE_HT_CM1[32], 
+            asKRSummaryLog.EYE_HT_CM1[33], asKRSummaryLog.EYE_HT_CM1[34], asKRSummaryLog.EYE_HT_CM1[35], 
+            asKRSummaryLog.EYE_HT_CM1[36], asKRSummaryLog.EYE_HT_CM1[37], asKRSummaryLog.EYE_HT_CM1[38], 
+            asKRSummaryLog.EYE_HT_CM1[39], asKRSummaryLog.EYE_HT_CM1[40], asKRSummaryLog.EYE_HT_CM1[41], 
+            asKRSummaryLog.EYE_HT_CM1[42], asKRSummaryLog.EYE_HT_CM1[43], asKRSummaryLog.EYE_HT_CM1[44], 
+            asKRSummaryLog.EYE_HT_CM1[45], asKRSummaryLog.EYE_HT_CM1[46], asKRSummaryLog.EYE_HT_CM1[47], 
+            asKRSummaryLog.EYE_HT_CM1[48], asKRSummaryLog.EYE_HT_CM1[49], asKRSummaryLog.EYE_HT_CM1[50], 
+            asKRSummaryLog.EYE_HT_CM1[51], asKRSummaryLog.EYE_HT_CM1[52], asKRSummaryLog.EYE_HT_CM1[53], 
+            asKRSummaryLog.EYE_HT_CM1[54], asKRSummaryLog.EYE_HT_CM1[55], asKRSummaryLog.EYE_HT_CM1[56], 
+            asKRSummaryLog.EYE_HT_CM1[57], asKRSummaryLog.EYE_HT_CM1[58], asKRSummaryLog.EYE_HT_CM1[59], 
+            asKRSummaryLog.EYE_HT_CM1[60], asKRSummaryLog.EYE_HT_CM1[61], asKRSummaryLog.EYE_HT_CM1[62], 
+            asKRSummaryLog.EYE_HT_CM1[63], asKRSummaryLog.EYE_HT_C0[0], asKRSummaryLog.EYE_HT_C0[1], 
+            asKRSummaryLog.EYE_HT_C0[2], asKRSummaryLog.EYE_HT_C0[3], asKRSummaryLog.EYE_HT_C0[4], 
+            asKRSummaryLog.EYE_HT_C0[5], asKRSummaryLog.EYE_HT_C0[6], asKRSummaryLog.EYE_HT_C0[7], 
+            asKRSummaryLog.EYE_HT_C0[8], asKRSummaryLog.EYE_HT_C0[9], asKRSummaryLog.EYE_HT_C0[10], 
+            asKRSummaryLog.EYE_HT_C0[11], asKRSummaryLog.EYE_HT_C0[12], asKRSummaryLog.EYE_HT_C0[13], 
+            asKRSummaryLog.EYE_HT_C0[14], asKRSummaryLog.EYE_HT_C0[15], asKRSummaryLog.EYE_HT_C0[16], 
+            asKRSummaryLog.EYE_HT_C0[17], asKRSummaryLog.EYE_HT_C0[18], asKRSummaryLog.EYE_HT_C0[19], 
+            asKRSummaryLog.EYE_HT_C0[20], asKRSummaryLog.EYE_HT_C0[21], asKRSummaryLog.EYE_HT_C0[22], 
+            asKRSummaryLog.EYE_HT_C0[23], asKRSummaryLog.EYE_HT_C0[24], asKRSummaryLog.EYE_HT_C0[25], 
+            asKRSummaryLog.EYE_HT_C0[26], asKRSummaryLog.EYE_HT_C0[27], asKRSummaryLog.EYE_HT_C0[28], 
+            asKRSummaryLog.EYE_HT_C0[29], asKRSummaryLog.EYE_HT_C0[30], asKRSummaryLog.EYE_HT_C0[31], 
+            asKRSummaryLog.EYE_HT_C0[32], asKRSummaryLog.EYE_HT_C0[33], asKRSummaryLog.EYE_HT_C0[34], 
+            asKRSummaryLog.EYE_HT_C0[35], asKRSummaryLog.EYE_HT_C0[36], asKRSummaryLog.EYE_HT_C0[37], 
+            asKRSummaryLog.EYE_HT_C0[38], asKRSummaryLog.EYE_HT_C0[39], asKRSummaryLog.EYE_HT_C0[40], 
+            asKRSummaryLog.EYE_HT_C0[41], asKRSummaryLog.EYE_HT_C0[42], asKRSummaryLog.EYE_HT_C0[43], 
+            asKRSummaryLog.EYE_HT_C0[44], asKRSummaryLog.EYE_HT_C0[45], asKRSummaryLog.EYE_HT_C0[46], 
+            asKRSummaryLog.EYE_HT_C0[47], asKRSummaryLog.EYE_HT_C0[48], asKRSummaryLog.EYE_HT_C0[49], 
+            asKRSummaryLog.EYE_HT_C0[50], asKRSummaryLog.EYE_HT_C0[51], asKRSummaryLog.EYE_HT_C0[52], 
+            asKRSummaryLog.EYE_HT_C0[53], asKRSummaryLog.EYE_HT_C0[54], asKRSummaryLog.EYE_HT_C0[55], 
+            asKRSummaryLog.EYE_HT_C0[56], asKRSummaryLog.EYE_HT_C0[57], asKRSummaryLog.EYE_HT_C0[58], 
+            asKRSummaryLog.EYE_HT_C0[59], asKRSummaryLog.EYE_HT_C0[60], asKRSummaryLog.EYE_HT_C0[61], 
+            asKRSummaryLog.EYE_HT_C0[62], asKRSummaryLog.EYE_HT_C0[63], asKRSummaryLog.EYE_HT_CP1[0], 
+            asKRSummaryLog.EYE_HT_CP1[1], asKRSummaryLog.EYE_HT_CP1[2], asKRSummaryLog.EYE_HT_CP1[3], 
+            asKRSummaryLog.EYE_HT_CP1[4], asKRSummaryLog.EYE_HT_CP1[5], asKRSummaryLog.EYE_HT_CP1[6], 
+            asKRSummaryLog.EYE_HT_CP1[7], asKRSummaryLog.EYE_HT_CP1[8], asKRSummaryLog.EYE_HT_CP1[9], 
+            asKRSummaryLog.EYE_HT_CP1[10], asKRSummaryLog.EYE_HT_CP1[11], asKRSummaryLog.EYE_HT_CP1[12], 
+            asKRSummaryLog.EYE_HT_CP1[13], asKRSummaryLog.EYE_HT_CP1[14], asKRSummaryLog.EYE_HT_CP1[15], 
+            asKRSummaryLog.EYE_HT_CP1[16], asKRSummaryLog.EYE_HT_CP1[17], asKRSummaryLog.EYE_HT_CP1[18], 
+            asKRSummaryLog.EYE_HT_CP1[19], asKRSummaryLog.EYE_HT_CP1[20], asKRSummaryLog.EYE_HT_CP1[21], 
+            asKRSummaryLog.EYE_HT_CP1[22], asKRSummaryLog.EYE_HT_CP1[23], asKRSummaryLog.EYE_HT_CP1[24], 
+            asKRSummaryLog.EYE_HT_CP1[25], asKRSummaryLog.EYE_HT_CP1[26], asKRSummaryLog.EYE_HT_CP1[27], 
+            asKRSummaryLog.EYE_HT_CP1[28], asKRSummaryLog.EYE_HT_CP1[29], asKRSummaryLog.EYE_HT_CP1[30], 
+            asKRSummaryLog.EYE_HT_CP1[31], asKRSummaryLog.EYE_HT_CP1[32], asKRSummaryLog.EYE_HT_CP1[33], 
+            asKRSummaryLog.EYE_HT_CP1[34], asKRSummaryLog.EYE_HT_CP1[35], asKRSummaryLog.EYE_HT_CP1[36], 
+            asKRSummaryLog.EYE_HT_CP1[37], asKRSummaryLog.EYE_HT_CP1[38], asKRSummaryLog.EYE_HT_CP1[39], 
+            asKRSummaryLog.EYE_HT_CP1[40], asKRSummaryLog.EYE_HT_CP1[41], asKRSummaryLog.EYE_HT_CP1[42], 
+            asKRSummaryLog.EYE_HT_CP1[43], asKRSummaryLog.EYE_HT_CP1[44], asKRSummaryLog.EYE_HT_CP1[45], 
+            asKRSummaryLog.EYE_HT_CP1[46], asKRSummaryLog.EYE_HT_CP1[47], asKRSummaryLog.EYE_HT_CP1[48], 
+            asKRSummaryLog.EYE_HT_CP1[49], asKRSummaryLog.EYE_HT_CP1[50], asKRSummaryLog.EYE_HT_CP1[51], 
+            asKRSummaryLog.EYE_HT_CP1[52], asKRSummaryLog.EYE_HT_CP1[53], asKRSummaryLog.EYE_HT_CP1[54], 
+            asKRSummaryLog.EYE_HT_CP1[55], asKRSummaryLog.EYE_HT_CP1[56], asKRSummaryLog.EYE_HT_CP1[57], 
+            asKRSummaryLog.EYE_HT_CP1[58], asKRSummaryLog.EYE_HT_CP1[59], asKRSummaryLog.EYE_HT_CP1[60], 
+            asKRSummaryLog.EYE_HT_CP1[61], asKRSummaryLog.EYE_HT_CP1[62], asKRSummaryLog.EYE_HT_CP1[63], 
+            asKRSummaryLog.LD_CM1, asKRSummaryLog.LD_C0, asKRSummaryLog.LD_CP, asKRSummaryLog.LD_VGA,
+            asKRSummaryLog.LD_EDC, asKRSummaryLog.LD_EQR, asKRSummaryLog.FEC_CORRECTION, 
+            asKRSummaryLog.FEC_UNCORRECTION, asKRSummaryLog.CURR_EYE_HT, asKRSummaryLog.TRAINING_TIME_MS, 
+            ((asKRSummaryLog.wAneg_status & 0x80) == 0x80) ? "Yes" : (((asKRSummaryLog.wAneg_status & 0x80) != 0x80) ? "NO" : "NA"), 
+            HexToStr(bydatabuf, 4));
+        cli_printf("%s\n", PortKRStatusbuffer);
+        fprintf(file, "%s\n",PortKRStatusbuffer);
+    }
+    fclose(file);
+}
+
+static void cli_cmd_phy_kr_logging(cli_req_t *req) {
+
+    phy_kr_log_sel_t *mreq = req->module_req;
+
+    mepa_rc rc = MEPA_RC_OK;
+    mepa_port_no_t  port_no = 0;
+    uint8_t u8KRportsToEnable, u8KRLogEnabledPorts = 0xFF, u8KRNOfports = 0;
+    uint16_t u16DataLength = 0;
+    int lineMemory[4] = {0,0,0,0}, hostMemory[4] = {0,0,0,0};
+    
+    
+    // Step 1: Find Requested port
+    for (int iport = 0; iport < meba_phy_kr_inst->phy_device_cnt - 1; iport++) {
+        port_no = iport2uport(iport);
+
+        if (req->port_list[port_no] == 0) {
+            continue;
+        }
+       
+        if (!meba_phy_kr_inst->phy_devices[iport]) {
+            cli_printf(" Dev is Not Created for the port : %d\n", iport);
+            return;
+        }
+        phy25g_phy_state_t *data = (phy25g_phy_state_t *) meba_phy_kr_inst->phy_devices[iport]->data;
+        mepa_device_t *base_dev = (mepa_device_t *)data->base_dev;
+        phy25g_phy_state_t *base_data = (phy25g_phy_state_t *)base_dev->data;
+
+        if (base_data->krlog_en_ports != u8KRLogEnabledPorts) {
+            lineMemory[0] = 0; lineMemory[1]= 0; lineMemory[2] = 0; lineMemory[3] =0;
+            hostMemory[0] = 0; hostMemory[1]= 0; hostMemory[2] = 0; hostMemory[3] =0;
+
+            u8KRLogEnabledPorts = base_data->krlog_en_ports;
+
+            u8KRportsToEnable = u8KRLogEnabledPorts;
+
+            while (u8KRportsToEnable != 0) {
+                u8KRportsToEnable = u8KRportsToEnable & (u8KRportsToEnable - 1);
+                u8KRNOfports++;
+            }
+
+            switch (u8KRNOfports)
+            {
+                case 0x04:
+                    u16DataLength = 0x2400; //9 * 1024
+                    break;
+                case 0x03:
+                    u16DataLength = 0x3000; //12 * 1024
+                    break;
+                case 0x02:
+                    u16DataLength = 0x4800; //18 * 1024
+                    break;
+                case 0x01:
+                    u16DataLength = 0x9000; //36 * 1024
+                    break;
+                default:
+                    break;
+            }
+
+            uint8_t byPartitionCount = 0;
+            for (int byIndex = 0; byIndex < MAX_PORTS; byIndex++)
+            {
+                if (u8KRLogEnabledPorts & (1 << byIndex))
+                {
+                    lineMemory[base_data->channel_id - byIndex] = KR_LOG_BASE_SUMMARY_PORT0 + (u16DataLength * byPartitionCount);
+                    byPartitionCount += 1;
+                }
+            }
+
+            for (int byIndex = 0; byIndex < MAX_PORTS; byIndex++)
+            {
+                if (u8KRLogEnabledPorts & (1 << (byIndex +4)))
+                {
+                    hostMemory[base_data->channel_id - byIndex] = KR_LOG_BASE_SUMMARY_PORT0 + (u16DataLength * byPartitionCount);
+                    byPartitionCount += 1;
+                }
+            }
+        }
+
+        // Check if logging is enabled for the line side of the port
+        if(mreq->line_port == 1)
+        {
+            if (u8KRLogEnabledPorts & (1 << data->channel_id)) {
+                cli_printf("\nPort : %d LINE\n", iport);
+                if(mreq->clr)
+                {
+                    if((rc = lan80xx_KRLog_Reset(meba_phy_kr_inst->phy_devices[iport],lineMemory[iport], u16DataLength )) != MEPA_RC_OK)
+                    {
+                        T_E("Failed to Reset KR Log Memory Address: %x, length: %x\n", lineMemory[iport], u16DataLength);
+                    }else {
+                        cli_printf("Reset KR Log for Memory Address: %x, length: %x\n", lineMemory[iport], u16DataLength);
+                    }
+
+                } else {
+                    processKrLogging(meba_phy_kr_inst->phy_devices[iport], mreq,iport, 0, lineMemory[iport], u16DataLength );
+                }
+            } else {
+                T_E("Logging is not enabled for line side of port %d\n", iport);
+            }
+        }
+        
+        if(mreq->host_port == 1)
+        {
+            if (u8KRLogEnabledPorts & (1 << (data->channel_id + 4))) {
+                cli_printf("\nPort : %d HOST\n", iport);
+                if(mreq->clr)
+                {
+                    if((rc = lan80xx_KRLog_Reset(meba_phy_kr_inst->phy_devices[iport],hostMemory[iport], u16DataLength )) != MEPA_RC_OK)
+                    {
+                        T_E("Failed to Reset KR Log Memory Address: %x, length: %x\n", hostMemory[iport], u16DataLength);
+                    }else {
+                        cli_printf("Reset KR Log for Memory Address: %x, length: %x\n", hostMemory[iport], u16DataLength);
+                    }
+                } else {
+                    processKrLogging(meba_phy_kr_inst->phy_devices[iport],mreq,iport, 1,hostMemory[iport], u16DataLength);
+                }
+            } else {
+                T_E("Logging is not enabled for host side of port %d\n", iport);
+            }
+        } 
+    }
+}
 
 ////////////////////////////////////////////////////////////
 /////////////////   CLI Parameter functions ////////////////
@@ -722,6 +2076,47 @@ static int cli_parm_sd_speed_idx (cli_req_t *req)
     return cli_parm_u8(req, &mreq->speed_idx, 0, 3);
 }
 
+static int cli_parm_krlog_port_sel(cli_req_t *req)
+{
+    phy_kr_log_sel_t *mreq = req->module_req;
+
+    if (!strncasecmp(req->cmd, "host", strlen(req->cmd))) {
+        mreq->host_port = 1;
+    } else if (!strncasecmp(req->cmd, "line", strlen(req->cmd))) {
+        mreq->line_port = 1;
+    } else {
+       return 1;
+    }
+    return 0;
+}
+
+static int cli_parm_krlog_status_sel(cli_req_t *req)
+{
+    phy_kr_log_sel_t *mreq = req->module_req;
+
+    mreq->eq = 0;
+    mreq->ber = 0;
+    mreq->irq = 0;
+    mreq->all = 0;
+
+    if (!strncasecmp(req->cmd, "eq", strlen(req->cmd))) {
+        mreq->eq = 1;
+    } else if (!strncasecmp(req->cmd, "ber", strlen(req->cmd))) {
+        mreq->ber = 1;
+    } else if (!strncasecmp(req->cmd, "irq", strlen(req->cmd))) {
+        mreq->irq = 1;
+    } else if (!strncasecmp(req->cmd, "all", strlen(req->cmd))) {
+        mreq->all = 1;
+    } else if (!strncasecmp(req->cmd, "clr", strlen(req->cmd))) {
+        mreq->clr = 1;
+    } else if (!strncasecmp(req->cmd, "aneg", strlen(req->cmd))) {
+        mreq->aneg = 1;
+    } else {
+        return 1;
+    }
+    return 0;
+}
+
 static cli_cmd_t cli_cmd_table[] = {
     {
         "Phy KR aneg [<port_list>] [adv-1g] [adv-10g] [adv-25g] [adv-25g-krs] [rfec-10g] [rfec-25g] [rsfec] [np] [np-rfec] [np-rsfec] [fw-res] [train] [disable]",
@@ -738,11 +2133,21 @@ static cli_cmd_t cli_cmd_table[] = {
         "Set phy serdes configuration",
         cli_cmd_phy_serdes_set
     },
-    /* {
-         "Phy KR status [<port_list>] [eq] [ber] [irq] [all] [clr]",
-         "Show status",
-         cli_cmd_phy_kr_status
-     },*/
+    {
+        "Phy kr_log enable <port_list> [host] [line]",
+        "Enable KR Log",
+        cli_cmd_phy_kr_log_enable
+    },
+    {
+        "Phy kr_log disable <port_list> [host] [line]",
+        "Enable KR Log",
+        cli_cmd_phy_kr_log_disable
+    },
+    {
+        "Phy kr_log status <port_list> [host] [line] [aneg|eq|ber|irq|all|clr]",
+        "Show KR Log",
+        cli_cmd_phy_kr_logging
+    },
 };
 
 static cli_parm_t cli_parm_table[] = {
@@ -846,8 +2251,29 @@ static cli_parm_t cli_parm_table[] = {
         CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
         cli_parm_sd_speed_idx,
     },
-
-
+    {
+        "aneg|eq|ber|irq|all|clr",
+        "aneg   : ANEG Log"
+        "eq     : ANEG/KR Equalizers status Log\n"
+        "ber    : ANEG/KR BER status Log\n"
+        "irq    : ANEG/KR IRQ status Log\n"
+        "all    : Over all ANEG/KR summary status\n"
+        "clr    : Reset KR Logging region to zero\n",
+        CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
+        cli_parm_krlog_status_sel,
+    },
+    {
+        "host",
+        "line    : Line Port\n",
+        CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
+        cli_parm_krlog_port_sel,
+    },
+    {
+        "line",
+        "line    : Line Port\n",
+        CLI_PARM_FLAG_NO_TXT | CLI_PARM_FLAG_SET,
+        cli_parm_krlog_port_sel,
+    }
 };
 
 ////////////////////////////////////////////////////////////

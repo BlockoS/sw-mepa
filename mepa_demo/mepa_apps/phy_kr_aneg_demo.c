@@ -1247,13 +1247,15 @@ char *getCommandBER(uint32_t u32BER_STATE)
 }
 void LogEntryAll(FILE *file, int rowNo, KR_Log *log, unsigned int delta)
 {
+    char *irqStr = getIRQ(log->IRQ);
+    char *enumStr = converttoenum(enum_state_machine_string, log->Statemachine);
 
     fprintf(file, "%-5d %-10u %-10d %-30s %-30s %-10s %-10s %-10d %-10d %-10d %-20s %-20s %-20u %-20u %-20u %-20u\n",
             rowNo,
             log->timestamp,
             delta,
-            getIRQ(log->IRQ),
-            converttoenum(enum_state_machine_string, log->Statemachine),
+            irqStr ? irqStr : "-",
+            enumStr ? enumStr : "-",
             getTap(log->LD_TAPRecieved),
             getCommandReceived(log),
             log->CM1,
@@ -1265,9 +1267,17 @@ void LogEntryAll(FILE *file, int rowNo, KR_Log *log, unsigned int delta)
             log->CommandSentToLP,
             log->TAPSentToLP,
             log->StatusReportReceivedFromLP);
+    
+    if (irqStr) 
+        free(irqStr);
+    
+    if (enumStr)
+        free(enumStr);
 }
 void LogEntryBER(FILE *file, int rowNo, KR_Log *log)
 {
+    char *irqStr = getIRQ(log->IRQ);
+
     // Print to console
     cli_printf("%-5d %-20s %-20s %-20s %-20s %-20u %-20s\n",
                rowNo,
@@ -1276,7 +1286,7 @@ void LogEntryBER(FILE *file, int rowNo, KR_Log *log)
                getCommandReceived(log),
                getCommandBER(log->BER_STATE),
                log->timestamp,
-               getIRQ(log->IRQ));
+               irqStr ? irqStr : "-");
 
     // Write to file
     fprintf(file, "%-5d %-20s %-20s %-30s %-20s\n",
@@ -1284,25 +1294,37 @@ void LogEntryBER(FILE *file, int rowNo, KR_Log *log)
             getTap(log->LD_TAPRecieved),
             getStatusReportSentToLP(log->StatusReportSentToLP),
             getCommandReceived(log),
-            getIRQ(log->IRQ));
+            irqStr ? irqStr : "-");
+
+    if (irqStr) 
+        free(irqStr);
 }
 void LogEntryIRQ(FILE *file, int rowNo, KR_Log *log, unsigned int delta)
 {
+    char *irqStr = getIRQ(log->IRQ);
+    char *enumStr = converttoenum(enum_state_machine_string, log->Statemachine);
+
     // Print to console
     cli_printf("%-5d %-20u %-20d %-30s %-20s\n",
                rowNo,
                log->timestamp,
                delta,
-               getIRQ(log->IRQ),
-               converttoenum(enum_state_machine_string, log->Statemachine));
+               irqStr ? irqStr : "-",
+               enumStr ? enumStr : "-");
 
     // Write to file
     fprintf(file, "%-5d %-20u %-20d %-30s %-20s\n",
             rowNo,
             log->timestamp,
             delta,
-            getIRQ(log->IRQ),
-            converttoenum(enum_state_machine_string, log->Statemachine));
+            irqStr ? irqStr : "-",
+            enumStr ? enumStr : "-");
+
+    if (irqStr) 
+        free(irqStr);
+    
+    if (enumStr)
+        free(enumStr);
 }
 
 void LogEntryEQ(FILE *file, int rowNo, KR_Log *log)
@@ -1333,13 +1355,16 @@ void LogEntryEQ(FILE *file, int rowNo, KR_Log *log)
 
 void LogEntryANEG(FILE *file, int rowNo, ANEG_Log *log, unsigned int delta)
 {
+    char *irqStr = getIRQ(log->IRQ);
+    char *enumStr = converttoenum(enum_state_machine_string, log->Statemachine);
+
     // Print to console
     cli_printf("%-3d %-10u %-10u %-20s %-20s %-10s %-10s %-10s %-10s %-10s %-10s\n",
                rowNo,
                log->timestamp,
                delta,
-               getIRQ(log->IRQ),
-               converttoenum(enum_state_machine_string, log->Statemachine),
+               irqStr ? irqStr : "-",
+               enumStr ? enumStr : "-",
                DecodeBasePage0(log->LPage_BP0),
                DecodeBasePage1(log->LPage_BP1),
                DecodeBasePage2(log->LPage_BP2),
@@ -1353,14 +1378,20 @@ void LogEntryANEG(FILE *file, int rowNo, ANEG_Log *log, unsigned int delta)
             rowNo,
             log->timestamp,
             delta,
-            getIRQ(log->IRQ),
-            converttoenum(enum_state_machine_string, log->Statemachine),
+            irqStr ? irqStr : "-",
+            enumStr ? enumStr : "-",
             DecodeBasePage0(log->LPage_BP0),
             DecodeBasePage1(log->LPage_BP1),
             DecodeBasePage2(log->LPage_BP2),
             DecodeNextPage1(log->LPage_NP0),
             DecodeNextPage2(log->LPage_NP1),
             DecodeNextPage2(log->LPage_NP2));
+
+    if (irqStr) 
+        free(irqStr);
+    
+    if (enumStr)
+        free(enumStr);
 }
 
 char *HexToStr(const uint8_t *bytes, int length)
@@ -1958,6 +1989,10 @@ void processKrLogging(struct mepa_device *dev, phy_kr_log_sel_t *mreq, mepa_port
                 HexToStr(bydatabuf, 4));
         cli_printf("%s\n", PortKRStatusbuffer);
         fprintf(file, "%s\n", PortKRStatusbuffer);
+
+        // Free memory
+        free(PortKRStatusbuffer);
+        PortKRStatusbuffer = NULL;
     }
     fclose(file);
 }

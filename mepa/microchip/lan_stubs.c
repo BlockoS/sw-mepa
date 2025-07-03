@@ -466,6 +466,21 @@ mepa_rc lan80xx_xconnect_failover_conf_get(mepa_device_t  *dev,
 
     return MEPA_RC_NOT_IMPLEMENTED;
 }
+
+mepa_rc lan80xx_KRLog_Enable(const mepa_device_t *dev, 
+                            mepa_bool_t bkrlog_enable, 
+                            mepa_bool_t bline_port_en, 
+                            mepa_bool_t  bhost_port_en)
+{
+    return MEPA_RC_NOT_IMPLEMENTED;
+}
+
+mepa_rc lan80xx_KRLog_Reset(const mepa_device_t *dev, 
+                            uint32_t u32KRLogOffset, 
+                            uint16_t u16Len)
+{
+    return MEPA_RC_NOT_IMPLEMENTED;
+}
 #if 0
 mepa_rc lan80xx_ANEG_GetConfig(const mepa_device_t  *dev,
                                KR_PORT_CONF *psConfig)

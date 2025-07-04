@@ -213,6 +213,15 @@ static mepa_rc lan80xx_ts_init_conf_get(mepa_device_t *dev, mepa_ts_init_conf_t 
 static mepa_rc lan80xx_ts_init_conf_set(mepa_device_t *dev, const mepa_ts_init_conf_t *const ts_init_conf)
 {
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
+    mepa_device_t *base_dev;
+    phy25g_phy_state_t *base_data;
+    LAN80XX_BASE_DEV(data, base_dev, base_data);
+
+    if (base_data->features.ptp_1588_disable != 0U) {
+        T_E(MEPA_TRACE_GRP_GEN, "\n PHY SKU on port : %d doesn't support PTP", data->port_no);
+        return MEPA_RC_ERROR;
+    }
+
     phy25g_phy_ts_init_conf_t init_conf = {0};
     data->ts.dly_req_recv_10byte_ts = ts_init_conf->dly_req_recv_10byte_ts;
     init_conf.clk_freq = ts_init_conf->clk_freq;

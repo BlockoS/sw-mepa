@@ -706,9 +706,6 @@ mepa_rc lan80xx_phy_ts_init(const mepa_device_t *dev,
                             const  mepa_port_no_t port_no,
                             const phy25g_phy_ts_init_conf_t  *const conf);
 
-mepa_rc lan80xx_ts_is_1588_supported(const mepa_device_t *dev,
-                                     mepa_bool_t *gen, mepa_bool_t *support);
-
 mepa_rc lan80xx_ts_get_1588_version(const mepa_device_t *dev,
                                     const mepa_port_no_t port_no, uint32_t *version);
 mepa_rc lan80xx_ts_csr_ptptime_get_priv(mepa_device_t *dev,

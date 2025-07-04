@@ -140,7 +140,6 @@ $methods_blacklist = [
     "lan80xx_ts_hard_reset_private",
     "lan80xx_phy_ts_init_conf_get",
     "lan80xx_phy_ts_init",
-    "lan80xx_ts_is_1588_supported",
     "lan80xx_ts_get_1588_version",
     "lan80xx_ts_csr_ptptime_get_priv",
     "lan80xx_ts_csr_ptptime_set_priv",

@@ -45,6 +45,13 @@
 #define LAN80XX_TX_AMP_CODE_RANGE_88                  (88U)
 #define LAN80XX_TX_AMP_CODE_RANGE_102                 (102U)
 
+/* Feature Disable */
+#define LAN80XX_MACSEC_DISABLE     (1 << 0)
+#define LAN80XX_1588_DISABLE       (1 << 1)
+#define LAN80XX_25G_DISABLE        (1 << 2)
+#define LAN80XX_QUAD_DISABLE       (1 << 3)
+#define LAN80XX_CLEARTAGS_DISABLE  (1 << 4)
+#define LAN80XX_MPLS_DISABLE       (1 << 5)
 
 mepa_rc lan80xx_block_reset_priv(mepa_device_t *dev)
 {
@@ -113,6 +120,27 @@ static mepa_rc lan80xx_sku_port_cnt(mepa_device_t *dev)
         base_data->max_port_cnt = 4;
         break;
     }
+    return rc;
+}
+
+static mepa_rc lan80xx_feature_supported(mepa_device_t  *dev)
+{
+    phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
+    mepa_device_t *base_dev;
+    phy25g_phy_state_t *base_data;
+    LAN80XX_BASE_DEV(data, base_dev, base_data);
+    mepa_rc rc = MEPA_RC_OK;
+    u32 val = 0U;
+
+    LAN80XX_CSR_RD(dev, data->port_no, LAN80XX_MCU_IO_MNGT_MISC_DEVICE_FEATURE_DISABLE_REG, &val);
+
+    base_data->features.macsec_disable    = (val & LAN80XX_MACSEC_DISABLE);
+    base_data->features.ptp_1588_disable  = (val & LAN80XX_1588_DISABLE);
+    base_data->features.speed_25g_disable = (val & LAN80XX_25G_DISABLE);
+    base_data->features.quad_disable      = (val & LAN80XX_QUAD_DISABLE);
+    base_data->features.cleartags_disable = (val & LAN80XX_CLEARTAGS_DISABLE);
+    base_data->features.mpls_disable      = (val & LAN80XX_MPLS_DISABLE);
+
     return rc;
 }
 
@@ -2680,6 +2708,12 @@ mepa_rc lan80xx_reset_point(mepa_device_t *dev, const mepa_reset_param_t *rst_co
             T_E(MEPA_TRACE_GRP_GEN, "Failed to configure Strap over-ride register\n");
             return MEPA_RC_ERROR;
         }
+
+        if (lan80xx_feature_supported(dev) != MEPA_RC_OK) {
+            T_E(MEPA_TRACE_GRP_GEN, "\nError in reading feature supported");
+            return MEPA_RC_ERROR;
+        }
+
         if (lan80xx_mcu_mailbox_init(dev, MAILBOX_INTR_ENABLE, MAILBOX_HOST_INTR_MASK) != MEPA_RC_OK) {
             T_E(MEPA_TRACE_GRP_GEN, "Mailbox init failed");
             return MEPA_RC_ERROR;
@@ -4939,6 +4973,9 @@ mepa_rc lan80xx_conf_set_priv(struct mepa_device *dev, const mepa_conf_t *config
 {
     phy25g_phy_state_t *data = (phy25g_phy_state_t *) dev->data;
     phy25g_port_mode_t mode;
+    mepa_device_t *base_dev;
+    phy25g_phy_state_t *base_data;
+    LAN80XX_BASE_DEV(data, base_dev, base_data);
 
     /* Channel ID Will be configured only Once */
     if (!data->channel_id_lock) {
@@ -4948,6 +4985,11 @@ mepa_rc lan80xx_conf_set_priv(struct mepa_device *dev, const mepa_conf_t *config
         }
         data->channel_id = (config->conf_25g.channel_id - 1);
         data->channel_id_lock = 1;
+    }
+
+    if ((base_data->features.quad_disable != 0) && (data->channel_id >= 2U)) {
+        T_E(MEPA_TRACE_GRP_GEN, "\n PHY on Port %d is Dual SKU\n", data->port_no);
+        return MEPA_RC_ERROR;
     }
 
     if (config->fdx == 0) {
@@ -4967,7 +5009,7 @@ mepa_rc lan80xx_conf_set_priv(struct mepa_device *dev, const mepa_conf_t *config
         return MEPA_RC_ERROR;
     }
 
-    if (config->speed == MESA_SPEED_25G && (data->dev.devid == LAN80XX_DEV_ID_8268 || data->dev.devid == LAN80XX_DEV_ID_8267 || data->dev.devid == LAN80XX_DEV_ID_8264)) {
+    if ((base_data->features.speed_25g_disable != 0U) && (config->speed == MESA_SPEED_25G)) {
         T_E(MEPA_TRACE_GRP_GEN, "The PHY SKU on port %d doesnot support 25G speed\n", data->port_no);
         return MEPA_RC_ERROR;
     }

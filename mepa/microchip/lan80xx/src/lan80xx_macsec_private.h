@@ -10,9 +10,6 @@
 #include <microchip/ethernet/phy/api.h>
 #include "lan80xx_macsec.h"
 
-/* Cleartags Disable Bit position */
-#define LAN80XX_CLEARTAGS_DISABLE   (1U << 4)
-
 /* Number of actions supported: drop/forward to control/uncontrol port */
 #define LAN80XX_MACSEC_ACTION_MAX   (3U)
 

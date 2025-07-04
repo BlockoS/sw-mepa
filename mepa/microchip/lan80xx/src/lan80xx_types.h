@@ -171,6 +171,15 @@ typedef struct {
     mepa_bool_t                 an_rem_fault;
 } phy25g_aneg_status;
 
+typedef struct {
+    mepa_bool_t      macsec_disable;
+    mepa_bool_t      ptp_1588_disable;
+    mepa_bool_t      speed_25g_disable;
+    mepa_bool_t      quad_disable;
+    mepa_bool_t      cleartags_disable;
+    mepa_bool_t      mpls_disable;
+} phy25g_features_t;
+
 
 typedef uint8_t(*phy25g_gpio_read_t)();
 //
@@ -233,6 +242,7 @@ typedef struct phy25g_state_s {
     void                            *cntxt;
     phy25g_gpio_read_t              ft_gpio_read;
     mepa_port_no_t                  krlog_en_ports;
+    phy25g_features_t               features;
 } phy25g_phy_state_t;
 
 

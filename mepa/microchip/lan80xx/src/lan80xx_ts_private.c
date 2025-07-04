@@ -743,52 +743,6 @@ static mepa_rc lan80xx_ts_base_port_get_priv(const mepa_device_t *dev,
 }
 
 
-/* This function gives information about the 1588 supported devices */
-mepa_rc lan80xx_ts_is_1588_supported(const mepa_device_t *dev,
-                                     mepa_bool_t *gen, mepa_bool_t *support)
-{
-    phy25g_phy_state_t *data = (phy25g_phy_state_t *) dev->data;
-    u32 dev_id = 0;
-    mepa_bool_t is_supported = FALSE;
-
-    dev_id = data->dev.devid;
-
-
-    switch (dev_id) {
-    case LAN80XX_DEV_ID_8044: // 1G/10G/25G
-    case LAN80XX_DEV_ID_8043: // 1G/10G/25G
-    case LAN80XX_DEV_ID_8024: // 1G/10G/25G
-    case LAN80XX_DEV_ID_8023: // 1G/10G/25G
-    case LAN80XX_DEV_ID_8268: // 1G/10G
-    case LAN80XX_DEV_ID_8267: // 1G/10G
-    case LAN80XX_DEV_ID_8264: // 1G/10G
-        is_supported = TRUE;
-        break;
-    case LAN80XX_DEV_ID_8042: // 1G/10G/25G
-    case LAN80XX_DEV_ID_8022: // 1G/10G/25G
-    default:
-        is_supported = FALSE;
-        break;
-    }
-
-    *support = is_supported;
-    *gen = FALSE;
-    /*
-    if ((dev_id == LAN80XX_PHY_TYPE_8489) ||
-            (dev_id == LAN80XX_PHY_TYPE_8489_15) ||
-            (dev_id == LAN80XX_PHY_TYPE_8490) ||
-            (dev_id == LAN80XX_PHY_TYPE_8491) ||
-            (dev_id == LAN80XX_PHY_TYPE_8491) ||
-            (dev_id == LAN80XX_PHY_TYPE_8257) ||
-            (dev_id == LAN80XX_PHY_TYPE_8258) ||
-            (dev_id == LAN80XX_PHY_TYPE_8254)) {
-
-        *gen = TRUE;
-    }
-    */
-    return MEPA_RC_OK;
-}
-
 mepa_rc lan80xx_ts_get_1588_version(const mepa_device_t *dev,
                                     const mepa_port_no_t port_no, u32 *version)
 {

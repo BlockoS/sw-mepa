@@ -396,9 +396,11 @@ static mepa_rc lan80xx_port_macsec_enable_check(mepa_device_t *dev, mepa_macsec_
 static mepa_bool_t lan80xx_macsec_cleartags_supported(mepa_device_t *dev, mepa_port_no_t port_no)
 {
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
-    u32 val = 0;
-    LAN80XX_CSR_RD(dev, port_no, LAN80XX_MCU_IO_MNGT_MISC_DEVICE_FEATURE_DISABLE_REG, &val);
-    if (val & (LAN80XX_CLEARTAGS_DISABLE)) {
+    mepa_device_t *base_dev;
+    phy25g_phy_state_t *base_data;
+    LAN80XX_BASE_DEV(data, base_dev, base_data);
+
+    if (base_data->features.cleartags_disable != 0U) {
         return FALSE;
     }
     return TRUE;
@@ -409,7 +411,11 @@ static mepa_bool_t lan80xx_macsec_cleartags_supported(mepa_device_t *dev, mepa_p
 mepa_bool_t lan80xx_phy_is_macsec_capable(mepa_device_t *dev)
 {
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
-    if (data->dev.devid == LAN80XX_DEV_ID_8043 || data->dev.devid == LAN80XX_DEV_ID_8023 || data->dev.devid == LAN80XX_DEV_ID_8267) {
+    mepa_device_t *base_dev;
+    phy25g_phy_state_t *base_data;
+    LAN80XX_BASE_DEV(data, base_dev, base_data);
+
+    if (base_data->features.macsec_disable != 0U) {
         return FALSE;
     }
     return TRUE;

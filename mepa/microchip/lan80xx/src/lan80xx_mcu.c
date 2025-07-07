@@ -2317,6 +2317,7 @@ mepa_rc lan80xx_KRLog_Enable(const mepa_device_t *dev, mepa_bool_t bkrlog_enable
         rc = MESA_RC_ERR_PARM;
         return rc;
     }
+    MEPA_ENTER(dev);
 
     // Step 1: Create Packet
     u16PktLen = lan80xx_CreatePacket(eENABLE_KR_LOG, 1, au8CmdBuffer, au8CmdParam, RESERVED_ID);
@@ -2325,6 +2326,7 @@ mepa_rc lan80xx_KRLog_Enable(const mepa_device_t *dev, mepa_bool_t bkrlog_enable
     rc = lan80xx_MB_SendRequest(dev, au8CmdBuffer, u16PktLen);
     if (rc != MEPA_RC_OK) {
         T_E(MEPA_TRACE_GRP_GEN, "%s. Fail to Send Command", __FUNCTION__);
+        MEPA_EXIT(dev);
         return rc;
     }
 
@@ -2332,12 +2334,14 @@ mepa_rc lan80xx_KRLog_Enable(const mepa_device_t *dev, mepa_bool_t bkrlog_enable
     rc = lan80xx_MB_ReadResponse(dev, gau8RespBuffer, &u16PayloadLen, MAILBOX_INTR_TIMEOUT);
     if (rc != MEPA_RC_OK) {
         T_E(MEPA_TRACE_GRP_GEN, "%s. Fail to Read Response", __FUNCTION__);
+        MEPA_EXIT(dev);
         return rc;
     }
 
     // Step 4: Validate Packet
     if (lan80xx_ValidatePacket(gau8RespBuffer) != MEPA_RC_OK) {
         T_E(MEPA_TRACE_GRP_GEN, "%s. Validate Packet Failed", __FUNCTION__);
+        MEPA_EXIT(dev);
         return rc;
     }
 
@@ -2348,7 +2352,7 @@ mepa_rc lan80xx_KRLog_Enable(const mepa_device_t *dev, mepa_bool_t bkrlog_enable
         T_I(MEPA_TRACE_GRP_GEN, "%s: Success", __FUNCTION__);
     } else {
         if (recvPkt->u8PktId == eENABLE_KR_LOG + 0x81) {
-            T_E(MEPA_TRACE_GRP_GEN, "%s. Fail", __FUNCTION__);
+            T_E(MEPA_TRACE_GRP_GEN, "%s. Fail with error code %d", __FUNCTION__, gau8RespBuffer[4]);
             rc = MEPA_RC_ERR_MB_FAIL_RESPONSE;
         } else {
             T_E(MEPA_TRACE_GRP_GEN, "%s Wrong packet received (%d), expected (%d)", \
@@ -2356,6 +2360,7 @@ mepa_rc lan80xx_KRLog_Enable(const mepa_device_t *dev, mepa_bool_t bkrlog_enable
             rc = MEPA_RC_ERR_MB_CMD_PROTO_NO_SYNC;
         }
     }
+    MEPA_EXIT(dev);
     return rc;
 }
 
@@ -2376,6 +2381,8 @@ mepa_rc lan80xx_KRLog_Reset(const mepa_device_t *dev, uint32_t u32KRLogOffset, u
 
     T_D(MEPA_TRACE_GRP_GEN, "Sending RESET KR Log Memory at address:%2X, length: %2X \n\n", u32KRLogOffset, u16Len);
 
+    MEPA_ENTER(dev);
+
     // Step 1: Create Packet for Device Info
     /* 32 bit address */
     au8CmdParam[0] = (u32KRLogOffset) & 0xff;
@@ -2392,6 +2399,7 @@ mepa_rc lan80xx_KRLog_Reset(const mepa_device_t *dev, uint32_t u32KRLogOffset, u
     rc = lan80xx_MB_SendRequest(dev, au8CmdBuffer, u16PktLen);
     if (rc != MEPA_RC_OK) {
         T_E(MEPA_TRACE_GRP_GEN, "%s. Fail to Send Command", __FUNCTION__);
+        MEPA_EXIT(dev);
         return rc;
     }
 
@@ -2399,12 +2407,14 @@ mepa_rc lan80xx_KRLog_Reset(const mepa_device_t *dev, uint32_t u32KRLogOffset, u
     rc = lan80xx_MB_ReadResponse(dev, gau8RespBuffer, &u16PayloadLen, MAILBOX_INTR_TIMEOUT);
     if (rc != MEPA_RC_OK) {
         T_E(MEPA_TRACE_GRP_GEN, "%s. Fail to Read Response", __FUNCTION__);
+        MEPA_EXIT(dev);
         return rc;
     }
 
     // Step 4: Validate Packet
     if (lan80xx_ValidatePacket(gau8RespBuffer) != MEPA_RC_OK) {
         T_E(MEPA_TRACE_GRP_GEN, "%s. Validate Packet Failed", __FUNCTION__);
+        MEPA_EXIT(dev);
         return rc;
     }
 
@@ -2414,7 +2424,7 @@ mepa_rc lan80xx_KRLog_Reset(const mepa_device_t *dev, uint32_t u32KRLogOffset, u
         T_I(MEPA_TRACE_GRP_GEN, "%s: Success", __FUNCTION__);
     } else {
         if (recvPkt->u8PktId == eRESET_KR_LOG_MEMORY + 0x81) {
-            T_E(MEPA_TRACE_GRP_GEN, "%s. Fail", __FUNCTION__);
+            T_E(MEPA_TRACE_GRP_GEN, "%s. Fail with error code %d", __FUNCTION__, gau8RespBuffer[4]);
             rc = MEPA_RC_ERR_MB_FAIL_RESPONSE;
         } else {
             T_E(MEPA_TRACE_GRP_GEN, "%s Wrong packet received (%d), expected (%d)", \
@@ -2422,5 +2432,6 @@ mepa_rc lan80xx_KRLog_Reset(const mepa_device_t *dev, uint32_t u32KRLogOffset, u
             rc = MEPA_RC_ERR_MB_CMD_PROTO_NO_SYNC;
         }
     }
+    MEPA_EXIT(dev);
     return rc;
 }

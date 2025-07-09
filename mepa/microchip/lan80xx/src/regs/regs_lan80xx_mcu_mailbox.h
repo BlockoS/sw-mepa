@@ -371,7 +371,7 @@
  * Field: ::LAN80XX_MCU_MAILBOX_MAILBOX_DATA_REG . MBOX_DATA
  */
 #define  LAN80XX_F_MCU_MAILBOX_MAILBOX_DATA_REG_MBOX_DATA(x)                                        (x)
-#define  LAN80XX_M_MCU_MAILBOX_MAILBOX_DATA_REG_MBOX_DATA                                           (0xffffffff)
+#define  LAN80XX_M_MCU_MAILBOX_MAILBOX_DATA_REG_MBOX_DATA                                           (0xFFFFFFFFU)
 #define  LAN80XX_X_MCU_MAILBOX_MAILBOX_DATA_REG_MBOX_DATA(x)                                        (x)
 
 

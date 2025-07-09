@@ -864,7 +864,7 @@
  * Field: ::LAN80XX_PTP_PROC_INGR_CFG_STALL_LATENCY . INGR_CFG_STALL_LATENCY
  */
 #define  LAN80XX_F_PTP_PROC_INGR_CFG_STALL_LATENCY_INGR_CFG_STALL_LATENCY(x)                        (x)
-#define  LAN80XX_M_PTP_PROC_INGR_CFG_STALL_LATENCY_INGR_CFG_STALL_LATENCY                           (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_INGR_CFG_STALL_LATENCY_INGR_CFG_STALL_LATENCY                           (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_INGR_CFG_STALL_LATENCY_INGR_CFG_STALL_LATENCY(x)                        (x)
 
 
@@ -1148,7 +1148,7 @@
  * Field: ::LAN80XX_PTP_PROC_INGR_PATH_DELAY . INGR_PATH_DELAY
  */
 #define  LAN80XX_F_PTP_PROC_INGR_PATH_DELAY_INGR_PATH_DELAY(x)                                      (x)
-#define  LAN80XX_M_PTP_PROC_INGR_PATH_DELAY_INGR_PATH_DELAY                                         (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_INGR_PATH_DELAY_INGR_PATH_DELAY                                         (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_INGR_PATH_DELAY_INGR_PATH_DELAY(x)                                      (x)
 
 
@@ -1188,7 +1188,7 @@
  * Field: ::LAN80XX_PTP_PROC_INGR_DELAY_ASYMMETRY . INGR_DELAY_ASYMMETRY
  */
 #define  LAN80XX_F_PTP_PROC_INGR_DELAY_ASYMMETRY_INGR_DELAY_ASYMMETRY(x)                            (x)
-#define  LAN80XX_M_PTP_PROC_INGR_DELAY_ASYMMETRY_INGR_DELAY_ASYMMETRY                               (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_INGR_DELAY_ASYMMETRY_INGR_DELAY_ASYMMETRY                               (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_INGR_DELAY_ASYMMETRY_INGR_DELAY_ASYMMETRY(x)                            (x)
 
 
@@ -1620,7 +1620,7 @@
  * Field: ::LAN80XX_PTP_PROC_INGR_TSFIFO_1 . INGR_TSFIFO_1
  */
 #define  LAN80XX_F_PTP_PROC_INGR_TSFIFO_1_INGR_TSFIFO_1(x)                                          (x)
-#define  LAN80XX_M_PTP_PROC_INGR_TSFIFO_1_INGR_TSFIFO_1                                             (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_INGR_TSFIFO_1_INGR_TSFIFO_1                                             (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_INGR_TSFIFO_1_INGR_TSFIFO_1(x)                                          (x)
 
 
@@ -1642,7 +1642,7 @@
  * Field: ::LAN80XX_PTP_PROC_INGR_TSFIFO_2 . INGR_TSFIFO_2
  */
 #define  LAN80XX_F_PTP_PROC_INGR_TSFIFO_2_INGR_TSFIFO_2(x)                                          (x)
-#define  LAN80XX_M_PTP_PROC_INGR_TSFIFO_2_INGR_TSFIFO_2                                             (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_INGR_TSFIFO_2_INGR_TSFIFO_2                                             (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_INGR_TSFIFO_2_INGR_TSFIFO_2(x)                                          (x)
 
 
@@ -1664,7 +1664,7 @@
  * Field: ::LAN80XX_PTP_PROC_INGR_TSFIFO_3 . INGR_TSFIFO_3
  */
 #define  LAN80XX_F_PTP_PROC_INGR_TSFIFO_3_INGR_TSFIFO_3(x)                                          (x)
-#define  LAN80XX_M_PTP_PROC_INGR_TSFIFO_3_INGR_TSFIFO_3                                             (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_INGR_TSFIFO_3_INGR_TSFIFO_3                                             (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_INGR_TSFIFO_3_INGR_TSFIFO_3(x)                                          (x)
 
 
@@ -1686,7 +1686,7 @@
  * Field: ::LAN80XX_PTP_PROC_INGR_TSFIFO_4 . INGR_TSFIFO_4
  */
 #define  LAN80XX_F_PTP_PROC_INGR_TSFIFO_4_INGR_TSFIFO_4(x)                                          (x)
-#define  LAN80XX_M_PTP_PROC_INGR_TSFIFO_4_INGR_TSFIFO_4                                             (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_INGR_TSFIFO_4_INGR_TSFIFO_4                                             (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_INGR_TSFIFO_4_INGR_TSFIFO_4(x)                                          (x)
 
 
@@ -1708,7 +1708,7 @@
  * Field: ::LAN80XX_PTP_PROC_INGR_TSFIFO_5 . INGR_TSFIFO_5
  */
 #define  LAN80XX_F_PTP_PROC_INGR_TSFIFO_5_INGR_TSFIFO_5(x)                                          (x)
-#define  LAN80XX_M_PTP_PROC_INGR_TSFIFO_5_INGR_TSFIFO_5                                             (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_INGR_TSFIFO_5_INGR_TSFIFO_5                                             (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_INGR_TSFIFO_5_INGR_TSFIFO_5(x)                                          (x)
 
 
@@ -1730,7 +1730,7 @@
  * Field: ::LAN80XX_PTP_PROC_INGR_TSFIFO_6 . INGR_TSFIFO_6
  */
 #define  LAN80XX_F_PTP_PROC_INGR_TSFIFO_6_INGR_TSFIFO_6(x)                                          (x)
-#define  LAN80XX_M_PTP_PROC_INGR_TSFIFO_6_INGR_TSFIFO_6                                             (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_INGR_TSFIFO_6_INGR_TSFIFO_6                                             (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_INGR_TSFIFO_6_INGR_TSFIFO_6(x)                                          (x)
 
 
@@ -1752,7 +1752,7 @@
  * Field: ::LAN80XX_PTP_PROC_INGR_TSFIFO_7 . INGR_TSFIFO_7
  */
 #define  LAN80XX_F_PTP_PROC_INGR_TSFIFO_7_INGR_TSFIFO_7(x)                                          (x)
-#define  LAN80XX_M_PTP_PROC_INGR_TSFIFO_7_INGR_TSFIFO_7                                             (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_INGR_TSFIFO_7_INGR_TSFIFO_7                                             (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_INGR_TSFIFO_7_INGR_TSFIFO_7(x)                                          (x)
 
 
@@ -1774,7 +1774,7 @@
  * Field: ::LAN80XX_PTP_PROC_INGR_TSFIFO_8 . INGR_TSFIFO_8
  */
 #define  LAN80XX_F_PTP_PROC_INGR_TSFIFO_8_INGR_TSFIFO_8(x)                                          (x)
-#define  LAN80XX_M_PTP_PROC_INGR_TSFIFO_8_INGR_TSFIFO_8                                             (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_INGR_TSFIFO_8_INGR_TSFIFO_8                                             (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_INGR_TSFIFO_8_INGR_TSFIFO_8(x)                                          (x)
 
 
@@ -1796,7 +1796,7 @@
  * Field: ::LAN80XX_PTP_PROC_INGR_TSFIFO_9 . INGR_TSFIFO_9
  */
 #define  LAN80XX_F_PTP_PROC_INGR_TSFIFO_9_INGR_TSFIFO_9(x)                                          (x)
-#define  LAN80XX_M_PTP_PROC_INGR_TSFIFO_9_INGR_TSFIFO_9                                             (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_INGR_TSFIFO_9_INGR_TSFIFO_9                                             (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_INGR_TSFIFO_9_INGR_TSFIFO_9(x)                                          (x)
 
 
@@ -1818,7 +1818,7 @@
  * Field: ::LAN80XX_PTP_PROC_INGR_TSFIFO_DROP_CNT . INGR_TS_FIFO_DROP_CNT
  */
 #define  LAN80XX_F_PTP_PROC_INGR_TSFIFO_DROP_CNT_INGR_TS_FIFO_DROP_CNT(x)                           (x)
-#define  LAN80XX_M_PTP_PROC_INGR_TSFIFO_DROP_CNT_INGR_TS_FIFO_DROP_CNT                              (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_INGR_TSFIFO_DROP_CNT_INGR_TS_FIFO_DROP_CNT                              (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_INGR_TSFIFO_DROP_CNT_INGR_TS_FIFO_DROP_CNT(x)                           (x)
 
 /**
@@ -1932,7 +1932,7 @@
  * Field: ::LAN80XX_PTP_PROC_INGR_RW_MODFRM_CNT . INGR_RW_MODFRM_CNT
  */
 #define  LAN80XX_F_PTP_PROC_INGR_RW_MODFRM_CNT_INGR_RW_MODFRM_CNT(x)                                (x)
-#define  LAN80XX_M_PTP_PROC_INGR_RW_MODFRM_CNT_INGR_RW_MODFRM_CNT                                   (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_INGR_RW_MODFRM_CNT_INGR_RW_MODFRM_CNT                                   (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_INGR_RW_MODFRM_CNT_INGR_RW_MODFRM_CNT(x)                                (x)
 
 
@@ -1955,7 +1955,7 @@
  * Field: ::LAN80XX_PTP_PROC_INGR_RW_FCS_ERR_CNT . INGR_RW_FCS_ERR_CNT
  */
 #define  LAN80XX_F_PTP_PROC_INGR_RW_FCS_ERR_CNT_INGR_RW_FCS_ERR_CNT(x)                              (x)
-#define  LAN80XX_M_PTP_PROC_INGR_RW_FCS_ERR_CNT_INGR_RW_FCS_ERR_CNT                                 (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_INGR_RW_FCS_ERR_CNT_INGR_RW_FCS_ERR_CNT                                 (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_INGR_RW_FCS_ERR_CNT_INGR_RW_FCS_ERR_CNT(x)                              (x)
 
 
@@ -1979,7 +1979,7 @@
  * Field: ::LAN80XX_PTP_PROC_INGR_RW_PREAMBLE_ERR_CNT . INGR_RW_PREAMBLE_ERR_CNT
  */
 #define  LAN80XX_F_PTP_PROC_INGR_RW_PREAMBLE_ERR_CNT_INGR_RW_PREAMBLE_ERR_CNT(x)                    (x)
-#define  LAN80XX_M_PTP_PROC_INGR_RW_PREAMBLE_ERR_CNT_INGR_RW_PREAMBLE_ERR_CNT                       (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_INGR_RW_PREAMBLE_ERR_CNT_INGR_RW_PREAMBLE_ERR_CNT                       (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_INGR_RW_PREAMBLE_ERR_CNT_INGR_RW_PREAMBLE_ERR_CNT(x)                    (x)
 
 /**
@@ -2006,7 +2006,7 @@
  * Field: ::LAN80XX_PTP_PROC_INGR_ANALYZER_MOD_FRAMES_CNT . INGR_ANALYZER_MOD_FRAMES_CNT
  */
 #define  LAN80XX_F_PTP_PROC_INGR_ANALYZER_MOD_FRAMES_CNT_INGR_ANALYZER_MOD_FRAMES_CNT(x)            (x)
-#define  LAN80XX_M_PTP_PROC_INGR_ANALYZER_MOD_FRAMES_CNT_INGR_ANALYZER_MOD_FRAMES_CNT               (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_INGR_ANALYZER_MOD_FRAMES_CNT_INGR_ANALYZER_MOD_FRAMES_CNT               (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_INGR_ANALYZER_MOD_FRAMES_CNT_INGR_ANALYZER_MOD_FRAMES_CNT(x)            (x)
 
 /**
@@ -2031,7 +2031,7 @@
  * Field: ::LAN80XX_PTP_PROC_INGR_MCH_CRC_ERR_CNTR . INGR_MCH_CRC_ERR_CNTR
  */
 #define  LAN80XX_F_PTP_PROC_INGR_MCH_CRC_ERR_CNTR_INGR_MCH_CRC_ERR_CNTR(x)                          (x)
-#define  LAN80XX_M_PTP_PROC_INGR_MCH_CRC_ERR_CNTR_INGR_MCH_CRC_ERR_CNTR                             (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_INGR_MCH_CRC_ERR_CNTR_INGR_MCH_CRC_ERR_CNTR                             (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_INGR_MCH_CRC_ERR_CNTR_INGR_MCH_CRC_ERR_CNTR(x)                          (x)
 
 
@@ -2057,7 +2057,7 @@
  * Field: ::LAN80XX_PTP_PROC_INGR_MCH_EXTTY_MISMATCH_CNTR . INGR_MCH_EXTTY_MISMATCH_CNTR
  */
 #define  LAN80XX_F_PTP_PROC_INGR_MCH_EXTTY_MISMATCH_CNTR_INGR_MCH_EXTTY_MISMATCH_CNTR(x)            (x)
-#define  LAN80XX_M_PTP_PROC_INGR_MCH_EXTTY_MISMATCH_CNTR_INGR_MCH_EXTTY_MISMATCH_CNTR               (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_INGR_MCH_EXTTY_MISMATCH_CNTR_INGR_MCH_EXTTY_MISMATCH_CNTR               (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_INGR_MCH_EXTTY_MISMATCH_CNTR_INGR_MCH_EXTTY_MISMATCH_CNTR(x)            (x)
 
 
@@ -2306,7 +2306,7 @@
  * Field: ::LAN80XX_PTP_PROC_INGR_RSFEC_PHAD_CYC_TIME . INGR_STAT_CYC_TIME
  */
 #define  LAN80XX_F_PTP_PROC_INGR_RSFEC_PHAD_CYC_TIME_INGR_STAT_CYC_TIME(x)                          (x)
-#define  LAN80XX_M_PTP_PROC_INGR_RSFEC_PHAD_CYC_TIME_INGR_STAT_CYC_TIME                             (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_INGR_RSFEC_PHAD_CYC_TIME_INGR_STAT_CYC_TIME                             (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_INGR_RSFEC_PHAD_CYC_TIME_INGR_STAT_CYC_TIME(x)                          (x)
 
 
@@ -2505,7 +2505,7 @@
  * Field: ::LAN80XX_PTP_PROC_INGR_SOF_PHAD_CYC_TIME . INGR_STAT_CYC_TIME
  */
 #define  LAN80XX_F_PTP_PROC_INGR_SOF_PHAD_CYC_TIME_INGR_STAT_CYC_TIME(x)                            (x)
-#define  LAN80XX_M_PTP_PROC_INGR_SOF_PHAD_CYC_TIME_INGR_STAT_CYC_TIME                               (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_INGR_SOF_PHAD_CYC_TIME_INGR_STAT_CYC_TIME                               (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_INGR_SOF_PHAD_CYC_TIME_INGR_STAT_CYC_TIME(x)                            (x)
 
 
@@ -3111,7 +3111,7 @@
  * Field: ::LAN80XX_PTP_PROC_EGR_CFG_STALL_LATENCY . EGR_CFG_STALL_LATENCY
  */
 #define  LAN80XX_F_PTP_PROC_EGR_CFG_STALL_LATENCY_EGR_CFG_STALL_LATENCY(x)                          (x)
-#define  LAN80XX_M_PTP_PROC_EGR_CFG_STALL_LATENCY_EGR_CFG_STALL_LATENCY                             (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_EGR_CFG_STALL_LATENCY_EGR_CFG_STALL_LATENCY                             (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_EGR_CFG_STALL_LATENCY_EGR_CFG_STALL_LATENCY(x)                          (x)
 
 
@@ -3400,7 +3400,7 @@
  * Field: ::LAN80XX_PTP_PROC_EGR_PATH_DELAY . EGR_PATH_DELAY
  */
 #define  LAN80XX_F_PTP_PROC_EGR_PATH_DELAY_EGR_PATH_DELAY(x)                                        (x)
-#define  LAN80XX_M_PTP_PROC_EGR_PATH_DELAY_EGR_PATH_DELAY                                           (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_EGR_PATH_DELAY_EGR_PATH_DELAY                                           (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_EGR_PATH_DELAY_EGR_PATH_DELAY(x)                                        (x)
 
 
@@ -3439,7 +3439,7 @@
  * Field: ::LAN80XX_PTP_PROC_EGR_DELAY_ASYMMETRY . EGR_DELAY_ASYMMETRY
  */
 #define  LAN80XX_F_PTP_PROC_EGR_DELAY_ASYMMETRY_EGR_DELAY_ASYMMETRY(x)                              (x)
-#define  LAN80XX_M_PTP_PROC_EGR_DELAY_ASYMMETRY_EGR_DELAY_ASYMMETRY                                 (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_EGR_DELAY_ASYMMETRY_EGR_DELAY_ASYMMETRY                                 (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_EGR_DELAY_ASYMMETRY_EGR_DELAY_ASYMMETRY(x)                              (x)
 
 
@@ -3872,7 +3872,7 @@
  * Field: ::LAN80XX_PTP_PROC_EGR_TSFIFO_1 . EGR_TSFIFO_1
  */
 #define  LAN80XX_F_PTP_PROC_EGR_TSFIFO_1_EGR_TSFIFO_1(x)                                            (x)
-#define  LAN80XX_M_PTP_PROC_EGR_TSFIFO_1_EGR_TSFIFO_1                                               (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_EGR_TSFIFO_1_EGR_TSFIFO_1                                               (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_EGR_TSFIFO_1_EGR_TSFIFO_1(x)                                            (x)
 
 
@@ -3894,7 +3894,7 @@
  * Field: ::LAN80XX_PTP_PROC_EGR_TSFIFO_2 . EGR_TSFIFO_2
  */
 #define  LAN80XX_F_PTP_PROC_EGR_TSFIFO_2_EGR_TSFIFO_2(x)                                            (x)
-#define  LAN80XX_M_PTP_PROC_EGR_TSFIFO_2_EGR_TSFIFO_2                                               (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_EGR_TSFIFO_2_EGR_TSFIFO_2                                               (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_EGR_TSFIFO_2_EGR_TSFIFO_2(x)                                            (x)
 
 
@@ -3916,7 +3916,7 @@
  * Field: ::LAN80XX_PTP_PROC_EGR_TSFIFO_3 . EGR_TSFIFO_3
  */
 #define  LAN80XX_F_PTP_PROC_EGR_TSFIFO_3_EGR_TSFIFO_3(x)                                            (x)
-#define  LAN80XX_M_PTP_PROC_EGR_TSFIFO_3_EGR_TSFIFO_3                                               (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_EGR_TSFIFO_3_EGR_TSFIFO_3                                               (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_EGR_TSFIFO_3_EGR_TSFIFO_3(x)                                            (x)
 
 
@@ -3938,7 +3938,7 @@
  * Field: ::LAN80XX_PTP_PROC_EGR_TSFIFO_4 . EGR_TSFIFO_4
  */
 #define  LAN80XX_F_PTP_PROC_EGR_TSFIFO_4_EGR_TSFIFO_4(x)                                            (x)
-#define  LAN80XX_M_PTP_PROC_EGR_TSFIFO_4_EGR_TSFIFO_4                                               (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_EGR_TSFIFO_4_EGR_TSFIFO_4                                               (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_EGR_TSFIFO_4_EGR_TSFIFO_4(x)                                            (x)
 
 
@@ -3960,7 +3960,7 @@
  * Field: ::LAN80XX_PTP_PROC_EGR_TSFIFO_5 . EGR_TSFIFO_5
  */
 #define  LAN80XX_F_PTP_PROC_EGR_TSFIFO_5_EGR_TSFIFO_5(x)                                            (x)
-#define  LAN80XX_M_PTP_PROC_EGR_TSFIFO_5_EGR_TSFIFO_5                                               (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_EGR_TSFIFO_5_EGR_TSFIFO_5                                               (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_EGR_TSFIFO_5_EGR_TSFIFO_5(x)                                            (x)
 
 
@@ -3982,7 +3982,7 @@
  * Field: ::LAN80XX_PTP_PROC_EGR_TSFIFO_6 . EGR_TSFIFO_6
  */
 #define  LAN80XX_F_PTP_PROC_EGR_TSFIFO_6_EGR_TSFIFO_6(x)                                            (x)
-#define  LAN80XX_M_PTP_PROC_EGR_TSFIFO_6_EGR_TSFIFO_6                                               (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_EGR_TSFIFO_6_EGR_TSFIFO_6                                               (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_EGR_TSFIFO_6_EGR_TSFIFO_6(x)                                            (x)
 
 
@@ -4004,7 +4004,7 @@
  * Field: ::LAN80XX_PTP_PROC_EGR_TSFIFO_7 . EGR_TSFIFO_7
  */
 #define  LAN80XX_F_PTP_PROC_EGR_TSFIFO_7_EGR_TSFIFO_7(x)                                            (x)
-#define  LAN80XX_M_PTP_PROC_EGR_TSFIFO_7_EGR_TSFIFO_7                                               (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_EGR_TSFIFO_7_EGR_TSFIFO_7                                               (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_EGR_TSFIFO_7_EGR_TSFIFO_7(x)                                            (x)
 
 
@@ -4026,7 +4026,7 @@
  * Field: ::LAN80XX_PTP_PROC_EGR_TSFIFO_8 . EGR_TSFIFO_8
  */
 #define  LAN80XX_F_PTP_PROC_EGR_TSFIFO_8_EGR_TSFIFO_8(x)                                            (x)
-#define  LAN80XX_M_PTP_PROC_EGR_TSFIFO_8_EGR_TSFIFO_8                                               (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_EGR_TSFIFO_8_EGR_TSFIFO_8                                               (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_EGR_TSFIFO_8_EGR_TSFIFO_8(x)                                            (x)
 
 
@@ -4048,7 +4048,7 @@
  * Field: ::LAN80XX_PTP_PROC_EGR_TSFIFO_9 . EGR_TSFIFO_9
  */
 #define  LAN80XX_F_PTP_PROC_EGR_TSFIFO_9_EGR_TSFIFO_9(x)                                            (x)
-#define  LAN80XX_M_PTP_PROC_EGR_TSFIFO_9_EGR_TSFIFO_9                                               (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_EGR_TSFIFO_9_EGR_TSFIFO_9                                               (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_EGR_TSFIFO_9_EGR_TSFIFO_9(x)                                            (x)
 
 
@@ -4069,7 +4069,7 @@
  * Field: ::LAN80XX_PTP_PROC_EGR_TSFIFO_DROP_CNT . EGR_TS_FIFO_DROP_CNT
  */
 #define  LAN80XX_F_PTP_PROC_EGR_TSFIFO_DROP_CNT_EGR_TS_FIFO_DROP_CNT(x)                             (x)
-#define  LAN80XX_M_PTP_PROC_EGR_TSFIFO_DROP_CNT_EGR_TS_FIFO_DROP_CNT                                (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_EGR_TSFIFO_DROP_CNT_EGR_TS_FIFO_DROP_CNT                                (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_EGR_TSFIFO_DROP_CNT_EGR_TS_FIFO_DROP_CNT(x)                             (x)
 
 /**
@@ -4183,7 +4183,7 @@
  * Field: ::LAN80XX_PTP_PROC_EGR_RW_MODFRM_CNT . EGR_RW_MODFRM_CNT
  */
 #define  LAN80XX_F_PTP_PROC_EGR_RW_MODFRM_CNT_EGR_RW_MODFRM_CNT(x)                                  (x)
-#define  LAN80XX_M_PTP_PROC_EGR_RW_MODFRM_CNT_EGR_RW_MODFRM_CNT                                     (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_EGR_RW_MODFRM_CNT_EGR_RW_MODFRM_CNT                                     (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_EGR_RW_MODFRM_CNT_EGR_RW_MODFRM_CNT(x)                                  (x)
 
 
@@ -4205,7 +4205,7 @@
  * Field: ::LAN80XX_PTP_PROC_EGR_RW_FCS_ERR_CNT . EGR_RW_FCS_ERR_CNT
  */
 #define  LAN80XX_F_PTP_PROC_EGR_RW_FCS_ERR_CNT_EGR_RW_FCS_ERR_CNT(x)                                (x)
-#define  LAN80XX_M_PTP_PROC_EGR_RW_FCS_ERR_CNT_EGR_RW_FCS_ERR_CNT                                   (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_EGR_RW_FCS_ERR_CNT_EGR_RW_FCS_ERR_CNT                                   (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_EGR_RW_FCS_ERR_CNT_EGR_RW_FCS_ERR_CNT(x)                                (x)
 
 
@@ -4229,7 +4229,7 @@
  * Field: ::LAN80XX_PTP_PROC_EGR_RW_PREAMBLE_ERR_CNT . EGR_RW_PREAMBLE_ERR_CNT
  */
 #define  LAN80XX_F_PTP_PROC_EGR_RW_PREAMBLE_ERR_CNT_EGR_RW_PREAMBLE_ERR_CNT(x)                      (x)
-#define  LAN80XX_M_PTP_PROC_EGR_RW_PREAMBLE_ERR_CNT_EGR_RW_PREAMBLE_ERR_CNT                         (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_EGR_RW_PREAMBLE_ERR_CNT_EGR_RW_PREAMBLE_ERR_CNT                         (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_EGR_RW_PREAMBLE_ERR_CNT_EGR_RW_PREAMBLE_ERR_CNT(x)                      (x)
 
 /**
@@ -4256,7 +4256,7 @@
  * Field: ::LAN80XX_PTP_PROC_EGR_ANALYZER_MOD_FRAMES_CNT . EGR_ANALYZER_MOD_FRAMES_CNT
  */
 #define  LAN80XX_F_PTP_PROC_EGR_ANALYZER_MOD_FRAMES_CNT_EGR_ANALYZER_MOD_FRAMES_CNT(x)              (x)
-#define  LAN80XX_M_PTP_PROC_EGR_ANALYZER_MOD_FRAMES_CNT_EGR_ANALYZER_MOD_FRAMES_CNT                 (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_EGR_ANALYZER_MOD_FRAMES_CNT_EGR_ANALYZER_MOD_FRAMES_CNT                 (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_EGR_ANALYZER_MOD_FRAMES_CNT_EGR_ANALYZER_MOD_FRAMES_CNT(x)              (x)
 
 /**
@@ -4281,7 +4281,7 @@
  * Field: ::LAN80XX_PTP_PROC_EGR_MCH_CRC_ERR_CNTR . EGR_MCH_CRC_ERR_CNTR
  */
 #define  LAN80XX_F_PTP_PROC_EGR_MCH_CRC_ERR_CNTR_EGR_MCH_CRC_ERR_CNTR(x)                            (x)
-#define  LAN80XX_M_PTP_PROC_EGR_MCH_CRC_ERR_CNTR_EGR_MCH_CRC_ERR_CNTR                               (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_EGR_MCH_CRC_ERR_CNTR_EGR_MCH_CRC_ERR_CNTR                               (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_EGR_MCH_CRC_ERR_CNTR_EGR_MCH_CRC_ERR_CNTR(x)                            (x)
 
 
@@ -4307,7 +4307,7 @@
  * Field: ::LAN80XX_PTP_PROC_EGR_MCH_EXTTY_MISMATCH_CNTR . EGR_MCH_EXTTY_MISMATCH_CNTR
  */
 #define  LAN80XX_F_PTP_PROC_EGR_MCH_EXTTY_MISMATCH_CNTR_EGR_MCH_EXTTY_MISMATCH_CNTR(x)              (x)
-#define  LAN80XX_M_PTP_PROC_EGR_MCH_EXTTY_MISMATCH_CNTR_EGR_MCH_EXTTY_MISMATCH_CNTR                 (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_EGR_MCH_EXTTY_MISMATCH_CNTR_EGR_MCH_EXTTY_MISMATCH_CNTR                 (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_EGR_MCH_EXTTY_MISMATCH_CNTR_EGR_MCH_EXTTY_MISMATCH_CNTR(x)              (x)
 
 
@@ -4553,7 +4553,7 @@
  * Field: ::LAN80XX_PTP_PROC_EGR_RSFEC_PHAD_CYC_TIME . EGR_STAT_CYC_TIME
  */
 #define  LAN80XX_F_PTP_PROC_EGR_RSFEC_PHAD_CYC_TIME_EGR_STAT_CYC_TIME(x)                            (x)
-#define  LAN80XX_M_PTP_PROC_EGR_RSFEC_PHAD_CYC_TIME_EGR_STAT_CYC_TIME                               (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_EGR_RSFEC_PHAD_CYC_TIME_EGR_STAT_CYC_TIME                               (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_EGR_RSFEC_PHAD_CYC_TIME_EGR_STAT_CYC_TIME(x)                            (x)
 
 
@@ -4753,7 +4753,7 @@
  * Field: ::LAN80XX_PTP_PROC_EGR_SOF_PHAD_CYC_TIME . EGR_STAT_CYC_TIME
  */
 #define  LAN80XX_F_PTP_PROC_EGR_SOF_PHAD_CYC_TIME_EGR_STAT_CYC_TIME(x)                              (x)
-#define  LAN80XX_M_PTP_PROC_EGR_SOF_PHAD_CYC_TIME_EGR_STAT_CYC_TIME                                 (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_EGR_SOF_PHAD_CYC_TIME_EGR_STAT_CYC_TIME                                 (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_EGR_SOF_PHAD_CYC_TIME_EGR_STAT_CYC_TIME(x)                              (x)
 
 
@@ -4806,7 +4806,7 @@
  * Field: ::LAN80XX_PTP_PROC_INGR_ANA_CMD_FIFO_DATA1 . INGR_ANA_CMD_FIFO_DATA1
  */
 #define  LAN80XX_F_PTP_PROC_INGR_ANA_CMD_FIFO_DATA1_INGR_ANA_CMD_FIFO_DATA1(x)                      (x)
-#define  LAN80XX_M_PTP_PROC_INGR_ANA_CMD_FIFO_DATA1_INGR_ANA_CMD_FIFO_DATA1                         (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_INGR_ANA_CMD_FIFO_DATA1_INGR_ANA_CMD_FIFO_DATA1                         (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_INGR_ANA_CMD_FIFO_DATA1_INGR_ANA_CMD_FIFO_DATA1(x)                      (x)
 
 
@@ -5009,7 +5009,7 @@
  * Field: ::LAN80XX_PTP_PROC_INGR_CORRECTION_FIELD_VALUE1 . INGR_CORRECTION_FIELD_VALUE_1
  */
 #define  LAN80XX_F_PTP_PROC_INGR_CORRECTION_FIELD_VALUE1_INGR_CORRECTION_FIELD_VALUE_1(x)           (x)
-#define  LAN80XX_M_PTP_PROC_INGR_CORRECTION_FIELD_VALUE1_INGR_CORRECTION_FIELD_VALUE_1              (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_INGR_CORRECTION_FIELD_VALUE1_INGR_CORRECTION_FIELD_VALUE_1              (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_INGR_CORRECTION_FIELD_VALUE1_INGR_CORRECTION_FIELD_VALUE_1(x)           (x)
 
 
@@ -5031,7 +5031,7 @@
  * Field: ::LAN80XX_PTP_PROC_INGR_CORRECTION_FIELD_VALUE2 . INGR_CORRECTION_FIELD_VALUE_2
  */
 #define  LAN80XX_F_PTP_PROC_INGR_CORRECTION_FIELD_VALUE2_INGR_CORRECTION_FIELD_VALUE_2(x)           (x)
-#define  LAN80XX_M_PTP_PROC_INGR_CORRECTION_FIELD_VALUE2_INGR_CORRECTION_FIELD_VALUE_2              (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_INGR_CORRECTION_FIELD_VALUE2_INGR_CORRECTION_FIELD_VALUE_2              (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_INGR_CORRECTION_FIELD_VALUE2_INGR_CORRECTION_FIELD_VALUE_2(x)           (x)
 
 
@@ -5053,7 +5053,7 @@
  * Field: ::LAN80XX_PTP_PROC_INGR_TIMESTAMP_VALUE1 . INGR_TIMESTAMP_VALUE_1
  */
 #define  LAN80XX_F_PTP_PROC_INGR_TIMESTAMP_VALUE1_INGR_TIMESTAMP_VALUE_1(x)                         (x)
-#define  LAN80XX_M_PTP_PROC_INGR_TIMESTAMP_VALUE1_INGR_TIMESTAMP_VALUE_1                            (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_INGR_TIMESTAMP_VALUE1_INGR_TIMESTAMP_VALUE_1                            (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_INGR_TIMESTAMP_VALUE1_INGR_TIMESTAMP_VALUE_1(x)                         (x)
 
 
@@ -5075,7 +5075,7 @@
  * Field: ::LAN80XX_PTP_PROC_INGR_TIMESTAMP_VALUE2 . INGR_TIMESTAMP_VALUE_2
  */
 #define  LAN80XX_F_PTP_PROC_INGR_TIMESTAMP_VALUE2_INGR_TIMESTAMP_VALUE_2(x)                         (x)
-#define  LAN80XX_M_PTP_PROC_INGR_TIMESTAMP_VALUE2_INGR_TIMESTAMP_VALUE_2                            (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_INGR_TIMESTAMP_VALUE2_INGR_TIMESTAMP_VALUE_2                            (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_INGR_TIMESTAMP_VALUE2_INGR_TIMESTAMP_VALUE_2(x)                         (x)
 
 
@@ -5175,7 +5175,7 @@
  * Field: ::LAN80XX_PTP_PROC_INGR_LTC_SEC_L . INGR_LTC_SEC_L
  */
 #define  LAN80XX_F_PTP_PROC_INGR_LTC_SEC_L_INGR_LTC_SEC_L(x)                                        (x)
-#define  LAN80XX_M_PTP_PROC_INGR_LTC_SEC_L_INGR_LTC_SEC_L                                           (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_INGR_LTC_SEC_L_INGR_LTC_SEC_L                                           (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_INGR_LTC_SEC_L_INGR_LTC_SEC_L(x)                                        (x)
 
 
@@ -5197,7 +5197,7 @@
  * Field: ::LAN80XX_PTP_PROC_INGR_LTC_NS . INGR_LTC_NS
  */
 #define  LAN80XX_F_PTP_PROC_INGR_LTC_NS_INGR_LTC_NS(x)                                              (x)
-#define  LAN80XX_M_PTP_PROC_INGR_LTC_NS_INGR_LTC_NS                                                 (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_INGR_LTC_NS_INGR_LTC_NS                                                 (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_INGR_LTC_NS_INGR_LTC_NS(x)                                              (x)
 
 
@@ -5239,7 +5239,7 @@
  * Field: ::LAN80XX_PTP_PROC_INGR_EXTRACTED_CF1 . INGR_EXTRACTED_CF1
  */
 #define  LAN80XX_F_PTP_PROC_INGR_EXTRACTED_CF1_INGR_EXTRACTED_CF1(x)                                (x)
-#define  LAN80XX_M_PTP_PROC_INGR_EXTRACTED_CF1_INGR_EXTRACTED_CF1                                   (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_INGR_EXTRACTED_CF1_INGR_EXTRACTED_CF1                                   (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_INGR_EXTRACTED_CF1_INGR_EXTRACTED_CF1(x)                                (x)
 
 
@@ -5259,7 +5259,7 @@
  * Field: ::LAN80XX_PTP_PROC_INGR_EXTRACTED_CF2 . INGR_EXTRACTED_CF2
  */
 #define  LAN80XX_F_PTP_PROC_INGR_EXTRACTED_CF2_INGR_EXTRACTED_CF2(x)                                (x)
-#define  LAN80XX_M_PTP_PROC_INGR_EXTRACTED_CF2_INGR_EXTRACTED_CF2                                   (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_INGR_EXTRACTED_CF2_INGR_EXTRACTED_CF2                                   (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_INGR_EXTRACTED_CF2_INGR_EXTRACTED_CF2(x)                                (x)
 
 
@@ -5280,7 +5280,7 @@
  * Field: ::LAN80XX_PTP_PROC_INGR_STORED_TIMESTAMP . INGR_STORED_TIMESTAMP
  */
 #define  LAN80XX_F_PTP_PROC_INGR_STORED_TIMESTAMP_INGR_STORED_TIMESTAMP(x)                          (x)
-#define  LAN80XX_M_PTP_PROC_INGR_STORED_TIMESTAMP_INGR_STORED_TIMESTAMP                             (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_INGR_STORED_TIMESTAMP_INGR_STORED_TIMESTAMP                             (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_INGR_STORED_TIMESTAMP_INGR_STORED_TIMESTAMP(x)                          (x)
 
 
@@ -5320,7 +5320,7 @@
  * Field: ::LAN80XX_PTP_PROC_INGR_ACTIVE_TIMESTAMP1 . INGR_ACTIVE_TIMESTAMP1
  */
 #define  LAN80XX_F_PTP_PROC_INGR_ACTIVE_TIMESTAMP1_INGR_ACTIVE_TIMESTAMP1(x)                        (x)
-#define  LAN80XX_M_PTP_PROC_INGR_ACTIVE_TIMESTAMP1_INGR_ACTIVE_TIMESTAMP1                           (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_INGR_ACTIVE_TIMESTAMP1_INGR_ACTIVE_TIMESTAMP1                           (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_INGR_ACTIVE_TIMESTAMP1_INGR_ACTIVE_TIMESTAMP1(x)                        (x)
 
 
@@ -5608,7 +5608,7 @@
  * Field: ::LAN80XX_PTP_PROC_INGR_ANA_CMD_FIFO_DATA_OUT1 . INGR_ANA_CMD_FIFO_DATA_OUT1
  */
 #define  LAN80XX_F_PTP_PROC_INGR_ANA_CMD_FIFO_DATA_OUT1_INGR_ANA_CMD_FIFO_DATA_OUT1(x)              (x)
-#define  LAN80XX_M_PTP_PROC_INGR_ANA_CMD_FIFO_DATA_OUT1_INGR_ANA_CMD_FIFO_DATA_OUT1                 (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_INGR_ANA_CMD_FIFO_DATA_OUT1_INGR_ANA_CMD_FIFO_DATA_OUT1                 (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_INGR_ANA_CMD_FIFO_DATA_OUT1_INGR_ANA_CMD_FIFO_DATA_OUT1(x)              (x)
 
 
@@ -5642,7 +5642,7 @@
  * Field: ::LAN80XX_PTP_PROC_INGR_TIMESTAMP_VALUE_FIFO_INPUT1 . INGR_TIMESTAMP_VALUE_FIFO_INPUT1
  */
 #define  LAN80XX_F_PTP_PROC_INGR_TIMESTAMP_VALUE_FIFO_INPUT1_INGR_TIMESTAMP_VALUE_FIFO_INPUT1(x)    (x)
-#define  LAN80XX_M_PTP_PROC_INGR_TIMESTAMP_VALUE_FIFO_INPUT1_INGR_TIMESTAMP_VALUE_FIFO_INPUT1       (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_INGR_TIMESTAMP_VALUE_FIFO_INPUT1_INGR_TIMESTAMP_VALUE_FIFO_INPUT1       (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_INGR_TIMESTAMP_VALUE_FIFO_INPUT1_INGR_TIMESTAMP_VALUE_FIFO_INPUT1(x)    (x)
 
 
@@ -5664,7 +5664,7 @@
  * Field: ::LAN80XX_PTP_PROC_INGR_TIMESTAMP_VALUE_FIFO_INPUT2 . INGR_TIMESTAMP_VALUE_FIFO_INPUT2
  */
 #define  LAN80XX_F_PTP_PROC_INGR_TIMESTAMP_VALUE_FIFO_INPUT2_INGR_TIMESTAMP_VALUE_FIFO_INPUT2(x)    (x)
-#define  LAN80XX_M_PTP_PROC_INGR_TIMESTAMP_VALUE_FIFO_INPUT2_INGR_TIMESTAMP_VALUE_FIFO_INPUT2       (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_INGR_TIMESTAMP_VALUE_FIFO_INPUT2_INGR_TIMESTAMP_VALUE_FIFO_INPUT2       (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_INGR_TIMESTAMP_VALUE_FIFO_INPUT2_INGR_TIMESTAMP_VALUE_FIFO_INPUT2(x)    (x)
 
 
@@ -5727,7 +5727,7 @@
  * Field: ::LAN80XX_PTP_PROC_INGR_CORRECTION_FIELD_VALUE_FIFO_INPUT1 . INGR_CORRECTION_FIELD_VALUE_FIFO_INPUT1
  */
 #define  LAN80XX_F_PTP_PROC_INGR_CORRECTION_FIELD_VALUE_FIFO_INPUT1_INGR_CORRECTION_FIELD_VALUE_FIFO_INPUT1(x) (x)
-#define  LAN80XX_M_PTP_PROC_INGR_CORRECTION_FIELD_VALUE_FIFO_INPUT1_INGR_CORRECTION_FIELD_VALUE_FIFO_INPUT1 (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_INGR_CORRECTION_FIELD_VALUE_FIFO_INPUT1_INGR_CORRECTION_FIELD_VALUE_FIFO_INPUT1 (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_INGR_CORRECTION_FIELD_VALUE_FIFO_INPUT1_INGR_CORRECTION_FIELD_VALUE_FIFO_INPUT1(x) (x)
 
 
@@ -5749,7 +5749,7 @@
  * Field: ::LAN80XX_PTP_PROC_INGR_CORRECTION_FIELD_VALUE_FIFO_INPUT2 . INGR_CORRECTION_FIELD_VALUE_FIFO_INPUT2
  */
 #define  LAN80XX_F_PTP_PROC_INGR_CORRECTION_FIELD_VALUE_FIFO_INPUT2_INGR_CORRECTION_FIELD_VALUE_FIFO_INPUT2(x) (x)
-#define  LAN80XX_M_PTP_PROC_INGR_CORRECTION_FIELD_VALUE_FIFO_INPUT2_INGR_CORRECTION_FIELD_VALUE_FIFO_INPUT2 (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_INGR_CORRECTION_FIELD_VALUE_FIFO_INPUT2_INGR_CORRECTION_FIELD_VALUE_FIFO_INPUT2 (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_INGR_CORRECTION_FIELD_VALUE_FIFO_INPUT2_INGR_CORRECTION_FIELD_VALUE_FIFO_INPUT2(x) (x)
 
 /**
@@ -5779,7 +5779,7 @@
  * Field: ::LAN80XX_PTP_PROC_EGR_ANA_CMD_FIFO_DATA1 . EGR_ANA_CMD_FIFO_DATA1
  */
 #define  LAN80XX_F_PTP_PROC_EGR_ANA_CMD_FIFO_DATA1_EGR_ANA_CMD_FIFO_DATA1(x)                        (x)
-#define  LAN80XX_M_PTP_PROC_EGR_ANA_CMD_FIFO_DATA1_EGR_ANA_CMD_FIFO_DATA1                           (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_EGR_ANA_CMD_FIFO_DATA1_EGR_ANA_CMD_FIFO_DATA1                           (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_EGR_ANA_CMD_FIFO_DATA1_EGR_ANA_CMD_FIFO_DATA1(x)                        (x)
 
 
@@ -5982,7 +5982,7 @@
  * Field: ::LAN80XX_PTP_PROC_EGR_CORRECTION_FIELD_VALUE1 . EGR_CORRECTION_FIELD_VALUE_1
  */
 #define  LAN80XX_F_PTP_PROC_EGR_CORRECTION_FIELD_VALUE1_EGR_CORRECTION_FIELD_VALUE_1(x)             (x)
-#define  LAN80XX_M_PTP_PROC_EGR_CORRECTION_FIELD_VALUE1_EGR_CORRECTION_FIELD_VALUE_1                (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_EGR_CORRECTION_FIELD_VALUE1_EGR_CORRECTION_FIELD_VALUE_1                (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_EGR_CORRECTION_FIELD_VALUE1_EGR_CORRECTION_FIELD_VALUE_1(x)             (x)
 
 
@@ -6004,7 +6004,7 @@
  * Field: ::LAN80XX_PTP_PROC_EGR_CORRECTION_FIELD_VALUE2 . EGR_CORRECTION_FIELD_VALUE_2
  */
 #define  LAN80XX_F_PTP_PROC_EGR_CORRECTION_FIELD_VALUE2_EGR_CORRECTION_FIELD_VALUE_2(x)             (x)
-#define  LAN80XX_M_PTP_PROC_EGR_CORRECTION_FIELD_VALUE2_EGR_CORRECTION_FIELD_VALUE_2                (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_EGR_CORRECTION_FIELD_VALUE2_EGR_CORRECTION_FIELD_VALUE_2                (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_EGR_CORRECTION_FIELD_VALUE2_EGR_CORRECTION_FIELD_VALUE_2(x)             (x)
 
 
@@ -6026,7 +6026,7 @@
  * Field: ::LAN80XX_PTP_PROC_EGR_TIMESTAMP_VALUE1 . EGR_TIMESTAMP_VALUE_1
  */
 #define  LAN80XX_F_PTP_PROC_EGR_TIMESTAMP_VALUE1_EGR_TIMESTAMP_VALUE_1(x)                           (x)
-#define  LAN80XX_M_PTP_PROC_EGR_TIMESTAMP_VALUE1_EGR_TIMESTAMP_VALUE_1                              (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_EGR_TIMESTAMP_VALUE1_EGR_TIMESTAMP_VALUE_1                              (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_EGR_TIMESTAMP_VALUE1_EGR_TIMESTAMP_VALUE_1(x)                           (x)
 
 
@@ -6048,7 +6048,7 @@
  * Field: ::LAN80XX_PTP_PROC_EGR_TIMESTAMP_VALUE2 . EGR_TIMESTAMP_VALUE_2
  */
 #define  LAN80XX_F_PTP_PROC_EGR_TIMESTAMP_VALUE2_EGR_TIMESTAMP_VALUE_2(x)                           (x)
-#define  LAN80XX_M_PTP_PROC_EGR_TIMESTAMP_VALUE2_EGR_TIMESTAMP_VALUE_2                              (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_EGR_TIMESTAMP_VALUE2_EGR_TIMESTAMP_VALUE_2                              (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_EGR_TIMESTAMP_VALUE2_EGR_TIMESTAMP_VALUE_2(x)                           (x)
 
 
@@ -6148,7 +6148,7 @@
  * Field: ::LAN80XX_PTP_PROC_EGR_LTC_SEC_L . EGR_LTC_SEC_L
  */
 #define  LAN80XX_F_PTP_PROC_EGR_LTC_SEC_L_EGR_LTC_SEC_L(x)                                          (x)
-#define  LAN80XX_M_PTP_PROC_EGR_LTC_SEC_L_EGR_LTC_SEC_L                                             (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_EGR_LTC_SEC_L_EGR_LTC_SEC_L                                             (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_EGR_LTC_SEC_L_EGR_LTC_SEC_L(x)                                          (x)
 
 
@@ -6170,7 +6170,7 @@
  * Field: ::LAN80XX_PTP_PROC_EGR_LTC_NS . EGR_LTC_NS
  */
 #define  LAN80XX_F_PTP_PROC_EGR_LTC_NS_EGR_LTC_NS(x)                                                (x)
-#define  LAN80XX_M_PTP_PROC_EGR_LTC_NS_EGR_LTC_NS                                                   (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_EGR_LTC_NS_EGR_LTC_NS                                                   (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_EGR_LTC_NS_EGR_LTC_NS(x)                                                (x)
 
 
@@ -6212,7 +6212,7 @@
  * Field: ::LAN80XX_PTP_PROC_EGR_EXTRACTED_CF1 . EGR_EXTRACTED_CF1
  */
 #define  LAN80XX_F_PTP_PROC_EGR_EXTRACTED_CF1_EGR_EXTRACTED_CF1(x)                                  (x)
-#define  LAN80XX_M_PTP_PROC_EGR_EXTRACTED_CF1_EGR_EXTRACTED_CF1                                     (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_EGR_EXTRACTED_CF1_EGR_EXTRACTED_CF1                                     (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_EGR_EXTRACTED_CF1_EGR_EXTRACTED_CF1(x)                                  (x)
 
 
@@ -6232,7 +6232,7 @@
  * Field: ::LAN80XX_PTP_PROC_EGR_EXTRACTED_CF2 . EGR_EXTRACTED_CF2
  */
 #define  LAN80XX_F_PTP_PROC_EGR_EXTRACTED_CF2_EGR_EXTRACTED_CF2(x)                                  (x)
-#define  LAN80XX_M_PTP_PROC_EGR_EXTRACTED_CF2_EGR_EXTRACTED_CF2                                     (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_EGR_EXTRACTED_CF2_EGR_EXTRACTED_CF2                                     (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_EGR_EXTRACTED_CF2_EGR_EXTRACTED_CF2(x)                                  (x)
 
 
@@ -6253,7 +6253,7 @@
  * Field: ::LAN80XX_PTP_PROC_EGR_STORED_TIMESTAMP . EGR_STORED_TIMESTAMP
  */
 #define  LAN80XX_F_PTP_PROC_EGR_STORED_TIMESTAMP_EGR_STORED_TIMESTAMP(x)                            (x)
-#define  LAN80XX_M_PTP_PROC_EGR_STORED_TIMESTAMP_EGR_STORED_TIMESTAMP                               (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_EGR_STORED_TIMESTAMP_EGR_STORED_TIMESTAMP                               (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_EGR_STORED_TIMESTAMP_EGR_STORED_TIMESTAMP(x)                            (x)
 
 
@@ -6293,7 +6293,7 @@
  * Field: ::LAN80XX_PTP_PROC_EGR_ACTIVE_TIMESTAMP1 . EGR_ACTIVE_TIMESTAMP1
  */
 #define  LAN80XX_F_PTP_PROC_EGR_ACTIVE_TIMESTAMP1_EGR_ACTIVE_TIMESTAMP1(x)                          (x)
-#define  LAN80XX_M_PTP_PROC_EGR_ACTIVE_TIMESTAMP1_EGR_ACTIVE_TIMESTAMP1                             (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_EGR_ACTIVE_TIMESTAMP1_EGR_ACTIVE_TIMESTAMP1                             (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_EGR_ACTIVE_TIMESTAMP1_EGR_ACTIVE_TIMESTAMP1(x)                          (x)
 
 
@@ -6581,7 +6581,7 @@
  * Field: ::LAN80XX_PTP_PROC_EGR_ANA_CMD_FIFO_DATA_OUT1 . EGR_ANA_CMD_FIFO_DATA_OUT1
  */
 #define  LAN80XX_F_PTP_PROC_EGR_ANA_CMD_FIFO_DATA_OUT1_EGR_ANA_CMD_FIFO_DATA_OUT1(x)                (x)
-#define  LAN80XX_M_PTP_PROC_EGR_ANA_CMD_FIFO_DATA_OUT1_EGR_ANA_CMD_FIFO_DATA_OUT1                   (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_EGR_ANA_CMD_FIFO_DATA_OUT1_EGR_ANA_CMD_FIFO_DATA_OUT1                   (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_EGR_ANA_CMD_FIFO_DATA_OUT1_EGR_ANA_CMD_FIFO_DATA_OUT1(x)                (x)
 
 
@@ -6615,7 +6615,7 @@
  * Field: ::LAN80XX_PTP_PROC_EGR_TIMESTAMP_VALUE_FIFO_INPUT1 . EGR_TIMESTAMP_VALUE_FIFO_INPUT1
  */
 #define  LAN80XX_F_PTP_PROC_EGR_TIMESTAMP_VALUE_FIFO_INPUT1_EGR_TIMESTAMP_VALUE_FIFO_INPUT1(x)      (x)
-#define  LAN80XX_M_PTP_PROC_EGR_TIMESTAMP_VALUE_FIFO_INPUT1_EGR_TIMESTAMP_VALUE_FIFO_INPUT1         (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_EGR_TIMESTAMP_VALUE_FIFO_INPUT1_EGR_TIMESTAMP_VALUE_FIFO_INPUT1         (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_EGR_TIMESTAMP_VALUE_FIFO_INPUT1_EGR_TIMESTAMP_VALUE_FIFO_INPUT1(x)      (x)
 
 
@@ -6637,7 +6637,7 @@
  * Field: ::LAN80XX_PTP_PROC_EGR_TIMESTAMP_VALUE_FIFO_INPUT2 . EGR_TIMESTAMP_VALUE_FIFO_INPUT2
  */
 #define  LAN80XX_F_PTP_PROC_EGR_TIMESTAMP_VALUE_FIFO_INPUT2_EGR_TIMESTAMP_VALUE_FIFO_INPUT2(x)      (x)
-#define  LAN80XX_M_PTP_PROC_EGR_TIMESTAMP_VALUE_FIFO_INPUT2_EGR_TIMESTAMP_VALUE_FIFO_INPUT2         (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_EGR_TIMESTAMP_VALUE_FIFO_INPUT2_EGR_TIMESTAMP_VALUE_FIFO_INPUT2         (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_EGR_TIMESTAMP_VALUE_FIFO_INPUT2_EGR_TIMESTAMP_VALUE_FIFO_INPUT2(x)      (x)
 
 
@@ -6700,7 +6700,7 @@
  * Field: ::LAN80XX_PTP_PROC_EGR_CORRECTION_FIELD_VALUE_FIFO_INPUT1 . EGR_CORRECTION_FIELD_VALUE_FIFO_INPUT1
  */
 #define  LAN80XX_F_PTP_PROC_EGR_CORRECTION_FIELD_VALUE_FIFO_INPUT1_EGR_CORRECTION_FIELD_VALUE_FIFO_INPUT1(x) (x)
-#define  LAN80XX_M_PTP_PROC_EGR_CORRECTION_FIELD_VALUE_FIFO_INPUT1_EGR_CORRECTION_FIELD_VALUE_FIFO_INPUT1 (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_EGR_CORRECTION_FIELD_VALUE_FIFO_INPUT1_EGR_CORRECTION_FIELD_VALUE_FIFO_INPUT1 (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_EGR_CORRECTION_FIELD_VALUE_FIFO_INPUT1_EGR_CORRECTION_FIELD_VALUE_FIFO_INPUT1(x) (x)
 
 
@@ -6722,7 +6722,7 @@
  * Field: ::LAN80XX_PTP_PROC_EGR_CORRECTION_FIELD_VALUE_FIFO_INPUT2 . EGR_CORRECTION_FIELD_VALUE_FIFO_INPUT2
  */
 #define  LAN80XX_F_PTP_PROC_EGR_CORRECTION_FIELD_VALUE_FIFO_INPUT2_EGR_CORRECTION_FIELD_VALUE_FIFO_INPUT2(x) (x)
-#define  LAN80XX_M_PTP_PROC_EGR_CORRECTION_FIELD_VALUE_FIFO_INPUT2_EGR_CORRECTION_FIELD_VALUE_FIFO_INPUT2 (0xffffffff)
+#define  LAN80XX_M_PTP_PROC_EGR_CORRECTION_FIELD_VALUE_FIFO_INPUT2_EGR_CORRECTION_FIELD_VALUE_FIFO_INPUT2 (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_PROC_EGR_CORRECTION_FIELD_VALUE_FIFO_INPUT2_EGR_CORRECTION_FIELD_VALUE_FIFO_INPUT2(x) (x)
 
 

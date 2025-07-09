@@ -169,7 +169,7 @@
  * Field: ::LAN80XX_PTP_STI_TS_FIFO_SI_TX_CNT . TS_FIFO_SI_TX_CNT
  */
 #define  LAN80XX_F_PTP_STI_TS_FIFO_SI_TX_CNT_TS_FIFO_SI_TX_CNT(x)                                   (x)
-#define  LAN80XX_M_PTP_STI_TS_FIFO_SI_TX_CNT_TS_FIFO_SI_TX_CNT     (0xffffffff)
+#define  LAN80XX_M_PTP_STI_TS_FIFO_SI_TX_CNT_TS_FIFO_SI_TX_CNT     (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_STI_TS_FIFO_SI_TX_CNT_TS_FIFO_SI_TX_CNT(x)                                   (x)
 
 /**
@@ -195,7 +195,7 @@
  * Field: ::LAN80XX_PTP_STI_STI_SPARE_REG_CFG . STI_SPACE_REGS
  */
 #define  LAN80XX_F_PTP_STI_STI_SPARE_REG_CFG_STI_SPACE_REGS(x)                                      (x)
-#define  LAN80XX_M_PTP_STI_STI_SPARE_REG_CFG_STI_SPACE_REGS     (0xffffffff)
+#define  LAN80XX_M_PTP_STI_STI_SPARE_REG_CFG_STI_SPACE_REGS     (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_STI_STI_SPARE_REG_CFG_STI_SPACE_REGS(x)                                      (x)
 
 /**

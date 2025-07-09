@@ -81,7 +81,7 @@
  * Field: ::LAN80XX_GPIO_CTRL_GPIO_OUT_STAT0 . GPIO_OUT_STAT
  */
 #define  LAN80XX_F_GPIO_CTRL_GPIO_OUT_STAT0_GPIO_OUT_STAT(x)                                        (x)
-#define  LAN80XX_M_GPIO_CTRL_GPIO_OUT_STAT0_GPIO_OUT_STAT                                           (0xffffffff)
+#define  LAN80XX_M_GPIO_CTRL_GPIO_OUT_STAT0_GPIO_OUT_STAT                                           (0xFFFFFFFFU)
 #define  LAN80XX_X_GPIO_CTRL_GPIO_OUT_STAT0_GPIO_OUT_STAT(x)                                        (x)
 
 
@@ -922,7 +922,7 @@
  * Field: ::LAN80XX_GPIO_CTRL_GPIO_INTR_SRC_EN . GPIO_IN_INTR_EN
  */
 #define  LAN80XX_F_GPIO_CTRL_GPIO_INTR_SRC_EN_GPIO_IN_INTR_EN(x)                                    (x)
-#define  LAN80XX_M_GPIO_CTRL_GPIO_INTR_SRC_EN_GPIO_IN_INTR_EN                                       (0xffffffff)
+#define  LAN80XX_M_GPIO_CTRL_GPIO_INTR_SRC_EN_GPIO_IN_INTR_EN                                       (0xFFFFFFFFU)
 #define  LAN80XX_X_GPIO_CTRL_GPIO_INTR_SRC_EN_GPIO_IN_INTR_EN(x)                                    (x)
 
 
@@ -974,7 +974,7 @@
  * Field: ::LAN80XX_GPIO_CTRL_GPIO_INTR_STAT0 . GPIO_IN_INTR_STAT
  */
 #define  LAN80XX_F_GPIO_CTRL_GPIO_INTR_STAT0_GPIO_IN_INTR_STAT(x)                                   (x)
-#define  LAN80XX_M_GPIO_CTRL_GPIO_INTR_STAT0_GPIO_IN_INTR_STAT                                      (0xffffffff)
+#define  LAN80XX_M_GPIO_CTRL_GPIO_INTR_STAT0_GPIO_IN_INTR_STAT                                      (0xFFFFFFFFU)
 #define  LAN80XX_X_GPIO_CTRL_GPIO_INTR_STAT0_GPIO_IN_INTR_STAT(x)                                   (x)
 
 

@@ -196,7 +196,7 @@
  * Field: ::LAN80XX_PTP_LTC_PHAD_CYC_STAT . PHAD_CYCLETIME
  */
 #define  LAN80XX_F_PTP_LTC_PHAD_CYC_STAT_PHAD_CYCLETIME(x)                                          (x)
-#define  LAN80XX_M_PTP_LTC_PHAD_CYC_STAT_PHAD_CYCLETIME                                             (0xffffffff)
+#define  LAN80XX_M_PTP_LTC_PHAD_CYC_STAT_PHAD_CYCLETIME                                             (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_LTC_PHAD_CYC_STAT_PHAD_CYCLETIME(x)                                          (x)
 
 
@@ -437,7 +437,7 @@
  * Field: ::LAN80XX_PTP_LTC_PTP_TOD_SEC_LSB . PTP_TOD_SEC_LSB
  */
 #define  LAN80XX_F_PTP_LTC_PTP_TOD_SEC_LSB_PTP_TOD_SEC_LSB(x)                                       (x)
-#define  LAN80XX_M_PTP_LTC_PTP_TOD_SEC_LSB_PTP_TOD_SEC_LSB     (0xffffffff)
+#define  LAN80XX_M_PTP_LTC_PTP_TOD_SEC_LSB_PTP_TOD_SEC_LSB     (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_LTC_PTP_TOD_SEC_LSB_PTP_TOD_SEC_LSB(x)                                       (x)
 
 
@@ -508,7 +508,7 @@
  * Field: ::LAN80XX_PTP_LTC_NTP_NSEC . NTP_NSEC
  */
 #define  LAN80XX_F_PTP_LTC_NTP_NSEC_NTP_NSEC(x)                                                     (x)
-#define  LAN80XX_M_PTP_LTC_NTP_NSEC_NTP_NSEC     (0xffffffff)
+#define  LAN80XX_M_PTP_LTC_NTP_NSEC_NTP_NSEC     (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_LTC_NTP_NSEC_NTP_NSEC(x)                                                     (x)
 
 
@@ -953,7 +953,7 @@
  * Field: ::LAN80XX_PTP_LTC_CLK_PER_CFG . CLK_PER_VAL
  */
 #define  LAN80XX_F_PTP_LTC_CLK_PER_CFG_CLK_PER_VAL(x)                                               (x)
-#define  LAN80XX_M_PTP_LTC_CLK_PER_CFG_CLK_PER_VAL     (0xffffffff)
+#define  LAN80XX_M_PTP_LTC_CLK_PER_CFG_CLK_PER_VAL     (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_LTC_CLK_PER_CFG_CLK_PER_VAL(x)                                               (x)
 
 
@@ -1018,7 +1018,7 @@
  * Field: ::LAN80XX_PTP_LTC_PTP_CUR_SEC_LSB . PTP_CUR_SEC_LSB
  */
 #define  LAN80XX_F_PTP_LTC_PTP_CUR_SEC_LSB_PTP_CUR_SEC_LSB(x)                                       (x)
-#define  LAN80XX_M_PTP_LTC_PTP_CUR_SEC_LSB_PTP_CUR_SEC_LSB     (0xffffffff)
+#define  LAN80XX_M_PTP_LTC_PTP_CUR_SEC_LSB_PTP_CUR_SEC_LSB     (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_LTC_PTP_CUR_SEC_LSB_PTP_CUR_SEC_LSB(x)                                       (x)
 
 
@@ -1065,7 +1065,7 @@
  * Field: ::LAN80XX_PTP_LTC_NTP_CUR_NSEC . NTP_CUR_NSEC
  */
 #define  LAN80XX_F_PTP_LTC_NTP_CUR_NSEC_NTP_CUR_NSEC(x)                                             (x)
-#define  LAN80XX_M_PTP_LTC_NTP_CUR_NSEC_NTP_CUR_NSEC     (0xffffffff)
+#define  LAN80XX_M_PTP_LTC_NTP_CUR_NSEC_NTP_CUR_NSEC     (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_LTC_NTP_CUR_NSEC_NTP_CUR_NSEC(x)                                             (x)
 
 /**
@@ -1443,7 +1443,7 @@
  * Field: ::LAN80XX_PTP_LTC_MEAS_COUNT . MEAS_COUNT_VAL
  */
 #define  LAN80XX_F_PTP_LTC_MEAS_COUNT_MEAS_COUNT_VAL(x)                                             (x)
-#define  LAN80XX_M_PTP_LTC_MEAS_COUNT_MEAS_COUNT_VAL     (0xffffffff)
+#define  LAN80XX_M_PTP_LTC_MEAS_COUNT_MEAS_COUNT_VAL     (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_LTC_MEAS_COUNT_MEAS_COUNT_VAL(x)                                             (x)
 
 
@@ -1467,7 +1467,7 @@
  * Field: ::LAN80XX_PTP_LTC_MEAS_THRESHOLD . MEAS_THRESHOLD_VAL
  */
 #define  LAN80XX_F_PTP_LTC_MEAS_THRESHOLD_MEAS_THRESHOLD_VAL(x)                                     (x)
-#define  LAN80XX_M_PTP_LTC_MEAS_THRESHOLD_MEAS_THRESHOLD_VAL     (0xffffffff)
+#define  LAN80XX_M_PTP_LTC_MEAS_THRESHOLD_MEAS_THRESHOLD_VAL     (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_LTC_MEAS_THRESHOLD_MEAS_THRESHOLD_VAL(x)                                     (x)
 
 /**
@@ -1513,7 +1513,7 @@
  * Field: ::LAN80XX_PTP_LTC_PTP_TOD_1_SEC_LSB . PTP_TOD_1_SEC_LSB
  */
 #define  LAN80XX_F_PTP_LTC_PTP_TOD_1_SEC_LSB_PTP_TOD_1_SEC_LSB(x)                                   (x)
-#define  LAN80XX_M_PTP_LTC_PTP_TOD_1_SEC_LSB_PTP_TOD_1_SEC_LSB     (0xffffffff)
+#define  LAN80XX_M_PTP_LTC_PTP_TOD_1_SEC_LSB_PTP_TOD_1_SEC_LSB     (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_LTC_PTP_TOD_1_SEC_LSB_PTP_TOD_1_SEC_LSB(x)                                   (x)
 
 
@@ -1596,7 +1596,7 @@
  * Field: ::LAN80XX_PTP_LTC_PTP_TOD_2_SEC_LSB . PTP_TOD_2_SEC_LSB
  */
 #define  LAN80XX_F_PTP_LTC_PTP_TOD_2_SEC_LSB_PTP_TOD_2_SEC_LSB(x)                                   (x)
-#define  LAN80XX_M_PTP_LTC_PTP_TOD_2_SEC_LSB_PTP_TOD_2_SEC_LSB     (0xffffffff)
+#define  LAN80XX_M_PTP_LTC_PTP_TOD_2_SEC_LSB_PTP_TOD_2_SEC_LSB     (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_LTC_PTP_TOD_2_SEC_LSB_PTP_TOD_2_SEC_LSB(x)                                   (x)
 
 
@@ -1821,7 +1821,7 @@
  * Field: ::LAN80XX_PTP_LTC_DF_PHAD_CYC_STAT . PHAD_CYCLETIME
  */
 #define  LAN80XX_F_PTP_LTC_DF_PHAD_CYC_STAT_PHAD_CYCLETIME(x)                                       (x)
-#define  LAN80XX_M_PTP_LTC_DF_PHAD_CYC_STAT_PHAD_CYCLETIME     (0xffffffff)
+#define  LAN80XX_M_PTP_LTC_DF_PHAD_CYC_STAT_PHAD_CYCLETIME     (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_LTC_DF_PHAD_CYC_STAT_PHAD_CYCLETIME(x)                                       (x)
 
 
@@ -1870,7 +1870,7 @@
  * Field: ::LAN80XX_PTP_LTC_LTC_SPARE_REG_CFG . LTC_SPACE_REGS
  */
 #define  LAN80XX_F_PTP_LTC_LTC_SPARE_REG_CFG_LTC_SPACE_REGS(x)                                      (x)
-#define  LAN80XX_M_PTP_LTC_LTC_SPARE_REG_CFG_LTC_SPACE_REGS     (0xffffffff)
+#define  LAN80XX_M_PTP_LTC_LTC_SPARE_REG_CFG_LTC_SPACE_REGS     (0xFFFFFFFFU)
 #define  LAN80XX_X_PTP_LTC_LTC_SPARE_REG_CFG_LTC_SPACE_REGS(x)                                      (x)
 
 /**

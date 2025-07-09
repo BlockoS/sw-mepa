@@ -20,7 +20,7 @@
 #define LAN80XX_WORD_MASK        (0xFU)
 #define LAN80XX_WORD(msb, lsb)   ((msb << 8U) | lsb)
 #define LAN80XX_MASK_THIRD_BYTE  (0xFF0000U)
-#define LAN80XX_32BIT_REG_MASK   (0xFFFFFFFF)
+#define LAN80XX_32BIT_REG_MASK   (0xFFFFFFFFU)
 
 #define LAN80XX_HOST_LINE_REG(front,h_l,back) \
 	(((h_l) != 0U) ? (front##_LINE_##back) : (front##_HOST_##back))

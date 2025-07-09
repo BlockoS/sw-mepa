@@ -107,6 +107,8 @@
 #define MMD_ID_PTP_BLOCK          (0xAU)
 /* Device ID for PTP LTC */
 #define MMD_ID_PTP_LTC            (0x1EU)
+/* Device ID for PTP STI */
+#define MMD_ID_PTP_STI            (0x1EU)
 /* Device ID for PTP ANAx_EGR and ANAx_INGR */
 #define MMD_ID_PTP_ANAx           (0xAU)
 /* Device ID for MACSEC INGR */

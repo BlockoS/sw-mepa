@@ -13,7 +13,7 @@
 #include "regs_lan80xx_mcu_mailbox.h"
 #include "regs_lan80xx_mcu_io_mngt_misc.h"
 #include "regs_lan80xx_gpio_ctrl.h"
-#include "regs_lan8042.h"
+#include "regs_lan80xx.h"
 #include "sha256/sha256.h"
 
 static uint8_t gau8RespBuffer[1024] = { 0 };

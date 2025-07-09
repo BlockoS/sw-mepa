@@ -6,17 +6,17 @@
 
 #include "regs_lan8042_common.h"
 
-#define LAN80XX_PTP_PROC_LTC_REG_NUM     18
-#define LAN80XX_PTP_PROC_REG_NUM         38
-#define LAN80XX_PTP_ANA_REG_NUM          417
-#define LAN80XX_PTP_PROC_INGR_BASE       0x9020
-#define LAN80XX_PTP_PROC_EGR_BASE        0x9057
-#define LAN80XX_PTP_ANA0_INGR_BASE       0xA000
-#define LAN80XX_PTP_ANA0_EGR_BASE        0xA800
-#define LAN80XX_PTP_ANA1_INGR_BASE       0xB000
-#define LAN80XX_PTP_ANA1_EGR_BASE        0xB800
-#define LAN80XX_PTP_ANA2_INGR_BASE       0xC000
-#define LAN80XX_PTP_ANA2_EGR_BASE        0xC800
+#define LAN80XX_PTP_PROC_LTC_REG_NUM     (18)
+#define LAN80XX_PTP_PROC_REG_NUM         (38)
+#define LAN80XX_PTP_ANA_REG_NUM          (417)
+#define LAN80XX_PTP_PROC_INGR_BASE       (0x9020)
+#define LAN80XX_PTP_PROC_EGR_BASE        (0x9057)
+#define LAN80XX_PTP_ANA0_INGR_BASE       (0xA000)
+#define LAN80XX_PTP_ANA0_EGR_BASE        (0xA800)
+#define LAN80XX_PTP_ANA1_INGR_BASE       (0xB000)
+#define LAN80XX_PTP_ANA1_EGR_BASE        (0xB800)
+#define LAN80XX_PTP_ANA2_INGR_BASE       (0xC000)
+#define LAN80XX_PTP_ANA2_EGR_BASE        (0xC800)
 
 phy25g_reg_dump_t dump_ptp_proc_ltc[LAN80XX_PTP_PROC_LTC_REG_NUM] = {
     {"INTERFACE_CTL",                       0x9000},

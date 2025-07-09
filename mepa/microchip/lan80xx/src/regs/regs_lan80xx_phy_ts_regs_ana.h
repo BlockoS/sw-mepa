@@ -11,7 +11,7 @@
  *
  * Target: \a ANA
  *
- * \see vtss_target_ANA_e
+ * \see lan80xx_target_ANA_e
  *
  * Analyzer engine configuration registers
  *
@@ -30,7 +30,7 @@
  * \details
  * Register: \a ANA:ETH1_NXT_PROTOCOL:ETH1_NXT_PROTOCOL
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  */
 
 #define LAN80XX_ANA_ETH1_NXT_PROTOCOL_ETH1_NXT_PROTOCOL   (0x0)
@@ -73,7 +73,7 @@
  * \details
  * Register: \a ANA:ETH1_NXT_PROTOCOL:ETH1_VLAN_TPID_CFG
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  */
 #define LAN80XX_ANA_ETH1_NXT_PROTOCOL_ETH1_VLAN_TPID_CFG   (0x1)
 
@@ -95,7 +95,7 @@
  * \details
  * Register: \a ANA:ETH1_NXT_PROTOCOL:ETH1_TAG_MODE
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  */
 #define LAN80XX_ANA_ETH1_NXT_PROTOCOL_ETH1_TAG_MODE   (0x2)
 
@@ -120,7 +120,7 @@
  * \details
  * Register: \a ANA:ETH1_NXT_PROTOCOL:ETH1_ETYPE_MATCH
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  */
 #define LAN80XX_ANA_ETH1_NXT_PROTOCOL_ETH1_ETYPE_MATCH   (0x3)
 
@@ -161,7 +161,7 @@
  * \details
  * Register: \a ANA:ETH1_FLOW_CFG:ETH1_FLOW_ENABLE
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: ETH1_FLOW_CFG (??), 0-7
  */
 #define LAN80XX_ANA_ETH1_FLOW_CFG_ETH1_FLOW_ENABLE(gi)  LAN80XX_IOREG_IX(0,0x10, gi, 16, 0, 0)
@@ -199,7 +199,7 @@
  * \details
  * Register: \a ANA:ETH1_FLOW_CFG:ETH1_MATCH_MODE
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: ETH1_FLOW_CFG (??), 0-7
  */
 #define LAN80XX_ANA_ETH1_FLOW_CFG_ETH1_MATCH_MODE(gi)  LAN80XX_IOREG_IX(0,0x10, gi, 16, 0, 1)
@@ -301,7 +301,7 @@
  * \details
  * Register: \a ANA:ETH1_FLOW_CFG:ETH1_ADDR_MATCH_1
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: ETH1_FLOW_CFG (??), 0-7
  */
 #define LAN80XX_ANA_ETH1_FLOW_CFG_ETH1_ADDR_MATCH_1(gi)  LAN80XX_IOREG_IX(0,0x10, gi, 16, 0, 2)
@@ -313,7 +313,7 @@
  * \details
  * Register: \a ANA:ETH1_FLOW_CFG:ETH1_ADDR_MATCH_2
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: ETH1_FLOW_CFG (??), 0-7
  */
 #define LAN80XX_ANA_ETH1_FLOW_CFG_ETH1_ADDR_MATCH_2(gi)  LAN80XX_IOREG_IX(0,0x10, gi, 16, 0, 3)
@@ -367,7 +367,7 @@
  * \details
  * Register: \a ANA:ETH1_FLOW_CFG:ETH1_VLAN_TAG_RANGE_I_TAG
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: ETH1_FLOW_CFG (??), 0-7
  */
 #define LAN80XX_ANA_ETH1_FLOW_CFG_ETH1_VLAN_TAG_RANGE_I_TAG(gi)  LAN80XX_IOREG_IX(0,0x10, gi, 16, 0, 4)
@@ -403,7 +403,7 @@
  * \details
  * Register: \a ANA:ETH1_FLOW_CFG:ETH1_VLAN_TAG1
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: ETH1_FLOW_CFG (??), 0-7
  */
 #define LAN80XX_ANA_ETH1_FLOW_CFG_ETH1_VLAN_TAG1(gi)  LAN80XX_IOREG_IX(0,0x10, gi, 16, 0, 5)
@@ -437,7 +437,7 @@
  * \details
  * Register: \a ANA:ETH1_FLOW_CFG:ETH1_VLAN_TAG2_I_TAG
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: ETH1_FLOW_CFG (??), 0-7
  */
 #define LAN80XX_ANA_ETH1_FLOW_CFG_ETH1_VLAN_TAG2_I_TAG(gi)  LAN80XX_IOREG_IX(0,0x10, gi, 16, 0, 6)
@@ -479,7 +479,7 @@
  * \details
  * Register: \a ANA:ETH2_NXT_PROTOCOL:ETH2_NXT_PROTOCOL
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  */
 #define LAN80XX_ANA_ETH2_NXT_PROTOCOL_ETH2_NXT_PROTOCOL   (0x90)
 
@@ -521,7 +521,7 @@
  * \details
  * Register: \a ANA:ETH2_NXT_PROTOCOL:ETH2_VLAN_TPID_CFG
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  */
 #define LAN80XX_ANA_ETH2_NXT_PROTOCOL_ETH2_VLAN_TPID_CFG   (0x91)
 
@@ -543,7 +543,7 @@
  * \details
  * Register: \a ANA:ETH2_NXT_PROTOCOL:ETH2_ETYPE_MATCH
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  */
 #define LAN80XX_ANA_ETH2_NXT_PROTOCOL_ETH2_ETYPE_MATCH   (0x92)
 
@@ -581,7 +581,7 @@
  * \details
  * Register: \a ANA:ETH2_FLOW_CFG:ETH2_FLOW_ENABLE
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: ETH2_FLOW_CFG (??), 0-7
  */
 #define LAN80XX_ANA_ETH2_FLOW_CFG_ETH2_FLOW_ENABLE(gi)  LAN80XX_IOREG_IX(0,0xa0, gi, 16, 0, 0)
@@ -620,7 +620,7 @@
  * \details
  * Register: \a ANA:ETH2_FLOW_CFG:ETH2_MATCH_MODE
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: ETH2_FLOW_CFG (??), 0-7
  */
 #define LAN80XX_ANA_ETH2_FLOW_CFG_ETH2_MATCH_MODE(gi)  LAN80XX_IOREG_IX(0,0xa0, gi, 16, 0, 1)
@@ -718,7 +718,7 @@
  * \details
  * Register: \a ANA:ETH2_FLOW_CFG:ETH2_ADDR_MATCH_1
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: ETH2_FLOW_CFG (??), 0-7
  */
 #define LAN80XX_ANA_ETH2_FLOW_CFG_ETH2_ADDR_MATCH_1(gi)  LAN80XX_IOREG_IX(0,0xa0, gi, 16, 0, 2)
@@ -730,7 +730,7 @@
  * \details
  * Register: \a ANA:ETH2_FLOW_CFG:ETH2_ADDR_MATCH_2
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: ETH2_FLOW_CFG (??), 0-7
  */
 #define LAN80XX_ANA_ETH2_FLOW_CFG_ETH2_ADDR_MATCH_2(gi)  LAN80XX_IOREG_IX(0,0xa0, gi, 16, 0, 3)
@@ -784,7 +784,7 @@
  * \details
  * Register: \a ANA:ETH2_FLOW_CFG:ETH2_VLAN_TAG_RANGE_I_TAG
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: ETH2_FLOW_CFG (??), 0-7
  */
 #define LAN80XX_ANA_ETH2_FLOW_CFG_ETH2_VLAN_TAG_RANGE_I_TAG(gi)  LAN80XX_IOREG_IX(0,0xa0, gi, 16, 0, 4)
@@ -818,7 +818,7 @@
  * \details
  * Register: \a ANA:ETH2_FLOW_CFG:ETH2_VLAN_TAG1
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: ETH2_FLOW_CFG (??), 0-7
  */
 #define LAN80XX_ANA_ETH2_FLOW_CFG_ETH2_VLAN_TAG1(gi)  LAN80XX_IOREG_IX(0,0xa0, gi, 16, 0, 5)
@@ -852,7 +852,7 @@
  * \details
  * Register: \a ANA:ETH2_FLOW_CFG:ETH2_VLAN_TAG2_I_TAG
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: ETH2_FLOW_CFG (??), 0-7
  */
 #define LAN80XX_ANA_ETH2_FLOW_CFG_ETH2_VLAN_TAG2_I_TAG(gi)  LAN80XX_IOREG_IX(0,0xa0, gi, 16, 0, 6)
@@ -892,7 +892,7 @@
  * \details
  * Register: \a ANA:MPLS_NXT_COMPARATOR:MPLS_NXT_COMPARATOR
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  */
 #define LAN80XX_ANA_MPLS_NXT_COMPARATOR_MPLS_NXT_COMPARATOR   (0x120)
 
@@ -940,7 +940,7 @@
  * \details
  * Register: \a ANA:MPLS_FLOW_CFG:MPLS_FLOW_CONTROL
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: MPLS_FLOW_CFG (??), 0-7
  */
 #define LAN80XX_ANA_MPLS_FLOW_CFG_MPLS_FLOW_CONTROL(gi)  LAN80XX_IOREG_IX(0,0x130, gi, 16, 0, 0)
@@ -1043,7 +1043,7 @@
  * \details
  * Register: \a ANA:MPLS_FLOW_CFG:MPLS_LABEL_RANGE_LOWER_0
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: MPLS_FLOW_CFG (??), 0-7
  */
 #define LAN80XX_ANA_MPLS_FLOW_CFG_MPLS_LABEL_RANGE_LOWER_0(gi)  LAN80XX_IOREG_IX(0,0x130, gi, 16, 0, 2)
@@ -1066,7 +1066,7 @@
  * \details
  * Register: \a ANA:MPLS_FLOW_CFG:MPLS_LABEL_RANGE_UPPER_0
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: MPLS_FLOW_CFG (??), 0-7
  */
 #define LAN80XX_ANA_MPLS_FLOW_CFG_MPLS_LABEL_RANGE_UPPER_0(gi)  LAN80XX_IOREG_IX(0,0x130, gi, 16, 0, 3)
@@ -1089,7 +1089,7 @@
  * \details
  * Register: \a ANA:MPLS_FLOW_CFG:MPLS_LABEL_RANGE_LOWER_1
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: MPLS_FLOW_CFG (??), 0-7
  */
 #define LAN80XX_ANA_MPLS_FLOW_CFG_MPLS_LABEL_RANGE_LOWER_1(gi)  LAN80XX_IOREG_IX(0,0x130, gi, 16, 0, 4)
@@ -1112,7 +1112,7 @@
  * \details
  * Register: \a ANA:MPLS_FLOW_CFG:MPLS_LABEL_RANGE_UPPER_1
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: MPLS_FLOW_CFG (??), 0-7
  */
 #define LAN80XX_ANA_MPLS_FLOW_CFG_MPLS_LABEL_RANGE_UPPER_1(gi)  LAN80XX_IOREG_IX(0,0x130, gi, 16, 0, 5)
@@ -1135,7 +1135,7 @@
  * \details
  * Register: \a ANA:MPLS_FLOW_CFG:MPLS_LABEL_RANGE_LOWER_2
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: MPLS_FLOW_CFG (??), 0-7
  */
 #define LAN80XX_ANA_MPLS_FLOW_CFG_MPLS_LABEL_RANGE_LOWER_2(gi)  LAN80XX_IOREG_IX(0,0x130, gi, 16, 0, 6)
@@ -1158,7 +1158,7 @@
  * \details
  * Register: \a ANA:MPLS_FLOW_CFG:MPLS_LABEL_RANGE_UPPER_2
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: MPLS_FLOW_CFG (??), 0-7
  */
 #define LAN80XX_ANA_MPLS_FLOW_CFG_MPLS_LABEL_RANGE_UPPER_2(gi)  LAN80XX_IOREG_IX(0,0x130, gi, 16, 0, 7)
@@ -1181,7 +1181,7 @@
  * \details
  * Register: \a ANA:MPLS_FLOW_CFG:MPLS_LABEL_RANGE_LOWER_3
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: MPLS_FLOW_CFG (??), 0-7
  */
 #define LAN80XX_ANA_MPLS_FLOW_CFG_MPLS_LABEL_RANGE_LOWER_3(gi)  LAN80XX_IOREG_IX(0,0x130, gi, 16, 0, 8)
@@ -1204,7 +1204,7 @@
  * \details
  * Register: \a ANA:MPLS_FLOW_CFG:MPLS_LABEL_RANGE_UPPER_3
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: MPLS_FLOW_CFG (??), 0-7
  */
 #define LAN80XX_ANA_MPLS_FLOW_CFG_MPLS_LABEL_RANGE_UPPER_3(gi)  LAN80XX_IOREG_IX(0,0x130, gi, 16, 0, 9)
@@ -1233,7 +1233,7 @@
  * \details
  * Register: \a ANA:IP1_NXT_PROTOCOL:IP1_NXT_COMPARATOR
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  */
 #define LAN80XX_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR   (0x1b0)
 
@@ -1274,7 +1274,7 @@
  * \details
  * Register: \a ANA:IP1_NXT_PROTOCOL:IP1_MODE
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  */
 #define LAN80XX_ANA_IP1_NXT_PROTOCOL_IP1_MODE    (0x1b1)
 
@@ -1312,7 +1312,7 @@
  * \details
  * Register: \a ANA:IP1_NXT_PROTOCOL:IP1_PROT_MATCH_1
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  */
 #define LAN80XX_ANA_IP1_NXT_PROTOCOL_IP1_PROT_MATCH_1   (0x1b2)
 
@@ -1356,7 +1356,7 @@
  * \details
  * Register: \a ANA:IP1_NXT_PROTOCOL:IP1_PROT_MATCH_2_UPPER
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  */
 #define LAN80XX_ANA_IP1_NXT_PROTOCOL_IP1_PROT_MATCH_2_UPPER   (0x1b3)
 
@@ -1367,7 +1367,7 @@
  * \details
  * Register: \a ANA:IP1_NXT_PROTOCOL:IP1_PROT_MATCH_2_LOWER
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  */
 #define LAN80XX_ANA_IP1_NXT_PROTOCOL_IP1_PROT_MATCH_2_LOWER   (0x1b4)
 
@@ -1378,7 +1378,7 @@
  * \details
  * Register: \a ANA:IP1_NXT_PROTOCOL:IP1_PROT_MASK_2_UPPER
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  */
 #define LAN80XX_ANA_IP1_NXT_PROTOCOL_IP1_PROT_MASK_2_UPPER   (0x1b5)
 
@@ -1389,7 +1389,7 @@
  * \details
  * Register: \a ANA:IP1_NXT_PROTOCOL:IP1_PROT_MASK_2_LOWER
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  */
 #define LAN80XX_ANA_IP1_NXT_PROTOCOL_IP1_PROT_MASK_2_LOWER   (0x1b6)
 
@@ -1400,7 +1400,7 @@
  * \details
  * Register: \a ANA:IP1_NXT_PROTOCOL:IP1_PROT_OFFSET_2
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  */
 #define LAN80XX_ANA_IP1_NXT_PROTOCOL_IP1_PROT_OFFSET_2   (0x1b7)
 
@@ -1422,7 +1422,7 @@
  * \details
  * Register: \a ANA:IP1_NXT_PROTOCOL:IP1_UDP_CHKSUM_CFG
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  */
 #define LAN80XX_ANA_IP1_NXT_PROTOCOL_IP1_UDP_CHKSUM_CFG   (0x1b8)
 
@@ -1480,7 +1480,7 @@
  * \details
  * Register: \a ANA:IP1_NXT_PROTOCOL:IP1_FRAME_SIG_CFG
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  */
 #define LAN80XX_ANA_IP1_NXT_PROTOCOL_IP1_FRAME_SIG_CFG   (0x1b9)
 
@@ -1509,7 +1509,7 @@
  * \details
  * Register: \a ANA:IP1_FLOW_CFG:IP1_FLOW_ENA
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: IP1_FLOW_CFG (??), 0-7
  */
 #define LAN80XX_ANA_IP1_FLOW_CFG_IP1_FLOW_ENA(gi)  LAN80XX_IOREG_IX(0,0x1c0, gi, 16, 0, 0)
@@ -1564,7 +1564,7 @@
  * \details
  * Register: \a ANA:IP1_FLOW_CFG:IP1_FLOW_MATCH_UPPER
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: IP1_FLOW_CFG (??), 0-7
  */
 #define LAN80XX_ANA_IP1_FLOW_CFG_IP1_FLOW_MATCH_UPPER(gi)  LAN80XX_IOREG_IX(0,0x1c0, gi, 16, 0, 1)
@@ -1576,7 +1576,7 @@
  * \details
  * Register: \a ANA:IP1_FLOW_CFG:IP1_FLOW_MATCH_UPPER_MID
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: IP1_FLOW_CFG (??), 0-7
  */
 #define LAN80XX_ANA_IP1_FLOW_CFG_IP1_FLOW_MATCH_UPPER_MID(gi)  LAN80XX_IOREG_IX(0,0x1c0, gi, 16, 0, 2)
@@ -1588,7 +1588,7 @@
  * \details
  * Register: \a ANA:IP1_FLOW_CFG:IP1_FLOW_MATCH_LOWER_MID
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: IP1_FLOW_CFG (??), 0-7
  */
 #define LAN80XX_ANA_IP1_FLOW_CFG_IP1_FLOW_MATCH_LOWER_MID(gi)  LAN80XX_IOREG_IX(0,0x1c0, gi, 16, 0, 3)
@@ -1600,7 +1600,7 @@
  * \details
  * Register: \a ANA:IP1_FLOW_CFG:IP1_FLOW_MATCH_LOWER
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: IP1_FLOW_CFG (??), 0-7
  */
 #define LAN80XX_ANA_IP1_FLOW_CFG_IP1_FLOW_MATCH_LOWER(gi)  LAN80XX_IOREG_IX(0,0x1c0, gi, 16, 0, 4)
@@ -1612,7 +1612,7 @@
  * \details
  * Register: \a ANA:IP1_FLOW_CFG:IP1_FLOW_MASK_UPPER
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: IP1_FLOW_CFG (??), 0-7
  */
 #define LAN80XX_ANA_IP1_FLOW_CFG_IP1_FLOW_MASK_UPPER(gi)  LAN80XX_IOREG_IX(0,0x1c0, gi, 16, 0, 5)
@@ -1624,7 +1624,7 @@
  * \details
  * Register: \a ANA:IP1_FLOW_CFG:IP1_FLOW_MASK_UPPER_MID
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: IP1_FLOW_CFG (??), 0-7
  */
 #define LAN80XX_ANA_IP1_FLOW_CFG_IP1_FLOW_MASK_UPPER_MID(gi)  LAN80XX_IOREG_IX(0,0x1c0, gi, 16, 0, 6)
@@ -1636,7 +1636,7 @@
  * \details
  * Register: \a ANA:IP1_FLOW_CFG:IP1_FLOW_MASK_LOWER_MID
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: IP1_FLOW_CFG (??), 0-7
  */
 #define LAN80XX_ANA_IP1_FLOW_CFG_IP1_FLOW_MASK_LOWER_MID(gi)  LAN80XX_IOREG_IX(0,0x1c0, gi, 16, 0, 7)
@@ -1648,7 +1648,7 @@
  * \details
  * Register: \a ANA:IP1_FLOW_CFG:IP1_FLOW_MASK_LOWER
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: IP1_FLOW_CFG (??), 0-7
  */
 #define LAN80XX_ANA_IP1_FLOW_CFG_IP1_FLOW_MASK_LOWER(gi)  LAN80XX_IOREG_IX(0,0x1c0, gi, 16, 0, 8)
@@ -1666,7 +1666,7 @@
  * \details
  * Register: \a ANA:IP2_NXT_PROTOCOL:IP2_NXT_COMPARATOR
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  */
 #define LAN80XX_ANA_IP2_NXT_PROTOCOL_IP2_NXT_COMPARATOR   (0x240)
 
@@ -1707,7 +1707,7 @@
  * \details
  * Register: \a ANA:IP2_NXT_PROTOCOL:IP2_MODE
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  */
 #define LAN80XX_ANA_IP2_NXT_PROTOCOL_IP2_MODE    (0x241)
 
@@ -1745,7 +1745,7 @@
  * \details
  * Register: \a ANA:IP2_NXT_PROTOCOL:IP2_PROT_MATCH_1
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  */
 #define LAN80XX_ANA_IP2_NXT_PROTOCOL_IP2_PROT_MATCH_1   (0x242)
 
@@ -1789,7 +1789,7 @@
  * \details
  * Register: \a ANA:IP2_NXT_PROTOCOL:IP2_PROT_MATCH_2_UPPER
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  */
 #define LAN80XX_ANA_IP2_NXT_PROTOCOL_IP2_PROT_MATCH_2_UPPER   (0x243)
 
@@ -1800,7 +1800,7 @@
  * \details
  * Register: \a ANA:IP2_NXT_PROTOCOL:IP2_PROT_MATCH_2_LOWER
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  */
 #define LAN80XX_ANA_IP2_NXT_PROTOCOL_IP2_PROT_MATCH_2_LOWER   (0x244)
 
@@ -1811,7 +1811,7 @@
  * \details
  * Register: \a ANA:IP2_NXT_PROTOCOL:IP2_PROT_MASK_2_UPPER
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  */
 #define LAN80XX_ANA_IP2_NXT_PROTOCOL_IP2_PROT_MASK_2_UPPER   (0x245)
 
@@ -1822,7 +1822,7 @@
  * \details
  * Register: \a ANA:IP2_NXT_PROTOCOL:IP2_PROT_MASK_2_LOWER
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  */
 #define LAN80XX_ANA_IP2_NXT_PROTOCOL_IP2_PROT_MASK_2_LOWER   (0x246)
 
@@ -1833,7 +1833,7 @@
  * \details
  * Register: \a ANA:IP2_NXT_PROTOCOL:IP2_PROT_OFFSET_2
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  */
 #define LAN80XX_ANA_IP2_NXT_PROTOCOL_IP2_PROT_OFFSET_2   (0x247)
 
@@ -1855,7 +1855,7 @@
  * \details
  * Register: \a ANA:IP2_NXT_PROTOCOL:IP2_UDP_CHKSUM_CFG
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  */
 #define LAN80XX_ANA_IP2_NXT_PROTOCOL_IP2_UDP_CHKSUM_CFG   (0x248)
 
@@ -1913,7 +1913,7 @@
  * \details
  * Register: \a ANA:IP2_NXT_PROTOCOL:IP2_FRAME_SIG_CFG
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  */
 #define LAN80XX_ANA_IP2_NXT_PROTOCOL_IP2_FRAME_SIG_CFG   (0x249)
 
@@ -1942,7 +1942,7 @@
  * \details
  * Register: \a ANA:IP2_FLOW_CFG:IP2_FLOW_ENA
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: IP2_FLOW_CFG (??), 0-7
  */
 #define LAN80XX_ANA_IP2_FLOW_CFG_IP2_FLOW_ENA(gi)  LAN80XX_IOREG_IX(0,0x250, gi, 16, 0, 0)
@@ -1997,7 +1997,7 @@
  * \details
  * Register: \a ANA:IP2_FLOW_CFG:IP2_FLOW_MATCH_UPPER
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: IP2_FLOW_CFG (??), 0-7
  */
 #define LAN80XX_ANA_IP2_FLOW_CFG_IP2_FLOW_MATCH_UPPER(gi)  LAN80XX_IOREG_IX(0,0x250, gi, 16, 0, 1)
@@ -2009,7 +2009,7 @@
  * \details
  * Register: \a ANA:IP2_FLOW_CFG:IP2_FLOW_MATCH_UPPER_MID
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: IP2_FLOW_CFG (??), 0-7
  */
 #define LAN80XX_ANA_IP2_FLOW_CFG_IP2_FLOW_MATCH_UPPER_MID(gi)  LAN80XX_IOREG_IX(0,0x250, gi, 16, 0, 2)
@@ -2021,7 +2021,7 @@
  * \details
  * Register: \a ANA:IP2_FLOW_CFG:IP2_FLOW_MATCH_LOWER_MID
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: IP2_FLOW_CFG (??), 0-7
  */
 #define LAN80XX_ANA_IP2_FLOW_CFG_IP2_FLOW_MATCH_LOWER_MID(gi)  LAN80XX_IOREG_IX(0,0x250, gi, 16, 0, 3)
@@ -2033,7 +2033,7 @@
  * \details
  * Register: \a ANA:IP2_FLOW_CFG:IP2_FLOW_MATCH_LOWER
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: IP2_FLOW_CFG (??), 0-7
  */
 #define LAN80XX_ANA_IP2_FLOW_CFG_IP2_FLOW_MATCH_LOWER(gi)  LAN80XX_IOREG_IX(0,0x250, gi, 16, 0, 4)
@@ -2045,7 +2045,7 @@
  * \details
  * Register: \a ANA:IP2_FLOW_CFG:IP2_FLOW_MASK_UPPER
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: IP2_FLOW_CFG (??), 0-7
  */
 #define LAN80XX_ANA_IP2_FLOW_CFG_IP2_FLOW_MASK_UPPER(gi)  LAN80XX_IOREG_IX(0,0x250, gi, 16, 0, 5)
@@ -2057,7 +2057,7 @@
  * \details
  * Register: \a ANA:IP2_FLOW_CFG:IP2_FLOW_MASK_UPPER_MID
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: IP2_FLOW_CFG (??), 0-7
  */
 #define LAN80XX_ANA_IP2_FLOW_CFG_IP2_FLOW_MASK_UPPER_MID(gi)  LAN80XX_IOREG_IX(0,0x250, gi, 16, 0, 6)
@@ -2069,7 +2069,7 @@
  * \details
  * Register: \a ANA:IP2_FLOW_CFG:IP2_FLOW_MASK_LOWER_MID
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: IP2_FLOW_CFG (??), 0-7
  */
 #define LAN80XX_ANA_IP2_FLOW_CFG_IP2_FLOW_MASK_LOWER_MID(gi)  LAN80XX_IOREG_IX(0,0x250, gi, 16, 0, 7)
@@ -2081,7 +2081,7 @@
  * \details
  * Register: \a ANA:IP2_FLOW_CFG:IP2_FLOW_MASK_LOWER
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: IP2_FLOW_CFG (??), 0-7
  */
 #define LAN80XX_ANA_IP2_FLOW_CFG_IP2_FLOW_MASK_LOWER(gi)  LAN80XX_IOREG_IX(0,0x250, gi, 16, 0, 8)
@@ -2099,7 +2099,7 @@
  * \details
  * Register: \a ANA:PTP_FLOW:PTP_FLOW_ENA
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: PTP_FLOW (??), 0-5
  */
 #define LAN80XX_ANA_PTP_FLOW_PTP_FLOW_ENA(gi)   LAN80XX_IOREG_IX(0,0x2d0, gi, 16, 0, 0)
@@ -2134,7 +2134,7 @@
  * \details
  * Register: \a ANA:PTP_FLOW:PTP_FLOW_MATCH_UPPER
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: PTP_FLOW (??), 0-5
  */
 #define LAN80XX_ANA_PTP_FLOW_PTP_FLOW_MATCH_UPPER(gi)  LAN80XX_IOREG_IX(0,0x2d0, gi, 16, 0, 1)
@@ -2146,7 +2146,7 @@
  * \details
  * Register: \a ANA:PTP_FLOW:PTP_FLOW_MATCH_LOWER
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: PTP_FLOW (??), 0-5
  */
 #define LAN80XX_ANA_PTP_FLOW_PTP_FLOW_MATCH_LOWER(gi)  LAN80XX_IOREG_IX(0,0x2d0, gi, 16, 0, 2)
@@ -2158,7 +2158,7 @@
  * \details
  * Register: \a ANA:PTP_FLOW:PTP_FLOW_MASK_UPPER
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: PTP_FLOW (??), 0-5
  */
 #define LAN80XX_ANA_PTP_FLOW_PTP_FLOW_MASK_UPPER(gi)  LAN80XX_IOREG_IX(0,0x2d0, gi, 16, 0, 3)
@@ -2170,7 +2170,7 @@
  * \details
  * Register: \a ANA:PTP_FLOW:PTP_FLOW_MASK_LOWER
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: PTP_FLOW (??), 0-5
  */
 #define LAN80XX_ANA_PTP_FLOW_PTP_FLOW_MASK_LOWER(gi)  LAN80XX_IOREG_IX(0,0x2d0, gi, 16, 0, 4)
@@ -2182,7 +2182,7 @@
  * \details
  * Register: \a ANA:PTP_FLOW:PTP_DOMAIN_RANGE
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: PTP_FLOW (??), 0-5
  */
 #define LAN80XX_ANA_PTP_FLOW_PTP_DOMAIN_RANGE(gi)  LAN80XX_IOREG_IX(0,0x2d0, gi, 16, 0, 5)
@@ -2236,7 +2236,7 @@
  * \details
  * Register: \a ANA:PTP_FLOW:PTP_ACTION
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: PTP_FLOW (??), 0-5
  */
 #define LAN80XX_ANA_PTP_FLOW_PTP_ACTION(gi)     LAN80XX_IOREG_IX(0,0x2d0, gi, 16, 0, 6)
@@ -2354,7 +2354,7 @@
  * \details
  * Register: \a ANA:PTP_FLOW:PTP_ACTION_2
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: PTP_FLOW (??), 0-5
  */
 #define LAN80XX_ANA_PTP_FLOW_PTP_ACTION_2(gi)   LAN80XX_IOREG_IX(0,0x2d0, gi, 16, 0, 7)
@@ -2388,7 +2388,7 @@
  * \details
  * Register: \a ANA:PTP_FLOW:PTP_ZERO_FIELD_CTL
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  * @param gi Register: PTP_FLOW (??), 0-5
  */
 #define LAN80XX_ANA_PTP_FLOW_PTP_ZERO_FIELD_CTL(gi)  LAN80XX_IOREG_IX(0,0x2d0, gi, 16, 0, 8)
@@ -2428,7 +2428,7 @@
  * \details
  * Register: \a ANA:PTP_IP_CHKSUM_CTL:PTP_IP_CKSUM_SEL
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  */
 #define LAN80XX_ANA_PTP_IP_CHKSUM_CTL_PTP_IP_CKSUM_SEL   (0x330)
 
@@ -2457,7 +2457,7 @@
  * \details
  * Register: \a ANA:FRAME_SIG_CFG:FSB_CFG
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  */
 #define LAN80XX_ANA_FRAME_SIG_CFG_FSB_CFG        (0x331)
 
@@ -2499,7 +2499,7 @@
  *
  * Register: \a ANA:FRAME_SIG_CFG:FSB_MAP_REG_0
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  */
 #define LAN80XX_ANA_FRAME_SIG_CFG_FSB_MAP_REG_0   (0x332)
 
@@ -2565,7 +2565,7 @@
  * \details
  * Register: \a ANA:FRAME_SIG_CFG:FSB_MAP_REG_1
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  */
 #define LAN80XX_ANA_FRAME_SIG_CFG_FSB_MAP_REG_1   (0x333)
 
@@ -2631,7 +2631,7 @@
  * \details
  * Register: \a ANA:FRAME_SIG_CFG:FSB_MAP_REG_2
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  */
 #define LAN80XX_ANA_FRAME_SIG_CFG_FSB_MAP_REG_2   (0x334)
 
@@ -2697,7 +2697,7 @@
  * \details
  * Register: \a ANA:FRAME_SIG_CFG:FSB_MAP_REG_3
  *
- * @param target A \a ::vtss_target_ANA_e target
+ * @param target A \a ::lan80xx_target_ANA_e target
  */
 #define LAN80XX_ANA_FRAME_SIG_CFG_FSB_MAP_REG_3   (0x335)
 
@@ -2718,7 +2718,7 @@
  * \details
  * Register: \a PTP:IP_1588_TOP_CFG_STAT:ANALYZER_MODE
  *
- * @param target A \a ::vtss_target_PTP_e target
+ * @param target A \a ::lan80xx_target_PTP_e target
  */
 #define LAN80XX_PTP_IP_1588_TOP_CFG_STAT_ANALYZER_MODE  (0x1)
 

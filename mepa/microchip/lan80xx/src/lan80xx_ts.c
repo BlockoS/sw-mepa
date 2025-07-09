@@ -8,7 +8,7 @@
 #include "lan80xx_private.h"
 #include "lan80xx_ts_private.h"
 #include "lan80xx_types.h"
-#include "regs_lan8042.h"
+#include "regs_lan80xx.h"
 #include <lan80xx_ts.h>
 
 static mepa_ts_fifo_read_t fifo_cb;

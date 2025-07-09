@@ -6,7 +6,7 @@
 #include <mepa_driver.h>
 #include "lan80xx_private.h"
 #include "lan80xx_regs_util.h"
-#include "regs_lan8042.h"
+#include "regs_lan80xx.h"
 #include "lan80xx.h"
 
 

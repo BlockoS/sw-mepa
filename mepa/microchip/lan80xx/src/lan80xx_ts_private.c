@@ -5,8 +5,7 @@
 #include <mepa_driver.h>
 #include "lan80xx_private.h"
 #include "lan80xx_regs_util.h"
-//#include "../../microchip/lan8042/src/regs/regs_la8042.h"
-#include "regs_lan8042.h"
+#include "regs_lan80xx.h"
 #include "lan80xx_ts.h"
 #include "regs_lan80xx_ts_dump.h"
 

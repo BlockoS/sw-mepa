@@ -5,7 +5,7 @@
 #include <mepa_driver.h>
 #include "lan80xx_private.h"
 #include "lan80xx_regs_util.h"
-#include "regs_lan8042.h"
+#include "regs_lan80xx.h"
 #include "lan80xx_mcu.h"
 #include "lan80xx.h"
 #include "regs_lan80xx_dump.h"
@@ -995,11 +995,11 @@ mepa_rc lan80xx_phy_mac_conf_set(const mepa_device_t  *dev, mepa_port_no_t port_
                        LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_RX_SW_RST |
                        LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_TX_SW_RST);
 
-        LAN80XX_CSR_WR(dev, port_no, LAN80XX_IOREG(MMD_ID_PTP_BLOCK, 1, VTSS_PTP_PROC_MODE_CTL), VTSS_F_PTP_PROC_MODE_CTL_PROTOCOL_MODE(0));
+        LAN80XX_CSR_WR(dev, port_no, LAN80XX_PTP_PROC_MODE_CTL, LAN80XX_F_PTP_PROC_MODE_CTL_PROTOCOL_MODE(0));
         return MEPA_RC_OK;
     }
     T_I(MEPA_TRACE_GRP_GEN, "Enabling the MAC Block on port : %d\n", port_no);
-    LAN80XX_CSR_WR(dev, port_no, LAN80XX_IOREG(MMD_ID_PTP_BLOCK, 1, VTSS_PTP_PROC_MODE_CTL), VTSS_F_PTP_PROC_MODE_CTL_PROTOCOL_MODE(4));
+    LAN80XX_CSR_WR(dev, port_no, LAN80XX_PTP_PROC_MODE_CTL, LAN80XX_F_PTP_PROC_MODE_CTL_PROTOCOL_MODE(4));
 
     /* Tx and Rx threshold values are configured based on the speed selected by user, the values are provided by validation team UNG_MALIBU_25G-2547 */
     u8 rx_read_thresh = 0, tx_read_thresh = 0;

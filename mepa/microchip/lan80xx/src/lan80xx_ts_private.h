@@ -307,9 +307,6 @@ typedef struct {
     uint8_t                           tx_fifo_hi_clk_cycs; /**< Number of clock periods that the spi_clk is high */
     uint8_t                           tx_fifo_lo_clk_cycs; /**< Number of clock periods that the spi_clk is low */
     //phy25g_phy_ts_8487_xaui_sel_t       xaui_sel_8487; /**< 8487 XAUI lane selection*/
-#if defined (VTSS_SW_OPTION_REMOTE_TS_PHY)
-    BOOL                              remote_phy;    /**< TRUE if the phy is remote */
-#endif /* VTSS_SW_OPTION_REMOTE_TS_PHY */
     phy25g_phy_ts_tc_op_mode_t          tc_op_mode; /**< TC operating mode */
     mepa_bool_t                       auto_clear_ls; /**< Load and Save of LTC are auto cleared */
     mepa_bool_t                       macsec_ena;       /**< MACsec is enabled or disabled */

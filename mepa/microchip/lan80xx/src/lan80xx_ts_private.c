@@ -7510,32 +7510,6 @@ static mepa_rc lan80xx_phy_ts_stats_get_priv(mepa_device_t *dev, const mepa_port
     return MEPA_RC_OK;
 }
 
-#if 0
-static mepa_rc lan80xx_phy_ts_csr_adj_1ns_set_priv(mepa_device_t *dev, const mepa_port_no_t port_no, BOOL incr)
-{
-    u32          value = 0;
-
-    /* read the auto adjust update value register */
-    value = 0;
-    MEPA_RC(LAN80XX_PHY_TS_READ_CSR(port_no, LAN80XX_PHY_TS_PROC_BLK_ID(0),
-                                    VTSS_PTP_IP_1588_LTC_LTC_CTRL, &value));
-    /* The auto adjust update value is set to 0 after write operation
-     * No need to clear the bit before | operation
-     */
-    value |= VTSS_F_PTP_IP_1588_LTC_LTC_CTRL_LTC_ADD_SUB_1NS_REQ;
-    if (incr) {
-        value |= VTSS_F_PTP_IP_1588_LTC_LTC_CTRL_LTC_ADD_SUB_1NS;
-    } else {
-        value = VTSS_PHY_TS_CLR_BITS(value,
-                                     VTSS_F_PTP_IP_1588_LTC_LTC_CTRL_LTC_ADD_SUB_1NS);
-    }
-    VTSS_RC(VTSS_PHY_TS_WRITE_CSR(port_no, VTSS_PHY_TS_PROC_BLK_ID(0),
-                                  VTSS_PTP_IP_1588_LTC_LTC_CTRL, &value));
-
-    return VTSS_RC_OK;
-}
-#endif
-
 
 mepa_rc lan80xx_phy_ts_event_enable_get(mepa_device_t *dev, const mepa_port_no_t port_no, mepa_ts_event_t *const ev_mask)
 {
@@ -7583,7 +7557,6 @@ mepa_rc lan80xx_phy_ts_event_enable_set(mepa_device_t *dev, const mepa_port_no_t
             data->phy_ts_port_conf.event_mask &= ~ev_mask;
         }
         /* optimization: only update the register if the mask is changed */
-        //VTSS_E("port %d, enable %d, mask 0x%x, mask_changed %d", port_no, enable, ev_mask, mask_changed);
         if (mask_changed) {
             rc = lan80xx_ts_csr_set_priv(dev, port_no, LAN80XX_PHY_TS_PORT_EVT_MASK_SET);
         }

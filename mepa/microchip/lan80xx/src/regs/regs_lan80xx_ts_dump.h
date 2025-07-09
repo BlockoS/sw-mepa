@@ -4,7 +4,7 @@
 #ifndef _LAN80XX_TS_REG_DUMP_H_
 #define _LAN80XX_TS_REG_DUMP_H_
 
-#include "regs_lan8042_common.h"
+#include "regs_lan80xx_common.h"
 
 #define LAN80XX_PTP_PROC_LTC_REG_NUM     (18)
 #define LAN80XX_PTP_PROC_REG_NUM         (38)

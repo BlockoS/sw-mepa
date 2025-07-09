@@ -5,7 +5,7 @@
 #define _LAN8042_PHY_TS_REGS_ANA_H_
 
 
-#include "regs_lan8042_common.h"
+#include "regs_lan80xx_common.h"
 
 /***********************************************************************
  *

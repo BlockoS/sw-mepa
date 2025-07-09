@@ -4,7 +4,7 @@
 #ifndef _LAN80XX_REG_DUMP_H_
 #define _LAN80XX_REG_DUMP_H_
 
-#include "regs_lan8042_common.h"
+#include "regs_lan80xx_common.h"
 
 #define LAN80XX_GLOBAL_REG_NUM           26
 #define LAN80XX_GPIO_CTRL_REG_NUM        26

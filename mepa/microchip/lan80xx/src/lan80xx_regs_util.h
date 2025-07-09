@@ -33,7 +33,6 @@
 	(((h_l) != 0U) ? (front##_LINE_INTR_CTRL_LINE_##back) : (front##_HOST_INTR_CTRL_HOST_##back))
 
 
-#define VTSS_IO_OFFSET0(x) (x)
 
 /*
  * @param dev  - device id

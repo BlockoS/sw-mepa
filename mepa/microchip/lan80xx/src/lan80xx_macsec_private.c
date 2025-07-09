@@ -2015,8 +2015,8 @@ static mepa_rc lan80xx_macsec_sa_flow_set(mepa_device_t *dev, mepa_port_no_t por
                                 (use_es ? LAN80XX_M_MACSEC_EGR_CORE_EIP_FLOW_CTRL_PAGE0_FLOW_CTRL_1_USE_ES : 0) |
                                 (use_scb ? LAN80XX_M_MACSEC_EGR_CORE_EIP_FLOW_CTRL_PAGE0_FLOW_CTRL_1_USE_SCB : 0) |
                                 LAN80XX_M_MACSEC_EGR_CORE_EIP_FLOW_CTRL_PAGE0_FLOW_CTRL_1_ALLOW_DATA_PACKETS |
-                                (tags_conf->is_eo_mpls ? VTSS_M_MACSEC_EGR_CORE_EIP_FLOW_CTRL_PAGE0_FLOW_CTRL_1_EOMPLS_SUBPORT : 0) |
-                                (tags_conf->is_pw_ctrl_word ? VTSS_M_MACSEC_EGR_CORE_EIP_FLOW_CTRL_PAGE0_FLOW_CTRL_1_EOMPLS_CTRL_WORD : 0) |
+                                (tags_conf->is_eo_mpls ? LAN80XX_M_MACSEC_EGR_CORE_EIP_FLOW_CTRL_PAGE0_FLOW_CTRL_1_EOMPLS_SUBPORT : 0) |
+                                (tags_conf->is_pw_ctrl_word ? LAN80XX_M_MACSEC_EGR_CORE_EIP_FLOW_CTRL_PAGE0_FLOW_CTRL_1_EOMPLS_CTRL_WORD : 0) |
                                 LAN80XX_M_MACSEC_EGR_CORE_EIP_FLOW_CTRL_PAGE0_FLOW_CTRL_1_PREEMPT_EOP_GROWTH);
 
             LAN80XX_CSR_WARM_WR(port_no, LAN80XX_MACSEC_EGR_CORE_EIP_FLOW_CTRL_PAGE0_FLOW_CTRL_2(sc),
@@ -2033,8 +2033,8 @@ static mepa_rc lan80xx_macsec_sa_flow_set(mepa_device_t *dev, mepa_port_no_t por
                                 LAN80XX_M_MACSEC_INGR_CORE_EIP_FLOW_CTRL_PAGE0_FLOW_CTRL_1_ALLOW_TAGGED_DATA    |
                                 LAN80XX_M_MACSEC_INGR_CORE_EIP_FLOW_CTRL_PAGE0_FLOW_CTRL_1_ALLOW_UNTAGGED_DATA  |
                                 LAN80XX_F_MACSEC_INGR_CORE_EIP_FLOW_CTRL_PAGE0_FLOW_CTRL_1_VALIDATE_FRAMES_TAGGED(validate) |
-                                (tags_conf->is_eo_mpls ? VTSS_M_MACSEC_INGR_CORE_EIP_FLOW_CTRL_PAGE0_FLOW_CTRL_1_EOMPLS_SUBPORT : 0) |
-                                (tags_conf->is_pw_ctrl_word ? VTSS_M_MACSEC_INGR_CORE_EIP_FLOW_CTRL_PAGE0_FLOW_CTRL_1_EOMPLS_CTRL_WORD : 0));
+                                (tags_conf->is_eo_mpls ? LAN80XX_M_MACSEC_INGR_CORE_EIP_FLOW_CTRL_PAGE0_FLOW_CTRL_1_EOMPLS_SUBPORT : 0) |
+                                (tags_conf->is_pw_ctrl_word ? LAN80XX_M_MACSEC_INGR_CORE_EIP_FLOW_CTRL_PAGE0_FLOW_CTRL_1_EOMPLS_CTRL_WORD : 0));
 
             LAN80XX_CSR_WARM_WR(port_no, LAN80XX_MACSEC_INGR_CORE_EIP_FLOW_CTRL_PAGE0_FLOW_CTRL_2(sc),
                                 LAN80XX_F_MACSEC_INGR_CORE_EIP_FLOW_CTRL_PAGE0_FLOW_CTRL_2_PRE_SECTAG_AUTH_START(0)  |
@@ -2054,8 +2054,8 @@ static mepa_rc lan80xx_macsec_sa_flow_set(mepa_device_t *dev, mepa_port_no_t por
                                 (use_es ? LAN80XX_M_MACSEC_EGR_CORE_EIP_FLOW_CTRL_PAGE1_FLOW_CTRL_1_USE_ES : 0) |
                                 (use_scb ? LAN80XX_M_MACSEC_EGR_CORE_EIP_FLOW_CTRL_PAGE1_FLOW_CTRL_1_USE_SCB : 0) |
                                 LAN80XX_M_MACSEC_EGR_CORE_EIP_FLOW_CTRL_PAGE1_FLOW_CTRL_1_ALLOW_DATA_PACKETS |
-                                (tags_conf->is_eo_mpls ? VTSS_M_MACSEC_EGR_CORE_EIP_FLOW_CTRL_PAGE1_FLOW_CTRL_1_EOMPLS_SUBPORT : 0) |
-                                (tags_conf->is_pw_ctrl_word ? VTSS_M_MACSEC_EGR_CORE_EIP_FLOW_CTRL_PAGE1_FLOW_CTRL_1_EOMPLS_CTRL_WORD : 0) |
+                                (tags_conf->is_eo_mpls ? LAN80XX_M_MACSEC_EGR_CORE_EIP_FLOW_CTRL_PAGE1_FLOW_CTRL_1_EOMPLS_SUBPORT : 0) |
+                                (tags_conf->is_pw_ctrl_word ? LAN80XX_M_MACSEC_EGR_CORE_EIP_FLOW_CTRL_PAGE1_FLOW_CTRL_1_EOMPLS_CTRL_WORD : 0) |
                                 LAN80XX_M_MACSEC_EGR_CORE_EIP_FLOW_CTRL_PAGE1_FLOW_CTRL_1_PREEMPT_EOP_GROWTH);
 
             LAN80XX_CSR_WARM_WR(port_no, LAN80XX_MACSEC_EGR_CORE_EIP_FLOW_CTRL_PAGE1_FLOW_CTRL_2(sc - 32),
@@ -2072,8 +2072,8 @@ static mepa_rc lan80xx_macsec_sa_flow_set(mepa_device_t *dev, mepa_port_no_t por
                                 LAN80XX_M_MACSEC_INGR_CORE_EIP_FLOW_CTRL_PAGE1_FLOW_CTRL_1_ALLOW_TAGGED_DATA    |
                                 LAN80XX_M_MACSEC_INGR_CORE_EIP_FLOW_CTRL_PAGE1_FLOW_CTRL_1_ALLOW_UNTAGGED_DATA  |
                                 LAN80XX_F_MACSEC_INGR_CORE_EIP_FLOW_CTRL_PAGE1_FLOW_CTRL_1_VALIDATE_FRAMES_TAGGED(validate) |
-                                (tags_conf->is_eo_mpls ? VTSS_M_MACSEC_INGR_CORE_EIP_FLOW_CTRL_PAGE1_FLOW_CTRL_1_EOMPLS_SUBPORT : 0) |
-                                (tags_conf->is_pw_ctrl_word ? VTSS_M_MACSEC_INGR_CORE_EIP_FLOW_CTRL_PAGE1_FLOW_CTRL_1_EOMPLS_CTRL_WORD : 0));
+                                (tags_conf->is_eo_mpls ? LAN80XX_M_MACSEC_INGR_CORE_EIP_FLOW_CTRL_PAGE1_FLOW_CTRL_1_EOMPLS_SUBPORT : 0) |
+                                (tags_conf->is_pw_ctrl_word ? LAN80XX_M_MACSEC_INGR_CORE_EIP_FLOW_CTRL_PAGE1_FLOW_CTRL_1_EOMPLS_CTRL_WORD : 0));
 
 
             LAN80XX_CSR_WARM_WR(port_no, LAN80XX_MACSEC_INGR_CORE_EIP_FLOW_CTRL_PAGE1_FLOW_CTRL_2(sc),

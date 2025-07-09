@@ -4,7 +4,7 @@
 #ifndef _LAN80XX_MALIBU25G_REGS_PTP_ANA1_EGR_CFG_H_
 #define _LAN80XX_MALIBU25G_REGS_PTP_ANA1_EGR_CFG_H_
 
-#include "regs_lan8042_common.h"
+#include "regs_lan80xx_common.h"
 
 /***********************************************************************
  *

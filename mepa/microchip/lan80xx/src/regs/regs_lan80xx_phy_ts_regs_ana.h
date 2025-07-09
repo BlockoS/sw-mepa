@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _LAN8042_PHY_TS_REGS_ANA_H_
-#define _LAN8042_PHY_TS_REGS_ANA_H_
+#ifndef LAN8042_PHY_TS_REGS_ANA_H_
+#define LAN8042_PHY_TS_REGS_ANA_H_
 
 
 #include "regs_lan80xx_common.h"

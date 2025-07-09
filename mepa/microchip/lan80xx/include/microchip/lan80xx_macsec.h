@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _LAN80XX_MACSEC_H_
-#define _LAN80XX_MACSEC_H_
+#ifndef LAN80XX_MACSEC_H_
+#define LAN80XX_MACSEC_H_
 
 // The following .h file needed
 #include <microchip/ethernet/phy/api.h>

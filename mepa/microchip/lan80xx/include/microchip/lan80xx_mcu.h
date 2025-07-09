@@ -6,8 +6,8 @@
 
 
 
-#ifndef _LAN80XX_MCU_H_
-#define _LAN80XX_MCU_H_
+#ifndef LAN80XX_MCU_H_
+#define LAN80XX_MCU_H_
 
 // The following .h file needed
 #include <microchip/ethernet/phy/api.h>

@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _LAN80XX_MALIBU25G_REGS_GLOBAL_FAST_RESET_H_
-#define _LAN80XX_MALIBU25G_REGS_GLOBAL_FAST_RESET_H_
+#ifndef LAN80XX_MALIBU25G_REGS_GLOBAL_FAST_RESET_H_
+#define LAN80XX_MALIBU25G_REGS_GLOBAL_FAST_RESET_H_
 
 #include "regs_lan80xx_common.h"
 

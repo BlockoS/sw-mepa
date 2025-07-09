@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _MEPA_LAN80XX_REGS_COMMON_H_
-#define _MEPA_LAN80XX_REGS_COMMON_H_
+#ifndef MEPA_LAN80XX_REGS_COMMON_H_
+#define MEPA_LAN80XX_REGS_COMMON_H_
 
 #define LAN80XX_BIT(x)                   (1U << (x))
 #define LAN80XX_BITMASK(x)               ((1U << (x)) - 1)

@@ -3,8 +3,8 @@
 
 /* PTP public header with chip specific data structures and APIs */
 
-#ifndef _LAN80XX_TS_H_
-#define _LAN80XX_TS_H_
+#ifndef LAN80XX_TS_H_
+#define LAN80XX_TS_H_
 
 #include <microchip/ethernet/phy/api.h>
 #include <mepa_driver.h>

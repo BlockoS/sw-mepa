@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _MEPA_LAN80XX_DFU_H_
-#define _MEPA_LAN80XX_DFU_H_
+#ifndef MEPA_LAN80XX_DFU_H_
+#define MEPA_LAN80XX_DFU_H_
 
 uint32_t gu32FwImageLen = 67040;
 

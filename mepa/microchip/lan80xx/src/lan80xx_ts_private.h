@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _MEPA_LAN80XX_TS_PRIVATE_H_
-#define _MEPA_LAN80XX_TS_PRIVATE_H_
+#ifndef MEPA_LAN80XX_TS_PRIVATE_H_
+#define MEPA_LAN80XX_TS_PRIVATE_H_
 
 #include <microchip/ethernet/phy/api/types.h>
 #include <microchip/ethernet/phy/api.h>

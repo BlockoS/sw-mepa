@@ -41,8 +41,8 @@
  * THAT YOU HAVE PAID DIRECTLY TO MICROCHIP FOR THIS SOFTWARE.
  *******************************************************************************/
 
-#ifndef _LAN80XX_SERDES_CONFIG_H
-#define _LAN80XX_SERDES_CONFIG_H
+#ifndef LAN80XX_SERDES_CONFIG_H
+#define LAN80XX_SERDES_CONFIG_H
 
 /******************* 25G_SPEED ***********************/
 /***** PMA Common Configuration *****/

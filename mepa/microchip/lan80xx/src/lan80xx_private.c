@@ -11,39 +11,39 @@
 #include "regs_lan80xx_dump.h"
 #include "lan80xx_serdes_config.h"
 
-#define BLOCK_RESET_1 0xffff
-#define BLOCK_RESET_2 0xffff
+#define BLOCK_RESET_1                                 (0xFFFFU)
+#define BLOCK_RESET_2                                 (0xFFFFU)
 
-#define MAX_SOURCE_EVENTS 31
-#define MAX_ACK_TIMER 15
-#define LAN80XX_IS_BITSET(value, x) ((value & x) ? 1 : 0)
+#define MAX_SOURCE_EVENTS                             (31U)
+#define MAX_ACK_TIMER                                 (15U)
+#define LAN80XX_IS_BITSET(value, x)                   ( (((value) & (x)) != 0U) ? 1U : 0U )
 
 /* Rx Equalizers Coefficients Maximum Values */
-#define LAN80XX_CTLE_VGA_MAX_VAL 31
-#define LAN80XX_CTLE_R_MAX_VAL 15
-#define LAN80XX_CTLE_C_MAX_VAL 15
+#define LAN80XX_CTLE_VGA_MAX_VAL                      (31U)
+#define LAN80XX_CTLE_R_MAX_VAL                        (15U)
+#define LAN80XX_CTLE_C_MAX_VAL                        (15U)
 
-#define LAN80XX_XCONNECT_HOSTx_CFG(x)  LAN80XX_IOREG(MMD_ID_CROSS_CONN, 1, (0xF108 + (x*2)))
-#define LAN80XX_XCONNECT_LINEx_CFG(x)  LAN80XX_IOREG(MMD_ID_CROSS_CONN, 1, (0xF110 + (x*2)))
+#define LAN80XX_XCONNECT_HOSTx_CFG(x)                 (LAN80XX_IOREG(MMD_ID_CROSS_CONN, 1U, (0xF108U + ((x) * 2U))))
+#define LAN80XX_XCONNECT_LINEx_CFG(x)                 (LAN80XX_IOREG(MMD_ID_CROSS_CONN, 1U, (0xF110U + ((x) * 2U))))
 
-#define  LAN80XX_F_CROSS_CONNECT_SRC_SEL_DEFAULT_CH(x)  LAN80XX_ENCODE_BITFIELD(x,0,2)
-#define  LAN80XX_M_CROSS_CONNECT_SRC_SEL_DEFAULT_CH     LAN80XX_ENCODE_BITMASK(0,2)
-#define  LAN80XX_X_CROSS_CONNECT_SRC_SEL_DEFAULT_CH(x)  LAN80XX_EXTRACT_BITFIELD(x,0,2)
+#define LAN80XX_F_CROSS_CONNECT_SRC_SEL_DEFAULT_CH(x) (LAN80XX_ENCODE_BITFIELD((x), 0U, 2U))
+#define LAN80XX_M_CROSS_CONNECT_SRC_SEL_DEFAULT_CH    (LAN80XX_ENCODE_BITMASK(0U, 2U))
+#define LAN80XX_X_CROSS_CONNECT_SRC_SEL_DEFAULT_CH(x) (LAN80XX_EXTRACT_BITFIELD((x), 0U, 2U))
 
-/* Tx Equalizers Coefficients maximum Values */
-#define LAN80XX_TX_AMP_CODE_MAX_VAL 101
-#define LAN80XX_TX_TAP_DLY_MAX_VAL  31
-#define LAN80XX_TX_TAP_ADV_MAX_VAL  15
+/* Tx Equalizers Coefficients Maximum Values */
+#define LAN80XX_TX_AMP_CODE_MAX_VAL                   (101U)
+#define LAN80XX_TX_TAP_DLY_MAX_VAL                    (31U)
+#define LAN80XX_TX_TAP_ADV_MAX_VAL                    (15U)
 
 /* Tx Equalizers Amplitude Control ranges */
-#define LAN80XX_TX_AMP_CODE_RANGE_16  16
-#define LAN80XX_TX_AMP_CODE_RANGE_32  32
-#define LAN80XX_TX_AMP_CODE_RANGE_46  46
-#define LAN80XX_TX_AMP_CODE_RANGE_58  58
-#define LAN80XX_TX_AMP_CODE_RANGE_69  69
-#define LAN80XX_TX_AMP_CODE_RANGE_79  79
-#define LAN80XX_TX_AMP_CODE_RANGE_88  88
-#define LAN80XX_TX_AMP_CODE_RANGE_102  102
+#define LAN80XX_TX_AMP_CODE_RANGE_16                  (16U)
+#define LAN80XX_TX_AMP_CODE_RANGE_32                  (32U)
+#define LAN80XX_TX_AMP_CODE_RANGE_46                  (46U)
+#define LAN80XX_TX_AMP_CODE_RANGE_58                  (58U)
+#define LAN80XX_TX_AMP_CODE_RANGE_69                  (69U)
+#define LAN80XX_TX_AMP_CODE_RANGE_79                  (79U)
+#define LAN80XX_TX_AMP_CODE_RANGE_88                  (88U)
+#define LAN80XX_TX_AMP_CODE_RANGE_102                 (102U)
 
 
 mepa_rc lan80xx_block_reset_priv(mepa_device_t *dev)

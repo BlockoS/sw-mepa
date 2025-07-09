@@ -40,28 +40,25 @@ typedef u32 phy25g_ts_fifo_sig_mask_t;
 /**
  * \brief Defines Tx TSFIFO signature length.
  **/
-#define LAN80XX_PHY_TS_SIG_TIME_STAMP_LEN     11
-#define LAN80XX_PHY_TS_SIG_SOURCE_PORT_ID_LEN 10
-#define LAN80XX_PHY_TS_SIG_SEQUENCE_ID_LEN    2
-#define LAN80XX_PHY_TS_SIG_DEST_IP_LEN        4
-#define LAN80XX_PHY_TS_SIG_SRC_IP_LEN         4
-#define LAN80XX_PHY_TS_SIG_DEST_MAC_LEN       6
+#define LAN80XX_PHY_TS_SIG_TIME_STAMP_LEN         (11U)
+#define LAN80XX_PHY_TS_SIG_SOURCE_PORT_ID_LEN     (10U)
+#define LAN80XX_PHY_TS_SIG_SEQUENCE_ID_LEN        (2U)
+#define LAN80XX_PHY_TS_SIG_DEST_IP_LEN            (4U)
+#define LAN80XX_PHY_TS_SIG_SRC_IP_LEN             (4U)
+#define LAN80XX_PHY_TS_SIG_DEST_MAC_LEN           (6U)
 
 /**
  * \brief Defines Tx TSFIFO signature mask.
  **/
-#define LAN80XX_PHY_TS_FIFO_SIG_SRC_IP          0x01  /**< Src IP address: inner IP for IP-over-IP */
-#define LAN80XX_PHY_TS_FIFO_SIG_DEST_IP         0x02  /**< Dest IP address */
+#define LAN80XX_PHY_TS_FIFO_SIG_SRC_IP            (0x01U)  /**< Src IP address: inner IP for IP-over-IP */
+#define LAN80XX_PHY_TS_FIFO_SIG_DEST_IP           (0x02U)  /**< Dest IP address */
+#define LAN80XX_PHY_TS_FIFO_SIG_MSG_TYPE          (0x04U)  /**< Message type */
+#define LAN80XX_PHY_TS_FIFO_SIG_DOMAIN_NUM        (0x08U)  /**< Domain number */
+#define LAN80XX_PHY_TS_FIFO_SIG_SOURCE_PORT_ID    (0x10U)  /**< Source port identity */
+#define LAN80XX_PHY_TS_FIFO_SIG_SEQ_ID            (0x20U)  /**< PTP frame Sequence ID */
+#define LAN80XX_PHY_TS_FIFO_SIG_DEST_MAC          (0x40U)  /**< Dest MAC address */
 
-#define LAN80XX_PHY_TS_FIFO_SIG_MSG_TYPE        0x04  /**< Message type */
-#define LAN80XX_PHY_TS_FIFO_SIG_DOMAIN_NUM      0x08  /**< Domain number */
-#define LAN80XX_PHY_TS_FIFO_SIG_SOURCE_PORT_ID  0x10  /**< Source port identity */
-#define LAN80XX_PHY_TS_FIFO_SIG_SEQ_ID          0x20  /**< PTP frame Sequence ID */
-
-#define LAN80XX_PHY_TS_FIFO_SIG_DEST_MAC        0x40  /**< Dest MAC address */
-
-
-#define LAN80XX_PTP_SIGNATURE_LEN (28)
+#define LAN80XX_PTP_SIGNATURE_LEN                 (28U)
 /**
  * \brief Tx TSFIFO entry signature
  **/

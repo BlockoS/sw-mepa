@@ -6,12 +6,12 @@
 
 
 #include <stdint.h>
-#define LAN80XX_EXTRACT_BITFIELD(x,o,w)  (((x) >> (o)) & LAN80XX_BITMASK(w))
-#define LAN80XX_ENCODE_BITFIELD(x,o,w)   (((x) & LAN80XX_BITMASK(w)) << (o))
-#define LAN80XX_ENCODE_BITMASK(o,w)      (LAN80XX_BITMASK(w) << (o))
+#define LAN80XX_EXTRACT_BITFIELD(x,o,w)                                                             (((x) >> (o)) & LAN80XX_BITMASK(w))
+#define LAN80XX_ENCODE_BITFIELD(x,o,w)                                                              (((x) & LAN80XX_BITMASK(w)) << (o))
+#define LAN80XX_ENCODE_BITMASK(o,w)                                                                 (LAN80XX_BITMASK(w) << (o))
 #define LAN80XX_BITOPS_DEFINED
 
-#define LAN80XX_IOREG_IX(t,o,g,gw,r,ro)   ((o) + ((g) * (gw)) + (ro) + (r))
+#define LAN80XX_IOREG_IX(t,o,g,gw,r,ro)                                                             ((o) + ((g) * (gw)) + (ro) + (r))
 
 /* Structures Used for Register Dumps */
 typedef struct {

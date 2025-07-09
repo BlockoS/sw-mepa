@@ -32,7 +32,7 @@
  *
  * Register: \a MCU_MISC_REG:MIM_MISC_REG_REGS:SCRATCH_PAD_0
  */
-#define VTSS_MCU_MISC_REG_SCRATCH_PAD_0      VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x0)
+#define VTSS_MCU_MISC_REG_SCRATCH_PAD_0                                                             (VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x0))
 
 /**
  * \brief
@@ -41,9 +41,9 @@
  * \details
  * Field: ::VTSS_MCU_MISC_REG_SCRATCH_PAD_0 . SCRATCH_PAD_0
  */
-#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_0_SCRATCH_PAD_0(x)  (x)
-#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_0_SCRATCH_PAD_0     0xffffffff
-#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_0_SCRATCH_PAD_0(x)  (x)
+#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_0_SCRATCH_PAD_0(x)                                         (x)
+#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_0_SCRATCH_PAD_0                                            (0xffffffff)
+#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_0_SCRATCH_PAD_0(x)                                         (x)
 
 
 /**
@@ -57,7 +57,7 @@
  *
  * Register: \a MCU_MISC_REG:MIM_MISC_REG_REGS:SCRATCH_PAD_1
  */
-#define VTSS_MCU_MISC_REG_SCRATCH_PAD_1      VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x1)
+#define VTSS_MCU_MISC_REG_SCRATCH_PAD_1                                                             (VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x1))
 
 /**
  * \brief
@@ -66,9 +66,9 @@
  * \details
  * Field: ::VTSS_MCU_MISC_REG_SCRATCH_PAD_1 . SCRATCH_PAD_1
  */
-#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_1_SCRATCH_PAD_1(x)  (x)
-#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_1_SCRATCH_PAD_1     0xffffffff
-#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_1_SCRATCH_PAD_1(x)  (x)
+#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_1_SCRATCH_PAD_1(x)                                         (x)
+#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_1_SCRATCH_PAD_1                                            (0xffffffff)
+#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_1_SCRATCH_PAD_1(x)                                         (x)
 
 
 /**
@@ -82,7 +82,7 @@
  *
  * Register: \a MCU_MISC_REG:MIM_MISC_REG_REGS:SCRATCH_PAD_2
  */
-#define VTSS_MCU_MISC_REG_SCRATCH_PAD_2      VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x2)
+#define VTSS_MCU_MISC_REG_SCRATCH_PAD_2                                                             (VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x2))
 
 /**
  * \brief
@@ -91,9 +91,9 @@
  * \details
  * Field: ::VTSS_MCU_MISC_REG_SCRATCH_PAD_2 . SCRATCH_PAD_2
  */
-#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_2_SCRATCH_PAD_2(x)  (x)
-#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_2_SCRATCH_PAD_2     0xffffffff
-#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_2_SCRATCH_PAD_2(x)  (x)
+#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_2_SCRATCH_PAD_2(x)                                         (x)
+#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_2_SCRATCH_PAD_2                                            (0xffffffff)
+#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_2_SCRATCH_PAD_2(x)                                         (x)
 
 
 /**
@@ -107,7 +107,7 @@
  *
  * Register: \a MCU_MISC_REG:MIM_MISC_REG_REGS:SCRATCH_PAD_3
  */
-#define VTSS_MCU_MISC_REG_SCRATCH_PAD_3      VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x3)
+#define VTSS_MCU_MISC_REG_SCRATCH_PAD_3                                                             (VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x3))
 
 /**
  * \brief
@@ -116,9 +116,9 @@
  * \details
  * Field: ::VTSS_MCU_MISC_REG_SCRATCH_PAD_3 . SCRATCH_PAD_3
  */
-#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_3_SCRATCH_PAD_3(x)  (x)
-#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_3_SCRATCH_PAD_3     0xffffffff
-#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_3_SCRATCH_PAD_3(x)  (x)
+#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_3_SCRATCH_PAD_3(x)                                         (x)
+#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_3_SCRATCH_PAD_3                                            (0xffffffff)
+#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_3_SCRATCH_PAD_3(x)                                         (x)
 
 
 /**
@@ -132,7 +132,7 @@
  *
  * Register: \a MCU_MISC_REG:MIM_MISC_REG_REGS:SCRATCH_PAD_4
  */
-#define VTSS_MCU_MISC_REG_SCRATCH_PAD_4      VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x4)
+#define VTSS_MCU_MISC_REG_SCRATCH_PAD_4                                                             (VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x4))
 
 /**
  * \brief
@@ -141,9 +141,9 @@
  * \details
  * Field: ::VTSS_MCU_MISC_REG_SCRATCH_PAD_4 . SCRATCH_PAD_4
  */
-#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_4_SCRATCH_PAD_4(x)  (x)
-#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_4_SCRATCH_PAD_4     0xffffffff
-#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_4_SCRATCH_PAD_4(x)  (x)
+#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_4_SCRATCH_PAD_4(x)                                         (x)
+#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_4_SCRATCH_PAD_4                                            (0xffffffff)
+#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_4_SCRATCH_PAD_4(x)                                         (x)
 
 
 /**
@@ -157,7 +157,7 @@
  *
  * Register: \a MCU_MISC_REG:MIM_MISC_REG_REGS:SCRATCH_PAD_5
  */
-#define VTSS_MCU_MISC_REG_SCRATCH_PAD_5      VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x5)
+#define VTSS_MCU_MISC_REG_SCRATCH_PAD_5                                                             (VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x5))
 
 /**
  * \brief
@@ -166,9 +166,9 @@
  * \details
  * Field: ::VTSS_MCU_MISC_REG_SCRATCH_PAD_5 . SCRATCH_PAD_5
  */
-#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_5_SCRATCH_PAD_5(x)  (x)
-#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_5_SCRATCH_PAD_5     0xffffffff
-#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_5_SCRATCH_PAD_5(x)  (x)
+#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_5_SCRATCH_PAD_5(x)                                         (x)
+#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_5_SCRATCH_PAD_5                                            (0xffffffff)
+#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_5_SCRATCH_PAD_5(x)                                         (x)
 
 
 /**
@@ -182,7 +182,7 @@
  *
  * Register: \a MCU_MISC_REG:MIM_MISC_REG_REGS:SCRATCH_PAD_6
  */
-#define VTSS_MCU_MISC_REG_SCRATCH_PAD_6      VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x6)
+#define VTSS_MCU_MISC_REG_SCRATCH_PAD_6                                                             (VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x6))
 
 /**
  * \brief
@@ -191,9 +191,9 @@
  * \details
  * Field: ::VTSS_MCU_MISC_REG_SCRATCH_PAD_6 . SCRATCH_PAD_6
  */
-#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_6_SCRATCH_PAD_6(x)  (x)
-#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_6_SCRATCH_PAD_6     0xffffffff
-#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_6_SCRATCH_PAD_6(x)  (x)
+#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_6_SCRATCH_PAD_6(x)                                         (x)
+#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_6_SCRATCH_PAD_6                                            (0xffffffff)
+#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_6_SCRATCH_PAD_6(x)                                         (x)
 
 
 /**
@@ -207,7 +207,7 @@
  *
  * Register: \a MCU_MISC_REG:MIM_MISC_REG_REGS:SCRATCH_PAD_7
  */
-#define VTSS_MCU_MISC_REG_SCRATCH_PAD_7      VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x7)
+#define VTSS_MCU_MISC_REG_SCRATCH_PAD_7                                                             (VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x7))
 
 /**
  * \brief
@@ -216,9 +216,9 @@
  * \details
  * Field: ::VTSS_MCU_MISC_REG_SCRATCH_PAD_7 . SCRATCH_PAD_7
  */
-#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_7_SCRATCH_PAD_7(x)  (x)
-#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_7_SCRATCH_PAD_7     0xffffffff
-#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_7_SCRATCH_PAD_7(x)  (x)
+#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_7_SCRATCH_PAD_7(x)                                         (x)
+#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_7_SCRATCH_PAD_7                                            (0xffffffff)
+#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_7_SCRATCH_PAD_7(x)                                         (x)
 
 
 /**
@@ -232,7 +232,7 @@
  *
  * Register: \a MCU_MISC_REG:MIM_MISC_REG_REGS:SCRATCH_PAD_8
  */
-#define VTSS_MCU_MISC_REG_SCRATCH_PAD_8      VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x8)
+#define VTSS_MCU_MISC_REG_SCRATCH_PAD_8                                                             (VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x8))
 
 /**
  * \brief
@@ -241,9 +241,9 @@
  * \details
  * Field: ::VTSS_MCU_MISC_REG_SCRATCH_PAD_8 . SCRATCH_PAD_8
  */
-#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_8_SCRATCH_PAD_8(x)  (x)
-#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_8_SCRATCH_PAD_8     0xffffffff
-#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_8_SCRATCH_PAD_8(x)  (x)
+#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_8_SCRATCH_PAD_8(x)                                         (x)
+#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_8_SCRATCH_PAD_8                                            (0xffffffff)
+#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_8_SCRATCH_PAD_8(x)                                         (x)
 
 
 /**
@@ -257,7 +257,7 @@
  *
  * Register: \a MCU_MISC_REG:MIM_MISC_REG_REGS:SCRATCH_PAD_9
  */
-#define VTSS_MCU_MISC_REG_SCRATCH_PAD_9      VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x9)
+#define VTSS_MCU_MISC_REG_SCRATCH_PAD_9                                                             (VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x9))
 
 /**
  * \brief
@@ -266,9 +266,9 @@
  * \details
  * Field: ::VTSS_MCU_MISC_REG_SCRATCH_PAD_9 . SCRATCH_PAD_9
  */
-#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_9_SCRATCH_PAD_9(x)  (x)
-#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_9_SCRATCH_PAD_9     0xffffffff
-#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_9_SCRATCH_PAD_9(x)  (x)
+#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_9_SCRATCH_PAD_9(x)                                         (x)
+#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_9_SCRATCH_PAD_9                                            (0xffffffff)
+#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_9_SCRATCH_PAD_9(x)                                         (x)
 
 
 /**
@@ -282,7 +282,7 @@
  *
  * Register: \a MCU_MISC_REG:MIM_MISC_REG_REGS:SCRATCH_PAD_10
  */
-#define VTSS_MCU_MISC_REG_SCRATCH_PAD_10     VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0xa)
+#define VTSS_MCU_MISC_REG_SCRATCH_PAD_10                                                            (VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0xa))
 
 /**
  * \brief
@@ -291,9 +291,9 @@
  * \details
  * Field: ::VTSS_MCU_MISC_REG_SCRATCH_PAD_10 . SCRATCH_PAD_10
  */
-#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_10_SCRATCH_PAD_10(x)  (x)
-#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_10_SCRATCH_PAD_10     0xffffffff
-#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_10_SCRATCH_PAD_10(x)  (x)
+#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_10_SCRATCH_PAD_10(x)                                       (x)
+#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_10_SCRATCH_PAD_10                                          (0xffffffff)
+#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_10_SCRATCH_PAD_10(x)                                       (x)
 
 
 /**
@@ -307,7 +307,7 @@
  *
  * Register: \a MCU_MISC_REG:MIM_MISC_REG_REGS:SCRATCH_PAD_11
  */
-#define VTSS_MCU_MISC_REG_SCRATCH_PAD_11     VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0xb)
+#define VTSS_MCU_MISC_REG_SCRATCH_PAD_11                                                            (VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0xb))
 
 /**
  * \brief
@@ -316,9 +316,9 @@
  * \details
  * Field: ::VTSS_MCU_MISC_REG_SCRATCH_PAD_11 . SCRATCH_PAD_11
  */
-#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_11_SCRATCH_PAD_11(x)  (x)
-#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_11_SCRATCH_PAD_11     0xffffffff
-#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_11_SCRATCH_PAD_11(x)  (x)
+#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_11_SCRATCH_PAD_11(x)                                       (x)
+#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_11_SCRATCH_PAD_11                                          (0xffffffff)
+#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_11_SCRATCH_PAD_11(x)                                       (x)
 
 
 /**
@@ -332,7 +332,7 @@
  *
  * Register: \a MCU_MISC_REG:MIM_MISC_REG_REGS:SCRATCH_PAD_12
  */
-#define VTSS_MCU_MISC_REG_SCRATCH_PAD_12     VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0xc)
+#define VTSS_MCU_MISC_REG_SCRATCH_PAD_12                                                            (VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0xc))
 
 /**
  * \brief
@@ -341,9 +341,9 @@
  * \details
  * Field: ::VTSS_MCU_MISC_REG_SCRATCH_PAD_12 . SCRATCH_PAD_12
  */
-#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_12_SCRATCH_PAD_12(x)  (x)
-#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_12_SCRATCH_PAD_12     0xffffffff
-#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_12_SCRATCH_PAD_12(x)  (x)
+#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_12_SCRATCH_PAD_12(x)                                       (x)
+#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_12_SCRATCH_PAD_12                                          (0xffffffff)
+#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_12_SCRATCH_PAD_12(x)                                       (x)
 
 
 /**
@@ -357,7 +357,7 @@
  *
  * Register: \a MCU_MISC_REG:MIM_MISC_REG_REGS:SCRATCH_PAD_13
  */
-#define VTSS_MCU_MISC_REG_SCRATCH_PAD_13     VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0xd)
+#define VTSS_MCU_MISC_REG_SCRATCH_PAD_13                                                            (VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0xd))
 
 /**
  * \brief
@@ -366,9 +366,9 @@
  * \details
  * Field: ::VTSS_MCU_MISC_REG_SCRATCH_PAD_13 . SCRATCH_PAD_13
  */
-#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_13_SCRATCH_PAD_13(x)  (x)
-#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_13_SCRATCH_PAD_13     0xffffffff
-#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_13_SCRATCH_PAD_13(x)  (x)
+#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_13_SCRATCH_PAD_13(x)                                       (x)
+#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_13_SCRATCH_PAD_13                                          (0xffffffff)
+#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_13_SCRATCH_PAD_13(x)                                       (x)
 
 
 /**
@@ -382,7 +382,7 @@
  *
  * Register: \a MCU_MISC_REG:MIM_MISC_REG_REGS:SCRATCH_PAD_14
  */
-#define VTSS_MCU_MISC_REG_SCRATCH_PAD_14     VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0xe)
+#define VTSS_MCU_MISC_REG_SCRATCH_PAD_14                                                            (VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0xe))
 
 /**
  * \brief
@@ -391,9 +391,9 @@
  * \details
  * Field: ::VTSS_MCU_MISC_REG_SCRATCH_PAD_14 . SCRATCH_PAD_14
  */
-#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_14_SCRATCH_PAD_14(x)  (x)
-#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_14_SCRATCH_PAD_14     0xffffffff
-#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_14_SCRATCH_PAD_14(x)  (x)
+#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_14_SCRATCH_PAD_14(x)                                       (x)
+#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_14_SCRATCH_PAD_14                                          (0xffffffff)
+#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_14_SCRATCH_PAD_14(x)                                       (x)
 
 
 /**
@@ -407,7 +407,7 @@
  *
  * Register: \a MCU_MISC_REG:MIM_MISC_REG_REGS:SCRATCH_PAD_15
  */
-#define VTSS_MCU_MISC_REG_SCRATCH_PAD_15     VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0xf)
+#define VTSS_MCU_MISC_REG_SCRATCH_PAD_15                                                            (VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0xf))
 
 /**
  * \brief
@@ -416,9 +416,9 @@
  * \details
  * Field: ::VTSS_MCU_MISC_REG_SCRATCH_PAD_15 . SCRATCH_PAD_15
  */
-#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_15_SCRATCH_PAD_15(x)  (x)
-#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_15_SCRATCH_PAD_15     0xffffffff
-#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_15_SCRATCH_PAD_15(x)  (x)
+#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_15_SCRATCH_PAD_15(x)                                       (x)
+#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_15_SCRATCH_PAD_15                                          (0xffffffff)
+#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_15_SCRATCH_PAD_15(x)                                       (x)
 
 
 /**
@@ -432,7 +432,7 @@
  *
  * Register: \a MCU_MISC_REG:MIM_MISC_REG_REGS:SCRATCH_PAD_16
  */
-#define VTSS_MCU_MISC_REG_SCRATCH_PAD_16     VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x10)
+#define VTSS_MCU_MISC_REG_SCRATCH_PAD_16                                                            (VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x10))
 
 /**
  * \brief
@@ -441,9 +441,9 @@
  * \details
  * Field: ::VTSS_MCU_MISC_REG_SCRATCH_PAD_16 . SCRATCH_PAD_16
  */
-#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_16_SCRATCH_PAD_16(x)  (x)
-#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_16_SCRATCH_PAD_16     0xffffffff
-#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_16_SCRATCH_PAD_16(x)  (x)
+#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_16_SCRATCH_PAD_16(x)                                       (x)
+#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_16_SCRATCH_PAD_16                                          (0xffffffff)
+#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_16_SCRATCH_PAD_16(x)                                       (x)
 
 
 /**
@@ -457,7 +457,7 @@
  *
  * Register: \a MCU_MISC_REG:MIM_MISC_REG_REGS:SCRATCH_PAD_17
  */
-#define VTSS_MCU_MISC_REG_SCRATCH_PAD_17     VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x11)
+#define VTSS_MCU_MISC_REG_SCRATCH_PAD_17                                                            (VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x11))
 
 /**
  * \brief
@@ -466,9 +466,9 @@
  * \details
  * Field: ::VTSS_MCU_MISC_REG_SCRATCH_PAD_17 . SCRATCH_PAD_17
  */
-#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_17_SCRATCH_PAD_17(x)  (x)
-#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_17_SCRATCH_PAD_17     0xffffffff
-#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_17_SCRATCH_PAD_17(x)  (x)
+#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_17_SCRATCH_PAD_17(x)                                       (x)
+#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_17_SCRATCH_PAD_17                                          (0xffffffff)
+#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_17_SCRATCH_PAD_17(x)                                       (x)
 
 
 /**
@@ -482,7 +482,7 @@
  *
  * Register: \a MCU_MISC_REG:MIM_MISC_REG_REGS:SCRATCH_PAD_18
  */
-#define VTSS_MCU_MISC_REG_SCRATCH_PAD_18     VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x12)
+#define VTSS_MCU_MISC_REG_SCRATCH_PAD_18                                                            (VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x12))
 
 /**
  * \brief
@@ -491,9 +491,9 @@
  * \details
  * Field: ::VTSS_MCU_MISC_REG_SCRATCH_PAD_18 . SCRATCH_PAD_18
  */
-#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_18_SCRATCH_PAD_18(x)  (x)
-#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_18_SCRATCH_PAD_18     0xffffffff
-#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_18_SCRATCH_PAD_18(x)  (x)
+#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_18_SCRATCH_PAD_18(x)                                       (x)
+#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_18_SCRATCH_PAD_18                                          (0xffffffff)
+#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_18_SCRATCH_PAD_18(x)                                       (x)
 
 
 /**
@@ -507,7 +507,7 @@
  *
  * Register: \a MCU_MISC_REG:MIM_MISC_REG_REGS:SCRATCH_PAD_19
  */
-#define VTSS_MCU_MISC_REG_SCRATCH_PAD_19     VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x13)
+#define VTSS_MCU_MISC_REG_SCRATCH_PAD_19                                                            (VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x13))
 
 /**
  * \brief
@@ -516,9 +516,9 @@
  * \details
  * Field: ::VTSS_MCU_MISC_REG_SCRATCH_PAD_19 . SCRATCH_PAD_19
  */
-#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_19_SCRATCH_PAD_19(x)  (x)
-#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_19_SCRATCH_PAD_19     0xffffffff
-#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_19_SCRATCH_PAD_19(x)  (x)
+#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_19_SCRATCH_PAD_19(x)                                       (x)
+#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_19_SCRATCH_PAD_19                                          (0xffffffff)
+#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_19_SCRATCH_PAD_19(x)                                       (x)
 
 
 /**
@@ -531,7 +531,7 @@
  *
  * Register: \a MCU_MISC_REG:MIM_MISC_REG_REGS:SCRATCH_PAD_20
  */
-#define VTSS_MCU_MISC_REG_SCRATCH_PAD_20     VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x14)
+#define VTSS_MCU_MISC_REG_SCRATCH_PAD_20                                                            (VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x14))
 
 /**
  * \brief
@@ -540,9 +540,9 @@
  * \details
  * Field: ::VTSS_MCU_MISC_REG_SCRATCH_PAD_20 . SCRATCH_PAD_20
  */
-#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_20_SCRATCH_PAD_20(x)  (x)
-#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_20_SCRATCH_PAD_20     0xffffffff
-#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_20_SCRATCH_PAD_20(x)  (x)
+#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_20_SCRATCH_PAD_20(x)                                       (x)
+#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_20_SCRATCH_PAD_20                                          (0xffffffff)
+#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_20_SCRATCH_PAD_20(x)                                       (x)
 
 
 /**
@@ -555,7 +555,7 @@
  *
  * Register: \a MCU_MISC_REG:MIM_MISC_REG_REGS:SCRATCH_PAD_21
  */
-#define VTSS_MCU_MISC_REG_SCRATCH_PAD_21     VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x15)
+#define VTSS_MCU_MISC_REG_SCRATCH_PAD_21                                                            (VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x15))
 
 /**
  * \brief
@@ -564,9 +564,9 @@
  * \details
  * Field: ::VTSS_MCU_MISC_REG_SCRATCH_PAD_21 . SCRATCH_PAD_21
  */
-#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_21_SCRATCH_PAD_21(x)  (x)
-#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_21_SCRATCH_PAD_21     0xffffffff
-#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_21_SCRATCH_PAD_21(x)  (x)
+#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_21_SCRATCH_PAD_21(x)                                       (x)
+#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_21_SCRATCH_PAD_21                                          (0xffffffff)
+#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_21_SCRATCH_PAD_21(x)                                       (x)
 
 
 /**
@@ -579,7 +579,7 @@
  *
  * Register: \a MCU_MISC_REG:MIM_MISC_REG_REGS:SCRATCH_PAD_22
  */
-#define VTSS_MCU_MISC_REG_SCRATCH_PAD_22     VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x16)
+#define VTSS_MCU_MISC_REG_SCRATCH_PAD_22                                                            (VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x16))
 
 /**
  * \brief
@@ -588,9 +588,9 @@
  * \details
  * Field: ::VTSS_MCU_MISC_REG_SCRATCH_PAD_22 . SCRATCH_PAD_22
  */
-#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_22_SCRATCH_PAD_22(x)  (x)
-#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_22_SCRATCH_PAD_22     0xffffffff
-#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_22_SCRATCH_PAD_22(x)  (x)
+#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_22_SCRATCH_PAD_22(x)                                       (x)
+#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_22_SCRATCH_PAD_22                                          (0xffffffff)
+#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_22_SCRATCH_PAD_22(x)                                       (x)
 
 
 /**
@@ -603,7 +603,7 @@
  *
  * Register: \a MCU_MISC_REG:MIM_MISC_REG_REGS:SCRATCH_PAD_23
  */
-#define VTSS_MCU_MISC_REG_SCRATCH_PAD_23     VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x17)
+#define VTSS_MCU_MISC_REG_SCRATCH_PAD_23                                                            (VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x17))
 
 /**
  * \brief
@@ -612,9 +612,9 @@
  * \details
  * Field: ::VTSS_MCU_MISC_REG_SCRATCH_PAD_23 . SCRATCH_PAD_23
  */
-#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_23_SCRATCH_PAD_23(x)  (x)
-#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_23_SCRATCH_PAD_23     0xffffffff
-#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_23_SCRATCH_PAD_23(x)  (x)
+#define  VTSS_F_MCU_MISC_REG_SCRATCH_PAD_23_SCRATCH_PAD_23(x)                                       (x)
+#define  VTSS_M_MCU_MISC_REG_SCRATCH_PAD_23_SCRATCH_PAD_23                                          (0xffffffff)
+#define  VTSS_X_MCU_MISC_REG_SCRATCH_PAD_23_SCRATCH_PAD_23(x)                                       (x)
 
 
 /**
@@ -627,7 +627,7 @@
  *
  * Register: \a MCU_MISC_REG:MIM_MISC_REG_REGS:ENVIRONMENT
  */
-#define VTSS_MCU_MISC_REG_ENVIRONMENT        VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x20)
+#define VTSS_MCU_MISC_REG_ENVIRONMENT                                                               (VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x20))
 
 /**
  * \brief
@@ -638,9 +638,9 @@
  * \details
  * Field: ::VTSS_MCU_MISC_REG_ENVIRONMENT . FW_EOT
  */
-#define  VTSS_F_MCU_MISC_REG_ENVIRONMENT_FW_EOT(x)  VTSS_ENCODE_BITFIELD(!!(x),31,1)
-#define  VTSS_M_MCU_MISC_REG_ENVIRONMENT_FW_EOT  VTSS_BIT(31)
-#define  VTSS_X_MCU_MISC_REG_ENVIRONMENT_FW_EOT(x)  VTSS_EXTRACT_BITFIELD(x,31,1)
+#define  VTSS_F_MCU_MISC_REG_ENVIRONMENT_FW_EOT(x)                                                  (VTSS_ENCODE_BITFIELD(!!(x),31,1))
+#define  VTSS_M_MCU_MISC_REG_ENVIRONMENT_FW_EOT                                                     (VTSS_BIT(31))
+#define  VTSS_X_MCU_MISC_REG_ENVIRONMENT_FW_EOT(x)                                                  (VTSS_EXTRACT_BITFIELD(x,31,1))
 
 /**
  * \brief
@@ -652,9 +652,9 @@
  *
  * Field: ::VTSS_MCU_MISC_REG_ENVIRONMENT . FPGA_NASIC
  */
-#define  VTSS_F_MCU_MISC_REG_ENVIRONMENT_FPGA_NASIC(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
-#define  VTSS_M_MCU_MISC_REG_ENVIRONMENT_FPGA_NASIC  VTSS_BIT(1)
-#define  VTSS_X_MCU_MISC_REG_ENVIRONMENT_FPGA_NASIC(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
+#define  VTSS_F_MCU_MISC_REG_ENVIRONMENT_FPGA_NASIC(x)                                              (VTSS_ENCODE_BITFIELD(!!(x),1,1))
+#define  VTSS_M_MCU_MISC_REG_ENVIRONMENT_FPGA_NASIC                                                 (VTSS_BIT(1))
+#define  VTSS_X_MCU_MISC_REG_ENVIRONMENT_FPGA_NASIC(x)                                              (VTSS_EXTRACT_BITFIELD(x,1,1))
 
 /**
  * \brief
@@ -669,9 +669,9 @@
  *
  * Field: ::VTSS_MCU_MISC_REG_ENVIRONMENT . ENVIRONMENT
  */
-#define  VTSS_F_MCU_MISC_REG_ENVIRONMENT_ENVIRONMENT(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
-#define  VTSS_M_MCU_MISC_REG_ENVIRONMENT_ENVIRONMENT  VTSS_BIT(0)
-#define  VTSS_X_MCU_MISC_REG_ENVIRONMENT_ENVIRONMENT(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+#define  VTSS_F_MCU_MISC_REG_ENVIRONMENT_ENVIRONMENT(x)                                             (VTSS_ENCODE_BITFIELD(!!(x),0,1))
+#define  VTSS_M_MCU_MISC_REG_ENVIRONMENT_ENVIRONMENT                                                (VTSS_BIT(0))
+#define  VTSS_X_MCU_MISC_REG_ENVIRONMENT_ENVIRONMENT(x)                                             (VTSS_EXTRACT_BITFIELD(x,0,1))
 
 
 /**
@@ -683,7 +683,7 @@
  *
  * Register: \a MCU_MISC_REG:MIM_MISC_REG_REGS:TYPE_A_FPGA_REV
  */
-#define VTSS_MCU_MISC_REG_TYPE_A_FPGA_REV    VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x21)
+#define VTSS_MCU_MISC_REG_TYPE_A_FPGA_REV                                                           (VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x21))
 
 /**
  * \brief
@@ -694,9 +694,9 @@
  * \details
  * Field: ::VTSS_MCU_MISC_REG_TYPE_A_FPGA_REV . TYPE_A_FPGA_REV
  */
-#define  VTSS_F_MCU_MISC_REG_TYPE_A_FPGA_REV_TYPE_A_FPGA_REV(x)  (x)
-#define  VTSS_M_MCU_MISC_REG_TYPE_A_FPGA_REV_TYPE_A_FPGA_REV     0xffffffff
-#define  VTSS_X_MCU_MISC_REG_TYPE_A_FPGA_REV_TYPE_A_FPGA_REV(x)  (x)
+#define  VTSS_F_MCU_MISC_REG_TYPE_A_FPGA_REV_TYPE_A_FPGA_REV(x)                                     (x)
+#define  VTSS_M_MCU_MISC_REG_TYPE_A_FPGA_REV_TYPE_A_FPGA_REV                                        (0xffffffff)
+#define  VTSS_X_MCU_MISC_REG_TYPE_A_FPGA_REV_TYPE_A_FPGA_REV(x)                                     (x)
 
 
 /**
@@ -708,7 +708,7 @@
  *
  * Register: \a MCU_MISC_REG:MIM_MISC_REG_REGS:TYPE_B_FPGA_REV
  */
-#define VTSS_MCU_MISC_REG_TYPE_B_FPGA_REV    VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x22)
+#define VTSS_MCU_MISC_REG_TYPE_B_FPGA_REV                                                           (VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x22))
 
 /**
  * \brief
@@ -719,9 +719,9 @@
  * \details
  * Field: ::VTSS_MCU_MISC_REG_TYPE_B_FPGA_REV . TYPE_B_FPGA_REV
  */
-#define  VTSS_F_MCU_MISC_REG_TYPE_B_FPGA_REV_TYPE_B_FPGA_REV(x)  (x)
-#define  VTSS_M_MCU_MISC_REG_TYPE_B_FPGA_REV_TYPE_B_FPGA_REV     0xffffffff
-#define  VTSS_X_MCU_MISC_REG_TYPE_B_FPGA_REV_TYPE_B_FPGA_REV(x)  (x)
+#define  VTSS_F_MCU_MISC_REG_TYPE_B_FPGA_REV_TYPE_B_FPGA_REV(x)                                     (x)
+#define  VTSS_M_MCU_MISC_REG_TYPE_B_FPGA_REV_TYPE_B_FPGA_REV                                        (0xffffffff)
+#define  VTSS_X_MCU_MISC_REG_TYPE_B_FPGA_REV_TYPE_B_FPGA_REV(x)                                     (x)
 
 
 /**
@@ -733,7 +733,7 @@
  *
  * Register: \a MCU_MISC_REG:MIM_MISC_REG_REGS:TYPE_C_FPGA_REV
  */
-#define VTSS_MCU_MISC_REG_TYPE_C_FPGA_REV    VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x23)
+#define VTSS_MCU_MISC_REG_TYPE_C_FPGA_REV                                                           (VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x23))
 
 /**
  * \brief
@@ -744,9 +744,9 @@
  * \details
  * Field: ::VTSS_MCU_MISC_REG_TYPE_C_FPGA_REV . TYPE_C_FPGA_REV
  */
-#define  VTSS_F_MCU_MISC_REG_TYPE_C_FPGA_REV_TYPE_C_FPGA_REV(x)  (x)
-#define  VTSS_M_MCU_MISC_REG_TYPE_C_FPGA_REV_TYPE_C_FPGA_REV     0xffffffff
-#define  VTSS_X_MCU_MISC_REG_TYPE_C_FPGA_REV_TYPE_C_FPGA_REV(x)  (x)
+#define  VTSS_F_MCU_MISC_REG_TYPE_C_FPGA_REV_TYPE_C_FPGA_REV(x)                                     (x)
+#define  VTSS_M_MCU_MISC_REG_TYPE_C_FPGA_REV_TYPE_C_FPGA_REV                                        (0xffffffff)
+#define  VTSS_X_MCU_MISC_REG_TYPE_C_FPGA_REV_TYPE_C_FPGA_REV(x)                                     (x)
 
 
 /**
@@ -757,7 +757,7 @@
  *
  * Register: \a MCU_MISC_REG:MIM_MISC_REG_REGS:MCU_RESET_REASON
  */
-#define VTSS_MCU_MISC_REG_MCU_RESET_REASON   VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x24)
+#define VTSS_MCU_MISC_REG_MCU_RESET_REASON                                                          (VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x24))
 
 /**
  * \brief
@@ -771,9 +771,9 @@
  *
  * Field: ::VTSS_MCU_MISC_REG_MCU_RESET_REASON . IS_SYSRESETREQ
  */
-#define  VTSS_F_MCU_MISC_REG_MCU_RESET_REASON_IS_SYSRESETREQ(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
-#define  VTSS_M_MCU_MISC_REG_MCU_RESET_REASON_IS_SYSRESETREQ  VTSS_BIT(0)
-#define  VTSS_X_MCU_MISC_REG_MCU_RESET_REASON_IS_SYSRESETREQ(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+#define  VTSS_F_MCU_MISC_REG_MCU_RESET_REASON_IS_SYSRESETREQ(x)                                     (VTSS_ENCODE_BITFIELD(!!(x),0,1))
+#define  VTSS_M_MCU_MISC_REG_MCU_RESET_REASON_IS_SYSRESETREQ                                        (VTSS_BIT(0))
+#define  VTSS_X_MCU_MISC_REG_MCU_RESET_REASON_IS_SYSRESETREQ(x)                                     (VTSS_EXTRACT_BITFIELD(x,0,1))
 
 /**
  * \brief
@@ -786,9 +786,9 @@
  *
  * Field: ::VTSS_MCU_MISC_REG_MCU_RESET_REASON . IS_WDT
  */
-#define  VTSS_F_MCU_MISC_REG_MCU_RESET_REASON_IS_WDT(x)  VTSS_ENCODE_BITFIELD(!!(x),1,1)
-#define  VTSS_M_MCU_MISC_REG_MCU_RESET_REASON_IS_WDT  VTSS_BIT(1)
-#define  VTSS_X_MCU_MISC_REG_MCU_RESET_REASON_IS_WDT(x)  VTSS_EXTRACT_BITFIELD(x,1,1)
+#define  VTSS_F_MCU_MISC_REG_MCU_RESET_REASON_IS_WDT(x)                                             (VTSS_ENCODE_BITFIELD(!!(x),1,1))
+#define  VTSS_M_MCU_MISC_REG_MCU_RESET_REASON_IS_WDT                                                (VTSS_BIT(1))
+#define  VTSS_X_MCU_MISC_REG_MCU_RESET_REASON_IS_WDT(x)                                             (VTSS_EXTRACT_BITFIELD(x,1,1))
 
 /**
  * \brief
@@ -802,9 +802,9 @@
  *
  * Field: ::VTSS_MCU_MISC_REG_MCU_RESET_REASON . IS_GLBL_MCU_SW_RESET
  */
-#define  VTSS_F_MCU_MISC_REG_MCU_RESET_REASON_IS_GLBL_MCU_SW_RESET(x)  VTSS_ENCODE_BITFIELD(!!(x),2,1)
-#define  VTSS_M_MCU_MISC_REG_MCU_RESET_REASON_IS_GLBL_MCU_SW_RESET  VTSS_BIT(2)
-#define  VTSS_X_MCU_MISC_REG_MCU_RESET_REASON_IS_GLBL_MCU_SW_RESET(x)  VTSS_EXTRACT_BITFIELD(x,2,1)
+#define  VTSS_F_MCU_MISC_REG_MCU_RESET_REASON_IS_GLBL_MCU_SW_RESET(x)                               (VTSS_ENCODE_BITFIELD(!!(x),2,1))
+#define  VTSS_M_MCU_MISC_REG_MCU_RESET_REASON_IS_GLBL_MCU_SW_RESET                                  (VTSS_BIT(2))
+#define  VTSS_X_MCU_MISC_REG_MCU_RESET_REASON_IS_GLBL_MCU_SW_RESET(x)                               (VTSS_EXTRACT_BITFIELD(x,2,1))
 
 /**
  * \brief
@@ -818,9 +818,9 @@
  *
  * Field: ::VTSS_MCU_MISC_REG_MCU_RESET_REASON . IS_GLBL_CHIP_SW_RESET
  */
-#define  VTSS_F_MCU_MISC_REG_MCU_RESET_REASON_IS_GLBL_CHIP_SW_RESET(x)  VTSS_ENCODE_BITFIELD(!!(x),3,1)
-#define  VTSS_M_MCU_MISC_REG_MCU_RESET_REASON_IS_GLBL_CHIP_SW_RESET  VTSS_BIT(3)
-#define  VTSS_X_MCU_MISC_REG_MCU_RESET_REASON_IS_GLBL_CHIP_SW_RESET(x)  VTSS_EXTRACT_BITFIELD(x,3,1)
+#define  VTSS_F_MCU_MISC_REG_MCU_RESET_REASON_IS_GLBL_CHIP_SW_RESET(x)                              (VTSS_ENCODE_BITFIELD(!!(x),3,1))
+#define  VTSS_M_MCU_MISC_REG_MCU_RESET_REASON_IS_GLBL_CHIP_SW_RESET                                 (VTSS_BIT(3))
+#define  VTSS_X_MCU_MISC_REG_MCU_RESET_REASON_IS_GLBL_CHIP_SW_RESET(x)                              (VTSS_EXTRACT_BITFIELD(x,3,1))
 
 /**
  * \brief
@@ -834,9 +834,9 @@
  *
  * Field: ::VTSS_MCU_MISC_REG_MCU_RESET_REASON . IS_GLBL_FAST_CHIP_SW_RESET
  */
-#define  VTSS_F_MCU_MISC_REG_MCU_RESET_REASON_IS_GLBL_FAST_CHIP_SW_RESET(x)  VTSS_ENCODE_BITFIELD(!!(x),4,1)
-#define  VTSS_M_MCU_MISC_REG_MCU_RESET_REASON_IS_GLBL_FAST_CHIP_SW_RESET  VTSS_BIT(4)
-#define  VTSS_X_MCU_MISC_REG_MCU_RESET_REASON_IS_GLBL_FAST_CHIP_SW_RESET(x)  VTSS_EXTRACT_BITFIELD(x,4,1)
+#define  VTSS_F_MCU_MISC_REG_MCU_RESET_REASON_IS_GLBL_FAST_CHIP_SW_RESET(x)                         (VTSS_ENCODE_BITFIELD(!!(x),4,1))
+#define  VTSS_M_MCU_MISC_REG_MCU_RESET_REASON_IS_GLBL_FAST_CHIP_SW_RESET                            (VTSS_BIT(4))
+#define  VTSS_X_MCU_MISC_REG_MCU_RESET_REASON_IS_GLBL_FAST_CHIP_SW_RESET(x)                         (VTSS_EXTRACT_BITFIELD(x,4,1))
 
 /**
  * \brief
@@ -850,9 +850,9 @@
  *
  * Field: ::VTSS_MCU_MISC_REG_MCU_RESET_REASON . IS_POR
  */
-#define  VTSS_F_MCU_MISC_REG_MCU_RESET_REASON_IS_POR(x)  VTSS_ENCODE_BITFIELD(!!(x),5,1)
-#define  VTSS_M_MCU_MISC_REG_MCU_RESET_REASON_IS_POR  VTSS_BIT(5)
-#define  VTSS_X_MCU_MISC_REG_MCU_RESET_REASON_IS_POR(x)  VTSS_EXTRACT_BITFIELD(x,5,1)
+#define  VTSS_F_MCU_MISC_REG_MCU_RESET_REASON_IS_POR(x)                                             (VTSS_ENCODE_BITFIELD(!!(x),5,1))
+#define  VTSS_M_MCU_MISC_REG_MCU_RESET_REASON_IS_POR                                                (VTSS_BIT(5))
+#define  VTSS_X_MCU_MISC_REG_MCU_RESET_REASON_IS_POR(x)                                             (VTSS_EXTRACT_BITFIELD(x,5,1))
 
 
 /**
@@ -863,7 +863,7 @@
  *
  * Register: \a MCU_MISC_REG:MIM_MISC_REG_REGS:MCU_SRESET_PROTECT
  */
-#define VTSS_MCU_MISC_REG_MCU_SRESET_PROTECT  VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x25)
+#define VTSS_MCU_MISC_REG_MCU_SRESET_PROTECT                                                        (VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x25))
 
 /**
  * \brief
@@ -878,9 +878,9 @@
  *
  * Field: ::VTSS_MCU_MISC_REG_MCU_SRESET_PROTECT . SRESET_PROTECT
  */
-#define  VTSS_F_MCU_MISC_REG_MCU_SRESET_PROTECT_SRESET_PROTECT(x)  VTSS_ENCODE_BITFIELD(!!(x),0,1)
-#define  VTSS_M_MCU_MISC_REG_MCU_SRESET_PROTECT_SRESET_PROTECT  VTSS_BIT(0)
-#define  VTSS_X_MCU_MISC_REG_MCU_SRESET_PROTECT_SRESET_PROTECT(x)  VTSS_EXTRACT_BITFIELD(x,0,1)
+#define  VTSS_F_MCU_MISC_REG_MCU_SRESET_PROTECT_SRESET_PROTECT(x)                                   (VTSS_ENCODE_BITFIELD(!!(x),0,1))
+#define  VTSS_M_MCU_MISC_REG_MCU_SRESET_PROTECT_SRESET_PROTECT                                      (VTSS_BIT(0))
+#define  VTSS_X_MCU_MISC_REG_MCU_SRESET_PROTECT_SRESET_PROTECT(x)                                   (VTSS_EXTRACT_BITFIELD(x,0,1))
 
 
 /**
@@ -891,7 +891,7 @@
  *
  * Register: \a MCU_MISC_REG:MIM_MISC_REG_REGS:SRESET_SCALE
  */
-#define VTSS_MCU_MISC_REG_SRESET_SCALE       VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x26)
+#define VTSS_MCU_MISC_REG_SRESET_SCALE                                                              (VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x26))
 
 /**
  * \brief
@@ -902,9 +902,9 @@
  * \details
  * Field: ::VTSS_MCU_MISC_REG_SRESET_SCALE . SRESET_SCALE
  */
-#define  VTSS_F_MCU_MISC_REG_SRESET_SCALE_SRESET_SCALE(x)  VTSS_ENCODE_BITFIELD(x,0,3)
-#define  VTSS_M_MCU_MISC_REG_SRESET_SCALE_SRESET_SCALE     VTSS_ENCODE_BITMASK(0,3)
-#define  VTSS_X_MCU_MISC_REG_SRESET_SCALE_SRESET_SCALE(x)  VTSS_EXTRACT_BITFIELD(x,0,3)
+#define  VTSS_F_MCU_MISC_REG_SRESET_SCALE_SRESET_SCALE(x)                                           (VTSS_ENCODE_BITFIELD(x,0,3))
+#define  VTSS_M_MCU_MISC_REG_SRESET_SCALE_SRESET_SCALE                                              (VTSS_ENCODE_BITMASK(0,3))
+#define  VTSS_X_MCU_MISC_REG_SRESET_SCALE_SRESET_SCALE(x)                                           (VTSS_EXTRACT_BITFIELD(x,0,3))
 
 
 /**
@@ -916,7 +916,7 @@
  *
  * Register: \a MCU_MISC_REG:MIM_MISC_REG_REGS:SPARE_RW
  */
-#define VTSS_MCU_MISC_REG_SPARE_RW           VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x27)
+#define VTSS_MCU_MISC_REG_SPARE_RW                                                                  (VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x27))
 
 /**
  * \brief
@@ -925,9 +925,9 @@
  * \details
  * Field: ::VTSS_MCU_MISC_REG_SPARE_RW . SPARE_RW
  */
-#define  VTSS_F_MCU_MISC_REG_SPARE_RW_SPARE_RW(x)  (x)
-#define  VTSS_M_MCU_MISC_REG_SPARE_RW_SPARE_RW     0xffffffff
-#define  VTSS_X_MCU_MISC_REG_SPARE_RW_SPARE_RW(x)  (x)
+#define  VTSS_F_MCU_MISC_REG_SPARE_RW_SPARE_RW(x)                                                   (x)
+#define  VTSS_M_MCU_MISC_REG_SPARE_RW_SPARE_RW                                                      (0xffffffff)
+#define  VTSS_X_MCU_MISC_REG_SPARE_RW_SPARE_RW(x)                                                   (x)
 
 
 /**
@@ -939,7 +939,7 @@
  *
  * Register: \a MCU_MISC_REG:MIM_MISC_REG_REGS:SPARE_RO
  */
-#define VTSS_MCU_MISC_REG_SPARE_RO           VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x28)
+#define VTSS_MCU_MISC_REG_SPARE_RO                                                                  (VTSS_IOREG(VTSS_TO_MCU_MISC_REG,0x28))
 
 /**
  * \brief
@@ -948,9 +948,9 @@
  * \details
  * Field: ::VTSS_MCU_MISC_REG_SPARE_RO . SPARE_RO
  */
-#define  VTSS_F_MCU_MISC_REG_SPARE_RO_SPARE_RO(x)  (x)
-#define  VTSS_M_MCU_MISC_REG_SPARE_RO_SPARE_RO     0xffffffff
-#define  VTSS_X_MCU_MISC_REG_SPARE_RO_SPARE_RO(x)  (x)
+#define  VTSS_F_MCU_MISC_REG_SPARE_RO_SPARE_RO(x)                                                   (x)
+#define  VTSS_M_MCU_MISC_REG_SPARE_RO_SPARE_RO                                                      (0xffffffff)
+#define  VTSS_X_MCU_MISC_REG_SPARE_RO_SPARE_RO(x)                                                   (x)
 
 
 #endif /* _VTSS_MALIBU25G_REGS_MCU_MISC_REG_H_ */

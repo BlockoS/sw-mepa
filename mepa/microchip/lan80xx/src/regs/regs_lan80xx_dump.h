@@ -6,23 +6,23 @@
 
 #include "regs_lan80xx_common.h"
 
-#define LAN80XX_GLOBAL_REG_NUM           26
-#define LAN80XX_GPIO_CTRL_REG_NUM        26
-#define LAN80XX_PMA_REG_NUM              30
-#define LAN80XX_LINE_PMA_REG_NUM         10
-#define LAN80XX_PCS_CFG_RSFEC_REG_NUM    44
-#define LAN80XX_PCS_CFG_REG_NUM          36
-#define LAN80XX_PCS25G_REG_NUM           34
-#define LAN80XX_XC_REG_NUM               48
-#define LAN80XX_INTR_CTRL_REG_NUM        4
-#define LAN80XX_HOST_SLICE_REG_NUM       16
-#define LAN80XX_LINE_SLICE_REG_NUM       54
-#define LAN80XX_MAC_REG_NUM              36
-#define LAN80XX_FC_BUFFER_RG_NUM         54
-#define LAN80XX_MCU_MISC_REG_NUM         26
+#define LAN80XX_GLOBAL_REG_NUM                                                                      (26)
+#define LAN80XX_GPIO_CTRL_REG_NUM                                                                   (26)
+#define LAN80XX_PMA_REG_NUM                                                                         (30)
+#define LAN80XX_LINE_PMA_REG_NUM                                                                    (10)
+#define LAN80XX_PCS_CFG_RSFEC_REG_NUM                                                               (44)
+#define LAN80XX_PCS_CFG_REG_NUM                                                                     (36)
+#define LAN80XX_PCS25G_REG_NUM                                                                      (34)
+#define LAN80XX_XC_REG_NUM                                                                          (48)
+#define LAN80XX_INTR_CTRL_REG_NUM                                                                   (4)
+#define LAN80XX_HOST_SLICE_REG_NUM                                                                  (16)
+#define LAN80XX_LINE_SLICE_REG_NUM                                                                  (54)
+#define LAN80XX_MAC_REG_NUM                                                                         (36)
+#define LAN80XX_FC_BUFFER_RG_NUM                                                                    (54)
+#define LAN80XX_MCU_MISC_REG_NUM                                                                    (26)
 
-#define LAN80XX_GPIO_PAD_REG_NUM         80
-#define LAN80XX_GPIO_PAD_CTRL_BASE_ADDR  0x280
+#define LAN80XX_GPIO_PAD_REG_NUM                                                                    (80)
+#define LAN80XX_GPIO_PAD_CTRL_BASE_ADDR                                                             (0x280)
 
 /* PMA Registers CMU and LANE */
 phy25g_pma_reg_dump_t dump_cmu_grp_0 = {"PMA_CMU_", 0xF000, 0x00, 0x1F};

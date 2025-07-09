@@ -30,7 +30,7 @@
  *
  * Register: \a PTP_STI:TS_FIFO_SI:TS_FIFO_SI_CFG
  */
-#define LAN80XX_PTP_STI_TS_FIFO_SI_CFG          LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd200)
+#define LAN80XX_PTP_STI_TS_FIFO_SI_CFG                                                              (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd200))
 
 /**
  * \brief
@@ -43,9 +43,9 @@
  *
  * Field: ::LAN80XX_PTP_STI_TS_FIFO_SI_CFG . SI_DEBUG_MODE
  */
-#define  LAN80XX_F_PTP_STI_TS_FIFO_SI_CFG_SI_DEBUG_MODE(x)  LAN80XX_ENCODE_BITFIELD(!!(x),31,1)
-#define  LAN80XX_M_PTP_STI_TS_FIFO_SI_CFG_SI_DEBUG_MODE  LAN80XX_BIT(31)
-#define  LAN80XX_X_PTP_STI_TS_FIFO_SI_CFG_SI_DEBUG_MODE(x)  LAN80XX_EXTRACT_BITFIELD(x,31,1)
+#define  LAN80XX_F_PTP_STI_TS_FIFO_SI_CFG_SI_DEBUG_MODE(x)                                          (LAN80XX_ENCODE_BITFIELD(!!(x),31,1))
+#define  LAN80XX_M_PTP_STI_TS_FIFO_SI_CFG_SI_DEBUG_MODE                                             (LAN80XX_BIT(31))
+#define  LAN80XX_X_PTP_STI_TS_FIFO_SI_CFG_SI_DEBUG_MODE(x)                                          (LAN80XX_EXTRACT_BITFIELD(x,31,1))
 
 /**
  * \brief
@@ -57,9 +57,9 @@
  *
  * Field: ::LAN80XX_PTP_STI_TS_FIFO_SI_CFG . SI_CLK_PHA
  */
-#define  LAN80XX_F_PTP_STI_TS_FIFO_SI_CFG_SI_CLK_PHA(x)  LAN80XX_ENCODE_BITFIELD(!!(x),25,1)
-#define  LAN80XX_M_PTP_STI_TS_FIFO_SI_CFG_SI_CLK_PHA  LAN80XX_BIT(25)
-#define  LAN80XX_X_PTP_STI_TS_FIFO_SI_CFG_SI_CLK_PHA(x)  LAN80XX_EXTRACT_BITFIELD(x,25,1)
+#define  LAN80XX_F_PTP_STI_TS_FIFO_SI_CFG_SI_CLK_PHA(x)                                             (LAN80XX_ENCODE_BITFIELD(!!(x),25,1))
+#define  LAN80XX_M_PTP_STI_TS_FIFO_SI_CFG_SI_CLK_PHA                                                (LAN80XX_BIT(25))
+#define  LAN80XX_X_PTP_STI_TS_FIFO_SI_CFG_SI_CLK_PHA(x)                                             (LAN80XX_EXTRACT_BITFIELD(x,25,1))
 
 /**
  * \brief
@@ -71,9 +71,9 @@
  *
  * Field: ::LAN80XX_PTP_STI_TS_FIFO_SI_CFG . SI_CLK_POL
  */
-#define  LAN80XX_F_PTP_STI_TS_FIFO_SI_CFG_SI_CLK_POL(x)  LAN80XX_ENCODE_BITFIELD(!!(x),24,1)
-#define  LAN80XX_M_PTP_STI_TS_FIFO_SI_CFG_SI_CLK_POL  LAN80XX_BIT(24)
-#define  LAN80XX_X_PTP_STI_TS_FIFO_SI_CFG_SI_CLK_POL(x)  LAN80XX_EXTRACT_BITFIELD(x,24,1)
+#define  LAN80XX_F_PTP_STI_TS_FIFO_SI_CFG_SI_CLK_POL(x)                                             (LAN80XX_ENCODE_BITFIELD(!!(x),24,1))
+#define  LAN80XX_M_PTP_STI_TS_FIFO_SI_CFG_SI_CLK_POL                                                (LAN80XX_BIT(24))
+#define  LAN80XX_X_PTP_STI_TS_FIFO_SI_CFG_SI_CLK_POL(x)                                             (LAN80XX_EXTRACT_BITFIELD(x,24,1))
 
 /**
  * \brief
@@ -83,9 +83,9 @@
  * \details
  * Field: ::LAN80XX_PTP_STI_TS_FIFO_SI_CFG . SI_EN_DES_CYCS
  */
-#define  LAN80XX_F_PTP_STI_TS_FIFO_SI_CFG_SI_EN_DES_CYCS(x)  LAN80XX_ENCODE_BITFIELD(x,20,4)
-#define  LAN80XX_M_PTP_STI_TS_FIFO_SI_CFG_SI_EN_DES_CYCS     LAN80XX_ENCODE_BITMASK(20,4)
-#define  LAN80XX_X_PTP_STI_TS_FIFO_SI_CFG_SI_EN_DES_CYCS(x)  LAN80XX_EXTRACT_BITFIELD(x,20,4)
+#define  LAN80XX_F_PTP_STI_TS_FIFO_SI_CFG_SI_EN_DES_CYCS(x)                                         (LAN80XX_ENCODE_BITFIELD(x,20,4))
+#define  LAN80XX_M_PTP_STI_TS_FIFO_SI_CFG_SI_EN_DES_CYCS                                            (LAN80XX_ENCODE_BITMASK(20,4))
+#define  LAN80XX_X_PTP_STI_TS_FIFO_SI_CFG_SI_EN_DES_CYCS(x)                                         (LAN80XX_EXTRACT_BITFIELD(x,20,4))
 
 /**
  * \brief
@@ -95,9 +95,9 @@
  * \details
  * Field: ::LAN80XX_PTP_STI_TS_FIFO_SI_CFG . SI_EN_ON_CYCS
  */
-#define  LAN80XX_F_PTP_STI_TS_FIFO_SI_CFG_SI_EN_ON_CYCS(x)  LAN80XX_ENCODE_BITFIELD(x,16,4)
-#define  LAN80XX_M_PTP_STI_TS_FIFO_SI_CFG_SI_EN_ON_CYCS     LAN80XX_ENCODE_BITMASK(16,4)
-#define  LAN80XX_X_PTP_STI_TS_FIFO_SI_CFG_SI_EN_ON_CYCS(x)  LAN80XX_EXTRACT_BITFIELD(x,16,4)
+#define  LAN80XX_F_PTP_STI_TS_FIFO_SI_CFG_SI_EN_ON_CYCS(x)                                          (LAN80XX_ENCODE_BITFIELD(x,16,4))
+#define  LAN80XX_M_PTP_STI_TS_FIFO_SI_CFG_SI_EN_ON_CYCS                                             (LAN80XX_ENCODE_BITMASK(16,4))
+#define  LAN80XX_X_PTP_STI_TS_FIFO_SI_CFG_SI_EN_ON_CYCS(x)                                          (LAN80XX_EXTRACT_BITFIELD(x,16,4))
 
 /**
  * \brief
@@ -107,9 +107,9 @@
  * \details
  * Field: ::LAN80XX_PTP_STI_TS_FIFO_SI_CFG . SI_EN_OFF_CYCS
  */
-#define  LAN80XX_F_PTP_STI_TS_FIFO_SI_CFG_SI_EN_OFF_CYCS(x)  LAN80XX_ENCODE_BITFIELD(x,12,4)
-#define  LAN80XX_M_PTP_STI_TS_FIFO_SI_CFG_SI_EN_OFF_CYCS     LAN80XX_ENCODE_BITMASK(12,4)
-#define  LAN80XX_X_PTP_STI_TS_FIFO_SI_CFG_SI_EN_OFF_CYCS(x)  LAN80XX_EXTRACT_BITFIELD(x,12,4)
+#define  LAN80XX_F_PTP_STI_TS_FIFO_SI_CFG_SI_EN_OFF_CYCS(x)                                         (LAN80XX_ENCODE_BITFIELD(x,12,4))
+#define  LAN80XX_M_PTP_STI_TS_FIFO_SI_CFG_SI_EN_OFF_CYCS                                            (LAN80XX_ENCODE_BITMASK(12,4))
+#define  LAN80XX_X_PTP_STI_TS_FIFO_SI_CFG_SI_EN_OFF_CYCS(x)                                         (LAN80XX_EXTRACT_BITFIELD(x,12,4))
 
 /**
  * \brief
@@ -119,9 +119,9 @@
  * \details
  * Field: ::LAN80XX_PTP_STI_TS_FIFO_SI_CFG . SI_CLK_HI_CYCS
  */
-#define  LAN80XX_F_PTP_STI_TS_FIFO_SI_CFG_SI_CLK_HI_CYCS(x)  LAN80XX_ENCODE_BITFIELD(x,6,5)
-#define  LAN80XX_M_PTP_STI_TS_FIFO_SI_CFG_SI_CLK_HI_CYCS     LAN80XX_ENCODE_BITMASK(6,5)
-#define  LAN80XX_X_PTP_STI_TS_FIFO_SI_CFG_SI_CLK_HI_CYCS(x)  LAN80XX_EXTRACT_BITFIELD(x,6,5)
+#define  LAN80XX_F_PTP_STI_TS_FIFO_SI_CFG_SI_CLK_HI_CYCS(x)                                         (LAN80XX_ENCODE_BITFIELD(x,6,5))
+#define  LAN80XX_M_PTP_STI_TS_FIFO_SI_CFG_SI_CLK_HI_CYCS                                            (LAN80XX_ENCODE_BITMASK(6,5))
+#define  LAN80XX_X_PTP_STI_TS_FIFO_SI_CFG_SI_CLK_HI_CYCS(x)                                         (LAN80XX_EXTRACT_BITFIELD(x,6,5))
 
 /**
  * \brief
@@ -131,9 +131,9 @@
  * \details
  * Field: ::LAN80XX_PTP_STI_TS_FIFO_SI_CFG . SI_CLK_LO_CYCS
  */
-#define  LAN80XX_F_PTP_STI_TS_FIFO_SI_CFG_SI_CLK_LO_CYCS(x)  LAN80XX_ENCODE_BITFIELD(x,1,5)
-#define  LAN80XX_M_PTP_STI_TS_FIFO_SI_CFG_SI_CLK_LO_CYCS     LAN80XX_ENCODE_BITMASK(1,5)
-#define  LAN80XX_X_PTP_STI_TS_FIFO_SI_CFG_SI_CLK_LO_CYCS(x)  LAN80XX_EXTRACT_BITFIELD(x,1,5)
+#define  LAN80XX_F_PTP_STI_TS_FIFO_SI_CFG_SI_CLK_LO_CYCS(x)                                         (LAN80XX_ENCODE_BITFIELD(x,1,5))
+#define  LAN80XX_M_PTP_STI_TS_FIFO_SI_CFG_SI_CLK_LO_CYCS                                            (LAN80XX_ENCODE_BITMASK(1,5))
+#define  LAN80XX_X_PTP_STI_TS_FIFO_SI_CFG_SI_CLK_LO_CYCS(x)                                         (LAN80XX_EXTRACT_BITFIELD(x,1,5))
 
 /**
  * \brief
@@ -145,9 +145,9 @@
  *
  * Field: ::LAN80XX_PTP_STI_TS_FIFO_SI_CFG . TS_FIFO_SI_ENA
  */
-#define  LAN80XX_F_PTP_STI_TS_FIFO_SI_CFG_TS_FIFO_SI_ENA(x)  LAN80XX_ENCODE_BITFIELD(!!(x),0,1)
-#define  LAN80XX_M_PTP_STI_TS_FIFO_SI_CFG_TS_FIFO_SI_ENA     LAN80XX_BIT(0)
-#define  LAN80XX_X_PTP_STI_TS_FIFO_SI_CFG_TS_FIFO_SI_ENA(x)  LAN80XX_EXTRACT_BITFIELD(x,0,1)
+#define  LAN80XX_F_PTP_STI_TS_FIFO_SI_CFG_TS_FIFO_SI_ENA(x)                                         (LAN80XX_ENCODE_BITFIELD(!!(x),0,1))
+#define  LAN80XX_M_PTP_STI_TS_FIFO_SI_CFG_TS_FIFO_SI_ENA                                            (LAN80XX_BIT(0))
+#define  LAN80XX_X_PTP_STI_TS_FIFO_SI_CFG_TS_FIFO_SI_ENA(x)                                         (LAN80XX_EXTRACT_BITFIELD(x,0,1))
 
 
 /**
@@ -160,7 +160,7 @@
  *
  * @param ri Register: TS_FIFO_SI_TX_CNT (??), 0-3
  */
-#define LAN80XX_PTP_STI_TS_FIFO_SI_TX_CNT(ri) LAN80XX_IOREG(MMD_ID_PTP_LTC,0xd201 + (ri))
+#define LAN80XX_PTP_STI_TS_FIFO_SI_TX_CNT(ri)                                                       (LAN80XX_IOREG(MMD_ID_PTP_LTC,0xd201 + (ri)))
 /**
  * \brief
  * Counter value
@@ -168,9 +168,9 @@
  * \details
  * Field: ::LAN80XX_PTP_STI_TS_FIFO_SI_TX_CNT . TS_FIFO_SI_TX_CNT
  */
-#define  LAN80XX_F_PTP_STI_TS_FIFO_SI_TX_CNT_TS_FIFO_SI_TX_CNT(x)  (x)
+#define  LAN80XX_F_PTP_STI_TS_FIFO_SI_TX_CNT_TS_FIFO_SI_TX_CNT(x)                                   (x)
 #define  LAN80XX_M_PTP_STI_TS_FIFO_SI_TX_CNT_TS_FIFO_SI_TX_CNT     (0xffffffff)
-#define  LAN80XX_X_PTP_STI_TS_FIFO_SI_TX_CNT_TS_FIFO_SI_TX_CNT(x)  (x)
+#define  LAN80XX_X_PTP_STI_TS_FIFO_SI_TX_CNT_TS_FIFO_SI_TX_CNT(x)                                   (x)
 
 /**
  * Register Group: \a PTP_STI:STI_SPARE_REG
@@ -185,7 +185,7 @@
  * \details
  * Register: \a PTP_STI:STI_SPARE_REG:STI_SPARE_REG_CFG
  */
-#define LAN80XX_PTP_STI_STI_SPARE_REG_CFG       LAN80XX_IOREG(MMD_ID_PTP_STI,0xd205)
+#define LAN80XX_PTP_STI_STI_SPARE_REG_CFG                                                           (LAN80XX_IOREG(MMD_ID_PTP_STI,0xd205))
 
 /**
  * \brief
@@ -194,9 +194,9 @@
  * \details
  * Field: ::LAN80XX_PTP_STI_STI_SPARE_REG_CFG . STI_SPACE_REGS
  */
-#define  LAN80XX_F_PTP_STI_STI_SPARE_REG_CFG_STI_SPACE_REGS(x)  (x)
+#define  LAN80XX_F_PTP_STI_STI_SPARE_REG_CFG_STI_SPACE_REGS(x)                                      (x)
 #define  LAN80XX_M_PTP_STI_STI_SPARE_REG_CFG_STI_SPACE_REGS     (0xffffffff)
-#define  LAN80XX_X_PTP_STI_STI_SPARE_REG_CFG_STI_SPACE_REGS(x)  (x)
+#define  LAN80XX_X_PTP_STI_STI_SPARE_REG_CFG_STI_SPACE_REGS(x)                                      (x)
 
 /**
  * Register Group: \a PTP_STI:STI_DEBUG
@@ -211,7 +211,7 @@
  * \details
  * Register: \a PTP_STI:STI_DEBUG:STI_DEBUG0_CFG
  */
-#define LAN80XX_PTP_STI_STI_DEBUG0_CFG          LAN80XX_IOREG(MMD_ID_PTP_STI,0xd2f8)
+#define LAN80XX_PTP_STI_STI_DEBUG0_CFG                                                              (LAN80XX_IOREG(MMD_ID_PTP_STI,0xd2f8))
 
 /**
  * \brief
@@ -220,9 +220,9 @@
  * \details
  * Field: ::LAN80XX_PTP_STI_STI_DEBUG0_CFG . STI_DEBUG0
  */
-#define  LAN80XX_F_PTP_STI_STI_DEBUG0_CFG_STI_DEBUG0(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PTP_STI_STI_DEBUG0_CFG_STI_DEBUG0     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PTP_STI_STI_DEBUG0_CFG_STI_DEBUG0(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PTP_STI_STI_DEBUG0_CFG_STI_DEBUG0(x)                                             (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PTP_STI_STI_DEBUG0_CFG_STI_DEBUG0                                                (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PTP_STI_STI_DEBUG0_CFG_STI_DEBUG0(x)                                             (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -231,7 +231,7 @@
  * \details
  * Register: \a PTP_STI:STI_DEBUG:STI_DEBUG1_CFG
  */
-#define LAN80XX_PTP_STI_STI_DEBUG1_CFG          LAN80XX_IOREG(MMD_ID_PTP_STI,0xd2f9)
+#define LAN80XX_PTP_STI_STI_DEBUG1_CFG                                                              (LAN80XX_IOREG(MMD_ID_PTP_STI,0xd2f9))
 
 /**
  * \brief
@@ -240,9 +240,9 @@
  * \details
  * Field: ::LAN80XX_PTP_STI_STI_DEBUG1_CFG . STI_DEBUG1
  */
-#define  LAN80XX_F_PTP_STI_STI_DEBUG1_CFG_STI_DEBUG1(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PTP_STI_STI_DEBUG1_CFG_STI_DEBUG1     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PTP_STI_STI_DEBUG1_CFG_STI_DEBUG1(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PTP_STI_STI_DEBUG1_CFG_STI_DEBUG1(x)                                             (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PTP_STI_STI_DEBUG1_CFG_STI_DEBUG1                                                (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PTP_STI_STI_DEBUG1_CFG_STI_DEBUG1(x)                                             (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -251,7 +251,7 @@
  * \details
  * Register: \a PTP_STI:STI_DEBUG:STI_DEBUG2_CFG
  */
-#define LAN80XX_PTP_STI_STI_DEBUG2_CFG          LAN80XX_IOREG(MMD_ID_PTP_STI,0xd2fa)
+#define LAN80XX_PTP_STI_STI_DEBUG2_CFG                                                              (LAN80XX_IOREG(MMD_ID_PTP_STI,0xd2fa))
 
 /**
  * \brief
@@ -260,9 +260,9 @@
  * \details
  * Field: ::LAN80XX_PTP_STI_STI_DEBUG2_CFG . STI_DEBUG2
  */
-#define  LAN80XX_F_PTP_STI_STI_DEBUG2_CFG_STI_DEBUG2(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PTP_STI_STI_DEBUG2_CFG_STI_DEBUG2     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PTP_STI_STI_DEBUG2_CFG_STI_DEBUG2(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PTP_STI_STI_DEBUG2_CFG_STI_DEBUG2(x)                                             (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PTP_STI_STI_DEBUG2_CFG_STI_DEBUG2                                                (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PTP_STI_STI_DEBUG2_CFG_STI_DEBUG2(x)                                             (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -271,7 +271,7 @@
  * \details
  * Register: \a PTP_STI:STI_DEBUG:STI_DEBUG3_CFG
  */
-#define LAN80XX_PTP_STI_STI_DEBUG3_CFG          LAN80XX_IOREG(MMD_ID_PTP_STI,0xd2fb)
+#define LAN80XX_PTP_STI_STI_DEBUG3_CFG                                                              (LAN80XX_IOREG(MMD_ID_PTP_STI,0xd2fb))
 
 /**
  * \brief
@@ -280,9 +280,9 @@
  * \details
  * Field: ::LAN80XX_PTP_STI_STI_DEBUG3_CFG . STI_DEBUG3
  */
-#define  LAN80XX_F_PTP_STI_STI_DEBUG3_CFG_STI_DEBUG3(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PTP_STI_STI_DEBUG3_CFG_STI_DEBUG3     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PTP_STI_STI_DEBUG3_CFG_STI_DEBUG3(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PTP_STI_STI_DEBUG3_CFG_STI_DEBUG3(x)                                             (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PTP_STI_STI_DEBUG3_CFG_STI_DEBUG3                                                (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PTP_STI_STI_DEBUG3_CFG_STI_DEBUG3(x)                                             (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -291,7 +291,7 @@
  * \details
  * Register: \a PTP_STI:STI_DEBUG:STI_DEBUG4_CFG
  */
-#define LAN80XX_PTP_STI_STI_DEBUG4_CFG          LAN80XX_IOREG(MMD_ID_PTP_STI,0xd2fc)
+#define LAN80XX_PTP_STI_STI_DEBUG4_CFG                                                              (LAN80XX_IOREG(MMD_ID_PTP_STI,0xd2fc))
 
 /**
  * \brief
@@ -300,9 +300,9 @@
  * \details
  * Field: ::LAN80XX_PTP_STI_STI_DEBUG4_CFG . STI_DEBUG4
  */
-#define  LAN80XX_F_PTP_STI_STI_DEBUG4_CFG_STI_DEBUG4(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PTP_STI_STI_DEBUG4_CFG_STI_DEBUG4     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PTP_STI_STI_DEBUG4_CFG_STI_DEBUG4(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PTP_STI_STI_DEBUG4_CFG_STI_DEBUG4(x)                                             (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PTP_STI_STI_DEBUG4_CFG_STI_DEBUG4                                                (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PTP_STI_STI_DEBUG4_CFG_STI_DEBUG4(x)                                             (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -311,7 +311,7 @@
  * \details
  * Register: \a PTP_STI:STI_DEBUG:STI_DEBUG5_CFG
  */
-#define LAN80XX_PTP_STI_STI_DEBUG5_CFG          LAN80XX_IOREG(MMD_ID_PTP_STI,0xd2fd)
+#define LAN80XX_PTP_STI_STI_DEBUG5_CFG                                                              (LAN80XX_IOREG(MMD_ID_PTP_STI,0xd2fd))
 
 /**
  * \brief
@@ -320,9 +320,9 @@
  * \details
  * Field: ::LAN80XX_PTP_STI_STI_DEBUG5_CFG . STI_DEBUG5
  */
-#define  LAN80XX_F_PTP_STI_STI_DEBUG5_CFG_STI_DEBUG5(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PTP_STI_STI_DEBUG5_CFG_STI_DEBUG5     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PTP_STI_STI_DEBUG5_CFG_STI_DEBUG5(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PTP_STI_STI_DEBUG5_CFG_STI_DEBUG5(x)                                             (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PTP_STI_STI_DEBUG5_CFG_STI_DEBUG5                                                (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PTP_STI_STI_DEBUG5_CFG_STI_DEBUG5(x)                                             (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -331,7 +331,7 @@
  * \details
  * Register: \a PTP_STI:STI_DEBUG:STI_DEBUG6_CFG
  */
-#define LAN80XX_PTP_STI_STI_DEBUG6_CFG          LAN80XX_IOREG(MMD_ID_PTP_STI,0xd2fe)
+#define LAN80XX_PTP_STI_STI_DEBUG6_CFG                                                              (LAN80XX_IOREG(MMD_ID_PTP_STI,0xd2fe))
 
 /**
  * \brief
@@ -340,9 +340,9 @@
  * \details
  * Field: ::LAN80XX_PTP_STI_STI_DEBUG6_CFG . STI_DEBUG6
  */
-#define  LAN80XX_F_PTP_STI_STI_DEBUG6_CFG_STI_DEBUG6(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PTP_STI_STI_DEBUG6_CFG_STI_DEBUG6     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PTP_STI_STI_DEBUG6_CFG_STI_DEBUG6(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PTP_STI_STI_DEBUG6_CFG_STI_DEBUG6(x)                                             (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PTP_STI_STI_DEBUG6_CFG_STI_DEBUG6                                                (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PTP_STI_STI_DEBUG6_CFG_STI_DEBUG6(x)                                             (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -351,7 +351,7 @@
  * \details
  * Register: \a PTP_STI:STI_DEBUG:STI_DEBUG7_CFG
  */
-#define LAN80XX_PTP_STI_STI_DEBUG7_CFG          LAN80XX_IOREG(MMD_ID_PTP_STI,0xd2ff)
+#define LAN80XX_PTP_STI_STI_DEBUG7_CFG                                                              (LAN80XX_IOREG(MMD_ID_PTP_STI,0xd2ff))
 
 /**
  * \brief
@@ -370,9 +370,9 @@
  *
  * Field: ::LAN80XX_PTP_STI_STI_DEBUG7_CFG . STI_DEBUG7
  */
-#define  LAN80XX_F_PTP_STI_STI_DEBUG7_CFG_STI_DEBUG7(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PTP_STI_STI_DEBUG7_CFG_STI_DEBUG7     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PTP_STI_STI_DEBUG7_CFG_STI_DEBUG7(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PTP_STI_STI_DEBUG7_CFG_STI_DEBUG7(x)                                             (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PTP_STI_STI_DEBUG7_CFG_STI_DEBUG7                                                (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PTP_STI_STI_DEBUG7_CFG_STI_DEBUG7(x)                                             (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 #endif /* _LAN80XX_MALIBU25G_REGS_PTP_STI_H_ */

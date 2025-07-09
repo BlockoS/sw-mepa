@@ -33,7 +33,7 @@
  *
  * @param gi Register: PHASE_DETECTOR_CTRL (??), 0-3
  */
-#define LAN80XX_PTP_LTC_PHAD_CTRL(gi)         LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, LAN80XX_IOREG_IX(MMD_ID_PTP_LTC,0xd040,gi,3,0,0))
+#define LAN80XX_PTP_LTC_PHAD_CTRL(gi)                                                               (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, LAN80XX_IOREG_IX(MMD_ID_PTP_LTC,0xd040,gi,3,0,0)))
 
 /**
  * \brief
@@ -44,9 +44,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PHAD_CTRL . PHAD_LOCK
  */
-#define  LAN80XX_F_PTP_LTC_PHAD_CTRL_PHAD_LOCK(x)  LAN80XX_ENCODE_BITFIELD(!!(x),18,1)
-#define  LAN80XX_M_PTP_LTC_PHAD_CTRL_PHAD_LOCK     LAN80XX_BIT(18)
-#define  LAN80XX_X_PTP_LTC_PHAD_CTRL_PHAD_LOCK(x)  LAN80XX_EXTRACT_BITFIELD(x,18,1)
+#define  LAN80XX_F_PTP_LTC_PHAD_CTRL_PHAD_LOCK(x)                                                   (LAN80XX_ENCODE_BITFIELD(!!(x),18,1))
+#define  LAN80XX_M_PTP_LTC_PHAD_CTRL_PHAD_LOCK                                                      (LAN80XX_BIT(18))
+#define  LAN80XX_X_PTP_LTC_PHAD_CTRL_PHAD_LOCK(x)                                                   (LAN80XX_EXTRACT_BITFIELD(x,18,1))
 
 /**
  * \brief
@@ -55,9 +55,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PHAD_CTRL . DIV_STATE
  */
-#define  LAN80XX_F_PTP_LTC_PHAD_CTRL_DIV_STATE(x)  LAN80XX_ENCODE_BITFIELD(x,15,3)
-#define  LAN80XX_M_PTP_LTC_PHAD_CTRL_DIV_STATE     LAN80XX_ENCODE_BITMASK(15,3)
-#define  LAN80XX_X_PTP_LTC_PHAD_CTRL_DIV_STATE(x)  LAN80XX_EXTRACT_BITFIELD(x,15,3)
+#define  LAN80XX_F_PTP_LTC_PHAD_CTRL_DIV_STATE(x)                                                   (LAN80XX_ENCODE_BITFIELD(x,15,3))
+#define  LAN80XX_M_PTP_LTC_PHAD_CTRL_DIV_STATE                                                      (LAN80XX_ENCODE_BITMASK(15,3))
+#define  LAN80XX_X_PTP_LTC_PHAD_CTRL_DIV_STATE(x)                                                   (LAN80XX_EXTRACT_BITFIELD(x,15,3))
 
 /**
  * \brief
@@ -67,9 +67,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PHAD_CTRL . PHAD_ADJ
  */
-#define  LAN80XX_F_PTP_LTC_PHAD_CTRL_PHAD_ADJ(x)  LAN80XX_ENCODE_BITFIELD(x,13,2)
-#define  LAN80XX_M_PTP_LTC_PHAD_CTRL_PHAD_ADJ     LAN80XX_ENCODE_BITMASK(13,2)
-#define  LAN80XX_X_PTP_LTC_PHAD_CTRL_PHAD_ADJ(x)  LAN80XX_EXTRACT_BITFIELD(x,13,2)
+#define  LAN80XX_F_PTP_LTC_PHAD_CTRL_PHAD_ADJ(x)                                                    (LAN80XX_ENCODE_BITFIELD(x,13,2))
+#define  LAN80XX_M_PTP_LTC_PHAD_CTRL_PHAD_ADJ                                                       (LAN80XX_ENCODE_BITMASK(13,2))
+#define  LAN80XX_X_PTP_LTC_PHAD_CTRL_PHAD_ADJ(x)                                                    (LAN80XX_EXTRACT_BITFIELD(x,13,2))
 
 /**
  * \brief
@@ -81,9 +81,9 @@
  *
  * Field: ::LAN80XX_PTP_LTC_PHAD_CTRL . ERR_MAX_ENA
  */
-#define  LAN80XX_F_PTP_LTC_PHAD_CTRL_ERR_MAX_ENA(x)  LAN80XX_ENCODE_BITFIELD(!!(x),12,1)
-#define  LAN80XX_M_PTP_LTC_PHAD_CTRL_ERR_MAX_ENA  LAN80XX_BIT(12)
-#define  LAN80XX_X_PTP_LTC_PHAD_CTRL_ERR_MAX_ENA(x)  LAN80XX_EXTRACT_BITFIELD(x,12,1)
+#define  LAN80XX_F_PTP_LTC_PHAD_CTRL_ERR_MAX_ENA(x)                                                 (LAN80XX_ENCODE_BITFIELD(!!(x),12,1))
+#define  LAN80XX_M_PTP_LTC_PHAD_CTRL_ERR_MAX_ENA                                                    (LAN80XX_BIT(12))
+#define  LAN80XX_X_PTP_LTC_PHAD_CTRL_ERR_MAX_ENA(x)                                                 (LAN80XX_EXTRACT_BITFIELD(x,12,1))
 
 /**
  * \brief
@@ -98,9 +98,9 @@
  *
  * Field: ::LAN80XX_PTP_LTC_PHAD_CTRL . DIV_CFG
  */
-#define  LAN80XX_F_PTP_LTC_PHAD_CTRL_DIV_CFG(x)  LAN80XX_ENCODE_BITFIELD(x,9,3)
-#define  LAN80XX_M_PTP_LTC_PHAD_CTRL_DIV_CFG     LAN80XX_ENCODE_BITMASK(9,3)
-#define  LAN80XX_X_PTP_LTC_PHAD_CTRL_DIV_CFG(x)  LAN80XX_EXTRACT_BITFIELD(x,9,3)
+#define  LAN80XX_F_PTP_LTC_PHAD_CTRL_DIV_CFG(x)                                                     (LAN80XX_ENCODE_BITFIELD(x,9,3))
+#define  LAN80XX_M_PTP_LTC_PHAD_CTRL_DIV_CFG                                                        (LAN80XX_ENCODE_BITMASK(9,3))
+#define  LAN80XX_X_PTP_LTC_PHAD_CTRL_DIV_CFG(x)                                                     (LAN80XX_EXTRACT_BITFIELD(x,9,3))
 
 /**
  * \brief
@@ -118,9 +118,9 @@
  *
  * Field: ::LAN80XX_PTP_LTC_PHAD_CTRL . TWEAKS
  */
-#define  LAN80XX_F_PTP_LTC_PHAD_CTRL_TWEAKS(x)   LAN80XX_ENCODE_BITFIELD(x,6,3)
-#define  LAN80XX_M_PTP_LTC_PHAD_CTRL_TWEAKS      LAN80XX_ENCODE_BITMASK(6,3)
-#define  LAN80XX_X_PTP_LTC_PHAD_CTRL_TWEAKS(x)   LAN80XX_EXTRACT_BITFIELD(x,6,3)
+#define  LAN80XX_F_PTP_LTC_PHAD_CTRL_TWEAKS(x)                                                      (LAN80XX_ENCODE_BITFIELD(x,6,3))
+#define  LAN80XX_M_PTP_LTC_PHAD_CTRL_TWEAKS                                                         (LAN80XX_ENCODE_BITMASK(6,3))
+#define  LAN80XX_X_PTP_LTC_PHAD_CTRL_TWEAKS(x)                                                      (LAN80XX_EXTRACT_BITFIELD(x,6,3))
 
 /**
  * \brief
@@ -129,9 +129,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PHAD_CTRL . PHAD_ENA
  */
-#define  LAN80XX_F_PTP_LTC_PHAD_CTRL_PHAD_ENA(x)  LAN80XX_ENCODE_BITFIELD((x),5,1)
-#define  LAN80XX_M_PTP_LTC_PHAD_CTRL_PHAD_ENA     LAN80XX_BIT(5)
-#define  LAN80XX_X_PTP_LTC_PHAD_CTRL_PHAD_ENA(x)  LAN80XX_EXTRACT_BITFIELD(x,5,1)
+#define  LAN80XX_F_PTP_LTC_PHAD_CTRL_PHAD_ENA(x)                                                    (LAN80XX_ENCODE_BITFIELD((x),5,1))
+#define  LAN80XX_M_PTP_LTC_PHAD_CTRL_PHAD_ENA                                                       (LAN80XX_BIT(5))
+#define  LAN80XX_X_PTP_LTC_PHAD_CTRL_PHAD_ENA(x)                                                    (LAN80XX_EXTRACT_BITFIELD(x,5,1))
 
 /**
  * \brief
@@ -146,9 +146,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PHAD_CTRL . PHAD_MODE
  */
-#define  LAN80XX_F_PTP_LTC_PHAD_CTRL_PHAD_MODE(x)  LAN80XX_ENCODE_BITFIELD(!!(x),4,1)
-#define  LAN80XX_M_PTP_LTC_PHAD_CTRL_PHAD_MODE   LAN80XX_BIT(4)
-#define  LAN80XX_X_PTP_LTC_PHAD_CTRL_PHAD_MODE(x)  LAN80XX_EXTRACT_BITFIELD(x,4,1)
+#define  LAN80XX_F_PTP_LTC_PHAD_CTRL_PHAD_MODE(x)                                                   (LAN80XX_ENCODE_BITFIELD(!!(x),4,1))
+#define  LAN80XX_M_PTP_LTC_PHAD_CTRL_PHAD_MODE                                                      (LAN80XX_BIT(4))
+#define  LAN80XX_X_PTP_LTC_PHAD_CTRL_PHAD_MODE(x)                                                   (LAN80XX_EXTRACT_BITFIELD(x,4,1))
 
 /**
  * \brief
@@ -159,9 +159,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PHAD_CTRL . PHAD_FAILED
  */
-#define  LAN80XX_F_PTP_LTC_PHAD_CTRL_PHAD_FAILED(x)  LAN80XX_ENCODE_BITFIELD(!!(x),3,1)
-#define  LAN80XX_M_PTP_LTC_PHAD_CTRL_PHAD_FAILED  LAN80XX_BIT(3)
-#define  LAN80XX_X_PTP_LTC_PHAD_CTRL_PHAD_FAILED(x)  LAN80XX_EXTRACT_BITFIELD(x,3,1)
+#define  LAN80XX_F_PTP_LTC_PHAD_CTRL_PHAD_FAILED(x)                                                 (LAN80XX_ENCODE_BITFIELD(!!(x),3,1))
+#define  LAN80XX_M_PTP_LTC_PHAD_CTRL_PHAD_FAILED                                                    (LAN80XX_BIT(3))
+#define  LAN80XX_X_PTP_LTC_PHAD_CTRL_PHAD_FAILED(x)                                                 (LAN80XX_EXTRACT_BITFIELD(x,3,1))
 
 /**
  * \brief
@@ -171,9 +171,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PHAD_CTRL . LOCK_ACC
  */
-#define  LAN80XX_F_PTP_LTC_PHAD_CTRL_LOCK_ACC(x)  LAN80XX_ENCODE_BITFIELD(x,0,3)
-#define  LAN80XX_M_PTP_LTC_PHAD_CTRL_LOCK_ACC     LAN80XX_ENCODE_BITMASK(0,3)
-#define  LAN80XX_X_PTP_LTC_PHAD_CTRL_LOCK_ACC(x)  LAN80XX_EXTRACT_BITFIELD(x,0,3)
+#define  LAN80XX_F_PTP_LTC_PHAD_CTRL_LOCK_ACC(x)                                                    (LAN80XX_ENCODE_BITFIELD(x,0,3))
+#define  LAN80XX_M_PTP_LTC_PHAD_CTRL_LOCK_ACC                                                       (LAN80XX_ENCODE_BITMASK(0,3))
+#define  LAN80XX_X_PTP_LTC_PHAD_CTRL_LOCK_ACC(x)                                                    (LAN80XX_EXTRACT_BITFIELD(x,0,3))
 
 
 /**
@@ -186,7 +186,7 @@
  *
  * @param gi Register: PHASE_DETECTOR_CTRL (??), 0-3
  */
-#define LAN80XX_PTP_LTC_PHAD_CYC_STAT(gi)       LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, LAN80XX_IOREG_IX(MMD_ID_PTP_LTC,0xd040,gi,3,0,1))
+#define LAN80XX_PTP_LTC_PHAD_CYC_STAT(gi)                                                           (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, LAN80XX_IOREG_IX(MMD_ID_PTP_LTC,0xd040,gi,3,0,1)))
 
 /**
  * \brief
@@ -195,9 +195,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PHAD_CYC_STAT . PHAD_CYCLETIME
  */
-#define  LAN80XX_F_PTP_LTC_PHAD_CYC_STAT_PHAD_CYCLETIME(x)  (x)
-#define  LAN80XX_M_PTP_LTC_PHAD_CYC_STAT_PHAD_CYCLETIME     0xffffffff
-#define  LAN80XX_X_PTP_LTC_PHAD_CYC_STAT_PHAD_CYCLETIME(x)  (x)
+#define  LAN80XX_F_PTP_LTC_PHAD_CYC_STAT_PHAD_CYCLETIME(x)                                          (x)
+#define  LAN80XX_M_PTP_LTC_PHAD_CYC_STAT_PHAD_CYCLETIME                                             (0xffffffff)
+#define  LAN80XX_X_PTP_LTC_PHAD_CYC_STAT_PHAD_CYCLETIME(x)                                          (x)
 
 
 /**
@@ -210,7 +210,7 @@
  *
  * @param gi Register: PHASE_DETECTOR_CTRL (??), 0-3
  */
-#define LAN80XX_PTP_LTC_PHAD_ERR_STAT(gi)       LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, LAN80XX_IOREG_IX(MMD_ID_PTP_LTC,0xd040,gi,3,0,2))
+#define LAN80XX_PTP_LTC_PHAD_ERR_STAT(gi)                                                           (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, LAN80XX_IOREG_IX(MMD_ID_PTP_LTC,0xd040,gi,3,0,2)))
 
 /**
  * \brief
@@ -220,9 +220,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PHAD_ERR_STAT . PHAD_ERR_STAT
  */
-#define  LAN80XX_F_PTP_LTC_PHAD_ERR_STAT_PHAD_ERR_STAT(x)  LAN80XX_ENCODE_BITFIELD(x,0,19)
-#define  LAN80XX_M_PTP_LTC_PHAD_ERR_STAT_PHAD_ERR_STAT     LAN80XX_ENCODE_BITMASK(0,19)
-#define  LAN80XX_X_PTP_LTC_PHAD_ERR_STAT_PHAD_ERR_STAT(x)  LAN80XX_EXTRACT_BITFIELD(x,0,19)
+#define  LAN80XX_F_PTP_LTC_PHAD_ERR_STAT_PHAD_ERR_STAT(x)                                           (LAN80XX_ENCODE_BITFIELD(x,0,19))
+#define  LAN80XX_M_PTP_LTC_PHAD_ERR_STAT_PHAD_ERR_STAT                                              (LAN80XX_ENCODE_BITMASK(0,19))
+#define  LAN80XX_X_PTP_LTC_PHAD_ERR_STAT_PHAD_ERR_STAT(x)                                           (LAN80XX_EXTRACT_BITFIELD(x,0,19))
 
 /**
  * Register Group: \a PTP_LTC:PTP_PINS
@@ -242,7 +242,7 @@
  *
  * @param gi Register: PTP_PINS (??), 0-3
  */
-#define LAN80XX_PTP_LTC_PTP_PIN_CFG(gi)      LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, LAN80XX_IOREG_IX(MMD_ID_PTP_LTC,0xd000,gi,16,0,0))
+#define LAN80XX_PTP_LTC_PTP_PIN_CFG(gi)                                                             (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, LAN80XX_IOREG_IX(MMD_ID_PTP_LTC,0xd000,gi,16,0,0)))
 
 /**
  * \brief
@@ -286,9 +286,9 @@
  * Field: ::LAN80XX_PTP_LTC_PTP_PIN_CFG . PTP_PIN_ACTION
  */
 
-#define  LAN80XX_F_PTP_LTC_PTP_PIN_CFG_PTP_PIN_ACTION(x)  LAN80XX_ENCODE_BITFIELD(x,29,3)
-#define  LAN80XX_M_PTP_LTC_PTP_PIN_CFG_PTP_PIN_ACTION     LAN80XX_ENCODE_BITMASK(29,3)
-#define  LAN80XX_X_PTP_LTC_PTP_PIN_CFG_PTP_PIN_ACTION(x)  LAN80XX_EXTRACT_BITFIELD(x,29,3)
+#define  LAN80XX_F_PTP_LTC_PTP_PIN_CFG_PTP_PIN_ACTION(x)                                            (LAN80XX_ENCODE_BITFIELD(x,29,3))
+#define  LAN80XX_M_PTP_LTC_PTP_PIN_CFG_PTP_PIN_ACTION                                               (LAN80XX_ENCODE_BITMASK(29,3))
+#define  LAN80XX_X_PTP_LTC_PTP_PIN_CFG_PTP_PIN_ACTION(x)                                            (LAN80XX_EXTRACT_BITFIELD(x,29,3))
 
 /**
  * \brief
@@ -304,9 +304,9 @@
  * Field: ::LAN80XX_PTP_LTC_PTP_PIN_CFG . PTP_PIN_SYNC
  */
 
-#define  LAN80XX_F_PTP_LTC_PTP_PIN_CFG_PTP_PIN_SYNC(x)  LAN80XX_ENCODE_BITFIELD(x,27,2)
-#define  LAN80XX_M_PTP_LTC_PTP_PIN_CFG_PTP_PIN_SYNC     LAN80XX_ENCODE_BITMASK(27,2)
-#define  LAN80XX_X_PTP_LTC_PTP_PIN_CFG_PTP_PIN_SYNC(x)  LAN80XX_EXTRACT_BITFIELD(x,27,2)
+#define  LAN80XX_F_PTP_LTC_PTP_PIN_CFG_PTP_PIN_SYNC(x)                                              (LAN80XX_ENCODE_BITFIELD(x,27,2))
+#define  LAN80XX_M_PTP_LTC_PTP_PIN_CFG_PTP_PIN_SYNC                                                 (LAN80XX_ENCODE_BITMASK(27,2))
+#define  LAN80XX_X_PTP_LTC_PTP_PIN_CFG_PTP_PIN_SYNC(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,27,2))
 /**
  * \brief
  * Polarity of the PTP pins.
@@ -318,9 +318,9 @@
  *
  * Field: ::LAN80XX_PTP_LTC_PTP_PIN_CFG . PTP_PIN_INV_POL
  */
-#define  LAN80XX_F_PTP_LTC_PTP_PIN_CFG_PTP_PIN_INV_POL(x)  LAN80XX_ENCODE_BITFIELD((x),26,1)
-#define  LAN80XX_M_PTP_LTC_PTP_PIN_CFG_PTP_PIN_INV_POL     LAN80XX_BIT(26)
-#define  LAN80XX_X_PTP_LTC_PTP_PIN_CFG_PTP_PIN_INV_POL(x)  LAN80XX_EXTRACT_BITFIELD(x,26,1)
+#define  LAN80XX_F_PTP_LTC_PTP_PIN_CFG_PTP_PIN_INV_POL(x)                                           (LAN80XX_ENCODE_BITFIELD((x),26,1))
+#define  LAN80XX_M_PTP_LTC_PTP_PIN_CFG_PTP_PIN_INV_POL                                              (LAN80XX_BIT(26))
+#define  LAN80XX_X_PTP_LTC_PTP_PIN_CFG_PTP_PIN_INV_POL(x)                                           (LAN80XX_EXTRACT_BITFIELD(x,26,1))
 
 /**
  * \brief
@@ -330,9 +330,9 @@
  * Field: ::LAN80XX_PTP_LTC_PTP_PIN_CFG . PTP_PIN_SELECT
  */
 
-#define  LAN80XX_F_PTP_LTC_PTP_PIN_CFG_PTP_PIN_SELECT(x)  LAN80XX_ENCODE_BITFIELD(x,24,2)
-#define  LAN80XX_M_PTP_LTC_PTP_PIN_CFG_PTP_PIN_SELECT     LAN80XX_ENCODE_BITMASK(24,2)
-#define  LAN80XX_X_PTP_LTC_PTP_PIN_CFG_PTP_PIN_SELECT(x)  LAN80XX_EXTRACT_BITFIELD(x,24,2)
+#define  LAN80XX_F_PTP_LTC_PTP_PIN_CFG_PTP_PIN_SELECT(x)                                            (LAN80XX_ENCODE_BITFIELD(x,24,2))
+#define  LAN80XX_M_PTP_LTC_PTP_PIN_CFG_PTP_PIN_SELECT                                               (LAN80XX_ENCODE_BITMASK(24,2))
+#define  LAN80XX_X_PTP_LTC_PTP_PIN_CFG_PTP_PIN_SELECT(x)                                            (LAN80XX_EXTRACT_BITFIELD(x,24,2))
 /**
  * \brief
  * Selects which ptp pin to use for syncronization. If a clock is used for
@@ -358,9 +358,9 @@
  * Field: ::LAN80XX_PTP_LTC_PTP_PIN_CFG . PTP_CLK_SELECT
  */
 
-#define  LAN80XX_F_PTP_LTC_PTP_PIN_CFG_PTP_CLK_SELECT(x)  LAN80XX_ENCODE_BITFIELD(x,20,4)
-#define  LAN80XX_M_PTP_LTC_PTP_PIN_CFG_PTP_CLK_SELECT     LAN80XX_ENCODE_BITMASK(20,4)
-#define  LAN80XX_X_PTP_LTC_PTP_PIN_CFG_PTP_CLK_SELECT(x)  LAN80XX_EXTRACT_BITFIELD(x,20,3)
+#define  LAN80XX_F_PTP_LTC_PTP_PIN_CFG_PTP_CLK_SELECT(x)                                            (LAN80XX_ENCODE_BITFIELD(x,20,4))
+#define  LAN80XX_M_PTP_LTC_PTP_PIN_CFG_PTP_CLK_SELECT                                               (LAN80XX_ENCODE_BITMASK(20,4))
+#define  LAN80XX_X_PTP_LTC_PTP_PIN_CFG_PTP_CLK_SELECT(x)                                            (LAN80XX_EXTRACT_BITFIELD(x,20,3))
 /**
  * \brief
  * Special options for an action. See the action descriptions.
@@ -368,9 +368,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PTP_PIN_CFG . PTP_PIN_OPT
  */
-#define  LAN80XX_F_PTP_LTC_PTP_PIN_CFG_PTP_PIN_OPT(x)  LAN80XX_ENCODE_BITFIELD(x,18,2)
-#define  LAN80XX_M_PTP_LTC_PTP_PIN_CFG_PTP_PIN_OPT     LAN80XX_ENCODE_BITMASK(18,2)
-#define  LAN80XX_X_PTP_LTC_PTP_PIN_CFG_PTP_PIN_OPT(x)  LAN80XX_EXTRACT_BITFIELD(x,18,2)
+#define  LAN80XX_F_PTP_LTC_PTP_PIN_CFG_PTP_PIN_OPT(x)                                               (LAN80XX_ENCODE_BITFIELD(x,18,2))
+#define  LAN80XX_M_PTP_LTC_PTP_PIN_CFG_PTP_PIN_OPT                                                  (LAN80XX_ENCODE_BITMASK(18,2))
+#define  LAN80XX_X_PTP_LTC_PTP_PIN_CFG_PTP_PIN_OPT(x)                                               (LAN80XX_EXTRACT_BITFIELD(x,18,2))
 
 /**
  * \brief
@@ -380,9 +380,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PTP_PIN_CFG . PTP_PIN_EMBEDDED_CLK
  */
-#define  LAN80XX_F_PTP_LTC_PTP_PIN_CFG_PTP_PIN_EMBEDDED_CLK(x)  LAN80XX_ENCODE_BITFIELD((x),17,1)
-#define  LAN80XX_M_PTP_LTC_PTP_PIN_CFG_PTP_PIN_EMBEDDED_CLK     LAN80XX_BIT(17)
-#define  LAN80XX_X_PTP_LTC_PTP_PIN_CFG_PTP_PIN_EMBEDDED_CLK(x)  LAN80XX_EXTRACT_BITFIELD(x,17,1)
+#define  LAN80XX_F_PTP_LTC_PTP_PIN_CFG_PTP_PIN_EMBEDDED_CLK(x)                                      (LAN80XX_ENCODE_BITFIELD((x),17,1))
+#define  LAN80XX_M_PTP_LTC_PTP_PIN_CFG_PTP_PIN_EMBEDDED_CLK                                         (LAN80XX_BIT(17))
+#define  LAN80XX_X_PTP_LTC_PTP_PIN_CFG_PTP_PIN_EMBEDDED_CLK(x)                                      (LAN80XX_EXTRACT_BITFIELD(x,17,1))
 
 /**
  * \brief
@@ -394,9 +394,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PTP_PIN_CFG . PTP_PIN_OUTP_OFS
  */
-#define  LAN80XX_F_PTP_LTC_PTP_PIN_CFG_PTP_PIN_OUTP_OFS(x)  LAN80XX_ENCODE_BITFIELD(x,0,17)
-#define  LAN80XX_M_PTP_LTC_PTP_PIN_CFG_PTP_PIN_OUTP_OFS     LAN80XX_ENCODE_BITMASK(0,17)
-#define  LAN80XX_X_PTP_LTC_PTP_PIN_CFG_PTP_PIN_OUTP_OFS(x)  LAN80XX_EXTRACT_BITFIELD(x,0,17)
+#define  LAN80XX_F_PTP_LTC_PTP_PIN_CFG_PTP_PIN_OUTP_OFS(x)                                          (LAN80XX_ENCODE_BITFIELD(x,0,17))
+#define  LAN80XX_M_PTP_LTC_PTP_PIN_CFG_PTP_PIN_OUTP_OFS                                             (LAN80XX_ENCODE_BITMASK(0,17))
+#define  LAN80XX_X_PTP_LTC_PTP_PIN_CFG_PTP_PIN_OUTP_OFS(x)                                          (LAN80XX_EXTRACT_BITFIELD(x,0,17))
 
 
 /**
@@ -407,7 +407,7 @@
  *
  * @param gi Register: PTP_PINS (??), 0-3
  */
-#define LAN80XX_PTP_LTC_PTP_TOD_SEC_MSB(gi)     LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, LAN80XX_IOREG_IX(MMD_ID_PTP_LTC,0xd000,gi,16,0,1))
+#define LAN80XX_PTP_LTC_PTP_TOD_SEC_MSB(gi)                                                         (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, LAN80XX_IOREG_IX(MMD_ID_PTP_LTC,0xd000,gi,16,0,1)))
 /**
  * \brief
  * Bits 47:32 of the time-of-day seconds
@@ -415,9 +415,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PTP_TOD_SEC_MSB . PTP_TOD_SEC_MSB
  */
-#define  LAN80XX_F_PTP_LTC_PTP_TOD_SEC_MSB_PTP_TOD_SEC_MSB(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PTP_LTC_PTP_TOD_SEC_MSB_PTP_TOD_SEC_MSB     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PTP_LTC_PTP_TOD_SEC_MSB_PTP_TOD_SEC_MSB(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PTP_LTC_PTP_TOD_SEC_MSB_PTP_TOD_SEC_MSB(x)                                       (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PTP_LTC_PTP_TOD_SEC_MSB_PTP_TOD_SEC_MSB                                          (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PTP_LTC_PTP_TOD_SEC_MSB_PTP_TOD_SEC_MSB(x)                                       (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -428,7 +428,7 @@
  *
  * @param gi Register: PTP_PINS (??), 0-3
  */
-#define LAN80XX_PTP_LTC_PTP_TOD_SEC_LSB(gi)  LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, LAN80XX_IOREG_IX(MMD_ID_PTP_LTC,0xd000,gi,16,0,2))
+#define LAN80XX_PTP_LTC_PTP_TOD_SEC_LSB(gi)                                                         (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, LAN80XX_IOREG_IX(MMD_ID_PTP_LTC,0xd000,gi,16,0,2)))
 /**
  * \brief
  * Bits 31:0 of the time-of-day seconds
@@ -436,9 +436,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PTP_TOD_SEC_LSB . PTP_TOD_SEC_LSB
  */
-#define  LAN80XX_F_PTP_LTC_PTP_TOD_SEC_LSB_PTP_TOD_SEC_LSB(x)  (x)
+#define  LAN80XX_F_PTP_LTC_PTP_TOD_SEC_LSB_PTP_TOD_SEC_LSB(x)                                       (x)
 #define  LAN80XX_M_PTP_LTC_PTP_TOD_SEC_LSB_PTP_TOD_SEC_LSB     (0xffffffff)
-#define  LAN80XX_X_PTP_LTC_PTP_TOD_SEC_LSB_PTP_TOD_SEC_LSB(x)  (x)
+#define  LAN80XX_X_PTP_LTC_PTP_TOD_SEC_LSB_PTP_TOD_SEC_LSB(x)                                       (x)
 
 
 /**
@@ -449,7 +449,7 @@
  *
  * @param gi Register: PTP_PINS (??), 0-3
  */
-#define LAN80XX_PTP_LTC_PTP_TOD_NSEC(gi)     LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, LAN80XX_IOREG_IX(MMD_ID_PTP_LTC,0xd000,gi,16,0,3))
+#define LAN80XX_PTP_LTC_PTP_TOD_NSEC(gi)                                                            (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, LAN80XX_IOREG_IX(MMD_ID_PTP_LTC,0xd000,gi,16,0,3)))
 
 /**
  * \brief
@@ -462,9 +462,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PTP_TOD_NSEC . PTP_TOD_NSEC
  */
-#define  LAN80XX_F_PTP_LTC_PTP_TOD_NSEC_PTP_TOD_NSEC(x)  LAN80XX_ENCODE_BITFIELD(x,0,30)
-#define  LAN80XX_M_PTP_LTC_PTP_TOD_NSEC_PTP_TOD_NSEC     LAN80XX_ENCODE_BITMASK(0,30)
-#define  LAN80XX_X_PTP_LTC_PTP_TOD_NSEC_PTP_TOD_NSEC(x)  LAN80XX_EXTRACT_BITFIELD(x,0,30)
+#define  LAN80XX_F_PTP_LTC_PTP_TOD_NSEC_PTP_TOD_NSEC(x)                                             (LAN80XX_ENCODE_BITFIELD(x,0,30))
+#define  LAN80XX_M_PTP_LTC_PTP_TOD_NSEC_PTP_TOD_NSEC                                                (LAN80XX_ENCODE_BITMASK(0,30))
+#define  LAN80XX_X_PTP_LTC_PTP_TOD_NSEC_PTP_TOD_NSEC(x)                                             (LAN80XX_EXTRACT_BITFIELD(x,0,30))
 
 
 /**
@@ -475,7 +475,7 @@
  *
  * @param gi Register: PTP_PINS (??), 0-3
  */
-#define LAN80XX_PTP_LTC_PTP_TOD_NSEC_FRAC(gi)  LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, LAN80XX_IOREG_IX(MMD_ID_PTP_LTC,0xd000,gi,16,0,4))
+#define LAN80XX_PTP_LTC_PTP_TOD_NSEC_FRAC(gi)                                                       (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, LAN80XX_IOREG_IX(MMD_ID_PTP_LTC,0xd000,gi,16,0,4)))
 /**
  * \brief
  * Time Of Day fractional nanoseconds loaded or stored into TimeOfDay.
@@ -483,9 +483,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PTP_TOD_NSEC_FRAC . PTP_TOD_NSEC_FRAC
  */
-#define  LAN80XX_F_PTP_LTC_PTP_TOD_NSEC_FRAC_PTP_TOD_NSEC_FRAC(x)  LAN80XX_ENCODE_BITFIELD(x,0,8)
-#define  LAN80XX_M_PTP_LTC_PTP_TOD_NSEC_FRAC_PTP_TOD_NSEC_FRAC     LAN80XX_ENCODE_BITMASK(0,8)
-#define  LAN80XX_X_PTP_LTC_PTP_TOD_NSEC_FRAC_PTP_TOD_NSEC_FRAC(x)  LAN80XX_EXTRACT_BITFIELD(x,0,8)
+#define  LAN80XX_F_PTP_LTC_PTP_TOD_NSEC_FRAC_PTP_TOD_NSEC_FRAC(x)                                   (LAN80XX_ENCODE_BITFIELD(x,0,8))
+#define  LAN80XX_M_PTP_LTC_PTP_TOD_NSEC_FRAC_PTP_TOD_NSEC_FRAC                                      (LAN80XX_ENCODE_BITMASK(0,8))
+#define  LAN80XX_X_PTP_LTC_PTP_TOD_NSEC_FRAC_PTP_TOD_NSEC_FRAC(x)                                   (LAN80XX_EXTRACT_BITFIELD(x,0,8))
 
 
 /**
@@ -496,7 +496,7 @@
  *
  * @param gi Register: PTP_PINS (??), 0-3
  */
-#define LAN80XX_PTP_LTC_NTP_NSEC(gi)            LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, LAN80XX_IOREG_IX(MMD_ID_PTP_LTC,0xd000,gi,16,0,5))
+#define LAN80XX_PTP_LTC_NTP_NSEC(gi)                                                                (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, LAN80XX_IOREG_IX(MMD_ID_PTP_LTC,0xd000,gi,16,0,5)))
 
 /**
  * \brief
@@ -507,9 +507,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_NTP_NSEC . NTP_NSEC
  */
-#define  LAN80XX_F_PTP_LTC_NTP_NSEC_NTP_NSEC(x)  (x)
+#define  LAN80XX_F_PTP_LTC_NTP_NSEC_NTP_NSEC(x)                                                     (x)
 #define  LAN80XX_M_PTP_LTC_NTP_NSEC_NTP_NSEC     (0xffffffff)
-#define  LAN80XX_X_PTP_LTC_NTP_NSEC_NTP_NSEC(x)  (x)
+#define  LAN80XX_X_PTP_LTC_NTP_NSEC_NTP_NSEC(x)                                                     (x)
 
 
 /**
@@ -520,7 +520,7 @@
  *
  * @param gi Register: PTP_PINS (??), 0-3
  */
-#define LAN80XX_PTP_LTC_PIN_WF_HIGH_PERIOD(gi)  LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, LAN80XX_IOREG_IX(MMD_ID_PTP_LTC,0xd000,gi,16,0,6))
+#define LAN80XX_PTP_LTC_PIN_WF_HIGH_PERIOD(gi)                                                      (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, LAN80XX_IOREG_IX(MMD_ID_PTP_LTC,0xd000,gi,16,0,6)))
 
 /**
  * \brief
@@ -531,9 +531,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PIN_WF_HIGH_PERIOD . PIN_WFH
  */
-#define  LAN80XX_F_PTP_LTC_PIN_WF_HIGH_PERIOD_PIN_WFH(x)  LAN80XX_ENCODE_BITFIELD(x,0,30)
-#define  LAN80XX_M_PTP_LTC_PIN_WF_HIGH_PERIOD_PIN_WFH     LAN80XX_ENCODE_BITMASK(0,30)
-#define  LAN80XX_X_PTP_LTC_PIN_WF_HIGH_PERIOD_PIN_WFH(x)  LAN80XX_EXTRACT_BITFIELD(x,0,30)
+#define  LAN80XX_F_PTP_LTC_PIN_WF_HIGH_PERIOD_PIN_WFH(x)                                            (LAN80XX_ENCODE_BITFIELD(x,0,30))
+#define  LAN80XX_M_PTP_LTC_PIN_WF_HIGH_PERIOD_PIN_WFH                                               (LAN80XX_ENCODE_BITMASK(0,30))
+#define  LAN80XX_X_PTP_LTC_PIN_WF_HIGH_PERIOD_PIN_WFH(x)                                            (LAN80XX_EXTRACT_BITFIELD(x,0,30))
 
 
 /**
@@ -544,7 +544,7 @@
  *
  * @param gi Register: PTP_PINS (??), 0-3
  */
-#define LAN80XX_PTP_LTC_PIN_WF_LOW_PERIOD(gi)   LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, LAN80XX_IOREG_IX(MMD_ID_PTP_LTC,0xd000,gi,16,0,7))
+#define LAN80XX_PTP_LTC_PIN_WF_LOW_PERIOD(gi)                                                       (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, LAN80XX_IOREG_IX(MMD_ID_PTP_LTC,0xd000,gi,16,0,7)))
 
 /**
  * \brief
@@ -553,9 +553,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PIN_WF_LOW_PERIOD . PIN_WFL
  */
-#define  LAN80XX_F_PTP_LTC_PIN_WF_LOW_PERIOD_PIN_WFL(x)  LAN80XX_ENCODE_BITFIELD(x,0,30)
-#define  LAN80XX_M_PTP_LTC_PIN_WF_LOW_PERIOD_PIN_WFL     LAN80XX_ENCODE_BITMASK(0,30)
-#define  LAN80XX_X_PTP_LTC_PIN_WF_LOW_PERIOD_PIN_WFL(x)  LAN80XX_EXTRACT_BITFIELD(x,0,30)
+#define  LAN80XX_F_PTP_LTC_PIN_WF_LOW_PERIOD_PIN_WFL(x)                                             (LAN80XX_ENCODE_BITFIELD(x,0,30))
+#define  LAN80XX_M_PTP_LTC_PIN_WF_LOW_PERIOD_PIN_WFL                                                (LAN80XX_ENCODE_BITMASK(0,30))
+#define  LAN80XX_X_PTP_LTC_PIN_WF_LOW_PERIOD_PIN_WFL(x)                                             (LAN80XX_EXTRACT_BITFIELD(x,0,30))
 
 
 /**
@@ -566,7 +566,7 @@
  *
  * @param gi Register: PTP_PINS (??), 0-3
  */
-#define LAN80XX_PTP_LTC_PIN_IOBOUNCH_DELAY(gi)  LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, LAN80XX_IOREG_IX(MMD_ID_PTP_LTC,0xd000,gi,16,0,8))
+#define LAN80XX_PTP_LTC_PIN_IOBOUNCH_DELAY(gi)                                                      (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, LAN80XX_IOREG_IX(MMD_ID_PTP_LTC,0xd000,gi,16,0,8)))
 
 /**
  * \brief
@@ -577,9 +577,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PIN_IOBOUNCH_DELAY . PIN_IOBOUNCH_VAL
  */
-#define  LAN80XX_F_PTP_LTC_PIN_IOBOUNCH_DELAY_PIN_IOBOUNCH_VAL(x)  LAN80XX_ENCODE_BITFIELD(x,3,16)
-#define  LAN80XX_M_PTP_LTC_PIN_IOBOUNCH_DELAY_PIN_IOBOUNCH_VAL     LAN80XX_ENCODE_BITMASK(3,16)
-#define  LAN80XX_X_PTP_LTC_PIN_IOBOUNCH_DELAY_PIN_IOBOUNCH_VAL(x)  LAN80XX_EXTRACT_BITFIELD(x,3,16)
+#define  LAN80XX_F_PTP_LTC_PIN_IOBOUNCH_DELAY_PIN_IOBOUNCH_VAL(x)                                   (LAN80XX_ENCODE_BITFIELD(x,3,16))
+#define  LAN80XX_M_PTP_LTC_PIN_IOBOUNCH_DELAY_PIN_IOBOUNCH_VAL                                      (LAN80XX_ENCODE_BITMASK(3,16))
+#define  LAN80XX_X_PTP_LTC_PIN_IOBOUNCH_DELAY_PIN_IOBOUNCH_VAL(x)                                   (LAN80XX_EXTRACT_BITFIELD(x,3,16))
 
 /**
  * \brief
@@ -592,19 +592,19 @@
  *
  * Field: ::LAN80XX_PTP_LTC_PIN_IOBOUNCH_DELAY . PIN_IOBOUNCH_CFG
  */
-#define  LAN80XX_F_PTP_LTC_PIN_IOBOUNCH_DELAY_PIN_IOBOUNCH_CFG(x)  LAN80XX_ENCODE_BITFIELD(x,0,3)
-#define  LAN80XX_M_PTP_LTC_PIN_IOBOUNCH_DELAY_PIN_IOBOUNCH_CFG     LAN80XX_ENCODE_BITMASK(0,3)
-#define  LAN80XX_X_PTP_LTC_PIN_IOBOUNCH_DELAY_PIN_IOBOUNCH_CFG(x)  LAN80XX_EXTRACT_BITFIELD(x,0,3)
+#define  LAN80XX_F_PTP_LTC_PIN_IOBOUNCH_DELAY_PIN_IOBOUNCH_CFG(x)                                   (LAN80XX_ENCODE_BITFIELD(x,0,3))
+#define  LAN80XX_M_PTP_LTC_PIN_IOBOUNCH_DELAY_PIN_IOBOUNCH_CFG                                      (LAN80XX_ENCODE_BITMASK(0,3))
+#define  LAN80XX_X_PTP_LTC_PIN_IOBOUNCH_DELAY_PIN_IOBOUNCH_CFG(x)                                   (LAN80XX_EXTRACT_BITFIELD(x,0,3))
 
 
 
-#define LAN80XX_PTP_EPPS_DET_ADJ(gi)   LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, LAN80XX_IOREG_IX(MMD_ID_PTP_LTC,0xd000,gi,16,0,9))
+#define LAN80XX_PTP_EPPS_DET_ADJ(gi)                                                                (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, LAN80XX_IOREG_IX(MMD_ID_PTP_LTC,0xd000,gi,16,0,9)))
 
 
 
-#define LAN80XX_F_PTP_EPPS_DET_CFG       LAN80XX_ENCODE_BITFIELD(x,0,6)
-#define LAN80XX_M_PTP_EPPS_DEG_CFG       LAN80XX_ENCODE_BITMASK(0,6)
-#define LAN80XX_X_PTP_EPPS_DEG_CFG       LAN80XX_EXTRACT_BITFIELD(x,0,6)
+#define LAN80XX_F_PTP_EPPS_DET_CFG                                                                  (LAN80XX_ENCODE_BITFIELD(x,0,6))
+#define LAN80XX_M_PTP_EPPS_DEG_CFG                                                                  (LAN80XX_ENCODE_BITMASK(0,6))
+#define LAN80XX_X_PTP_EPPS_DEG_CFG                                                                  (LAN80XX_EXTRACT_BITFIELD(x,0,6))
 
 
 
@@ -624,7 +624,7 @@
  *
  * Register: \a PTP_LTC:PTP_CFG:PTP_DOM_CFG
  */
-#define LAN80XX_PTP_LTC_PTP_DOM_CFG          LAN80XX_IOREG(MMD_ID_PTP_LTC, 1 , 0xd04c)
+#define LAN80XX_PTP_LTC_PTP_DOM_CFG                                                                 (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1 , 0xd04c))
 
 /**
  * \brief
@@ -637,9 +637,9 @@
  * Field: ::LAN80XX_PTP_LTC_PTP_DOM_CFG . PTP_ENA
  */
 
-#define  LAN80XX_F_PTP_LTC_PTP_DOM_CFG_PTP_ENA(x)  LAN80XX_ENCODE_BITFIELD(!!(x),3,1)
-#define  LAN80XX_M_PTP_LTC_PTP_DOM_CFG_PTP_ENA   LAN80XX_BIT(3)
-#define  LAN80XX_X_PTP_LTC_PTP_DOM_CFG_PTP_ENA(x)  LAN80XX_EXTRACT_BITFIELD(x,3,1)
+#define  LAN80XX_F_PTP_LTC_PTP_DOM_CFG_PTP_ENA(x)                                                   (LAN80XX_ENCODE_BITFIELD(!!(x),3,1))
+#define  LAN80XX_M_PTP_LTC_PTP_DOM_CFG_PTP_ENA                                                      (LAN80XX_BIT(3))
+#define  LAN80XX_X_PTP_LTC_PTP_DOM_CFG_PTP_ENA(x)                                                   (LAN80XX_EXTRACT_BITFIELD(x,3,1))
 /**
  * \brief
  * Hold Main counter.
@@ -650,9 +650,9 @@
  *
  * Field: ::LAN80XX_PTP_LTC_PTP_DOM_CFG . PTP_HOLD
  */
-#define  LAN80XX_F_PTP_LTC_PTP_DOM_CFG_PTP_HOLD(x)  LAN80XX_ENCODE_BITFIELD(!!(x),2,1)
-#define  LAN80XX_M_PTP_LTC_PTP_DOM_CFG_PTP_HOLD  LAN80XX_BIT(2)
-#define  LAN80XX_X_PTP_LTC_PTP_DOM_CFG_PTP_HOLD(x)  LAN80XX_EXTRACT_BITFIELD(x,2,1)
+#define  LAN80XX_F_PTP_LTC_PTP_DOM_CFG_PTP_HOLD(x)                                                  (LAN80XX_ENCODE_BITFIELD(!!(x),2,1))
+#define  LAN80XX_M_PTP_LTC_PTP_DOM_CFG_PTP_HOLD                                                     (LAN80XX_BIT(2))
+#define  LAN80XX_X_PTP_LTC_PTP_DOM_CFG_PTP_HOLD(x)                                                  (LAN80XX_EXTRACT_BITFIELD(x,2,1))
 
 /**
  * \brief
@@ -662,9 +662,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PTP_DOM_CFG . PTP_TOD_FREEZE
  */
-#define  LAN80XX_F_PTP_LTC_PTP_DOM_CFG_PTP_TOD_FREEZE(x)  LAN80XX_ENCODE_BITFIELD(!!(x),1,1)
-#define  LAN80XX_M_PTP_LTC_PTP_DOM_CFG_PTP_TOD_FREEZE  LAN80XX_BIT(1)
-#define  LAN80XX_X_PTP_LTC_PTP_DOM_CFG_PTP_TOD_FREEZE(x)  LAN80XX_EXTRACT_BITFIELD(x,1,1)
+#define  LAN80XX_F_PTP_LTC_PTP_DOM_CFG_PTP_TOD_FREEZE(x)                                            (LAN80XX_ENCODE_BITFIELD(!!(x),1,1))
+#define  LAN80XX_M_PTP_LTC_PTP_DOM_CFG_PTP_TOD_FREEZE                                               (LAN80XX_BIT(1))
+#define  LAN80XX_X_PTP_LTC_PTP_DOM_CFG_PTP_TOD_FREEZE(x)                                            (LAN80XX_EXTRACT_BITFIELD(x,1,1))
 
 /**
  * \brief
@@ -678,9 +678,9 @@
  * Field: ::LAN80XX_PTP_LTC_PTP_DOM_CFG . PTP_CLKCFG_DIS
  */
 
-#define  LAN80XX_X_PTP_LTC_PTP_DOM_CFG_PTP_CLKCFG_DIS(x)  LAN80XX_EXTRACT_BITFIELD(x,0,1)
-#define  LAN80XX_M_PTP_LTC_PTP_DOM_CFG_PTP_CLKCFG_DIS  LAN80XX_BIT(0)
-#define  LAN80XX_X_PTP_LTC_PTP_DOM_CFG_PTP_CLKCFG_DIS(x)  LAN80XX_EXTRACT_BITFIELD(x,0,1)
+#define  LAN80XX_X_PTP_LTC_PTP_DOM_CFG_PTP_CLKCFG_DIS(x)                                            (LAN80XX_EXTRACT_BITFIELD(x,0,1))
+#define  LAN80XX_M_PTP_LTC_PTP_DOM_CFG_PTP_CLKCFG_DIS                                               (LAN80XX_BIT(0))
+#define  LAN80XX_X_PTP_LTC_PTP_DOM_CFG_PTP_CLKCFG_DIS(x)                                            (LAN80XX_EXTRACT_BITFIELD(x,0,1))
 
 
 /**
@@ -689,7 +689,7 @@
  * \details
  * Register: \a PTP_LTC:PTP_CFG:PTP_CLK_REF_CFG
  */
-#define LAN80XX_PTP_LTC_PTP_CLK_REF_CFG         LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd04d)
+#define LAN80XX_PTP_LTC_PTP_CLK_REF_CFG                                                             (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd04d))
 
 /**
  * \brief
@@ -706,9 +706,9 @@
  *
  * Field: ::LAN80XX_PTP_LTC_PTP_CLK_REF_CFG . PTP_CLK_REF_SELECT
  */
-#define  LAN80XX_F_PTP_LTC_PTP_CLK_REF_CFG_PTP_CLK_REF_SELECT(x)  LAN80XX_ENCODE_BITFIELD(x,0,3)
-#define  LAN80XX_M_PTP_LTC_PTP_CLK_REF_CFG_PTP_CLK_REF_SELECT     LAN80XX_ENCODE_BITMASK(0,3)
-#define  LAN80XX_X_PTP_LTC_PTP_CLK_REF_CFG_PTP_CLK_REF_SELECT(x)  LAN80XX_EXTRACT_BITFIELD(x,0,3)
+#define  LAN80XX_F_PTP_LTC_PTP_CLK_REF_CFG_PTP_CLK_REF_SELECT(x)                                    (LAN80XX_ENCODE_BITFIELD(x,0,3))
+#define  LAN80XX_M_PTP_LTC_PTP_CLK_REF_CFG_PTP_CLK_REF_SELECT                                       (LAN80XX_ENCODE_BITMASK(0,3))
+#define  LAN80XX_X_PTP_LTC_PTP_CLK_REF_CFG_PTP_CLK_REF_SELECT(x)                                    (LAN80XX_EXTRACT_BITFIELD(x,0,3))
 
 
 #define PTP1588_LSC_0       (0)
@@ -729,7 +729,7 @@
  * \details
  * Register: \a PTP_LTC:PTP_INTR:PTP_PIN_INTR
  */
-#define LAN80XX_PTP_LTC_PTP_PIN_INTR         LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd04e)
+#define LAN80XX_PTP_LTC_PTP_PIN_INTR                                                                (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd04e))
 /**
  * \brief
  * One bit per pin set when an active edge is seen. (write one to clear)
@@ -737,9 +737,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PTP_PIN_INTR . INTR_PTP
  */
-#define  LAN80XX_F_PTP_LTC_PTP_PIN_INTR_INTR_PTP(x)  LAN80XX_ENCODE_BITFIELD(x,0,4)
-#define  LAN80XX_M_PTP_LTC_PTP_PIN_INTR_INTR_PTP     LAN80XX_ENCODE_BITMASK(0,4)
-#define  LAN80XX_X_PTP_LTC_PTP_PIN_INTR_INTR_PTP(x)  LAN80XX_EXTRACT_BITFIELD(x,0,4)
+#define  LAN80XX_F_PTP_LTC_PTP_PIN_INTR_INTR_PTP(x)                                                 (LAN80XX_ENCODE_BITFIELD(x,0,4))
+#define  LAN80XX_M_PTP_LTC_PTP_PIN_INTR_INTR_PTP                                                    (LAN80XX_ENCODE_BITMASK(0,4))
+#define  LAN80XX_X_PTP_LTC_PTP_PIN_INTR_INTR_PTP(x)                                                 (LAN80XX_EXTRACT_BITFIELD(x,0,4))
 
 
 /**
@@ -748,7 +748,7 @@
  * \details
  * Register: \a PTP_LTC:PTP_INTR:PTP_PIN_INTR_ENA
  */
-#define LAN80XX_PTP_LTC_PTP_PIN_INTR_ENA     LAN80XX_IOREG(MMD_ID_PTP_LTC, 1 , 0xd04f)
+#define LAN80XX_PTP_LTC_PTP_PIN_INTR_ENA                                                            (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1 , 0xd04f))
 /**
  * \brief
  * Enable interrupt per ptp pin.
@@ -756,9 +756,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PTP_PIN_INTR_ENA . INTR_PTP_ENA
  */
-#define  LAN80XX_F_PTP_LTC_PTP_PIN_INTR_ENA_INTR_PTP_ENA(x)  LAN80XX_ENCODE_BITFIELD(x,0,4)
-#define  LAN80XX_M_PTP_LTC_PTP_PIN_INTR_ENA_INTR_PTP_ENA     LAN80XX_ENCODE_BITMASK(0,4)
-#define  LAN80XX_X_PTP_LTC_PTP_PIN_INTR_ENA_INTR_PTP_ENA(x)  LAN80XX_EXTRACT_BITFIELD(x,0,4)
+#define  LAN80XX_F_PTP_LTC_PTP_PIN_INTR_ENA_INTR_PTP_ENA(x)                                         (LAN80XX_ENCODE_BITFIELD(x,0,4))
+#define  LAN80XX_M_PTP_LTC_PTP_PIN_INTR_ENA_INTR_PTP_ENA                                            (LAN80XX_ENCODE_BITMASK(0,4))
+#define  LAN80XX_X_PTP_LTC_PTP_PIN_INTR_ENA_INTR_PTP_ENA(x)                                         (LAN80XX_EXTRACT_BITFIELD(x,0,4))
 
 
 /**
@@ -767,7 +767,7 @@
  * \details
  * Register: \a PTP_LTC:PTP_INTR:LTC_MEAS_INTR
  */
-#define LAN80XX_PTP_LTC_LTC_MEAS_INTR        LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd050)
+#define LAN80XX_PTP_LTC_LTC_MEAS_INTR                                                               (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd050))
 /**
  * \brief
  * When set, it indicates the meas_counter has reached the threshold.This
@@ -776,9 +776,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_LTC_MEAS_INTR . PTP_MEAS_CNT_REACH
  */
-#define  LAN80XX_F_PTP_LTC_LTC_MEAS_INTR_PTP_MEAS_CNT_REACH(x)  LAN80XX_ENCODE_BITFIELD((x),0,1)
-#define  LAN80XX_M_PTP_LTC_LTC_MEAS_INTR_PTP_MEAS_CNT_REACH     LAN80XX_BIT(0)
-#define  LAN80XX_X_PTP_LTC_LTC_MEAS_INTR_PTP_MEAS_CNT_REACH(x)  LAN80XX_EXTRACT_BITFIELD(x,0,1)
+#define  LAN80XX_F_PTP_LTC_LTC_MEAS_INTR_PTP_MEAS_CNT_REACH(x)                                      (LAN80XX_ENCODE_BITFIELD((x),0,1))
+#define  LAN80XX_M_PTP_LTC_LTC_MEAS_INTR_PTP_MEAS_CNT_REACH                                         (LAN80XX_BIT(0))
+#define  LAN80XX_X_PTP_LTC_LTC_MEAS_INTR_PTP_MEAS_CNT_REACH(x)                                      (LAN80XX_EXTRACT_BITFIELD(x,0,1))
 
 
 /**
@@ -787,7 +787,7 @@
  * \details
  * Register: \a PTP_LTC:PTP_INTR:LTC_MEAS_INTR_ENA
  */
-#define LAN80XX_PTP_LTC_LTC_MEAS_INTR_ENA    LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd051)
+#define LAN80XX_PTP_LTC_LTC_MEAS_INTR_ENA                                                           (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd051))
 /**
  * \brief
  * When set, it will enable a meas_count_reach interrupt when the
@@ -796,9 +796,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_LTC_MEAS_INTR_ENA . PTP_MEAS_CNT_REACH_INTR_ENA
  */
-#define  LAN80XX_F_PTP_LTC_LTC_MEAS_INTR_ENA_PTP_MEAS_CNT_REACH_INTR_ENA(x)  LAN80XX_ENCODE_BITFIELD((x),0,1)
-#define  LAN80XX_M_PTP_LTC_LTC_MEAS_INTR_ENA_PTP_MEAS_CNT_REACH_INTR_ENA     LAN80XX_BIT(0)
-#define  LAN80XX_X_PTP_LTC_LTC_MEAS_INTR_ENA_PTP_MEAS_CNT_REACH_INTR_ENA(x)  LAN80XX_EXTRACT_BITFIELD(x,0,1)
+#define  LAN80XX_F_PTP_LTC_LTC_MEAS_INTR_ENA_PTP_MEAS_CNT_REACH_INTR_ENA(x)                         (LAN80XX_ENCODE_BITFIELD((x),0,1))
+#define  LAN80XX_M_PTP_LTC_LTC_MEAS_INTR_ENA_PTP_MEAS_CNT_REACH_INTR_ENA                            (LAN80XX_BIT(0))
+#define  LAN80XX_X_PTP_LTC_LTC_MEAS_INTR_ENA_PTP_MEAS_CNT_REACH_INTR_ENA(x)                         (LAN80XX_EXTRACT_BITFIELD(x,0,1))
 
 
 /**
@@ -809,7 +809,7 @@
  *
  * Register: \a PTP_LTC:PTP_INTR:SER_TOD_STORE_INTR
  */
-#define LAN80XX_PTP_LTC_SER_TOD_STORE_INTR   LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd052)
+#define LAN80XX_PTP_LTC_SER_TOD_STORE_INTR                                                          (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd052))
 /**
  * \brief
  * This status bit indicates an embedded TOD is latched into PTP_TOD_SEC
@@ -818,9 +818,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_SER_TOD_STORE_INTR . TOD_LATCH_DONE
  */
-#define  LAN80XX_F_PTP_LTC_SER_TOD_STORE_INTR_TOD_LATCH_DONE(x)  LAN80XX_ENCODE_BITFIELD((x),0,1)
-#define  LAN80XX_M_PTP_LTC_SER_TOD_STORE_INTR_TOD_LATCH_DONE     LAN80XX_BIT(0)
-#define  LAN80XX_X_PTP_LTC_SER_TOD_STORE_INTR_TOD_LATCH_DONE(x)  LAN80XX_EXTRACT_BITFIELD(x,0,1)
+#define  LAN80XX_F_PTP_LTC_SER_TOD_STORE_INTR_TOD_LATCH_DONE(x)                                     (LAN80XX_ENCODE_BITFIELD((x),0,1))
+#define  LAN80XX_M_PTP_LTC_SER_TOD_STORE_INTR_TOD_LATCH_DONE                                        (LAN80XX_BIT(0))
+#define  LAN80XX_X_PTP_LTC_SER_TOD_STORE_INTR_TOD_LATCH_DONE(x)                                     (LAN80XX_EXTRACT_BITFIELD(x,0,1))
 
 
 /**
@@ -834,7 +834,7 @@
  *
  * Register: \a PTP_LTC:PTP_INTR:SER_TOD_STORE_INT_ENA
  */
-#define LAN80XX_PTP_LTC_SER_TOD_STORE_INT_ENA LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd053)
+#define LAN80XX_PTP_LTC_SER_TOD_STORE_INT_ENA                                                       (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd053))
 /**
  * \brief
  * This bit enable embedded TOD store interrupt. When an embedded TOD value
@@ -844,9 +844,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_SER_TOD_STORE_INT_ENA . SER_TOD_STORE_INTR_ENA
  */
-#define  LAN80XX_F_PTP_LTC_SER_TOD_STORE_INT_ENA_SER_TOD_STORE_INTR_ENA(x)  LAN80XX_ENCODE_BITFIELD(!!(x),0,1)
-#define  LAN80XX_M_PTP_LTC_SER_TOD_STORE_INT_ENA_SER_TOD_STORE_INTR_ENA     LAN80XX_BIT(0)
-#define  LAN80XX_X_PTP_LTC_SER_TOD_STORE_INT_ENA_SER_TOD_STORE_INTR_ENA(x)  LAN80XX_EXTRACT_BITFIELD(x,0,1)
+#define  LAN80XX_F_PTP_LTC_SER_TOD_STORE_INT_ENA_SER_TOD_STORE_INTR_ENA(x)                          (LAN80XX_ENCODE_BITFIELD(!!(x),0,1))
+#define  LAN80XX_M_PTP_LTC_SER_TOD_STORE_INT_ENA_SER_TOD_STORE_INTR_ENA                             (LAN80XX_BIT(0))
+#define  LAN80XX_X_PTP_LTC_SER_TOD_STORE_INT_ENA_SER_TOD_STORE_INTR_ENA(x)                          (LAN80XX_EXTRACT_BITFIELD(x,0,1))
 
 
 /**
@@ -858,7 +858,7 @@
  *
  * Register: \a PTP_LTC:PTP_INTR:SER_TOD_LOAD_INTR
  */
-#define LAN80XX_PTP_LTC_SER_TOD_LOAD_INTR    LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd054)
+#define LAN80XX_PTP_LTC_SER_TOD_LOAD_INTR                                                           (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd054))
 /**
  * \brief
  * This status bit indicates an embedded TOD is sent to the Main Count for
@@ -867,9 +867,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_SER_TOD_LOAD_INTR . TOD_LOAD_DONE
  */
-#define  LAN80XX_F_PTP_LTC_SER_TOD_LOAD_INTR_TOD_LOAD_DONE(x)  LAN80XX_ENCODE_BITFIELD((x),0,1)
-#define  LAN80XX_M_PTP_LTC_SER_TOD_LOAD_INTR_TOD_LOAD_DONE     LAN80XX_BIT(0)
-#define  LAN80XX_X_PTP_LTC_SER_TOD_LOAD_INTR_TOD_LOAD_DONE(x)  LAN80XX_EXTRACT_BITFIELD(x,0,1)
+#define  LAN80XX_F_PTP_LTC_SER_TOD_LOAD_INTR_TOD_LOAD_DONE(x)                                       (LAN80XX_ENCODE_BITFIELD((x),0,1))
+#define  LAN80XX_M_PTP_LTC_SER_TOD_LOAD_INTR_TOD_LOAD_DONE                                          (LAN80XX_BIT(0))
+#define  LAN80XX_X_PTP_LTC_SER_TOD_LOAD_INTR_TOD_LOAD_DONE(x)                                       (LAN80XX_EXTRACT_BITFIELD(x,0,1))
 
 
 /**
@@ -883,7 +883,7 @@
  *
  * Register: \a PTP_LTC:PTP_INTR:SER_TOD_LOAD_INT_ENA
  */
-#define LAN80XX_PTP_LTC_SER_TOD_LOAD_INT_ENA LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd055)
+#define LAN80XX_PTP_LTC_SER_TOD_LOAD_INT_ENA                                                        (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd055))
 /**
  * \brief
  * This bit enable embedded TOD load interrupt. When an embedded TOD value
@@ -893,9 +893,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_SER_TOD_LOAD_INT_ENA . SER_TOD_LOAD_INTR_ENA
  */
-#define  LAN80XX_F_PTP_LTC_SER_TOD_LOAD_INT_ENA_SER_TOD_LOAD_INTR_ENA(x)  LAN80XX_ENCODE_BITFIELD(!!(x),0,1)
-#define  LAN80XX_M_PTP_LTC_SER_TOD_LOAD_INT_ENA_SER_TOD_LOAD_INTR_ENA  LAN80XX_BIT(0)
-#define  LAN80XX_X_PTP_LTC_SER_TOD_LOAD_INT_ENA_SER_TOD_LOAD_INTR_ENA(x)  LAN80XX_EXTRACT_BITFIELD(x,0,1)
+#define  LAN80XX_F_PTP_LTC_SER_TOD_LOAD_INT_ENA_SER_TOD_LOAD_INTR_ENA(x)                            (LAN80XX_ENCODE_BITFIELD(!!(x),0,1))
+#define  LAN80XX_M_PTP_LTC_SER_TOD_LOAD_INT_ENA_SER_TOD_LOAD_INTR_ENA                               (LAN80XX_BIT(0))
+#define  LAN80XX_X_PTP_LTC_SER_TOD_LOAD_INT_ENA_SER_TOD_LOAD_INTR_ENA(x)                            (LAN80XX_EXTRACT_BITFIELD(x,0,1))
 
 
 /**
@@ -904,7 +904,7 @@
  * \details
  * Register: \a PTP_LTC:PTP_INTR:PTP_INTR_IDENT
  */
-#define LAN80XX_PTP_LTC_PTP_INTR_IDENT       LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd056)
+#define LAN80XX_PTP_LTC_PTP_INTR_IDENT                                                              (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd056))
 
 /**
  * \brief
@@ -919,9 +919,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PTP_INTR_IDENT . INTR_PTP_IDENT
  */
-#define  LAN80XX_F_PTP_LTC_PTP_INTR_IDENT_INTR_PTP_IDENT(x)  LAN80XX_ENCODE_BITFIELD(x,0,7)
-#define  LAN80XX_M_PTP_LTC_PTP_INTR_IDENT_INTR_PTP_IDENT     LAN80XX_ENCODE_BITMASK(0,7)
-#define  LAN80XX_X_PTP_LTC_PTP_INTR_IDENT_INTR_PTP_IDENT(x)  LAN80XX_EXTRACT_BITFIELD(x,0,7)
+#define  LAN80XX_F_PTP_LTC_PTP_INTR_IDENT_INTR_PTP_IDENT(x)                                         (LAN80XX_ENCODE_BITFIELD(x,0,7))
+#define  LAN80XX_M_PTP_LTC_PTP_INTR_IDENT_INTR_PTP_IDENT                                            (LAN80XX_ENCODE_BITMASK(0,7))
+#define  LAN80XX_X_PTP_LTC_PTP_INTR_IDENT_INTR_PTP_IDENT(x)                                         (LAN80XX_EXTRACT_BITFIELD(x,0,7))
 
 /**
  * Register Group: \a PTP_LTC:PTP_TOD_DOMAINS
@@ -943,7 +943,7 @@
  *
  * @param ri Register: CLK_PER_CFG (??), 0-1
  */
-#define LAN80XX_PTP_LTC_CLK_PER_CFG(ri)      LAN80XX_IOREG(MMD_ID_PTP_LTC,1, (0xd057 + (ri)))
+#define LAN80XX_PTP_LTC_CLK_PER_CFG(ri)                                                             (LAN80XX_IOREG(MMD_ID_PTP_LTC,1, (0xd057 + (ri))))
 
 /**
  * \brief
@@ -952,9 +952,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_CLK_PER_CFG . CLK_PER_VAL
  */
-#define  LAN80XX_F_PTP_LTC_CLK_PER_CFG_CLK_PER_VAL(x)  (x)
+#define  LAN80XX_F_PTP_LTC_CLK_PER_CFG_CLK_PER_VAL(x)                                               (x)
 #define  LAN80XX_M_PTP_LTC_CLK_PER_CFG_CLK_PER_VAL     (0xffffffff)
-#define  LAN80XX_X_PTP_LTC_CLK_PER_CFG_CLK_PER_VAL(x)  (x)
+#define  LAN80XX_X_PTP_LTC_CLK_PER_CFG_CLK_PER_VAL(x)                                               (x)
 
 
 /**
@@ -974,9 +974,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PTP_CUR_NSEC . PTP_CUR_NSEC
  */
-#define  LAN80XX_F_PTP_LTC_PTP_CUR_NSEC_PTP_CUR_NSEC(x)  LAN80XX_ENCODE_BITFIELD(x,0,30)
-#define  LAN80XX_M_PTP_LTC_PTP_CUR_NSEC_PTP_CUR_NSEC     LAN80XX_ENCODE_BITMASK(0,30)
-#define  LAN80XX_X_PTP_LTC_PTP_CUR_NSEC_PTP_CUR_NSEC(x)  LAN80XX_EXTRACT_BITFIELD(x,0,30)
+#define  LAN80XX_F_PTP_LTC_PTP_CUR_NSEC_PTP_CUR_NSEC(x)                                             (LAN80XX_ENCODE_BITFIELD(x,0,30))
+#define  LAN80XX_M_PTP_LTC_PTP_CUR_NSEC_PTP_CUR_NSEC                                                (LAN80XX_ENCODE_BITMASK(0,30))
+#define  LAN80XX_X_PTP_LTC_PTP_CUR_NSEC_PTP_CUR_NSEC(x)                                             (LAN80XX_EXTRACT_BITFIELD(x,0,30))
 
 
 /**
@@ -997,9 +997,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PTP_CUR_NSEC_FRAC . PTP_CUR_NSEC_FRAC
  */
-#define  LAN80XX_F_PTP_LTC_PTP_CUR_NSEC_FRAC_PTP_CUR_NSEC_FRAC(x)  LAN80XX_ENCODE_BITFIELD(x,0,8)
-#define  LAN80XX_M_PTP_LTC_PTP_CUR_NSEC_FRAC_PTP_CUR_NSEC_FRAC     LAN80XX_ENCODE_BITMASK(0,8)
-#define  LAN80XX_X_PTP_LTC_PTP_CUR_NSEC_FRAC_PTP_CUR_NSEC_FRAC(x)  LAN80XX_EXTRACT_BITFIELD(x,0,8)
+#define  LAN80XX_F_PTP_LTC_PTP_CUR_NSEC_FRAC_PTP_CUR_NSEC_FRAC(x)                                   (LAN80XX_ENCODE_BITFIELD(x,0,8))
+#define  LAN80XX_M_PTP_LTC_PTP_CUR_NSEC_FRAC_PTP_CUR_NSEC_FRAC                                      (LAN80XX_ENCODE_BITMASK(0,8))
+#define  LAN80XX_X_PTP_LTC_PTP_CUR_NSEC_FRAC_PTP_CUR_NSEC_FRAC(x)                                   (LAN80XX_EXTRACT_BITFIELD(x,0,8))
 
 
 /**
@@ -1017,9 +1017,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PTP_CUR_SEC_LSB . PTP_CUR_SEC_LSB
  */
-#define  LAN80XX_F_PTP_LTC_PTP_CUR_SEC_LSB_PTP_CUR_SEC_LSB(x)  (x)
+#define  LAN80XX_F_PTP_LTC_PTP_CUR_SEC_LSB_PTP_CUR_SEC_LSB(x)                                       (x)
 #define  LAN80XX_M_PTP_LTC_PTP_CUR_SEC_LSB_PTP_CUR_SEC_LSB     (0xffffffff)
-#define  LAN80XX_X_PTP_LTC_PTP_CUR_SEC_LSB_PTP_CUR_SEC_LSB(x)  (x)
+#define  LAN80XX_X_PTP_LTC_PTP_CUR_SEC_LSB_PTP_CUR_SEC_LSB(x)                                       (x)
 
 
 /**
@@ -1040,9 +1040,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PTP_CUR_SEC_MSB . PTP_CUR_SEC_MSB
  */
-#define  LAN80XX_F_PTP_LTC_PTP_CUR_SEC_MSB_PTP_CUR_SEC_MSB(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PTP_LTC_PTP_CUR_SEC_MSB_PTP_CUR_SEC_MSB     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PTP_LTC_PTP_CUR_SEC_MSB_PTP_CUR_SEC_MSB(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PTP_LTC_PTP_CUR_SEC_MSB_PTP_CUR_SEC_MSB(x)                                       (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PTP_LTC_PTP_CUR_SEC_MSB_PTP_CUR_SEC_MSB                                          (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PTP_LTC_PTP_CUR_SEC_MSB_PTP_CUR_SEC_MSB(x)                                       (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1054,7 +1054,7 @@
  *
  * Register: \a PTP_LTC:PTP_TOD_DOMAINS:NTP_CUR_NSEC
  */
-#define LAN80XX_PTP_LTC_NTP_CUR_NSEC            LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd05d)
+#define LAN80XX_PTP_LTC_NTP_CUR_NSEC                                                                (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd05d))
 
 /**
  * \brief
@@ -1064,9 +1064,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_NTP_CUR_NSEC . NTP_CUR_NSEC
  */
-#define  LAN80XX_F_PTP_LTC_NTP_CUR_NSEC_NTP_CUR_NSEC(x)  (x)
+#define  LAN80XX_F_PTP_LTC_NTP_CUR_NSEC_NTP_CUR_NSEC(x)                                             (x)
 #define  LAN80XX_M_PTP_LTC_NTP_CUR_NSEC_NTP_CUR_NSEC     (0xffffffff)
-#define  LAN80XX_X_PTP_LTC_NTP_CUR_NSEC_NTP_CUR_NSEC(x)  (x)
+#define  LAN80XX_X_PTP_LTC_NTP_CUR_NSEC_NTP_CUR_NSEC(x)                                             (x)
 
 /**
  * Register Group: \a PTP_LTC:PTP_LOAD_STORE_DELAY_CONFIGURATION
@@ -1081,7 +1081,7 @@
  * \details
  * Register: \a PTP_LTC:PTP_LOAD_STORE_DELAY_CONFIGURATION:PIN_LOAD_DELAY_CFG
  */
-#define LAN80XX_PTP_LTC_PIN_LOAD_DELAY_CFG      LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd05e)
+#define LAN80XX_PTP_LTC_PIN_LOAD_DELAY_CFG                                                          (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd05e))
 
 /**
  * \brief
@@ -1097,9 +1097,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PIN_LOAD_DELAY_CFG . PTP_LOAD_DELAY
  */
-#define  LAN80XX_F_PTP_LTC_PIN_LOAD_DELAY_CFG_PTP_LOAD_DELAY(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PTP_LTC_PIN_LOAD_DELAY_CFG_PTP_LOAD_DELAY     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PTP_LTC_PIN_LOAD_DELAY_CFG_PTP_LOAD_DELAY(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PTP_LTC_PIN_LOAD_DELAY_CFG_PTP_LOAD_DELAY(x)                                     (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PTP_LTC_PIN_LOAD_DELAY_CFG_PTP_LOAD_DELAY                                        (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PTP_LTC_PIN_LOAD_DELAY_CFG_PTP_LOAD_DELAY(x)                                     (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1110,7 +1110,7 @@
  *
  * @param ri Register: PIN_STORE_DELAY_CFG (??), 0-3
  */
-#define LAN80XX_PTP_LTC_PIN_STORE_DELAY_CFG(ri)  LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd05f + (ri))
+#define LAN80XX_PTP_LTC_PIN_STORE_DELAY_CFG(ri)                                                     (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd05f + (ri)))
 
 /**
  * \brief
@@ -1126,9 +1126,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PIN_STORE_DELAY_CFG . PTP_STORE_DELAY
  */
-#define  LAN80XX_F_PTP_LTC_PIN_STORE_DELAY_CFG_PTP_STORE_DELAY(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PTP_LTC_PIN_STORE_DELAY_CFG_PTP_STORE_DELAY     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PTP_LTC_PIN_STORE_DELAY_CFG_PTP_STORE_DELAY(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PTP_LTC_PIN_STORE_DELAY_CFG_PTP_STORE_DELAY(x)                                   (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PTP_LTC_PIN_STORE_DELAY_CFG_PTP_STORE_DELAY                                      (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PTP_LTC_PIN_STORE_DELAY_CFG_PTP_STORE_DELAY(x)                                   (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 /**
  * Register Group: \a PTP_LTC:PTP_SER_TOD_LOAD_STORE
@@ -1143,7 +1143,7 @@
  * \details
  * Register: \a PTP_LTC:PTP_SER_TOD_LOAD_STORE:PTP_SER_TOD_LOAD_STORE_CFG
  */
-#define LAN80XX_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG  LAN80XX_IOREG(MMD_ID_PTP_LTC, 1 ,0xd063)
+#define LAN80XX_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG                                                  (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1 ,0xd063))
 
 /**
  * \brief
@@ -1157,9 +1157,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG . SER_TOD_FASTMODE_EN
  */
-#define  LAN80XX_F_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_FASTMODE_EN(x)  LAN80XX_ENCODE_BITFIELD(!!(x),31,1)
-#define  LAN80XX_M_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_FASTMODE_EN  LAN80XX_BIT(31)
-#define  LAN80XX_X_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_FASTMODE_EN(x)  LAN80XX_EXTRACT_BITFIELD(x,31,1)
+#define  LAN80XX_F_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_FASTMODE_EN(x)                        (LAN80XX_ENCODE_BITFIELD(!!(x),31,1))
+#define  LAN80XX_M_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_FASTMODE_EN                           (LAN80XX_BIT(31))
+#define  LAN80XX_X_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_FASTMODE_EN(x)                        (LAN80XX_EXTRACT_BITFIELD(x,31,1))
 
 /**
  * \brief
@@ -1177,9 +1177,9 @@
  *
  * Field: ::LAN80XX_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG . SER_TOD_LS_UNIT_SEL
  */
-#define  LAN80XX_F_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_LS_UNIT_SEL(x)  LAN80XX_ENCODE_BITFIELD(x,7,2)
-#define  LAN80XX_M_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_LS_UNIT_SEL     LAN80XX_ENCODE_BITMASK(7,2)
-#define  LAN80XX_X_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_LS_UNIT_SEL(x)  LAN80XX_EXTRACT_BITFIELD(x,7,2)
+#define  LAN80XX_F_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_LS_UNIT_SEL(x)                        (LAN80XX_ENCODE_BITFIELD(x,7,2))
+#define  LAN80XX_M_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_LS_UNIT_SEL                           (LAN80XX_ENCODE_BITMASK(7,2))
+#define  LAN80XX_X_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_LS_UNIT_SEL(x)                        (LAN80XX_EXTRACT_BITFIELD(x,7,2))
 
 /**
  * \brief
@@ -1192,9 +1192,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG . SER_TOD_PAD_LPBK
  */
-#define  LAN80XX_F_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_PAD_LPBK(x)  LAN80XX_ENCODE_BITFIELD(!!(x),6,1)
-#define  LAN80XX_M_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_PAD_LPBK  LAN80XX_BIT(6)
-#define  LAN80XX_X_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_PAD_LPBK(x)  LAN80XX_EXTRACT_BITFIELD(x,6,1)
+#define  LAN80XX_F_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_PAD_LPBK(x)                           (LAN80XX_ENCODE_BITFIELD(!!(x),6,1))
+#define  LAN80XX_M_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_PAD_LPBK                              (LAN80XX_BIT(6))
+#define  LAN80XX_X_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_PAD_LPBK(x)                           (LAN80XX_EXTRACT_BITFIELD(x,6,1))
 
 /**
  * \brief
@@ -1204,9 +1204,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG . SER_TOD_INPUT_MSB_BIT_FIRST
  */
-#define  LAN80XX_F_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_INPUT_MSB_BIT_FIRST(x)  LAN80XX_ENCODE_BITFIELD(!!(x),5,1)
-#define  LAN80XX_M_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_INPUT_MSB_BIT_FIRST     LAN80XX_BIT(5)
-#define  LAN80XX_X_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_INPUT_MSB_BIT_FIRST(x)  LAN80XX_EXTRACT_BITFIELD(x,5,1)
+#define  LAN80XX_F_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_INPUT_MSB_BIT_FIRST(x)                (LAN80XX_ENCODE_BITFIELD(!!(x),5,1))
+#define  LAN80XX_M_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_INPUT_MSB_BIT_FIRST                   (LAN80XX_BIT(5))
+#define  LAN80XX_X_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_INPUT_MSB_BIT_FIRST(x)                (LAN80XX_EXTRACT_BITFIELD(x,5,1))
 
 /**
  * \brief
@@ -1216,9 +1216,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG . SER_TOD_INPUT_MSB_BYTE_FIRST
  */
-#define  LAN80XX_F_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_INPUT_MSB_BYTE_FIRST(x)  LAN80XX_ENCODE_BITFIELD(!!(x),4,1)
-#define  LAN80XX_M_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_INPUT_MSB_BYTE_FIRST     LAN80XX_BIT(4)
-#define  LAN80XX_X_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_INPUT_MSB_BYTE_FIRST(x)  LAN80XX_EXTRACT_BITFIELD(x,4,1)
+#define  LAN80XX_F_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_INPUT_MSB_BYTE_FIRST(x)               (LAN80XX_ENCODE_BITFIELD(!!(x),4,1))
+#define  LAN80XX_M_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_INPUT_MSB_BYTE_FIRST                  (LAN80XX_BIT(4))
+#define  LAN80XX_X_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_INPUT_MSB_BYTE_FIRST(x)               (LAN80XX_EXTRACT_BITFIELD(x,4,1))
 
 /**
  * \brief
@@ -1234,9 +1234,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG . SER_TOD_LOAD_STORE_AUTO_CLR
  */
-#define  LAN80XX_F_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_LOAD_STORE_AUTO_CLR(x)  LAN80XX_ENCODE_BITFIELD(!!(x),2,1)
-#define  LAN80XX_M_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_LOAD_STORE_AUTO_CLR     LAN80XX_BIT(2)
-#define  LAN80XX_X_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_LOAD_STORE_AUTO_CLR(x)  LAN80XX_EXTRACT_BITFIELD(x,2,1)
+#define  LAN80XX_F_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_LOAD_STORE_AUTO_CLR(x)                (LAN80XX_ENCODE_BITFIELD(!!(x),2,1))
+#define  LAN80XX_M_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_LOAD_STORE_AUTO_CLR                   (LAN80XX_BIT(2))
+#define  LAN80XX_X_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_LOAD_STORE_AUTO_CLR(x)                (LAN80XX_EXTRACT_BITFIELD(x,2,1))
 
 /**
  * \brief
@@ -1253,9 +1253,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG . SER_TOD_STORE_EN
  */
-#define  LAN80XX_F_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_STORE_EN(x)  LAN80XX_ENCODE_BITFIELD((x),1,1)
-#define  LAN80XX_M_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_STORE_EN     LAN80XX_BIT(0)
-#define  LAN80XX_X_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_STORE_EN(x)  LAN80XX_EXTRACT_BITFIELD(x,1,1)
+#define  LAN80XX_F_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_STORE_EN(x)                           (LAN80XX_ENCODE_BITFIELD((x),1,1))
+#define  LAN80XX_M_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_STORE_EN                              (LAN80XX_BIT(0))
+#define  LAN80XX_X_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_STORE_EN(x)                           (LAN80XX_EXTRACT_BITFIELD(x,1,1))
 
 /**
  * \brief
@@ -1267,9 +1267,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG . SER_TOD_LOAD_EN
  */
-#define  LAN80XX_F_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_LOAD_EN(x)  LAN80XX_ENCODE_BITFIELD((x),0,1)
-#define  LAN80XX_M_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_LOAD_EN     LAN80XX_BIT(0)
-#define  LAN80XX_X_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_LOAD_EN(x)  LAN80XX_EXTRACT_BITFIELD(x,0,1)
+#define  LAN80XX_F_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_LOAD_EN(x)                            (LAN80XX_ENCODE_BITFIELD((x),0,1))
+#define  LAN80XX_M_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_LOAD_EN                               (LAN80XX_BIT(0))
+#define  LAN80XX_X_PTP_LTC_PTP_SER_TOD_LOAD_STORE_CFG_SER_TOD_LOAD_EN(x)                            (LAN80XX_EXTRACT_BITFIELD(x,0,1))
 
 
 /**
@@ -1278,7 +1278,7 @@
  * \details
  * Register: \a PTP_LTC:PTP_SER_TOD_LOAD_STORE:PTP_SER_TOD_LOAD_PERIOD_CFG
  */
-#define LAN80XX_PTP_LTC_PTP_SER_TOD_LOAD_PERIOD_CFG  LAN80XX_IOREG(MMD_ID_PTP_LTC,1,0xd064)
+#define LAN80XX_PTP_LTC_PTP_SER_TOD_LOAD_PERIOD_CFG                                                 (LAN80XX_IOREG(MMD_ID_PTP_LTC,1,0xd064))
 
 /**
  * \brief
@@ -1292,9 +1292,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PTP_SER_TOD_LOAD_PERIOD_CFG . PIN_SER_TOD_ONE_MICROSECOND_PERIOD_CFG
  */
-#define  LAN80XX_S_F_PTP_LTC_PTP_SER_TOD_LOAD_PERIOD_CFG_PIN_SER_TOD_ONE_MICROSECOND_PERIOD_CFG(x) LAN80XX_ENCODE_BITFIELD(x,20,10)
-#define  LAN80XX_M_PTP_LTC_PTP_SER_TOD_LOAD_PERIOD_CFG_PIN_SER_TOD_ONE_MICROSECOND_PERIOD_CFG      LAN80XX_ENCODE_BITMASK(20,10)
-#define  LAN80XX_X_PTP_LTC_PTP_SER_TOD_LOAD_PERIOD_CFG_PIN_SER_TOD_ONE_MICROSECOND_PERIOD_CFG(x)   LAN80XX_EXTRACT_BITFIELD(x,20,10)
+#define  LAN80XX_S_F_PTP_LTC_PTP_SER_TOD_LOAD_PERIOD_CFG_PIN_SER_TOD_ONE_MICROSECOND_PERIOD_CFG(x)  (LAN80XX_ENCODE_BITFIELD(x,20,10))
+#define  LAN80XX_M_PTP_LTC_PTP_SER_TOD_LOAD_PERIOD_CFG_PIN_SER_TOD_ONE_MICROSECOND_PERIOD_CFG       (LAN80XX_ENCODE_BITMASK(20,10))
+#define  LAN80XX_X_PTP_LTC_PTP_SER_TOD_LOAD_PERIOD_CFG_PIN_SER_TOD_ONE_MICROSECOND_PERIOD_CFG(x)    (LAN80XX_EXTRACT_BITFIELD(x,20,10))
 
 /**
  * \brief
@@ -1307,9 +1307,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PTP_SER_TOD_LOAD_PERIOD_CFG . PIN_SER_TOD_ONE_SECOND_WAIT_PERIOD_CFG
  */
-#define  LAN80XX_F_PTP_LTC_PTP_SER_TOD_LOAD_PERIOD_CFG_PIN_SER_TOD_ONE_SECOND_WAIT_PERIOD_CFG(x)  LAN80XX_ENCODE_BITFIELD(x,0,20)
-#define  LAN80XX_M_PTP_LTC_PTP_SER_TOD_LOAD_PERIOD_CFG_PIN_SER_TOD_ONE_SECOND_WAIT_PERIOD_CFG     LAN80XX_ENCODE_BITMASK(0,20)
-#define  LAN80XX_X_PTP_LTC_PTP_SER_TOD_LOAD_PERIOD_CFG_PIN_SER_TOD_ONE_SECOND_WAIT_PERIOD_CFG(x)  LAN80XX_EXTRACT_BITFIELD(x,0,20)
+#define  LAN80XX_F_PTP_LTC_PTP_SER_TOD_LOAD_PERIOD_CFG_PIN_SER_TOD_ONE_SECOND_WAIT_PERIOD_CFG(x)    (LAN80XX_ENCODE_BITFIELD(x,0,20))
+#define  LAN80XX_M_PTP_LTC_PTP_SER_TOD_LOAD_PERIOD_CFG_PIN_SER_TOD_ONE_SECOND_WAIT_PERIOD_CFG       (LAN80XX_ENCODE_BITMASK(0,20))
+#define  LAN80XX_X_PTP_LTC_PTP_SER_TOD_LOAD_PERIOD_CFG_PIN_SER_TOD_ONE_SECOND_WAIT_PERIOD_CFG(x)    (LAN80XX_EXTRACT_BITFIELD(x,0,20))
 
 /**
  * Register Group: \a PTP_LTC:DRIFT_MEAS_CTRL
@@ -1327,7 +1327,7 @@
  *
  * Register: \a PTP_LTC:DRIFT_MEAS_CTRL:LTC_MEAS_CTRL
  */
-#define LAN80XX_PTP_LTC_LTC_MEAS_CTRL           LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd065)
+#define LAN80XX_PTP_LTC_LTC_MEAS_CTRL                                                               (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd065))
 
 /**
  * \brief
@@ -1342,9 +1342,9 @@
  *
  * Field: ::LAN80XX_PTP_LTC_LTC_MEAS_CTRL . REF_CLK_SEL
  */
-#define  LAN80XX_F_PTP_LTC_LTC_MEAS_CTRL_REF_CLK_SEL(x)  LAN80XX_ENCODE_BITFIELD(x,8,3)
-#define  LAN80XX_M_PTP_LTC_LTC_MEAS_CTRL_REF_CLK_SEL     LAN80XX_ENCODE_BITMASK(8,3)
-#define  LAN80XX_X_PTP_LTC_LTC_MEAS_CTRL_REF_CLK_SEL(x)  LAN80XX_EXTRACT_BITFIELD(x,8,3)
+#define  LAN80XX_F_PTP_LTC_LTC_MEAS_CTRL_REF_CLK_SEL(x)                                             (LAN80XX_ENCODE_BITFIELD(x,8,3))
+#define  LAN80XX_M_PTP_LTC_LTC_MEAS_CTRL_REF_CLK_SEL                                                (LAN80XX_ENCODE_BITMASK(8,3))
+#define  LAN80XX_X_PTP_LTC_LTC_MEAS_CTRL_REF_CLK_SEL(x)                                             (LAN80XX_EXTRACT_BITFIELD(x,8,3))
 
 /**
  * \brief
@@ -1355,9 +1355,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_LTC_MEAS_CTRL . INIT_MEAS_CMD
  */
-#define  LAN80XX_F_PTP_LTC_LTC_MEAS_CTRL_INIT_MEAS_CMD(x)  LAN80XX_ENCODE_BITFIELD(!!(x),7,1)
-#define  LAN80XX_M_PTP_LTC_LTC_MEAS_CTRL_INIT_MEAS_CMD  LAN80XX_BIT(7)
-#define  LAN80XX_X_PTP_LTC_LTC_MEAS_CTRL_INIT_MEAS_CMD(x)  LAN80XX_EXTRACT_BITFIELD(x,7,1)
+#define  LAN80XX_F_PTP_LTC_LTC_MEAS_CTRL_INIT_MEAS_CMD(x)                                           (LAN80XX_ENCODE_BITFIELD(!!(x),7,1))
+#define  LAN80XX_M_PTP_LTC_LTC_MEAS_CTRL_INIT_MEAS_CMD                                              (LAN80XX_BIT(7))
+#define  LAN80XX_X_PTP_LTC_LTC_MEAS_CTRL_INIT_MEAS_CMD(x)                                           (LAN80XX_EXTRACT_BITFIELD(x,7,1))
 
 /**
  * \brief
@@ -1374,9 +1374,9 @@
  *
  * Field: ::LAN80XX_PTP_LTC_LTC_MEAS_CTRL . DRIFT_MEAS_ON_OFF_STAT
  */
-#define  LAN80XX_F_PTP_LTC_LTC_MEAS_CTRL_DRIFT_MEAS_ON_OFF_STAT(x)  LAN80XX_ENCODE_BITFIELD(!!(x),3,1)
-#define  LAN80XX_M_PTP_LTC_LTC_MEAS_CTRL_DRIFT_MEAS_ON_OFF_STAT  LAN80XX_BIT(3)
-#define  LAN80XX_X_PTP_LTC_LTC_MEAS_CTRL_DRIFT_MEAS_ON_OFF_STAT(x)  LAN80XX_EXTRACT_BITFIELD(x,3,1)
+#define  LAN80XX_F_PTP_LTC_LTC_MEAS_CTRL_DRIFT_MEAS_ON_OFF_STAT(x)                                  (LAN80XX_ENCODE_BITFIELD(!!(x),3,1))
+#define  LAN80XX_M_PTP_LTC_LTC_MEAS_CTRL_DRIFT_MEAS_ON_OFF_STAT                                     (LAN80XX_BIT(3))
+#define  LAN80XX_X_PTP_LTC_LTC_MEAS_CTRL_DRIFT_MEAS_ON_OFF_STAT(x)                                  (LAN80XX_EXTRACT_BITFIELD(x,3,1))
 
 /**
  * \brief
@@ -1390,9 +1390,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_LTC_MEAS_CTRL . FREEZE_MEAS_COUNTER
  */
-#define  LAN80XX_F_PTP_LTC_LTC_MEAS_CTRL_FREEZE_MEAS_COUNTER(x)  LAN80XX_ENCODE_BITFIELD(!!(x),2,1)
-#define  LAN80XX_M_PTP_LTC_LTC_MEAS_CTRL_FREEZE_MEAS_COUNTER  LAN80XX_BIT(2)
-#define  LAN80XX_X_PTP_LTC_LTC_MEAS_CTRL_FREEZE_MEAS_COUNTER(x)  LAN80XX_EXTRACT_BITFIELD(x,2,1)
+#define  LAN80XX_F_PTP_LTC_LTC_MEAS_CTRL_FREEZE_MEAS_COUNTER(x)                                     (LAN80XX_ENCODE_BITFIELD(!!(x),2,1))
+#define  LAN80XX_M_PTP_LTC_LTC_MEAS_CTRL_FREEZE_MEAS_COUNTER                                        (LAN80XX_BIT(2))
+#define  LAN80XX_X_PTP_LTC_LTC_MEAS_CTRL_FREEZE_MEAS_COUNTER(x)                                     (LAN80XX_EXTRACT_BITFIELD(x,2,1))
 
 /**
  * \brief
@@ -1406,9 +1406,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_LTC_MEAS_CTRL . LOOP_COUNT_EN
  */
-#define  LAN80XX_F_PTP_LTC_LTC_MEAS_CTRL_LOOP_COUNT_EN(x)  LAN80XX_ENCODE_BITFIELD(!!(x),1,1)
-#define  LAN80XX_M_PTP_LTC_LTC_MEAS_CTRL_LOOP_COUNT_EN  LAN80XX_BIT(1)
-#define  LAN80XX_X_PTP_LTC_LTC_MEAS_CTRL_LOOP_COUNT_EN(x)  LAN80XX_EXTRACT_BITFIELD(x,1,1)
+#define  LAN80XX_F_PTP_LTC_LTC_MEAS_CTRL_LOOP_COUNT_EN(x)                                           (LAN80XX_ENCODE_BITFIELD(!!(x),1,1))
+#define  LAN80XX_M_PTP_LTC_LTC_MEAS_CTRL_LOOP_COUNT_EN                                              (LAN80XX_BIT(1))
+#define  LAN80XX_X_PTP_LTC_LTC_MEAS_CTRL_LOOP_COUNT_EN(x)                                           (LAN80XX_EXTRACT_BITFIELD(x,1,1))
 
 /**
  * \brief
@@ -1418,9 +1418,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_LTC_MEAS_CTRL . START_MEAS_CMD
  */
-#define  LAN80XX_F_PTP_LTC_LTC_MEAS_CTRL_START_MEAS_CMD(x)  LAN80XX_ENCODE_BITFIELD(!!(x),0,1)
-#define  LAN80XX_M_PTP_LTC_LTC_MEAS_CTRL_START_MEAS_CMD  LAN80XX_BIT(0)
-#define  LAN80XX_X_PTP_LTC_LTC_MEAS_CTRL_START_MEAS_CMD(x)  LAN80XX_EXTRACT_BITFIELD(x,0,1)
+#define  LAN80XX_F_PTP_LTC_LTC_MEAS_CTRL_START_MEAS_CMD(x)                                          (LAN80XX_ENCODE_BITFIELD(!!(x),0,1))
+#define  LAN80XX_M_PTP_LTC_LTC_MEAS_CTRL_START_MEAS_CMD                                             (LAN80XX_BIT(0))
+#define  LAN80XX_X_PTP_LTC_LTC_MEAS_CTRL_START_MEAS_CMD(x)                                          (LAN80XX_EXTRACT_BITFIELD(x,0,1))
 
 
 /**
@@ -1431,7 +1431,7 @@
  *
  * @param ri Register: MEAS_COUNT (??), 0-1
  */
-#define LAN80XX_PTP_LTC_MEAS_COUNT(ri)          LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd066 + (ri))
+#define LAN80XX_PTP_LTC_MEAS_COUNT(ri)                                                              (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd066 + (ri)))
 
 /**
  * \brief
@@ -1442,9 +1442,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_MEAS_COUNT . MEAS_COUNT_VAL
  */
-#define  LAN80XX_F_PTP_LTC_MEAS_COUNT_MEAS_COUNT_VAL(x)  (x)
+#define  LAN80XX_F_PTP_LTC_MEAS_COUNT_MEAS_COUNT_VAL(x)                                             (x)
 #define  LAN80XX_M_PTP_LTC_MEAS_COUNT_MEAS_COUNT_VAL     (0xffffffff)
-#define  LAN80XX_X_PTP_LTC_MEAS_COUNT_MEAS_COUNT_VAL(x)  (x)
+#define  LAN80XX_X_PTP_LTC_MEAS_COUNT_MEAS_COUNT_VAL(x)                                             (x)
 
 
 /**
@@ -1455,7 +1455,7 @@
  *
  * @param ri Register: MEAS_THRESHOLD (??), 0-1
  */
-#define LAN80XX_PTP_LTC_MEAS_THRESHOLD(ri)      LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd068 + (ri))
+#define LAN80XX_PTP_LTC_MEAS_THRESHOLD(ri)                                                          (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd068 + (ri)))
 
 /**
  * \brief
@@ -1466,9 +1466,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_MEAS_THRESHOLD . MEAS_THRESHOLD_VAL
  */
-#define  LAN80XX_F_PTP_LTC_MEAS_THRESHOLD_MEAS_THRESHOLD_VAL(x)  (x)
+#define  LAN80XX_F_PTP_LTC_MEAS_THRESHOLD_MEAS_THRESHOLD_VAL(x)                                     (x)
 #define  LAN80XX_M_PTP_LTC_MEAS_THRESHOLD_MEAS_THRESHOLD_VAL     (0xffffffff)
-#define  LAN80XX_X_PTP_LTC_MEAS_THRESHOLD_MEAS_THRESHOLD_VAL(x)  (x)
+#define  LAN80XX_X_PTP_LTC_MEAS_THRESHOLD_MEAS_THRESHOLD_VAL(x)                                     (x)
 
 /**
  * Register Group: \a PTP_LTC:DRIFT_MEAS_TOD
@@ -1483,7 +1483,7 @@
  * \details
  * Register: \a PTP_LTC:DRIFT_MEAS_TOD:PTP_TOD_1_SEC_MSB
  */
-#define LAN80XX_PTP_LTC_PTP_TOD_1_SEC_MSB       LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd06a)
+#define LAN80XX_PTP_LTC_PTP_TOD_1_SEC_MSB                                                           (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd06a))
 
 /**
  * \brief
@@ -1492,9 +1492,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PTP_TOD_1_SEC_MSB . PTP_TOD_1_SEC_MSB
  */
-#define  LAN80XX_F_PTP_LTC_PTP_TOD_1_SEC_MSB_PTP_TOD_1_SEC_MSB(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PTP_LTC_PTP_TOD_1_SEC_MSB_PTP_TOD_1_SEC_MSB     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PTP_LTC_PTP_TOD_1_SEC_MSB_PTP_TOD_1_SEC_MSB(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PTP_LTC_PTP_TOD_1_SEC_MSB_PTP_TOD_1_SEC_MSB(x)                                   (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PTP_LTC_PTP_TOD_1_SEC_MSB_PTP_TOD_1_SEC_MSB                                      (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PTP_LTC_PTP_TOD_1_SEC_MSB_PTP_TOD_1_SEC_MSB(x)                                   (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1503,7 +1503,7 @@
  * \details
  * Register: \a PTP_LTC:DRIFT_MEAS_TOD:PTP_TOD_1_SEC_LSB
  */
-#define LAN80XX_PTP_LTC_PTP_TOD_1_SEC_LSB       LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd06b)
+#define LAN80XX_PTP_LTC_PTP_TOD_1_SEC_LSB                                                           (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd06b))
 
 /**
  * \brief
@@ -1512,9 +1512,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PTP_TOD_1_SEC_LSB . PTP_TOD_1_SEC_LSB
  */
-#define  LAN80XX_F_PTP_LTC_PTP_TOD_1_SEC_LSB_PTP_TOD_1_SEC_LSB(x)  (x)
+#define  LAN80XX_F_PTP_LTC_PTP_TOD_1_SEC_LSB_PTP_TOD_1_SEC_LSB(x)                                   (x)
 #define  LAN80XX_M_PTP_LTC_PTP_TOD_1_SEC_LSB_PTP_TOD_1_SEC_LSB     (0xffffffff)
-#define  LAN80XX_X_PTP_LTC_PTP_TOD_1_SEC_LSB_PTP_TOD_1_SEC_LSB(x)  (x)
+#define  LAN80XX_X_PTP_LTC_PTP_TOD_1_SEC_LSB_PTP_TOD_1_SEC_LSB(x)                                   (x)
 
 
 /**
@@ -1523,7 +1523,7 @@
  * \details
  * Register: \a PTP_LTC:DRIFT_MEAS_TOD:PTP_TOD_1_NSEC
  */
-#define LAN80XX_PTP_LTC_PTP_TOD_1_NSEC          LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd06c)
+#define LAN80XX_PTP_LTC_PTP_TOD_1_NSEC                                                              (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd06c))
 
 /**
  * \brief
@@ -1536,9 +1536,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PTP_TOD_1_NSEC . PTP_TOD_1_NSEC
  */
-#define  LAN80XX_F_PTP_LTC_PTP_TOD_1_NSEC_PTP_TOD_1_NSEC(x)  LAN80XX_ENCODE_BITFIELD(x,0,30)
-#define  LAN80XX_M_PTP_LTC_PTP_TOD_1_NSEC_PTP_TOD_1_NSEC     LAN80XX_ENCODE_BITMASK(0,30)
-#define  LAN80XX_X_PTP_LTC_PTP_TOD_1_NSEC_PTP_TOD_1_NSEC(x)  LAN80XX_EXTRACT_BITFIELD(x,0,30)
+#define  LAN80XX_F_PTP_LTC_PTP_TOD_1_NSEC_PTP_TOD_1_NSEC(x)                                         (LAN80XX_ENCODE_BITFIELD(x,0,30))
+#define  LAN80XX_M_PTP_LTC_PTP_TOD_1_NSEC_PTP_TOD_1_NSEC                                            (LAN80XX_ENCODE_BITMASK(0,30))
+#define  LAN80XX_X_PTP_LTC_PTP_TOD_1_NSEC_PTP_TOD_1_NSEC(x)                                         (LAN80XX_EXTRACT_BITFIELD(x,0,30))
 
 
 /**
@@ -1547,7 +1547,7 @@
  * \details
  * Register: \a PTP_LTC:DRIFT_MEAS_TOD:PTP_TOD_1_NSEC_FRAC
  */
-#define LAN80XX_PTP_LTC_PTP_TOD_1_NSEC_FRAC     LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd06d)
+#define LAN80XX_PTP_LTC_PTP_TOD_1_NSEC_FRAC                                                         (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd06d))
 /**
  * \brief
  * Time Of Day fractional nanoseconds loaded or stored into TimeOfDay.
@@ -1555,9 +1555,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PTP_TOD_1_NSEC_FRAC . PTP_TOD_1_NSEC_FRAC
  */
-#define  LAN80XX_F_PTP_LTC_PTP_TOD_1_NSEC_FRAC_PTP_TOD_1_NSEC_FRAC(x)  LAN80XX_ENCODE_BITFIELD(x,0,8)
-#define  LAN80XX_M_PTP_LTC_PTP_TOD_1_NSEC_FRAC_PTP_TOD_1_NSEC_FRAC     LAN80XX_ENCODE_BITMASK(0,8)
-#define  LAN80XX_X_PTP_LTC_PTP_TOD_1_NSEC_FRAC_PTP_TOD_1_NSEC_FRAC(x)  LAN80XX_EXTRACT_BITFIELD(x,0,8)
+#define  LAN80XX_F_PTP_LTC_PTP_TOD_1_NSEC_FRAC_PTP_TOD_1_NSEC_FRAC(x)                               (LAN80XX_ENCODE_BITFIELD(x,0,8))
+#define  LAN80XX_M_PTP_LTC_PTP_TOD_1_NSEC_FRAC_PTP_TOD_1_NSEC_FRAC                                  (LAN80XX_ENCODE_BITMASK(0,8))
+#define  LAN80XX_X_PTP_LTC_PTP_TOD_1_NSEC_FRAC_PTP_TOD_1_NSEC_FRAC(x)                               (LAN80XX_EXTRACT_BITFIELD(x,0,8))
 
 
 /**
@@ -1566,7 +1566,7 @@
  * \details
  * Register: \a PTP_LTC:DRIFT_MEAS_TOD:PTP_TOD_2_SEC_MSB
  */
-#define LAN80XX_PTP_LTC_PTP_TOD_2_SEC_MSB       LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd06e)
+#define LAN80XX_PTP_LTC_PTP_TOD_2_SEC_MSB                                                           (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd06e))
 
 /**
  * \brief
@@ -1575,9 +1575,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PTP_TOD_2_SEC_MSB . PTP_TOD_2_SEC_MSB
  */
-#define  LAN80XX_F_PTP_LTC_PTP_TOD_2_SEC_MSB_PTP_TOD_2_SEC_MSB(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PTP_LTC_PTP_TOD_2_SEC_MSB_PTP_TOD_2_SEC_MSB     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PTP_LTC_PTP_TOD_2_SEC_MSB_PTP_TOD_2_SEC_MSB(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PTP_LTC_PTP_TOD_2_SEC_MSB_PTP_TOD_2_SEC_MSB(x)                                   (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PTP_LTC_PTP_TOD_2_SEC_MSB_PTP_TOD_2_SEC_MSB                                      (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PTP_LTC_PTP_TOD_2_SEC_MSB_PTP_TOD_2_SEC_MSB(x)                                   (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1586,7 +1586,7 @@
  * \details
  * Register: \a PTP_LTC:DRIFT_MEAS_TOD:PTP_TOD_2_SEC_LSB
  */
-#define LAN80XX_PTP_LTC_PTP_TOD_2_SEC_LSB       LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd06f)
+#define LAN80XX_PTP_LTC_PTP_TOD_2_SEC_LSB                                                           (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd06f))
 
 /**
  * \brief
@@ -1595,9 +1595,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PTP_TOD_2_SEC_LSB . PTP_TOD_2_SEC_LSB
  */
-#define  LAN80XX_F_PTP_LTC_PTP_TOD_2_SEC_LSB_PTP_TOD_2_SEC_LSB(x)  (x)
+#define  LAN80XX_F_PTP_LTC_PTP_TOD_2_SEC_LSB_PTP_TOD_2_SEC_LSB(x)                                   (x)
 #define  LAN80XX_M_PTP_LTC_PTP_TOD_2_SEC_LSB_PTP_TOD_2_SEC_LSB     (0xffffffff)
-#define  LAN80XX_X_PTP_LTC_PTP_TOD_2_SEC_LSB_PTP_TOD_2_SEC_LSB(x)  (x)
+#define  LAN80XX_X_PTP_LTC_PTP_TOD_2_SEC_LSB_PTP_TOD_2_SEC_LSB(x)                                   (x)
 
 
 /**
@@ -1606,7 +1606,7 @@
  * \details
  * Register: \a PTP_LTC:DRIFT_MEAS_TOD:PTP_TOD_2_NSEC
  */
-#define LAN80XX_PTP_LTC_PTP_TOD_2_NSEC          LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd070)
+#define LAN80XX_PTP_LTC_PTP_TOD_2_NSEC                                                              (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd070))
 
 /**
  * \brief
@@ -1619,9 +1619,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PTP_TOD_2_NSEC . PTP_TOD_2_NSEC
  */
-#define  LAN80XX_F_PTP_LTC_PTP_TOD_2_NSEC_PTP_TOD_2_NSEC(x)  LAN80XX_ENCODE_BITFIELD(x,0,30)
-#define  LAN80XX_M_PTP_LTC_PTP_TOD_2_NSEC_PTP_TOD_2_NSEC     LAN80XX_ENCODE_BITMASK(0,30)
-#define  LAN80XX_X_PTP_LTC_PTP_TOD_2_NSEC_PTP_TOD_2_NSEC(x)  LAN80XX_EXTRACT_BITFIELD(x,0,30)
+#define  LAN80XX_F_PTP_LTC_PTP_TOD_2_NSEC_PTP_TOD_2_NSEC(x)                                         (LAN80XX_ENCODE_BITFIELD(x,0,30))
+#define  LAN80XX_M_PTP_LTC_PTP_TOD_2_NSEC_PTP_TOD_2_NSEC                                            (LAN80XX_ENCODE_BITMASK(0,30))
+#define  LAN80XX_X_PTP_LTC_PTP_TOD_2_NSEC_PTP_TOD_2_NSEC(x)                                         (LAN80XX_EXTRACT_BITFIELD(x,0,30))
 
 
 /**
@@ -1630,7 +1630,7 @@
  * \details
  * Register: \a PTP_LTC:DRIFT_MEAS_TOD:PTP_TOD_2_NSEC_FRAC
  */
-#define LAN80XX_PTP_LTC_PTP_TOD_2_NSEC_FRAC     LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd071)
+#define LAN80XX_PTP_LTC_PTP_TOD_2_NSEC_FRAC                                                         (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd071))
 
 /**
  * \brief
@@ -1639,9 +1639,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_PTP_TOD_2_NSEC_FRAC . PTP_TOD_2_NSEC_FRAC
  */
-#define  LAN80XX_F_PTP_LTC_PTP_TOD_2_NSEC_FRAC_PTP_TOD_2_NSEC_FRAC(x)  LAN80XX_ENCODE_BITFIELD(x,0,8)
-#define  LAN80XX_M_PTP_LTC_PTP_TOD_2_NSEC_FRAC_PTP_TOD_2_NSEC_FRAC     LAN80XX_ENCODE_BITMASK(0,8)
-#define  LAN80XX_X_PTP_LTC_PTP_TOD_2_NSEC_FRAC_PTP_TOD_2_NSEC_FRAC(x)  LAN80XX_EXTRACT_BITFIELD(x,0,8)
+#define  LAN80XX_F_PTP_LTC_PTP_TOD_2_NSEC_FRAC_PTP_TOD_2_NSEC_FRAC(x)                               (LAN80XX_ENCODE_BITFIELD(x,0,8))
+#define  LAN80XX_M_PTP_LTC_PTP_TOD_2_NSEC_FRAC_PTP_TOD_2_NSEC_FRAC                                  (LAN80XX_ENCODE_BITMASK(0,8))
+#define  LAN80XX_X_PTP_LTC_PTP_TOD_2_NSEC_FRAC_PTP_TOD_2_NSEC_FRAC(x)                               (LAN80XX_EXTRACT_BITFIELD(x,0,8))
 
 /**
  * Register Group: \a PTP_LTC:DRIFT_PHASE_DETECTOR_CTRL
@@ -1660,7 +1660,7 @@
  *
  * Register: \a PTP_LTC:DRIFT_PHASE_DETECTOR_CTRL:DF_PHAD_CTRL
  */
-#define LAN80XX_PTP_LTC_DF_PHAD_CTRL            LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd072)
+#define LAN80XX_PTP_LTC_DF_PHAD_CTRL                                                                (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd072))
 
 /**
  * \brief
@@ -1671,9 +1671,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_DF_PHAD_CTRL . PHAD_LOCK
  */
-#define  LAN80XX_F_PTP_LTC_DF_PHAD_CTRL_PHAD_LOCK(x)  LAN80XX_ENCODE_BITFIELD(!!(x),18,1)
-#define  LAN80XX_M_PTP_LTC_DF_PHAD_CTRL_PHAD_LOCK  LAN80XX_BIT(18)
-#define  LAN80XX_X_PTP_LTC_DF_PHAD_CTRL_PHAD_LOCK(x)  LAN80XX_EXTRACT_BITFIELD(x,18,1)
+#define  LAN80XX_F_PTP_LTC_DF_PHAD_CTRL_PHAD_LOCK(x)                                                (LAN80XX_ENCODE_BITFIELD(!!(x),18,1))
+#define  LAN80XX_M_PTP_LTC_DF_PHAD_CTRL_PHAD_LOCK                                                   (LAN80XX_BIT(18))
+#define  LAN80XX_X_PTP_LTC_DF_PHAD_CTRL_PHAD_LOCK(x)                                                (LAN80XX_EXTRACT_BITFIELD(x,18,1))
 
 /**
  * \brief
@@ -1682,9 +1682,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_DF_PHAD_CTRL . DIV_STATE
  */
-#define  LAN80XX_F_PTP_LTC_DF_PHAD_CTRL_DIV_STATE(x)  LAN80XX_ENCODE_BITFIELD(x,15,3)
-#define  LAN80XX_M_PTP_LTC_DF_PHAD_CTRL_DIV_STATE     LAN80XX_ENCODE_BITMASK(15,3)
-#define  LAN80XX_X_PTP_LTC_DF_PHAD_CTRL_DIV_STATE(x)  LAN80XX_EXTRACT_BITFIELD(x,15,3)
+#define  LAN80XX_F_PTP_LTC_DF_PHAD_CTRL_DIV_STATE(x)                                                (LAN80XX_ENCODE_BITFIELD(x,15,3))
+#define  LAN80XX_M_PTP_LTC_DF_PHAD_CTRL_DIV_STATE                                                   (LAN80XX_ENCODE_BITMASK(15,3))
+#define  LAN80XX_X_PTP_LTC_DF_PHAD_CTRL_DIV_STATE(x)                                                (LAN80XX_EXTRACT_BITFIELD(x,15,3))
 
 /**
  * \brief
@@ -1694,9 +1694,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_DF_PHAD_CTRL . PHAD_ADJ
  */
-#define  LAN80XX_F_PTP_LTC_DF_PHAD_CTRL_PHAD_ADJ(x)  LAN80XX_ENCODE_BITFIELD(x,13,2)
-#define  LAN80XX_M_PTP_LTC_DF_PHAD_CTRL_PHAD_ADJ     LAN80XX_ENCODE_BITMASK(13,2)
-#define  LAN80XX_X_PTP_LTC_DF_PHAD_CTRL_PHAD_ADJ(x)  LAN80XX_EXTRACT_BITFIELD(x,13,2)
+#define  LAN80XX_F_PTP_LTC_DF_PHAD_CTRL_PHAD_ADJ(x)                                                 (LAN80XX_ENCODE_BITFIELD(x,13,2))
+#define  LAN80XX_M_PTP_LTC_DF_PHAD_CTRL_PHAD_ADJ                                                    (LAN80XX_ENCODE_BITMASK(13,2))
+#define  LAN80XX_X_PTP_LTC_DF_PHAD_CTRL_PHAD_ADJ(x)                                                 (LAN80XX_EXTRACT_BITFIELD(x,13,2))
 
 /**
  * \brief
@@ -1708,9 +1708,9 @@
  *
  * Field: ::LAN80XX_PTP_LTC_DF_PHAD_CTRL . ERR_MAX_ENA
  */
-#define  LAN80XX_F_PTP_LTC_DF_PHAD_CTRL_ERR_MAX_ENA(x)  LAN80XX_ENCODE_BITFIELD(!!(x),12,1)
-#define  LAN80XX_M_PTP_LTC_DF_PHAD_CTRL_ERR_MAX_ENA  LAN80XX_BIT(12)
-#define  LAN80XX_X_PTP_LTC_DF_PHAD_CTRL_ERR_MAX_ENA(x)  LAN80XX_EXTRACT_BITFIELD(x,12,1)
+#define  LAN80XX_F_PTP_LTC_DF_PHAD_CTRL_ERR_MAX_ENA(x)                                              (LAN80XX_ENCODE_BITFIELD(!!(x),12,1))
+#define  LAN80XX_M_PTP_LTC_DF_PHAD_CTRL_ERR_MAX_ENA                                                 (LAN80XX_BIT(12))
+#define  LAN80XX_X_PTP_LTC_DF_PHAD_CTRL_ERR_MAX_ENA(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,12,1))
 
 /**
  * \brief
@@ -1725,9 +1725,9 @@
  *
  * Field: ::LAN80XX_PTP_LTC_DF_PHAD_CTRL . DIV_CFG
  */
-#define  LAN80XX_F_PTP_LTC_DF_PHAD_CTRL_DIV_CFG(x)  LAN80XX_ENCODE_BITFIELD(x,9,3)
-#define  LAN80XX_M_PTP_LTC_DF_PHAD_CTRL_DIV_CFG     LAN80XX_ENCODE_BITMASK(9,3)
-#define  LAN80XX_X_PTP_LTC_DF_PHAD_CTRL_DIV_CFG(x)  LAN80XX_EXTRACT_BITFIELD(x,9,3)
+#define  LAN80XX_F_PTP_LTC_DF_PHAD_CTRL_DIV_CFG(x)                                                  (LAN80XX_ENCODE_BITFIELD(x,9,3))
+#define  LAN80XX_M_PTP_LTC_DF_PHAD_CTRL_DIV_CFG                                                     (LAN80XX_ENCODE_BITMASK(9,3))
+#define  LAN80XX_X_PTP_LTC_DF_PHAD_CTRL_DIV_CFG(x)                                                  (LAN80XX_EXTRACT_BITFIELD(x,9,3))
 
 /**
  * \brief
@@ -1745,9 +1745,9 @@
  *
  * Field: ::LAN80XX_PTP_LTC_DF_PHAD_CTRL . TWEAKS
  */
-#define  LAN80XX_F_PTP_LTC_DF_PHAD_CTRL_TWEAKS(x)  LAN80XX_ENCODE_BITFIELD(x,6,3)
-#define  LAN80XX_M_PTP_LTC_DF_PHAD_CTRL_TWEAKS     LAN80XX_ENCODE_BITMASK(6,3)
-#define  LAN80XX_X_PTP_LTC_DF_PHAD_CTRL_TWEAKS(x)  LAN80XX_EXTRACT_BITFIELD(x,6,3)
+#define  LAN80XX_F_PTP_LTC_DF_PHAD_CTRL_TWEAKS(x)                                                   (LAN80XX_ENCODE_BITFIELD(x,6,3))
+#define  LAN80XX_M_PTP_LTC_DF_PHAD_CTRL_TWEAKS                                                      (LAN80XX_ENCODE_BITMASK(6,3))
+#define  LAN80XX_X_PTP_LTC_DF_PHAD_CTRL_TWEAKS(x)                                                   (LAN80XX_EXTRACT_BITFIELD(x,6,3))
 
 /**
  * \brief
@@ -1756,9 +1756,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_DF_PHAD_CTRL . PHAD_ENA
  */
-#define  LAN80XX_F_PTP_LTC_DF_PHAD_CTRL_PHAD_ENA(x)  LAN80XX_ENCODE_BITFIELD(!!(x),5,1)
-#define  LAN80XX_M_PTP_LTC_DF_PHAD_CTRL_PHAD_ENA  LAN80XX_BIT(5)
-#define  LAN80XX_X_PTP_LTC_DF_PHAD_CTRL_PHAD_ENA(x)  LAN80XX_EXTRACT_BITFIELD(x,5,1)
+#define  LAN80XX_F_PTP_LTC_DF_PHAD_CTRL_PHAD_ENA(x)                                                 (LAN80XX_ENCODE_BITFIELD(!!(x),5,1))
+#define  LAN80XX_M_PTP_LTC_DF_PHAD_CTRL_PHAD_ENA                                                    (LAN80XX_BIT(5))
+#define  LAN80XX_X_PTP_LTC_DF_PHAD_CTRL_PHAD_ENA(x)                                                 (LAN80XX_EXTRACT_BITFIELD(x,5,1))
 
 /**
  * \brief
@@ -1773,9 +1773,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_DF_PHAD_CTRL . PHAD_MODE
  */
-#define  LAN80XX_F_PTP_LTC_DF_PHAD_CTRL_PHAD_MODE(x)  LAN80XX_ENCODE_BITFIELD(!!(x),4,1)
-#define  LAN80XX_M_PTP_LTC_DF_PHAD_CTRL_PHAD_MODE  LAN80XX_BIT(4)
-#define  LAN80XX_X_PTP_LTC_DF_PHAD_CTRL_PHAD_MODE(x)  LAN80XX_EXTRACT_BITFIELD(x,4,1)
+#define  LAN80XX_F_PTP_LTC_DF_PHAD_CTRL_PHAD_MODE(x)                                                (LAN80XX_ENCODE_BITFIELD(!!(x),4,1))
+#define  LAN80XX_M_PTP_LTC_DF_PHAD_CTRL_PHAD_MODE                                                   (LAN80XX_BIT(4))
+#define  LAN80XX_X_PTP_LTC_DF_PHAD_CTRL_PHAD_MODE(x)                                                (LAN80XX_EXTRACT_BITFIELD(x,4,1))
 
 /**
  * \brief
@@ -1786,9 +1786,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_DF_PHAD_CTRL . PHAD_FAILED
  */
-#define  LAN80XX_F_PTP_LTC_DF_PHAD_CTRL_PHAD_FAILED(x)  LAN80XX_ENCODE_BITFIELD(!!(x),3,1)
-#define  LAN80XX_M_PTP_LTC_DF_PHAD_CTRL_PHAD_FAILED  LAN80XX_BIT(3)
-#define  LAN80XX_X_PTP_LTC_DF_PHAD_CTRL_PHAD_FAILED(x)  LAN80XX_EXTRACT_BITFIELD(x,3,1)
+#define  LAN80XX_F_PTP_LTC_DF_PHAD_CTRL_PHAD_FAILED(x)                                              (LAN80XX_ENCODE_BITFIELD(!!(x),3,1))
+#define  LAN80XX_M_PTP_LTC_DF_PHAD_CTRL_PHAD_FAILED                                                 (LAN80XX_BIT(3))
+#define  LAN80XX_X_PTP_LTC_DF_PHAD_CTRL_PHAD_FAILED(x)                                              (LAN80XX_EXTRACT_BITFIELD(x,3,1))
 
 /**
  * \brief
@@ -1798,9 +1798,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_DF_PHAD_CTRL . LOCK_ACC
  */
-#define  LAN80XX_F_PTP_LTC_DF_PHAD_CTRL_LOCK_ACC(x)  LAN80XX_ENCODE_BITFIELD(x,0,3)
-#define  LAN80XX_M_PTP_LTC_DF_PHAD_CTRL_LOCK_ACC     LAN80XX_ENCODE_BITMASK(0,3)
-#define  LAN80XX_X_PTP_LTC_DF_PHAD_CTRL_LOCK_ACC(x)  LAN80XX_EXTRACT_BITFIELD(x,0,3)
+#define  LAN80XX_F_PTP_LTC_DF_PHAD_CTRL_LOCK_ACC(x)                                                 (LAN80XX_ENCODE_BITFIELD(x,0,3))
+#define  LAN80XX_M_PTP_LTC_DF_PHAD_CTRL_LOCK_ACC                                                    (LAN80XX_ENCODE_BITMASK(0,3))
+#define  LAN80XX_X_PTP_LTC_DF_PHAD_CTRL_LOCK_ACC(x)                                                 (LAN80XX_EXTRACT_BITFIELD(x,0,3))
 
 
 /**
@@ -1811,7 +1811,7 @@
  *
  * Register: \a PTP_LTC:DRIFT_PHASE_DETECTOR_CTRL:DF_PHAD_CYC_STAT
  */
-#define LAN80XX_PTP_LTC_DF_PHAD_CYC_STAT        LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd073)
+#define LAN80XX_PTP_LTC_DF_PHAD_CYC_STAT                                                            (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd073))
 
 /**
  * \brief
@@ -1820,9 +1820,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_DF_PHAD_CYC_STAT . PHAD_CYCLETIME
  */
-#define  LAN80XX_F_PTP_LTC_DF_PHAD_CYC_STAT_PHAD_CYCLETIME(x)  (x)
+#define  LAN80XX_F_PTP_LTC_DF_PHAD_CYC_STAT_PHAD_CYCLETIME(x)                                       (x)
 #define  LAN80XX_M_PTP_LTC_DF_PHAD_CYC_STAT_PHAD_CYCLETIME     (0xffffffff)
-#define  LAN80XX_X_PTP_LTC_DF_PHAD_CYC_STAT_PHAD_CYCLETIME(x)  (x)
+#define  LAN80XX_X_PTP_LTC_DF_PHAD_CYC_STAT_PHAD_CYCLETIME(x)                                       (x)
 
 
 /**
@@ -1833,7 +1833,7 @@
  *
  * Register: \a PTP_LTC:DRIFT_PHASE_DETECTOR_CTRL:DF_PHAD_ERR_STAT
  */
-#define LAN80XX_PTP_LTC_DF_PHAD_ERR_STAT        LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd074)
+#define LAN80XX_PTP_LTC_DF_PHAD_ERR_STAT                                                            (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd074))
 
 /**
  * \brief
@@ -1843,9 +1843,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_DF_PHAD_ERR_STAT . PHAD_ERR_STAT
  */
-#define  LAN80XX_F_PTP_LTC_DF_PHAD_ERR_STAT_PHAD_ERR_STAT(x)  LAN80XX_ENCODE_BITFIELD(x,0,19)
-#define  LAN80XX_M_PTP_LTC_DF_PHAD_ERR_STAT_PHAD_ERR_STAT     LAN80XX_ENCODE_BITMASK(0,19)
-#define  LAN80XX_X_PTP_LTC_DF_PHAD_ERR_STAT_PHAD_ERR_STAT(x)  LAN80XX_EXTRACT_BITFIELD(x,0,19)
+#define  LAN80XX_F_PTP_LTC_DF_PHAD_ERR_STAT_PHAD_ERR_STAT(x)                                        (LAN80XX_ENCODE_BITFIELD(x,0,19))
+#define  LAN80XX_M_PTP_LTC_DF_PHAD_ERR_STAT_PHAD_ERR_STAT                                           (LAN80XX_ENCODE_BITMASK(0,19))
+#define  LAN80XX_X_PTP_LTC_DF_PHAD_ERR_STAT_PHAD_ERR_STAT(x)                                        (LAN80XX_EXTRACT_BITFIELD(x,0,19))
 
 /**
  * Register Group: \a PTP_LTC:LTC_SPARE_REG
@@ -1860,7 +1860,7 @@
  * \details
  * Register: \a PTP_LTC:LTC_SPARE_REG:LTC_SPARE_REG_CFG
  */
-#define LAN80XX_PTP_LTC_LTC_SPARE_REG_CFG       LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd075)
+#define LAN80XX_PTP_LTC_LTC_SPARE_REG_CFG                                                           (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd075))
 
 /**
  * \brief
@@ -1869,9 +1869,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_LTC_SPARE_REG_CFG . LTC_SPACE_REGS
  */
-#define  LAN80XX_F_PTP_LTC_LTC_SPARE_REG_CFG_LTC_SPACE_REGS(x)  (x)
+#define  LAN80XX_F_PTP_LTC_LTC_SPARE_REG_CFG_LTC_SPACE_REGS(x)                                      (x)
 #define  LAN80XX_M_PTP_LTC_LTC_SPARE_REG_CFG_LTC_SPACE_REGS     (0xffffffff)
-#define  LAN80XX_X_PTP_LTC_LTC_SPARE_REG_CFG_LTC_SPACE_REGS(x)  (x)
+#define  LAN80XX_X_PTP_LTC_LTC_SPARE_REG_CFG_LTC_SPACE_REGS(x)                                      (x)
 
 /**
  * Register Group: \a PTP_LTC:LTC_DEBUG
@@ -1886,7 +1886,7 @@
  * \details
  * Register: \a PTP_LTC:LTC_DEBUG:LTC_DEBUG0_CFG
  */
-#define LAN80XX_PTP_LTC_LTC_DEBUG0_CFG          LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd0f8)
+#define LAN80XX_PTP_LTC_LTC_DEBUG0_CFG                                                              (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd0f8))
 
 /**
  * \brief
@@ -1895,9 +1895,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_LTC_DEBUG0_CFG . LTC_DEBUG0
  */
-#define  LAN80XX_F_PTP_LTC_LTC_DEBUG0_CFG_LTC_DEBUG0(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PTP_LTC_LTC_DEBUG0_CFG_LTC_DEBUG0     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PTP_LTC_LTC_DEBUG0_CFG_LTC_DEBUG0(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PTP_LTC_LTC_DEBUG0_CFG_LTC_DEBUG0(x)                                             (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PTP_LTC_LTC_DEBUG0_CFG_LTC_DEBUG0                                                (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PTP_LTC_LTC_DEBUG0_CFG_LTC_DEBUG0(x)                                             (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1906,7 +1906,7 @@
  * \details
  * Register: \a PTP_LTC:LTC_DEBUG:LTC_DEBUG1_CFG
  */
-#define LAN80XX_PTP_LTC_LTC_DEBUG1_CFG          LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd0f9)
+#define LAN80XX_PTP_LTC_LTC_DEBUG1_CFG                                                              (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd0f9))
 
 /**
  * \brief
@@ -1915,9 +1915,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_LTC_DEBUG1_CFG . LTC_DEBUG1
  */
-#define  LAN80XX_F_PTP_LTC_LTC_DEBUG1_CFG_LTC_DEBUG1(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PTP_LTC_LTC_DEBUG1_CFG_LTC_DEBUG1     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PTP_LTC_LTC_DEBUG1_CFG_LTC_DEBUG1(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PTP_LTC_LTC_DEBUG1_CFG_LTC_DEBUG1(x)                                             (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PTP_LTC_LTC_DEBUG1_CFG_LTC_DEBUG1                                                (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PTP_LTC_LTC_DEBUG1_CFG_LTC_DEBUG1(x)                                             (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1926,7 +1926,7 @@
  * \details
  * Register: \a PTP_LTC:LTC_DEBUG:LTC_DEBUG2_CFG
  */
-#define LAN80XX_PTP_LTC_LTC_DEBUG2_CFG          LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd0fa)
+#define LAN80XX_PTP_LTC_LTC_DEBUG2_CFG                                                              (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd0fa))
 
 /**
  * \brief
@@ -1935,9 +1935,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_LTC_DEBUG2_CFG . LTC_DEBUG2
  */
-#define  LAN80XX_F_PTP_LTC_LTC_DEBUG2_CFG_LTC_DEBUG2(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PTP_LTC_LTC_DEBUG2_CFG_LTC_DEBUG2     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PTP_LTC_LTC_DEBUG2_CFG_LTC_DEBUG2(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PTP_LTC_LTC_DEBUG2_CFG_LTC_DEBUG2(x)                                             (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PTP_LTC_LTC_DEBUG2_CFG_LTC_DEBUG2                                                (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PTP_LTC_LTC_DEBUG2_CFG_LTC_DEBUG2(x)                                             (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1946,7 +1946,7 @@
  * \details
  * Register: \a PTP_LTC:LTC_DEBUG:LTC_DEBUG3_CFG
  */
-#define LAN80XX_PTP_LTC_LTC_DEBUG3_CFG          LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd0fb)
+#define LAN80XX_PTP_LTC_LTC_DEBUG3_CFG                                                              (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd0fb))
 
 /**
  * \brief
@@ -1955,9 +1955,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_LTC_DEBUG3_CFG . LTC_DEBUG3
  */
-#define  LAN80XX_F_PTP_LTC_LTC_DEBUG3_CFG_LTC_DEBUG3(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PTP_LTC_LTC_DEBUG3_CFG_LTC_DEBUG3     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PTP_LTC_LTC_DEBUG3_CFG_LTC_DEBUG3(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PTP_LTC_LTC_DEBUG3_CFG_LTC_DEBUG3(x)                                             (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PTP_LTC_LTC_DEBUG3_CFG_LTC_DEBUG3                                                (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PTP_LTC_LTC_DEBUG3_CFG_LTC_DEBUG3(x)                                             (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1966,7 +1966,7 @@
  * \details
  * Register: \a PTP_LTC:LTC_DEBUG:LTC_DEBUG4_CFG
  */
-#define LAN80XX_PTP_LTC_LTC_DEBUG4_CFG          LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd0fc)
+#define LAN80XX_PTP_LTC_LTC_DEBUG4_CFG                                                              (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd0fc))
 
 /**
  * \brief
@@ -1975,9 +1975,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_LTC_DEBUG4_CFG . LTC_DEBUG4
  */
-#define  LAN80XX_F_PTP_LTC_LTC_DEBUG4_CFG_LTC_DEBUG4(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PTP_LTC_LTC_DEBUG4_CFG_LTC_DEBUG4     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PTP_LTC_LTC_DEBUG4_CFG_LTC_DEBUG4(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PTP_LTC_LTC_DEBUG4_CFG_LTC_DEBUG4(x)                                             (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PTP_LTC_LTC_DEBUG4_CFG_LTC_DEBUG4                                                (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PTP_LTC_LTC_DEBUG4_CFG_LTC_DEBUG4(x)                                             (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -1986,7 +1986,7 @@
  * \details
  * Register: \a PTP_LTC:LTC_DEBUG:LTC_DEBUG5_CFG
  */
-#define LAN80XX_PTP_LTC_LTC_DEBUG5_CFG          LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd0fd)
+#define LAN80XX_PTP_LTC_LTC_DEBUG5_CFG                                                              (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd0fd))
 
 /**
  * \brief
@@ -1995,9 +1995,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_LTC_DEBUG5_CFG . LTC_DEBUG5
  */
-#define  LAN80XX_F_PTP_LTC_LTC_DEBUG5_CFG_LTC_DEBUG5(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PTP_LTC_LTC_DEBUG5_CFG_LTC_DEBUG5     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PTP_LTC_LTC_DEBUG5_CFG_LTC_DEBUG5(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PTP_LTC_LTC_DEBUG5_CFG_LTC_DEBUG5(x)                                             (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PTP_LTC_LTC_DEBUG5_CFG_LTC_DEBUG5                                                (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PTP_LTC_LTC_DEBUG5_CFG_LTC_DEBUG5(x)                                             (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -2006,7 +2006,7 @@
  * \details
  * Register: \a PTP_LTC:LTC_DEBUG:LTC_DEBUG6_CFG
  */
-#define LAN80XX_PTP_LTC_LTC_DEBUG6_CFG          LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd0fe)
+#define LAN80XX_PTP_LTC_LTC_DEBUG6_CFG                                                              (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd0fe))
 
 /**
  * \brief
@@ -2015,9 +2015,9 @@
  * \details
  * Field: ::LAN80XX_PTP_LTC_LTC_DEBUG6_CFG . LTC_DEBUG6
  */
-#define  LAN80XX_F_PTP_LTC_LTC_DEBUG6_CFG_LTC_DEBUG6(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PTP_LTC_LTC_DEBUG6_CFG_LTC_DEBUG6     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PTP_LTC_LTC_DEBUG6_CFG_LTC_DEBUG6(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PTP_LTC_LTC_DEBUG6_CFG_LTC_DEBUG6(x)                                             (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PTP_LTC_LTC_DEBUG6_CFG_LTC_DEBUG6                                                (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PTP_LTC_LTC_DEBUG6_CFG_LTC_DEBUG6(x)                                             (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 /**
@@ -2026,7 +2026,7 @@
  * \details
  * Register: \a PTP_LTC:LTC_DEBUG:LTC_DEBUG7_CFG
  */
-#define LAN80XX_PTP_LTC_LTC_DEBUG7_CFG          LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd0ff)
+#define LAN80XX_PTP_LTC_LTC_DEBUG7_CFG                                                              (LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, 0xd0ff))
 
 /**
  * \brief
@@ -2045,9 +2045,9 @@
  *
  * Field: ::LAN80XX_PTP_LTC_LTC_DEBUG7_CFG . LTC_DEBUG7
  */
-#define  LAN80XX_F_PTP_LTC_LTC_DEBUG7_CFG_LTC_DEBUG7(x)  LAN80XX_ENCODE_BITFIELD(x,0,16)
-#define  LAN80XX_M_PTP_LTC_LTC_DEBUG7_CFG_LTC_DEBUG7     LAN80XX_ENCODE_BITMASK(0,16)
-#define  LAN80XX_X_PTP_LTC_LTC_DEBUG7_CFG_LTC_DEBUG7(x)  LAN80XX_EXTRACT_BITFIELD(x,0,16)
+#define  LAN80XX_F_PTP_LTC_LTC_DEBUG7_CFG_LTC_DEBUG7(x)                                             (LAN80XX_ENCODE_BITFIELD(x,0,16))
+#define  LAN80XX_M_PTP_LTC_LTC_DEBUG7_CFG_LTC_DEBUG7                                                (LAN80XX_ENCODE_BITMASK(0,16))
+#define  LAN80XX_X_PTP_LTC_LTC_DEBUG7_CFG_LTC_DEBUG7(x)                                             (LAN80XX_EXTRACT_BITFIELD(x,0,16))
 
 
 #endif /* _LAN80XX_MALIBU25G_REGS_PTP_LTC_H_ */

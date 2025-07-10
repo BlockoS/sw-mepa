@@ -262,7 +262,7 @@ mepa_rc lan80xx_mcu_mailbox_init(const mepa_device_t *dev, u32 u32McuIntMask, u3
     return rc;
 }
 
-uint16_t crc_16(const unsigned char *input, size_t num_bytes)
+static uint16_t crc_16(const unsigned char *input, size_t num_bytes)
 {
     uint8_t i;
     uint16_t u16crc;
@@ -375,7 +375,7 @@ mepa_rc lan80xx_ValidatePacket(uint8_t *u8PktBuf)
 * This function is used to clear Response Flag
 * Mailbox Flag Register - 0xDA00 (Bit 31:24)
 */
-mepa_rc lan80xx_MB_ClearFlag(const mepa_device_t *dev, uint32_t u32ClearMask)
+static mepa_rc lan80xx_MB_ClearFlag(const mepa_device_t *dev, uint32_t u32ClearMask)
 {
     mepa_rc rc = MEPA_RC_OK;
     phy25g_phy_state_t *data = NULL;
@@ -399,7 +399,7 @@ mepa_rc lan80xx_MB_ClearFlag(const mepa_device_t *dev, uint32_t u32ClearMask)
 * Mailbox MCU Interrupt Mask Register - 0xDA01
 * Mailbox Flag Register - 0xDA00 (Bit 23:16)
 */
-mepa_rc lan80xx_MB_SetFlag(const mepa_device_t *dev, uint32_t u32SetMask)
+static mepa_rc lan80xx_MB_SetFlag(const mepa_device_t *dev, uint32_t u32SetMask)
 {
     mepa_rc rc = MEPA_RC_OK;
     phy25g_phy_state_t *data = NULL;

@@ -139,14 +139,14 @@ static mepa_rc lan80xx_a0_a1_revision_serd_init_strap_wrkrd(mepa_device_t *dev, 
     return MEPA_RC_OK;
 }
 
-mepa_rc lan80xx_get_base_adr(const mepa_device_t *dev,
-                             const mepa_port_no_t port_no,
-                             uint32_t mmd_dev,
-                             uint32_t addr,
-                             uint32_t *phy_base,
-                             uint32_t *target_id,
-                             uint32_t *offset,
-                             mepa_bool_t *use_base_port)
+static mepa_rc lan80xx_get_base_adr(const mepa_device_t *dev,
+                                    const mepa_port_no_t port_no,
+                                    uint32_t mmd_dev,
+                                    uint32_t addr,
+                                    uint32_t *phy_base,
+                                    uint32_t *target_id,
+                                    uint32_t *offset,
+                                    mepa_bool_t *use_base_port)
 {
     *target_id = 0;
     *phy_base = addr;
@@ -427,8 +427,8 @@ mepa_rc lan80xx_xconnect_anylinetoanyhost(mepa_device_t *dev, mepa_port_no_t por
     return MEPA_RC_OK;
 }
 
-mepa_rc lan80xx_hostline_channel_configuration(mepa_device_t *dev, mepa_port_no_t port_no,
-                                               u8 switch_sel, mepa_bool_t is_mac_change, phy25g_host_protect_mode_t mode, u8 act_host)
+static mepa_rc lan80xx_hostline_channel_configuration(mepa_device_t *dev, mepa_port_no_t port_no,
+                                                      u8 switch_sel, mepa_bool_t is_mac_change, phy25g_host_protect_mode_t mode, u8 act_host)
 {
 
     u8 chn, dft_chn, alt_chn = 0;
@@ -598,8 +598,8 @@ mepa_rc lan80xx_xconnect_hostfailover_Protection(mepa_device_t  *dev, mepa_port_
 }
 
 
-mepa_rc lan80xx_xconnect_failover_set_priv(mepa_device_t  *dev,
-                                           const mepa_port_no_t port_no)
+static mepa_rc lan80xx_xconnect_failover_set_priv(mepa_device_t  *dev,
+                                                  const mepa_port_no_t port_no)
 {
 
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
@@ -820,13 +820,13 @@ mepa_rc lan80xx_csr_wr(const mepa_device_t         *dev,
 }
 
 
-mepa_rc lan80xx_csr_wrm(const mepa_device_t     *dev,
-                        const mepa_port_no_t    port_no,
-                        const uint16_t          mmd,
-                        const mepa_bool_t       is32,
-                        const uint32_t          addr,
-                        uint32_t                value,
-                        uint32_t                mask)
+static mepa_rc lan80xx_csr_wrm(const mepa_device_t     *dev,
+                               const mepa_port_no_t    port_no,
+                               const uint16_t          mmd,
+                               const mepa_bool_t       is32,
+                               const uint32_t          addr,
+                               uint32_t                value,
+                               uint32_t                mask)
 {
     mepa_rc rc;
     uint32_t     val;
@@ -898,7 +898,7 @@ mepa_rc _lan80xx_csr_warm_wr(const mepa_device_t *dev,
  *   Function definitions starts
 *********************************************/
 
-mepa_rc lan80xx_aneg_status(const mepa_device_t *dev, mepa_port_no_t port_no)
+static mepa_rc lan80xx_aneg_status(const mepa_device_t *dev, mepa_port_no_t port_no)
 {
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
     phy25g_oper_speed_mode_t speed = SPEED_NONE;
@@ -2402,7 +2402,7 @@ mepa_rc lan80xx_operating_mode_set_priv(const mepa_device_t *dev, const mepa_por
     return MEPA_RC_OK;
 }
 
-mepa_rc lan80xx_mode_conf_set(mepa_device_t *dev, mepa_port_no_t port_no, phy25g_port_mode_t  *mode)
+static mepa_rc lan80xx_mode_conf_set(mepa_device_t *dev, mepa_port_no_t port_no, phy25g_port_mode_t  *mode)
 {
     phy25g_phy_state_t *data = (phy25g_phy_state_t *) dev->data;
     T_D(MEPA_TRACE_GRP_GEN, "lan80xx_mode_conf_set - %u\n", port_no);
@@ -2554,7 +2554,7 @@ mepa_rc lan80xx_mode_conf_set(mepa_device_t *dev, mepa_port_no_t port_no, phy25g
 
 
 /* Initial function. Sets the operating mode of the Phy.   */
-mepa_rc lan80xx_mode_set_init(mepa_device_t *dev, const mepa_port_no_t port_no, phy25g_port_mode_t  *mode)
+static mepa_rc lan80xx_mode_set_init(mepa_device_t *dev, const mepa_port_no_t port_no, phy25g_port_mode_t  *mode)
 {
 
     phy25g_phy_state_t *data = (phy25g_phy_state_t *) dev->data;

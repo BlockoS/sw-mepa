@@ -10,9 +10,6 @@
 #include "lan80xx_ts_private.h"
 #include "lan80xx_mcu.h"
 
-extern mepa_ts_driver_t lan80xx_ts_drivers;
-extern mepa_macsec_driver_t lan80xx_macsec_drivers;
-
 ////////  MEPA API Implementation  /////
 
 static mepa_rc lan80xx_delete(mepa_device_t *dev)

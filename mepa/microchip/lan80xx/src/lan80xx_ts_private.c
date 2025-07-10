@@ -803,11 +803,11 @@ mepa_rc lan80xx_ts_get_1588_version(const mepa_device_t *dev,
     return MEPA_RC_OK;
 }
 
-mepa_rc lan80xx_phy_ts_write_csr(const mepa_device_t *dev,
-                                 const mepa_port_no_t port_no,
-                                 const phy25g_ts_blk_id_t blk_id,
-                                 const u16 csr_address,
-                                 const u32 *const value)
+static mepa_rc lan80xx_phy_ts_write_csr(const mepa_device_t *dev,
+                                       const mepa_port_no_t port_no,
+                                       const phy25g_ts_blk_id_t blk_id,
+                                       const u16 csr_address,
+                                       const u32 *const value)
 {
     phy25g_phy_state_t     *data = (phy25g_phy_state_t *)dev->data;
     lan80xx_phy_ts_biu_addr_map_t *biu_addr_map_ptr = &phy25g_ts_biu_addr_map[0];
@@ -823,11 +823,11 @@ mepa_rc lan80xx_phy_ts_write_csr(const mepa_device_t *dev,
 }
 
 
-mepa_rc lan80xx_phy_ts_read_csr(const mepa_device_t *dev,
-                                const mepa_port_no_t port_no,
-                                const phy25g_ts_blk_id_t blk_id,
-                                const u16 csr_address,
-                                u32 *const value)
+static mepa_rc lan80xx_phy_ts_read_csr(const mepa_device_t *dev,
+                                       const mepa_port_no_t port_no,
+                                       const phy25g_ts_blk_id_t blk_id,
+                                       const u16 csr_address,
+                                       u32 *const value)
 {
     phy25g_phy_state_t     *data = (phy25g_phy_state_t *)dev->data;
     lan80xx_phy_ts_biu_addr_map_t *biu_addr_map_ptr = &phy25g_ts_biu_addr_map[0];
@@ -4872,10 +4872,10 @@ static void lan80xx_get_clk_from_action(mepa_device_t *dev,
     clk_conf->ptp_class_conf.sdoid = sdoid; // unused
 }
 
-mepa_rc lan80xx_ts_egress_engine_action_get(mepa_device_t  *dev,
-                                            const mepa_port_no_t            port_no,
-                                            const phy25g_ts_engine_t      eng_id,
-                                            phy25g_ts_engine_action_t *const action_conf)
+static mepa_rc lan80xx_ts_egress_engine_action_get(mepa_device_t                *dev,
+                                                   const mepa_port_no_t         port_no,
+                                                   const phy25g_ts_engine_t     eng_id,
+                                                   phy25g_ts_engine_action_t    *const action_conf)
 {
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
     mepa_rc rc = MEPA_RC_OK;
@@ -4893,10 +4893,10 @@ mepa_rc lan80xx_ts_egress_engine_action_get(mepa_device_t  *dev,
     return rc;
 }
 
-mepa_rc lan80xx_ts_ingress_engine_action_get(mepa_device_t  *dev,
-                                             const mepa_port_no_t            port_no,
-                                             const phy25g_ts_engine_t      eng_id,
-                                             phy25g_ts_engine_action_t *const action_conf)
+static mepa_rc lan80xx_ts_ingress_engine_action_get(mepa_device_t  *dev,
+                                                    const mepa_port_no_t            port_no,
+                                                    const phy25g_ts_engine_t      eng_id,
+                                                    phy25g_ts_engine_action_t *const action_conf)
 {
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
     mepa_rc rc = MEPA_RC_OK;
@@ -6907,7 +6907,7 @@ mepa_rc lan80xx_phy_ts_mode_get( mepa_device_t *dev,
 }
 
 
-mepa_rc lan80xx_phy_ts_ltc_ls_action_set_priv(mepa_device_t *dev, const mepa_port_no_t port_no, phy25g_ptp_action_type_t ls_action)
+static mepa_rc lan80xx_phy_ts_ltc_ls_action_set_priv(mepa_device_t *dev, const mepa_port_no_t port_no, phy25g_ptp_action_type_t ls_action)
 {
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
     phy25g_phy_state_t *base_data = NULL;

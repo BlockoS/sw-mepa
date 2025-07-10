@@ -107,6 +107,8 @@
 #define LAN80XX_POST1_SLICE0_BIST_RESULT_ADDR  (0x85U)
 #define LAN80XX_POST1_STATUS_P1_POST_DONE      (0x1U)
 
+extern mepa_ts_driver_t lan80xx_ts_drivers;
+extern mepa_macsec_driver_t lan80xx_macsec_drivers;
 
 typedef struct {
     u8     r_dwidthctrl_from_hwt;

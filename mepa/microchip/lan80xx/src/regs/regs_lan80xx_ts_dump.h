@@ -18,7 +18,7 @@
 #define LAN80XX_PTP_ANA2_INGR_BASE       (0xC000)
 #define LAN80XX_PTP_ANA2_EGR_BASE        (0xC800)
 
-phy25g_reg_dump_t dump_ptp_proc_ltc[LAN80XX_PTP_PROC_LTC_REG_NUM] = {
+static phy25g_reg_dump_t dump_ptp_proc_ltc[LAN80XX_PTP_PROC_LTC_REG_NUM] = {
     {"INTERFACE_CTL",                       0x9000},
     {"ANALYZER_MODE",                       0x9001},
     {"MODE_CTL",                            0x9002},
@@ -40,7 +40,7 @@ phy25g_reg_dump_t dump_ptp_proc_ltc[LAN80XX_PTP_PROC_LTC_REG_NUM] = {
 };
 
 
-phy25g_reg_dump_t dump_ptp_proc[LAN80XX_PTP_PROC_REG_NUM] = {
+static phy25g_reg_dump_t dump_ptp_proc[LAN80XX_PTP_PROC_REG_NUM] = {
     {"CFG_OPERATION_MODE",             0x0},
     {"INT_STATUS",                     0x1},
     {"INT_MASK",                       0x2},
@@ -83,7 +83,7 @@ phy25g_reg_dump_t dump_ptp_proc[LAN80XX_PTP_PROC_REG_NUM] = {
 
 
 
-phy25g_reg_dump_t dump_ptp_ana[LAN80XX_PTP_ANA_REG_NUM] = {
+static phy25g_reg_dump_t dump_ptp_ana[LAN80XX_PTP_ANA_REG_NUM] = {
     {"ETH1_NXT_PROTOCOL_REG",                  0x0},
     {"ETH1_VLAN_TPID_CFG",                     0x1},
     {"ETH1_TAG_MODE",                          0x2},

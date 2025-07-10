@@ -257,8 +257,8 @@ static mepa_rc lan80xx_ts_init_conf_set(mepa_device_t *dev, const mepa_ts_init_c
     return lan80xx_phy_ts_init(dev, data->port_no, &init_conf);
 }
 
-mepa_rc lan80xx_ts_tx_classifier_conf_set(struct mepa_device *dev,
-                                          uint16_t flow_index, const mepa_ts_classifier_t *const pkt_class_conf)
+static mepa_rc lan80xx_ts_tx_classifier_conf_set(struct mepa_device *dev,
+                                                 uint16_t flow_index, const mepa_ts_classifier_t *const pkt_class_conf)
 {
     mepa_rc rc;
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
@@ -925,7 +925,7 @@ static void lan80xx_phy_ts_fifo_read_cb(mepa_device_t  *dev,
     fifo_cb(port_no, &ts, &mep_sig, (mepa_ts_fifo_status_t)status);
 }
 
-void lan80xx_ts_fifo_read_install(mepa_device_t  *dev, mepa_ts_fifo_read_t rd_cb)
+static void lan80xx_ts_fifo_read_install(mepa_device_t  *dev, mepa_ts_fifo_read_t rd_cb)
 {
     fifo_cb = rd_cb ? rd_cb : fifo_cb;
     lan80xx_phy_ts_fifo_read_install(dev, lan80xx_phy_ts_fifo_read_cb, NULL);
@@ -937,7 +937,7 @@ static mepa_rc lan80xx_ts_fifo_empty(mepa_device_t  *dev)
     return lan80xx_phy_ts_fifo_empty(dev, data->port_no, NULL, NULL, TRUE);
 }
 
-mepa_rc lan80xx_ts_fifo_get(mepa_device_t *dev, mepa_fifo_ts_entry_t ts_list[], const size_t size, uint32_t *const num)
+static mepa_rc lan80xx_ts_fifo_get(mepa_device_t *dev, mepa_fifo_ts_entry_t ts_list[], const size_t size, uint32_t *const num)
 {
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
     phy25g_ts_fifo_entry_t phy25g_ts_entry[LAN80XX_PHY_TS_FIFO_MAX_ENTRIES];
@@ -1074,7 +1074,7 @@ static mepa_rc lan80xx_ts_pps_conf_get (mepa_device_t *dev, mepa_ts_pps_conf_t *
 }
 #endif
 
-mepa_rc lan80xx_ts_stats_get(mepa_device_t *dev, mepa_ts_stats_t *const statistics)
+static mepa_rc lan80xx_ts_stats_get(mepa_device_t *dev, mepa_ts_stats_t *const statistics)
 {
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
     phy25g_phy_ts_stats_t stats;

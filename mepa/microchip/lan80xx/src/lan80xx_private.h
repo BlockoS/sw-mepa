@@ -253,14 +253,14 @@ mepa_rc _lan80xx_csr_warm_wr(const mepa_device_t *dev,
         base_dev = data->base_dev; \
         base_data =  (phy25g_phy_state_t *)base_dev->data; \
      }\
-
+ 
 #define LAN80XX_CSR_RD(dev,port, io_reg, value)                      \
     {                                                                \
        mepa_rc __rc = lan80xx_csr_rd(dev,port, io_reg->mmd, io_reg->is32, io_reg->addr, value);\
         if (__rc != MEPA_RC_OK)                                       \
             return __rc;                                               \
     }                                                           \
-
+ 
 #define LAN80XX_CSR_WR(dev,port, io_reg, value)                 \
     {                                                              \
       mepa_rc __rc = lan80xx_csr_wr(dev, port, io_reg->mmd, io_reg->is32, io_reg->addr, value); \

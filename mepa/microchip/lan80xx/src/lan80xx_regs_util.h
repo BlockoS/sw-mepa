@@ -23,14 +23,14 @@
 #define LAN80XX_32BIT_REG_MASK   (0xFFFFFFFFU)
 
 #define LAN80XX_HOST_LINE_REG(front,h_l,back) \
-	(((h_l) != 0U) ? (front##_LINE_##back) : (front##_HOST_##back))
+    (((h_l) != 0U) ? (front##_LINE_##back) : (front##_HOST_##back))
 
 #define LAN80XX_LINE_HOST_MAC_REG_EXPAN(front, is_host, back) \
-	(((is_host) != 0U) ? (front##_HOST_MAC_HOST_MAC_##back) : (front##_LINE_MAC_LINE_MAC_##back))
+    (((is_host) != 0U) ? (front##_HOST_MAC_HOST_MAC_##back) : (front##_LINE_MAC_LINE_MAC_##back))
 
 
 #define LAN80XX_HOST_LINE_INTR_REG(front, h_l, back) \
-	(((h_l) != 0U) ? (front##_LINE_INTR_CTRL_LINE_##back) : (front##_HOST_INTR_CTRL_HOST_##back))
+    (((h_l) != 0U) ? (front##_LINE_INTR_CTRL_LINE_##back) : (front##_HOST_INTR_CTRL_HOST_##back))
 
 
 

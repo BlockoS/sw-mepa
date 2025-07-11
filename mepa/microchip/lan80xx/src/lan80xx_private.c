@@ -1322,8 +1322,8 @@ mepa_bool_t lan80xx_target_reg_width(uint16_t target, uint32_t addr)
     switch (target) {
     case 3:
         if  ((addr <= 0x07FF) ||
-            (addr >= 0x8000 && addr <= 0x8FFF) ||
-            (addr >= 0xE000 && addr <= 0xE0FF)) {
+             (addr >= 0x8000 && addr <= 0x8FFF) ||
+             (addr >= 0xE000 && addr <= 0xE0FF)) {
             return FALSE;
         } else {
             return TRUE;
@@ -3392,7 +3392,7 @@ static mepa_rc lan80xx_phy_timestamp_read (const mepa_device_t     *dev,
     u8 timestamp = 0, size = 0;
     ioreg_blk *io = LAN80XX_PKT_BIST_MON_TSTAMP0_0;
     u32 address = io->addr;
-    
+
     /* Freeze most recent 10 timestamps for readback */
     LAN80XX_CSR_WARM_WRM(port_no, LAN80XX_PKT_BIST_UPDATE, LAN80XX_M_PKT_BIST_UPDATE_TS_HOLD, LAN80XX_M_PKT_BIST_UPDATE_TS_HOLD);
     /*Read 10 timestamp where each time stamp is of 80 bits(5 registers each 16bit register) */
@@ -4029,7 +4029,7 @@ static mepa_rc lan80xx_gpio_alt_fn_channel_map(mepa_device_t         *dev,
         rc = MEPA_RC_ERROR;
     }
     return rc;
-} 
+}
 
 
 mepa_rc lan80xx_gpio_mode_set_priv(mepa_device_t                 *dev,

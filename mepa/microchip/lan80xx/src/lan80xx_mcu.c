@@ -2274,7 +2274,7 @@ mepa_rc lan80xx_KRLog_Enable(const mepa_device_t *dev, mepa_bool_t bkrlog_enable
     LAN80XX_BASE_DEV(data, base_dev, base_data);
 
     T_D(MEPA_TRACE_GRP_GEN, "Enabling KR Log on port : %d, channel id: %d, kr log enabled ports: %x\n\n", data->port_no, data->channel_id, base_data->krlog_en_ports);
-    
+
     // Check if KR Log Maximum port supported (4 - host + line)
     byKRportsToEnable = base_data->krlog_en_ports;
 
@@ -2284,7 +2284,7 @@ mepa_rc lan80xx_KRLog_Enable(const mepa_device_t *dev, mepa_bool_t bkrlog_enable
         } else {
             byKRportsToEnable &= ~(1 << data->channel_id);
         }
-    } 
+    }
     if (bhost_port_en) {
         if (bkrlog_enable) {
             byKRportsToEnable |= (1 << (data->channel_id + 4));

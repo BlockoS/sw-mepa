@@ -804,10 +804,10 @@ mepa_rc lan80xx_ts_get_1588_version(const mepa_device_t *dev,
 }
 
 static mepa_rc lan80xx_phy_ts_write_csr(const mepa_device_t *dev,
-                                       const mepa_port_no_t port_no,
-                                       const phy25g_ts_blk_id_t blk_id,
-                                       const u16 csr_address,
-                                       const u32 *const value)
+                                        const mepa_port_no_t port_no,
+                                        const phy25g_ts_blk_id_t blk_id,
+                                        const u16 csr_address,
+                                        const u32 *const value)
 {
     phy25g_phy_state_t     *data = (phy25g_phy_state_t *)dev->data;
     lan80xx_phy_ts_biu_addr_map_t *biu_addr_map_ptr = &phy25g_ts_biu_addr_map[0];
@@ -1452,14 +1452,14 @@ mepa_rc lan80xx_ts_hard_reset_private(mepa_device_t *dev, mepa_port_no_t port_no
      */
     u32Val = 0;
     u32Val = LAN80XX_F_LINE_SLICE_LINE_IP1588_RESET_IP1588_INGR_RST(1) |
-            LAN80XX_F_LINE_SLICE_LINE_IP1588_RESET_IP1588_EGR_RST(1);
+             LAN80XX_F_LINE_SLICE_LINE_IP1588_RESET_IP1588_EGR_RST(1);
 
     LAN80XX_CSR_COLD_WR(port_no, LAN80XX_LINE_SLICE_LINE_IP1588_RESET,
                         u32Val );
 
     u32Val = 0;
     u32Val = LAN80XX_F_LINE_SLICE_LINE_IP1588_RESET_IP1588_INGR_RST(0) |
-            LAN80XX_F_LINE_SLICE_LINE_IP1588_RESET_IP1588_EGR_RST(0);
+             LAN80XX_F_LINE_SLICE_LINE_IP1588_RESET_IP1588_EGR_RST(0);
     LAN80XX_CSR_COLD_WR(port_no, LAN80XX_LINE_SLICE_LINE_IP1588_RESET,
                         u32Val );
 

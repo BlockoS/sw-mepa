@@ -944,7 +944,7 @@ static mepa_rc lan80xx_ts_fifo_get(mepa_device_t *dev, mepa_fifo_ts_entry_t ts_l
     u16 FifoEntryIndex = 0;
 
     if (num == NULL) {
-	T_E(MEPA_TRACE_GRP_GEN, "Invalid argument\n");
+        T_E(MEPA_TRACE_GRP_GEN, "Invalid argument\n");
         return MEPA_RC_ERROR;
     }
 
@@ -965,9 +965,7 @@ static mepa_rc lan80xx_ts_fifo_get(mepa_device_t *dev, mepa_fifo_ts_entry_t ts_l
             ts_list[FifoEntryIndex].sig.sequence_id = phy25g_ts_entry[FifoEntryIndex].sig.sequence_id;
             ts_list[FifoEntryIndex].sig.has_crc_src = FALSE;
         }
-    }
-    else
-    {
+    } else {
         T_E(MEPA_TRACE_GRP_GEN, "Failed to get FIFO entries!!\n");
         return MEPA_RC_ERROR;
     }

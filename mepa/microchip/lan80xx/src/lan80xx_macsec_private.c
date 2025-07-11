@@ -2714,7 +2714,7 @@ static mepa_rc lan80xx_macsec_secy_counters_get_(mepa_device_t                 *
             if (record < LAN80XX_MACSEC_XFORM_REC_NUM_PAGE0) {
                 LAN80XX_MACSEC_CNT64_RD(dev, port_no, LAN80XX_MACSEC_INGR_STAT_SA_COUNTERS_PAGE0_INPKTSNOTUSINGSA_LO(record), &cnt);
             } else {
-                LAN80XX_MACSEC_CNT64_RD(dev,port_no,LAN80XX_MACSEC_INGR_STAT_SA_COUNTERS_PAGE1_INPKTSNOTUSINGSA_LO(record - LAN80XX_MACSEC_XFORM_REC_NUM_PAGE0), &cnt);
+                LAN80XX_MACSEC_CNT64_RD(dev, port_no, LAN80XX_MACSEC_INGR_STAT_SA_COUNTERS_PAGE1_INPKTSNOTUSINGSA_LO(record - LAN80XX_MACSEC_XFORM_REC_NUM_PAGE0), &cnt);
             }
             secy->rx_sc[sc]->sa[an]->cnt.in_pkts_not_using_sa += cnt;
             not_using_sa_cnt += secy->rx_sc[sc]->sa[an]->cnt.in_pkts_not_using_sa;
@@ -6535,7 +6535,7 @@ mepa_rc lan80xx_macsec_cleartags_conf_set_priv(mepa_device_t                    
 #define LAN80XX_PHY_MS_DISP_CSR(p,d,m,a,v) \
                        lan80xx_csr_rd(dev,port_no, m, TRUE, a, v); \
                        pr("%-10u %-40s 0x%-10x 0x%-12x\n",p, d,a,*v) \
-
+ 
 static mepa_rc lan80xx_macsec_dbg_ms_ctrl_reg_dump_(mepa_device_t     *dev,
                                                     mepa_port_no_t     port_no,
                                                     mepa_debug_print_t pr)

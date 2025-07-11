@@ -415,7 +415,6 @@ static mesa_rc board_dtree_get(const char *tag, char *buf, size_t bufsize, size_
 
 static mesa_rc board_conf_get(const char *tag, char *buf, size_t bufsize, size_t *buflen)
 {
-    uint32_t   port_cnt = mesa_port_cnt(NULL); // Compiled
     const char *board = NULL;
     uint32_t   target = 0;
     uint32_t   type = PCB_TYPE_NONE;
@@ -431,46 +430,6 @@ static mesa_rc board_conf_get(const char *tag, char *buf, size_t bufsize, size_t
 
     /* Board detection is currently done based on MESA capabilities */
     switch (mesa_capability(NULL, MESA_CAP_MISC_CHIP_FAMILY)) {
-    case MESA_CHIP_FAMILY_CARACAL:
-        if (port_cnt > 10) {
-            board = "Luton26";
-            target = 0x7429;
-        } else {
-            board = "Luton10";
-            target = 0x7428;
-        }
-        break;
-
-    case MESA_CHIP_FAMILY_OCELOT:
-        // TODO, it currently assumes that we are PCB123
-        board = "Ocelot Ref (pcb123)";
-        mux_mode = 1;
-        break;
-
-    case MESA_CHIP_FAMILY_JAGUAR2:
-        if (REF_BOARD_PCB == -1) {
-            if (!get_env("pcb", &REF_BOARD_PCB)) {
-                printf("uboot 'pcb' env variable does not exist, use fw_setenv to set (defaulting to pcb111).\n");
-                REF_BOARD_PCB = 111;
-            }
-        }
-        if (REF_BOARD_PCB == 111) {
-            board = "Jaguar2-cu48";
-            target = 0x7449;
-            type = 1;
-        } else if (REF_BOARD_PCB == 116) {
-            board = "Serval2 NID";
-            target = 0x7438;
-            type = 0;
-        } else if (REF_BOARD_PCB == 110) {
-            board = "Jaguar2-cu8sfp16";
-            target = 0x7468;
-            type = 2;
-        } else {
-            printf("unknown JR2 PCB: %d.\n", REF_BOARD_PCB);
-        }
-        break;
-
     case MESA_CHIP_FAMILY_SPARX5:   // SparX-5/SparX-5i Family
         // Read the uboot env variables to find out PCB nr. and port count
         REF_BOARD_PCB = 134;
@@ -507,15 +466,6 @@ static mesa_rc board_conf_get(const char *tag, char *buf, size_t bufsize, size_t
             T_D("board_name %s, target %x type %d mux_mode:%d", board, target, type, mux_mode);
         }
         // Device-tree is expected
-        break;
-    case MESA_CHIP_FAMILY_LAN969X:
-        // Device-tree is expected for 'pcb' and 'target'
-        // port count is either default or controlled from UBOOT (pcb_var)
-        if (!get_env("pcb_var", &REF_BOARD_PORT_COUNT)) {
-            T_D("Using default port count\n");
-        } else {
-            board_port_cnt = REF_BOARD_PORT_COUNT;
-        }
         break;
     default:
         break;
@@ -1184,26 +1134,6 @@ mesa_rc mepa_phy_spi_write (struct mepa_callout_ctx *ctx,
     return mepa_spi_reg_read_write(ctx, port_no, 0, dev, reg_num, data);
 }
 
-#if 0
-mesa_rc mepa_spi2_spi_read (struct mepa_callout_ctx *ctx,
-                            mepa_port_no_t port_no,
-                            uint8_t             dev,
-                            uint16_t            reg_num,
-                            uint32_t            *const data)
-{
-    return mepa_spi2_reg_read_write(ctx, port_no, 1, dev, reg_num, data);
-}
-
-mesa_rc mepa_spi2_spi_write (struct mepa_callout_ctx *ctx,
-                             mepa_port_no_t port_no,
-                             uint8_t             dev,
-                             uint16_t            reg_num,
-                             uint32_t            *const data)
-{
-    return mepa_spi2_reg_read_write(ctx, port_no, 0, dev, reg_num, data);
-}
-
-#endif
 
 
 int main(int argc, char **argv)
@@ -1462,10 +1392,6 @@ int main(int argc, char **argv)
             init->cmd = MSCC_INIT_CMD_POLL_FAST;
             init_modules(init);
         }
-        // if (SPI_REG_IO_MEPA) {
-        //     mepa_spi_reg_read_write (NULL, 12, 1, 0x1,0xf000, &data);
-        //     cli_printf("SPI read %x\n", data);
-        // }
     }
 
     return 0;

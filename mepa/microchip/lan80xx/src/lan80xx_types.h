@@ -130,43 +130,6 @@ typedef struct {
     phy25g_polarity_inv_t polarity;            /**< polarity inversion configuration */
 } phy25g_port_mode_t;
 
-/**
- * Advertisement Word (Refer to IEEE 802.3 Clause 37):
- *  MSB                                                                         LSB
- *  D15  D14  D13  D12  D11  D10   D9   D8   D7   D6   D5   D4   D3   D2   D1   D0
- * +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
- * | NP | Ack| RF2| RF1|rsvd|rsvd|rsvd| PS2| PS1| HD | FD |rsvd|rsvd|rsvd|rsvd|rsvd|
- * +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
- **/
-
-/** \brief Auto-negotiation remote fault type */
-typedef enum {
-    LAN80XX_PHY_10G_CLAUSE_37_RF_LINK_OK,        /**< Link OK */
-    LAN80XX_PHY_10G_CLAUSE_37_RF_OFFLINE,        /**< Off line */
-    LAN80XX_PHY_10G_CLAUSE_37_RF_LINK_FAILURE,   /**< Link failure */
-    LAN80XX_PHY_10G_CLAUSE_37_RF_AUTONEG_ERROR   /**< Autoneg error */
-} phy25g_clause_37_remote_fault_t;
-
-/** \brief Advertisement control data for Clause 37 aneg */
-typedef struct {
-    mepa_bool_t                        fdx;               /**< (FD) */
-    mepa_bool_t                        hdx;               /**< (HD) ,Not supported */
-    mepa_bool_t                        symmetric_pause;   /**< (PS1) */
-    mepa_bool_t                        asymmetric_pause;  /**< (PS2) */
-    phy25g_clause_37_remote_fault_t    remote_fault;      /**< (RF1) + (RF2) , would be generated according to condition*/
-    mepa_bool_t                        acknowledge;       /**< (Ack) , would be generated according to condition*/
-    mepa_bool_t                        next_page;         /**< (NP) ,Not supported */
-} phy25g_clause_37_adv_t;
-
-
-/** \brief Clause 37 control struct */
-typedef struct {
-    mepa_bool_t           enable;        /**< Enable of Autoneg */
-    phy25g_clause_37_adv_t advertisement; /**< Clause 37 Advertisement data */
-    mepa_bool_t           enable_pass_thru; /**< Enables pass through mode in VENICE/MALIBU */
-    mepa_bool_t           line;           /**< Line:TRUE for line side */
-    mepa_bool_t           host;           /**< Host:True for host side */
-} phy25g_clause_37_control_t;
 
 /** \brief Serdes Configuration based on media */
 typedef struct {
@@ -193,8 +156,6 @@ typedef struct {
 typedef struct {
     mepa_port_no_t                  alt_port_no;
     phy25g_power_t                  power;               /* Power */
-    phy25g_clause_37_control_t      line_clause_37;      /* line 1g pcs clause 37*/
-    phy25g_clause_37_control_t      host_clause_37;      /* host 1g pcs clause 37*/
     phy25g_port_mode_t              port_mode;           /* Operating mode  */
     phy25g_oper_speed_mode_t        speed;               /* Operating Speed */
     mepa_bool_t                     warm_start_reg_changed;

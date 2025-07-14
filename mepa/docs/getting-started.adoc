@@ -147,7 +147,8 @@ MEPA_vtss_opt_1g                 OFF
 MEPA_vtss_opt_cnt                64
 MEPA_vtss_opt_macsec             OFF
 MEPA_vtss_opt_ts                 OFF
-
+MEPA_lan80xx_ts                  OFF
+MEPA_lan80xx_ts_msec             OFF
 
 
 MEPA_lan8814: Add LAN8814 support in libmeba

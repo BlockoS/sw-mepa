@@ -104,15 +104,13 @@ macro(MEBA_LIB)
     endif()
 endmacro()
 
-MEBA_LIB(LIB_NAME sparx5 MEBA_SRC_FOLDER sparx5
-         STATIC_DEPENDENCIES    mepa_sparx5
-	 MEBA_DEFINES           -DMEPA_DEMO_EDSx)
+MEBA_LIB(LIB_NAME               edsx
+         MEBA_SRC_FOLDER        sparx5
+         STATIC_DEPENDENCIES    mepa_edsx
+         MEBA_DEFINES           -DMEPA_DEMO_EDSx)
 
-MEBA_LIB(LIB_NAME sparx5_macsec MEBA_SRC_FOLDER sparx5
-         STATIC_DEPENDENCIES    mepa_sparx5_macsec
-	 MEBA_DEFINES           -DMEPA_DEMO_EDSx)
-
-MEBA_LIB(LIB_NAME eds2 MEBA_SRC_FOLDER eds2
+MEBA_LIB(LIB_NAME               eds2
+         MEBA_SRC_FOLDER        eds2
          STATIC_DEPENDENCIES    mepa_eds2
-	 MEBA_DEFINES -DMEPA_DEMO_EDS2)
+         MEBA_DEFINES           -DMEPA_DEMO_EDS2)
 

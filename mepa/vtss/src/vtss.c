@@ -1933,8 +1933,8 @@ mepa_drivers_t mepa_malibu_driver_init()
 {
     static const int nr_malibu_phy = 1;
     static mepa_driver_t malibu_drivers[] = {{
-            .id = 0x8200,
-            .mask = 0x0000FF00,
+            .id = 0x8250,
+            .mask = 0x0000FFF0,
             .mepa_driver_delete = phy_10g_delete,
             .mepa_driver_reset = malibu_10g_reset,
             .mepa_capability = malibu_10g_capability,

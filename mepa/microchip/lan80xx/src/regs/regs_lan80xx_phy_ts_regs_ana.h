@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef LAN8042_PHY_TS_REGS_ANA_H_
-#define LAN8042_PHY_TS_REGS_ANA_H_
+#ifndef LAN80XX_PHY_TS_REGS_ANA_H_
+#define LAN80XX_PHY_TS_REGS_ANA_H_
 
 
 #include "regs_lan80xx_common.h"
@@ -2732,12 +2732,4 @@
  */
 #define  LAN80XX_F_ANA_PTP_FLOW_PTP_ZERO_FIELD_CTL_PTP_RSVD_CHK_EN                                  (LAN80XX_BIT(14))
 
-/**
- * \brief
- * Points to a location in the PTP/OAM frame relative to the start of the PTP header that will be zeroed if this function is enabled
- * \details
- * Field: LAN80XX_ANA_PTP_FLOW_PTP_ZERO_FIELD_CTL . PTP_OAM_FRAME
- */
-
-#define LAN80XX_ANA_PTP_FLOW_PTP_ZERO_FIELD_CTL_PTP_OAM_FRAME                                       (LAN80XX_BIT(15))
-#endif /* _LAN8042_PHY_TS_REGS_ANA_H_ */
+#endif /* LAN80XX_PHY_TS_REGS_ANA_H_ */

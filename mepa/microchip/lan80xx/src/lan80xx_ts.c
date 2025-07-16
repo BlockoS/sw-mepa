@@ -136,38 +136,36 @@ static phy25g_ptp_action_type_t mepa_to_lan80xx_ls_action(mepa_ts_ls_type_t ls_t
     }
 
     return ls_action;
-
 }
 
 
 static mepa_rc lan80xx_ts_reset(mepa_device_t *dev, const mepa_ts_reset_conf_t *const tsreset)
 {
-    phy25g_phy_state_t *data = (phy25g_phy_state_t *) dev->data;
     mepa_rc rc = MEPA_RC_ERROR;
+
     MEPA_ENTER(dev);
-
-    if (tsreset->tsu_hard_reset == TRUE) {
-        rc = lan80xx_ts_hard_reset_private(dev, data->port_no);
-    }
-
+    rc = lan80xx_ts_reset_priv(dev, tsreset);
     MEPA_EXIT(dev);
 
     return rc;
 }
 
-
-
-
 static mepa_rc lan80xx_ts_init_conf_get(mepa_device_t *dev, mepa_ts_init_conf_t *const ts_init_conf)
 {
     mepa_rc rc = MEPA_RC_ERROR;
-    mepa_bool_t                     ts_init_done;
+    mepa_bool_t                     ts_init_done = FALSE;
     phy25g_phy_ts_init_conf_t         init_conf;
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
+
+    MEPA_ENTER(dev);
     rc =  lan80xx_phy_ts_init_conf_get(dev, data->port_no, &ts_init_done, &init_conf);
+    MEPA_EXIT(dev);
     if (rc != MEPA_RC_OK) {
         T_E(MEPA_TRACE_GRP_GEN, "ts init conf get failed\n");
         return rc;
+    }
+    if (!ts_init_done) {
+        T_W(MEPA_TRACE_GRP_TS, "TS block is not initialized\n");
     }
     /*
      * MEPA-1147
@@ -175,7 +173,7 @@ static mepa_rc lan80xx_ts_init_conf_get(mepa_device_t *dev, mepa_ts_init_conf_t 
      * So, need to assign appropriate mepa_ts_demo clk src
      */
     switch (init_conf.clk_src) {
-    case LAN80XX_PHY_TS_CLOCK_SRC_INTERNAL:
+    case LAN80XX_PHY_TS_CLOCK_SRC_SYSREFCLK:
         ts_init_conf->clk_src = MEPA_TS_CLOCK_SRC_INTERNAL;
         break;
     case LAN80XX_PHY_TS_CLOCK_SRC_LINE0:
@@ -223,12 +221,12 @@ static mepa_rc lan80xx_ts_init_conf_set(mepa_device_t *dev, const mepa_ts_init_c
     }
 
     phy25g_phy_ts_init_conf_t init_conf = {0};
-    data->ts.dly_req_recv_10byte_ts = ts_init_conf->dly_req_recv_10byte_ts;
+    mepa_rc rc = MEPA_RC_ERROR;
+
     init_conf.clk_freq = ts_init_conf->clk_freq;
-    T_I(MEPA_TRACE_GRP_GEN, "clock frequency %d\n", ts_init_conf->clk_freq);
     switch (ts_init_conf->clk_src) {
     case MEPA_TS_CLOCK_SRC_INTERNAL:
-        init_conf.clk_src =  LAN80XX_PHY_TS_CLOCK_SRC_INTERNAL;
+        init_conf.clk_src =  LAN80XX_PHY_TS_CLOCK_SRC_SYSREFCLK;
         break;
     case MEPA_TS_CLOCK_SRC_FROM_RX_PORT0:
         init_conf.clk_src =  LAN80XX_PHY_TS_CLOCK_SRC_LINE0;
@@ -257,13 +255,19 @@ static mepa_rc lan80xx_ts_init_conf_set(mepa_device_t *dev, const mepa_ts_init_c
     init_conf.tx_ts_len = ts_init_conf->tx_ts_len == MEPA_TS_FIFO_TIMESTAMP_LEN_10BYTE ? LAN80XX_PHY_TS_FIFO_TIMESTAMP_LEN_10BYTE : LAN80XX_PHY_TS_FIFO_TIMESTAMP_LEN_4BYTE;
     init_conf.tx_fifo_spi_conf = ts_init_conf->tx_fifo_spi_conf;
     init_conf.auto_clear_ls = ts_init_conf->auto_clear_ls;
-    //init_conf.tc_op_mode = mepa_to_mesa_tc_opmode(ts_init_conf->tc_op_mode);
-
+    init_conf.tc_op_mode = mepa_to_lan80xx_tc_opmode(ts_init_conf->tc_op_mode);
     init_conf.macsec_ena = FALSE;
     init_conf.chk_ing_modified = FALSE;
     init_conf.one_step_txfifo = FALSE;
     init_conf.mch_conf = ts_init_conf->mch_pch_conf;
-    return lan80xx_phy_ts_init(dev, data->port_no, &init_conf);
+    MEPA_ENTER(dev);
+    rc = lan80xx_phy_ts_init(dev, data->port_no, &init_conf);
+    if (data->phy_ts_port_conf.port_ts_init_done == TRUE) {
+        data->ts.dly_req_recv_10byte_ts = ts_init_conf->dly_req_recv_10byte_ts;
+    }
+    MEPA_EXIT(dev);
+
+    return rc;
 }
 
 static mepa_rc lan80xx_ts_tx_classifier_conf_set(struct mepa_device *dev,
@@ -779,7 +783,8 @@ static mepa_rc lan80xx_ts_rx_clock_conf_set(struct mepa_device *dev, uint16_t cl
     phy25g_ts_engine_action_t action_conf;
     phy25g_ts_eng_conf_t *eng_conf;
     phy25g_ts_ptp_engine_action_t *action;
-    if (clock_id > LAN80XX_MAX_CLK_PER_ENGINE) {
+
+    if (clock_id >= LAN80XX_MAX_CLK_PER_ENGINE) {
         T_E(MEPA_TRACE_GRP_TS, "Max Clock id allowed is: %d ", LAN80XX_MAX_CLK_PER_ENGINE);
         return MEPA_RC_ERROR;
     }
@@ -789,9 +794,8 @@ static mepa_rc lan80xx_ts_rx_clock_conf_set(struct mepa_device *dev, uint16_t cl
         T_E(MEPA_TRACE_GRP_TS, "Engine not initialized");
         return MEPA_RC_ERROR;
     }
-    action = &eng_conf->action_conf.action.ptp_conf;
     memcpy(&action_conf, &eng_conf->action_conf, sizeof(phy25g_ts_engine_action_t));
-    //action = &action_conf.action.ptp_conf;
+    action = &action_conf.action.ptp_conf;
     if ((ptpclock_conf->clk_mode == MEPA_TS_PTP_CLOCK_MODE_NONE) ||
         (!ptpclock_conf->enable)) {
         T_I(MEPA_TRACE_GRP_TS, "disabling action for engine ");
@@ -802,6 +806,8 @@ static mepa_rc lan80xx_ts_rx_clock_conf_set(struct mepa_device *dev, uint16_t cl
             return MEPA_RC_ERROR;
         }
     } else if (action->enable) {
+        T_I(MEPA_TRACE_GRP_TS, "action enabled already with clk_mode %d in mode %d\n",
+            action->clk_mode, ptpclock_conf->clk_mode);
         if ((action->clk_mode != ptpclock_conf->clk_mode) ||
             (action->delaym_type != ptpclock_conf->delaym_type) ||
             (action->cf_update != ptpclock_conf->cf_update)) {
@@ -809,19 +815,22 @@ static mepa_rc lan80xx_ts_rx_clock_conf_set(struct mepa_device *dev, uint16_t cl
             return MEPA_RC_ERR_TS_ACTION_IN_USE;
         }
     } else {
+        T_I(MEPA_TRACE_GRP_TS, "clk_mode %d delaym_type %d\n",
+            ptpclock_conf->clk_mode, ptpclock_conf->delaym_type);
         action->enable = TRUE;
         action->clk_mode = ptpclock_conf->clk_mode;
         action->delaym_type = ptpclock_conf->delaym_type;
         action->cf_update = ptpclock_conf->cf_update;
-        if (ptpclock_conf->ptp_class_conf.domain.mode == MEPA_TS_MATCH_MODE_RANGE) {
-            action->ptp_conf.range_en = 1;
-            action->ptp_conf.domain.range.lower = ptpclock_conf->ptp_class_conf.domain.match.range.lower;
-            action->ptp_conf.domain.range.upper = ptpclock_conf->ptp_class_conf.domain.match.range.upper;
-        } else {
-            action->ptp_conf.range_en = 0;
-            action->ptp_conf.domain.value.val  = ptpclock_conf->ptp_class_conf.domain.match.value.val & 0xff;
-            action->ptp_conf.domain.value.mask = ptpclock_conf->ptp_class_conf.domain.match.value.mask & 0xff;
-        }
+        action->delay_req_recieve_timestamp = data->ts.dly_req_recv_10byte_ts;
+    }
+    if (ptpclock_conf->ptp_class_conf.domain.mode == MEPA_TS_MATCH_MODE_RANGE) {
+        action->ptp_conf.range_en = 1;
+        action->ptp_conf.domain.range.lower = ptpclock_conf->ptp_class_conf.domain.match.range.lower;
+        action->ptp_conf.domain.range.upper = ptpclock_conf->ptp_class_conf.domain.match.range.upper;
+    } else {
+        action->ptp_conf.range_en = 0;
+        action->ptp_conf.domain.value.val  = ptpclock_conf->ptp_class_conf.domain.match.value.val & 0xff;
+        action->ptp_conf.domain.value.mask = ptpclock_conf->ptp_class_conf.domain.match.value.mask & 0xff;
     }
     if ((rc = lan80xx_ts_ingress_engine_action_set(dev, data->port_no, eng_id, &action_conf)) != MEPA_RC_OK) {
         return MEPA_RC_ERROR;
@@ -1129,10 +1138,7 @@ static mepa_rc lan80xx_ts_event_poll(mepa_device_t *dev, mepa_ts_event_t  *const
 
 }
 
-
-//refer vtss_ts.c
 mepa_ts_driver_t lan80xx_ts_drivers = {
-    //// Initialize the timestamp block
     .mepa_ts_reset                      = lan80xx_ts_reset,
     .mepa_ts_init_conf_get              = lan80xx_ts_init_conf_get,
     .mepa_ts_init_conf_set              = lan80xx_ts_init_conf_set,

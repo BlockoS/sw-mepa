@@ -131,15 +131,15 @@ typedef enum {
     LAN80XX_PHY_TS_CLOCK_SRC_EXTERNAL_25MHZ,   /**< External source */
     LAN80XX_PHY_TS_CLOCK_SRC_EXTERNAL_50MHZ,   /**< External source */
     LAN80XX_PHY_TS_CLOCK_SRC_EXTERNAL_125MHZ,   /**< External source */
-    LAN80XX_PHY_TS_CLOCK_SRC_CLIENT_RX,  /**< 10G: XAUI lane 0 recovered clock, */
-    /**< 1G: MAC RX clock (note: direction is opposite to 10G, i.e. PHY->MAC) */
-    LAN80XX_PHY_TS_CLOCK_SRC_CLIENT_TX,  /**< 10G: XAUI lane 0 recovered clock, */
-    /**< 1G: MAC TX clock (note:  direction is opposite to 10G, i.e. MAC->PHY)  */
-    LAN80XX_PHY_TS_CLOCK_SRC_LINE0,    /**< Received line clock */
-    LAN80XX_PHY_TS_CLOCK_SRC_LINE1,    /**< transmitted line clock */
-    LAN80XX_PHY_TS_CLOCK_SRC_LINE2,    /**< Received line clock */
-    LAN80XX_PHY_TS_CLOCK_SRC_LINE3,    /**< transmitted line clock */
-    LAN80XX_PHY_TS_CLOCK_SRC_INTERNAL,   /**< 10G: Invalid, 1G: Internal 250 MHz Clock */
+    LAN80XX_PHY_TS_CLOCK_SRC_LINE0,    /**< line 0 recovery clock */
+    LAN80XX_PHY_TS_CLOCK_SRC_LINE1,    /**< line 1 recovery clock */
+    LAN80XX_PHY_TS_CLOCK_SRC_LINE2,    /**< line 2 recovery clock */
+    LAN80XX_PHY_TS_CLOCK_SRC_LINE3,    /**< line 3 recovery clock */
+    LAN80XX_PHY_TS_CLOCK_SRC_HOST0,    /**< host 0 recovery clock */
+    LAN80XX_PHY_TS_CLOCK_SRC_HOST1,    /**< host 1 recovery clock */
+    LAN80XX_PHY_TS_CLOCK_SRC_HOST2,    /**< host 2 recovery clock */
+    LAN80XX_PHY_TS_CLOCK_SRC_HOST3,    /**< host 3 recovery clock */
+    LAN80XX_PHY_TS_CLOCK_SRC_SYSREFCLK,   /**< 156.25 MHz Clock */
 } phy25g_phy_ts_clock_src_t;
 
 
@@ -306,7 +306,6 @@ typedef struct {
     mepa_bool_t                       tx_fifo_spi_conf; /**< Modify default 1588_spi configuration, applicable only on PHYs with SPI timestamp fifo support */
     uint8_t                           tx_fifo_hi_clk_cycs; /**< Number of clock periods that the spi_clk is high */
     uint8_t                           tx_fifo_lo_clk_cycs; /**< Number of clock periods that the spi_clk is low */
-    //phy25g_phy_ts_8487_xaui_sel_t       xaui_sel_8487; /**< 8487 XAUI lane selection*/
     phy25g_phy_ts_tc_op_mode_t          tc_op_mode; /**< TC operating mode */
     mepa_bool_t                       auto_clear_ls; /**< Load and Save of LTC are auto cleared */
     mepa_bool_t                       macsec_ena;       /**< MACsec is enabled or disabled */
@@ -694,8 +693,9 @@ typedef struct {
 
 
 
-phy25g_phy_ts_tc_op_mode_t mepa_to_mesa_tc_opmode(mepa_ts_tc_op_mode_t tc_opmode);
-mepa_rc lan80xx_ts_hard_reset_private(mepa_device_t *dev, mepa_port_no_t port_no);
+phy25g_phy_ts_tc_op_mode_t mepa_to_lan80xx_tc_opmode(mepa_ts_tc_op_mode_t tc_opmode);
+mepa_ts_tc_op_mode_t lan80xx_to_mepa_tc_opmode(phy25g_phy_ts_tc_op_mode_t tc_opmode);
+mepa_rc lan80xx_ts_reset_priv(mepa_device_t *dev, const mepa_ts_reset_conf_t *const ts_rst_type);
 mepa_rc lan80xx_phy_ts_init_conf_get(mepa_device_t *dev, mepa_port_no_t port_no,
                                      mepa_bool_t  *const   port_ts_init_done,
                                      phy25g_phy_ts_init_conf_t         *const conf);

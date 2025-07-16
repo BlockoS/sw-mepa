@@ -21,12 +21,15 @@ mepa_rc phy_family_detect(meba_inst_t meba_instance, mepa_port_no_t port_no, dem
         return MEPA_RC_ERROR;
     }
     switch (phy_info_part.part_number) {
-    case PHY_TYPE_8021:
     case PHY_TYPE_8022:
-    case PHY_TYPE_8041:
+    case PHY_TYPE_8023:
+    case PHY_TYPE_8024:
     case PHY_TYPE_8042:
     case PHY_TYPE_8043:
     case PHY_TYPE_8044:
+    case PHY_TYPE_8268:
+    case PHY_TYPE_8267:
+    case PHY_TYPE_8264:
         phy_info->family = PHY_FAMILY_MALIBU_25G;
         break;
     case PHY_TYPE_8256:

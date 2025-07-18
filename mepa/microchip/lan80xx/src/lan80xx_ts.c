@@ -283,9 +283,10 @@ static mepa_rc lan80xx_ts_tx_classifier_conf_set(struct mepa_device *dev,
     phy25g_ts_eth_flow_conf_t *eth_flow, *eth2_flow;
     const mepa_ts_classifier_ip_t *in_ip_conf, *in_ip2_conf;
     phy25g_ts_ip_flow_conf_t *ip_flow, *ip2_flow;
-    u16 eng_flow; //flow_st, flow_end;
+    u16 eng_flow;
     phy25g_ts_encap_t encap;
     phy25g_ts_engine_t eng_id;
+
     if ((rc = lan80xx_get_eng_flow_info(flow_index, &eng_id, &eng_flow) != MEPA_RC_OK)) {
         T_E(MEPA_TRACE_GRP_GEN, "Invalid engine ID: %d", eng_id);
         return MEPA_RC_ERROR;
@@ -298,19 +299,18 @@ static mepa_rc lan80xx_ts_tx_classifier_conf_set(struct mepa_device *dev,
     }
 
     eng_conf = &data->phy_ts_port_conf.egress_eng_conf[eng_id];
-    eth_flow = &eng_conf->flow_conf.flow_conf.ptp.eth1_opt.flow_opt[eng_flow];
+    memcpy(&flow_conf, &eng_conf->flow_conf, sizeof(phy25g_ts_engine_flow_conf_t));
     eth_in = &pkt_class_conf->eth_class_conf;
-    ip_flow = &eng_conf->flow_conf.flow_conf.ptp.ip1_opt.flow_opt[eng_flow];
+    eth_flow = &flow_conf.flow_conf.ptp.eth1_opt.flow_opt[eng_flow];
+    ip_flow = &flow_conf.flow_conf.ptp.ip1_opt.flow_opt[eng_flow];
 
-
-#if 0
     if (eng_conf->eng_used && pkt_class_conf->pkt_encap_type != MEPA_TS_ENCAP_NONE && encap != eng_conf->encap_type) {
         T_E(MEPA_TRACE_GRP_TS, "engine encap error");
-        printf("eng_used %d eng_conf->encap_type %d\n", eng_conf->eng_used, eng_conf->encap_type);
+        T_E(MEPA_TRACE_GRP_TS, "eng_used %d eng_conf->encap_type %d\n", eng_conf->eng_used, eng_conf->encap_type);
         return MEPA_RC_ERR_TS_ENG_ENCAP_OVERWRITE;
     }
-#endif
-    if (pkt_class_conf->pkt_encap_type == MEPA_TS_ENCAP_NONE) { /* first case the encap is none it should throw error */
+
+    if (pkt_class_conf->pkt_encap_type == MEPA_TS_ENCAP_NONE) {
         if (lan80xx_ts_egress_engine_clear(dev, data->port_no, eng_id) != MESA_RC_OK) {
             T_E(MEPA_TRACE_GRP_TS, "Not able to clear the egress engine %d port %d", eng_id, data->port_no);
             return MEPA_RC_ERR_TS_ENG_CLR;
@@ -318,36 +318,30 @@ static mepa_rc lan80xx_ts_tx_classifier_conf_set(struct mepa_device *dev,
         T_I(MEPA_TRACE_GRP_TS, "engine conf cleared");
     }
 
-    else { /* initialize the  configure the engine first time */
-
-        memcpy(&flow_conf, &eng_conf->flow_conf, sizeof(phy25g_ts_engine_flow_conf_t));
+    else {
         eng_conf->encap_type = encap;
-
         eng_conf->eng_used = TRUE;
         //Stict mode
         eng_conf->flow_match_mode = TRUE;
+        flow_conf.flow_conf.ptp.eth1_opt.comm_opt.etype = eth_in->vlan_conf.etype;
+        flow_conf.flow_conf.ptp.eth1_opt.comm_opt.tpid = eth_in->vlan_conf.tpid;
+        flow_conf.flow_conf.ptp.eth1_opt.comm_opt.pbb_en =  eth_in->vlan_conf.pbb_en;
         //Engine enable
-        eng_conf->flow_conf.eng_mode = TRUE;
-
-
-        eng_conf->flow_conf.flow_conf.ptp.eth1_opt.comm_opt.etype = eth_in->vlan_conf.etype;
-        eng_conf->flow_conf.flow_conf.ptp.eth1_opt.comm_opt.tpid = eth_in->vlan_conf.tpid;
-        eng_conf->flow_conf.flow_conf.ptp.eth1_opt.comm_opt.pbb_en =  eth_in->vlan_conf.pbb_en;
-
-
+        flow_conf.eng_mode = TRUE;
         eth_flow->flow_en = TRUE;
         eth_flow->addr_match_mode = lan80xx_get_vs_addr_type(pkt_class_conf->eth_class_conf.mac_match_mode);
         eth_flow->addr_match_select = lan80xx_get_vs_mac_type(pkt_class_conf->eth_class_conf.mac_match_select);
-        eth_flow->vlan_check = pkt_class_conf->eth_class_conf.vlan_check;
-        eth_flow->num_tag = pkt_class_conf->eth_class_conf.vlan_conf.num_tag;
+        memcpy(eth_flow->mac_addr, eth_in->mac_addr, sizeof(eth_in->mac_addr));
+        eth_flow->vlan_check = eth_in->vlan_check;
+        eth_flow->num_tag = eth_in->vlan_conf.num_tag;
 
         eth_flow->tag_range_mode = LAN80XX_PHY_TS_TAG_RANGE_NONE;
 
-        if ((eng_conf->flow_conf.flow_conf.ptp.eth1_opt.comm_opt.pbb_en) && ((eth_in->vlan_conf.outer_tag.mode == MEPA_TS_MATCH_MODE_RANGE) || (eth_in->vlan_conf.inner_tag.mode == MEPA_TS_MATCH_MODE_RANGE))) {
-
-            T_I(MEPA_TRACE_GRP_TS, " For pbb enabled case, tag range cannot be configured");
+        if ((flow_conf.flow_conf.ptp.eth1_opt.comm_opt.pbb_en) &&
+            ((eth_in->vlan_conf.outer_tag.mode == MEPA_TS_MATCH_MODE_RANGE) ||
+             (eth_in->vlan_conf.inner_tag.mode == MEPA_TS_MATCH_MODE_RANGE))) {
+            T_E(MEPA_TRACE_GRP_TS, "For pbb enabled case, tag range cannot be configured");
             return MEPA_RC_ERROR;
-
         }
 
         if (eth_in->vlan_conf.pbb_en) {
@@ -357,7 +351,7 @@ static mepa_rc lan80xx_ts_tx_classifier_conf_set(struct mepa_device *dev,
             eth_flow->outer_tag_type = eth_in->vlan_conf.tpid ? LAN80XX_PHY_TS_TAG_TYPE_S : LAN80XX_PHY_TS_TAG_TYPE_C;
             eth_flow->inner_tag_type = eth_in->vlan_conf.tpid ? LAN80XX_PHY_TS_TAG_TYPE_S : LAN80XX_PHY_TS_TAG_TYPE_C;
         } else if (eth_flow->num_tag > 2) {
-            T_E(MEPA_TRACE_GRP_TS, "Tag should not be greater than 2");
+            T_E(MEPA_TRACE_GRP_TS, "Tag count should not be greater than 2");
             return MEPA_RC_ERR_TS_ENG_CLR;
         }
         if (eth_in->vlan_conf.outer_tag.mode == MEPA_TS_MATCH_MODE_RANGE) {
@@ -383,27 +377,25 @@ static mepa_rc lan80xx_ts_tx_classifier_conf_set(struct mepa_device *dev,
 
 
         if (eng_conf->encap_type == LAN80XX_PHY_TS_ENCAP_ETH_IP_IP_PTP) {
-            ip2_flow =  &eng_conf->flow_conf.flow_conf.ptp.ip2_opt.flow_opt[eng_flow];
+            ip2_flow =  &flow_conf.flow_conf.ptp.ip2_opt.flow_opt[eng_flow];
             in_ip2_conf = &pkt_class_conf->ip2_class_conf;
 
             ip2_flow->flow_en = TRUE;
             ip2_flow->match_mode = lan80xx_get_vs_ntw_type(in_ip2_conf->ip_match_mode);
             if (in_ip2_conf->ip_ver == MEPA_TS_IP_VER_4) {
-                eng_conf->flow_conf.flow_conf.ptp.ip2_opt.comm_opt.ip_mode = LAN80XX_PHY_TS_IP_VER_4;
-                eng_conf->flow_conf.flow_conf.ptp.ip2_opt.comm_opt.dport_mask = in_ip2_conf->udp_dport_en ? 0xFFFF : 0;
-                eng_conf->flow_conf.flow_conf.ptp.ip2_opt.comm_opt.dport_val =  in_ip2_conf->udp_dport;
-                eng_conf->flow_conf.flow_conf.ptp.ip2_opt.comm_opt.sport_mask = in_ip2_conf->udp_sport_en ? 0xFFFF : 0;
-                eng_conf->flow_conf.flow_conf.ptp.ip2_opt.comm_opt.sport_val =  in_ip2_conf->udp_sport;
+                flow_conf.flow_conf.ptp.ip2_opt.comm_opt.ip_mode = LAN80XX_PHY_TS_IP_VER_4;
+                flow_conf.flow_conf.ptp.ip2_opt.comm_opt.dport_mask = in_ip2_conf->udp_dport_en ? 0xFFFF : 0;
+                flow_conf.flow_conf.ptp.ip2_opt.comm_opt.dport_val =  in_ip2_conf->udp_dport;
+                flow_conf.flow_conf.ptp.ip2_opt.comm_opt.sport_mask = in_ip2_conf->udp_sport_en ? 0xFFFF : 0;
+                flow_conf.flow_conf.ptp.ip2_opt.comm_opt.sport_val =  in_ip2_conf->udp_sport;
                 ip2_flow->ip_addr.ipv4.addr = in_ip2_conf->ip_addr.ipv4.addr;
                 ip2_flow->ip_addr.ipv4.mask = in_ip2_conf->ip_addr.ipv4.mask;
             } else {
-                eng_conf->flow_conf.flow_conf.ptp.ip2_opt.comm_opt.ip_mode = LAN80XX_PHY_TS_IP_VER_6;
+                flow_conf.flow_conf.ptp.ip2_opt.comm_opt.ip_mode = LAN80XX_PHY_TS_IP_VER_6;
                 memcpy(&ip2_flow->ip_addr.ipv6.addr, &in_ip2_conf->ip_addr.ipv6.addr, sizeof(in_ip2_conf->ip_addr.ipv6.addr));
                 memcpy(&ip2_flow->ip_addr.ipv6.mask, &in_ip2_conf->ip_addr.ipv6.mask, sizeof(in_ip2_conf->ip_addr.ipv6.mask));
             }
-
         }
-
 
         if ((eng_conf->encap_type == LAN80XX_PHY_TS_ENCAP_ETH_IP_PTP) ||
             (eng_conf->encap_type == LAN80XX_PHY_TS_ENCAP_ETH_ETH_IP_PTP) || (eng_conf->encap_type == LAN80XX_PHY_TS_ENCAP_ETH_IP_IP_PTP)
@@ -412,15 +404,15 @@ static mepa_rc lan80xx_ts_tx_classifier_conf_set(struct mepa_device *dev,
             ip_flow->flow_en = TRUE;
             ip_flow->match_mode = lan80xx_get_vs_ntw_type(in_ip_conf->ip_match_mode);
             if (in_ip_conf->ip_ver == MEPA_TS_IP_VER_4) {
-                eng_conf->flow_conf.flow_conf.ptp.ip1_opt.comm_opt.ip_mode = LAN80XX_PHY_TS_IP_VER_4;
-                eng_conf->flow_conf.flow_conf.ptp.ip1_opt.comm_opt.dport_mask = in_ip_conf->udp_dport_en ? 0xFFFF : 0;
-                eng_conf->flow_conf.flow_conf.ptp.ip1_opt.comm_opt.dport_val = in_ip_conf->udp_dport;
-                eng_conf->flow_conf.flow_conf.ptp.ip1_opt.comm_opt.sport_mask = in_ip_conf->udp_sport_en ? 0xFFFF : 0;
-                eng_conf->flow_conf.flow_conf.ptp.ip1_opt.comm_opt.sport_val = in_ip_conf->udp_sport;
+                flow_conf.flow_conf.ptp.ip1_opt.comm_opt.ip_mode = LAN80XX_PHY_TS_IP_VER_4;
+                flow_conf.flow_conf.ptp.ip1_opt.comm_opt.dport_mask = in_ip_conf->udp_dport_en ? 0xFFFF : 0;
+                flow_conf.flow_conf.ptp.ip1_opt.comm_opt.dport_val = in_ip_conf->udp_dport;
+                flow_conf.flow_conf.ptp.ip1_opt.comm_opt.sport_mask = in_ip_conf->udp_sport_en ? 0xFFFF : 0;
+                flow_conf.flow_conf.ptp.ip1_opt.comm_opt.sport_val = in_ip_conf->udp_sport;
                 ip_flow->ip_addr.ipv4.addr = in_ip_conf->ip_addr.ipv4.addr;
                 ip_flow->ip_addr.ipv4.mask = in_ip_conf->ip_addr.ipv4.mask;
             } else {
-                eng_conf->flow_conf.flow_conf.ptp.ip1_opt.comm_opt.ip_mode = LAN80XX_PHY_TS_IP_VER_6;
+                flow_conf.flow_conf.ptp.ip1_opt.comm_opt.ip_mode = LAN80XX_PHY_TS_IP_VER_6;
                 memcpy(&ip_flow->ip_addr.ipv6.addr, &in_ip_conf->ip_addr.ipv6.addr, sizeof(in_ip_conf->ip_addr.ipv6.addr));
                 memcpy(&ip_flow->ip_addr.ipv6.mask, &in_ip_conf->ip_addr.ipv6.mask, sizeof(in_ip_conf->ip_addr.ipv6.mask));
             }
@@ -429,11 +421,11 @@ static mepa_rc lan80xx_ts_tx_classifier_conf_set(struct mepa_device *dev,
 
         if ((eng_conf->encap_type  == LAN80XX_PHY_TS_ENCAP_ETH_ETH_PTP) || (eng_conf->encap_type == LAN80XX_PHY_TS_ENCAP_ETH_ETH_IP_PTP)
             || (eng_conf->encap_type == LAN80XX_PHY_TS_ENCAP_ETH_MPLS_ETH_PTP) || (eng_conf->encap_type == LAN80XX_PHY_TS_ENCAP_ETH_MPLS_ETH_IP_PTP)) {
-            eth2_flow = &eng_conf->flow_conf.flow_conf.ptp.eth2_opt.flow_opt[eng_flow];
+            eth2_flow = &flow_conf.flow_conf.ptp.eth2_opt.flow_opt[eng_flow];
             eth2_in =  &pkt_class_conf->eth2_class_conf;
 
-            eng_conf->flow_conf.flow_conf.ptp.eth2_opt.comm_opt.etype = eth2_in->vlan_conf.etype;
-            eng_conf->flow_conf.flow_conf.ptp.eth2_opt.comm_opt.tpid = eth2_in->vlan_conf.tpid;
+            flow_conf.flow_conf.ptp.eth2_opt.comm_opt.etype = eth2_in->vlan_conf.etype;
+            flow_conf.flow_conf.ptp.eth2_opt.comm_opt.tpid = eth2_in->vlan_conf.tpid;
 
             eth2_flow->flow_en = TRUE;
             eth2_flow->addr_match_mode = lan80xx_get_vs_addr_type(pkt_class_conf->eth2_class_conf.mac_match_mode);
@@ -475,11 +467,14 @@ static mepa_rc lan80xx_ts_tx_classifier_conf_set(struct mepa_device *dev,
             memcpy(eth2_flow->mac_addr, pkt_class_conf->eth2_class_conf.mac_addr, sizeof(pkt_class_conf->eth2_class_conf.mac_addr));
         }
 
-        memcpy(eth_flow->mac_addr, pkt_class_conf->eth_class_conf.mac_addr, sizeof(pkt_class_conf->eth_class_conf.mac_addr));
         if ((rc = lan80xx_ts_egress_engine_conf_set(dev, eng_id, eng_flow, &flow_conf)) != MEPA_RC_OK) {
+            T_E(MEPA_TRACE_GRP_TS, "TS egress engine conf set failed (%d)\n", rc);
             return MEPA_RC_ERROR;
+        } else {
+            /* Save the flow config */
+            memcpy(&eng_conf->flow_conf, &flow_conf,
+                   sizeof(phy25g_ts_engine_flow_conf_t));
         }
-
     }
     return MEPA_RC_OK;
 }
@@ -518,19 +513,19 @@ static mepa_rc lan80xx_ts_rx_classifier_conf_set(struct mepa_device *dev,
     if ((rc = mepa_to_lan80xx_encap(pkt_class_conf->pkt_encap_type, &encap) != MEPA_RC_OK)) {
         T_E(MEPA_TRACE_GRP_GEN, "Invalid Encapsulation : %d", pkt_class_conf->pkt_encap_type);
         return MEPA_RC_ERROR;
-
     }
 
     eng_conf = &data->phy_ts_port_conf.ingress_eng_conf[eng_id];
-    eth_flow = &eng_conf->flow_conf.flow_conf.ptp.eth1_opt.flow_opt[eng_flow];
+    memcpy(&flow_conf, &eng_conf->flow_conf, sizeof(phy25g_ts_engine_flow_conf_t));
     eth_in = &pkt_class_conf->eth_class_conf;
-    ip_flow = &eng_conf->flow_conf.flow_conf.ptp.ip1_opt.flow_opt[eng_flow];
+    eth_flow = &flow_conf.flow_conf.ptp.eth1_opt.flow_opt[eng_flow];
+    ip_flow = &flow_conf.flow_conf.ptp.ip1_opt.flow_opt[eng_flow];
     /* if engine is initialized */
     if (eng_conf->eng_used && pkt_class_conf->pkt_encap_type != MEPA_TS_ENCAP_NONE && encap != eng_conf->encap_type) {
         T_E(MEPA_TRACE_GRP_TS, "engine encap error");
         return MEPA_RC_ERR_TS_ENG_ENCAP_OVERWRITE;
     }
-    if (pkt_class_conf->pkt_encap_type == MEPA_TS_ENCAP_NONE) { /* first case the encap is none it should throw error */
+    if (pkt_class_conf->pkt_encap_type == MEPA_TS_ENCAP_NONE) {
         if (lan80xx_ts_egress_engine_clear(dev, data->port_no, eng_id) != MESA_RC_OK) {
             T_I(MEPA_TRACE_GRP_TS, "Not able to clear the egress engine %d port %d", eng_id, data->port_no);
             return MEPA_RC_ERR_TS_ENG_CLR;
@@ -539,42 +534,39 @@ static mepa_rc lan80xx_ts_rx_classifier_conf_set(struct mepa_device *dev,
     } else {
         /* initialize the engine first time */
         /* since only two encaps is used */
+        T_D(MEPA_TRACE_GRP_TS, "Initializing engine (%d)flow...\n", eng_id);
         memcpy(&flow_conf, &eng_conf->flow_conf, sizeof(phy25g_ts_engine_flow_conf_t));
         eng_conf->encap_type = encap;
         eng_conf->eng_used = TRUE;
         eng_conf->flow_match_mode = TRUE;
-        eng_conf->flow_conf.eng_mode = TRUE;
-
-
-        eng_conf->flow_conf.flow_conf.ptp.eth1_opt.comm_opt.etype = eth_in->vlan_conf.etype;
-        eng_conf->flow_conf.flow_conf.ptp.eth1_opt.comm_opt.tpid = eth_in->vlan_conf.tpid;
-        eng_conf->flow_conf.flow_conf.ptp.eth1_opt.comm_opt.pbb_en =  eth_in->vlan_conf.pbb_en;
-
-
-
+        flow_conf.flow_conf.ptp.eth1_opt.comm_opt.etype = eth_in->vlan_conf.etype;
+        flow_conf.flow_conf.ptp.eth1_opt.comm_opt.tpid = eth_in->vlan_conf.tpid;
+        flow_conf.flow_conf.ptp.eth1_opt.comm_opt.pbb_en =  eth_in->vlan_conf.pbb_en;
+        //Engine enable
+        flow_conf.eng_mode = TRUE;
         eth_flow->flow_en = TRUE;
         eth_flow->addr_match_mode = lan80xx_get_vs_addr_type(pkt_class_conf->eth_class_conf.mac_match_mode);
         eth_flow->addr_match_select = lan80xx_get_vs_mac_type(pkt_class_conf->eth_class_conf.mac_match_select);
-        eth_flow->vlan_check = pkt_class_conf->eth_class_conf.vlan_check;
-        eth_flow->num_tag = pkt_class_conf->eth_class_conf.vlan_conf.num_tag;
-
+        memcpy(eth_flow->mac_addr, eth_in->mac_addr, sizeof(eth_in->mac_addr));
+        eth_flow->vlan_check = eth_in->vlan_check;
+        eth_flow->num_tag = eth_in->vlan_conf.num_tag;
         eth_flow->tag_range_mode = LAN80XX_PHY_TS_TAG_RANGE_NONE;
 
-        if ((eng_conf->flow_conf.flow_conf.ptp.eth1_opt.comm_opt.pbb_en) && ((eth_in->vlan_conf.outer_tag.mode == MEPA_TS_MATCH_MODE_RANGE) || (eth_in->vlan_conf.inner_tag.mode == MEPA_TS_MATCH_MODE_RANGE))) {
-
-            T_I(MEPA_TRACE_GRP_TS, " For pbb enabled case, tag range cannot be configured");
+        if ((flow_conf.flow_conf.ptp.eth1_opt.comm_opt.pbb_en) &&
+            ((eth_in->vlan_conf.outer_tag.mode == MEPA_TS_MATCH_MODE_RANGE) ||
+             (eth_in->vlan_conf.inner_tag.mode == MEPA_TS_MATCH_MODE_RANGE))) {
+            T_E(MEPA_TRACE_GRP_TS, " For pbb enabled case, tag range cannot be configured");
             return MEPA_RC_ERROR;
-
         }
 
         if (eth_in->vlan_conf.pbb_en) {
             eth_flow->outer_tag_type = LAN80XX_PHY_TS_TAG_TYPE_B;
             eth_flow->inner_tag_type = LAN80XX_PHY_TS_TAG_TYPE_I;
         } else if (eth_flow->num_tag > 0) {
-            eth_flow->outer_tag_type = eth_in->vlan_conf.tpid ? LAN80XX_PHY_TS_TAG_TYPE_S : LAN80XX_PHY_TS_TAG_TYPE_C;
-            eth_flow->inner_tag_type = eth_in->vlan_conf.tpid ? LAN80XX_PHY_TS_TAG_TYPE_S : LAN80XX_PHY_TS_TAG_TYPE_C;
+            eth_flow->outer_tag_type = (eth_in->vlan_conf.tpid) ? LAN80XX_PHY_TS_TAG_TYPE_S : LAN80XX_PHY_TS_TAG_TYPE_C;
+            eth_flow->inner_tag_type = (eth_in->vlan_conf.tpid) ? LAN80XX_PHY_TS_TAG_TYPE_S : LAN80XX_PHY_TS_TAG_TYPE_C;
         } else if (eth_flow->num_tag > 2) {
-            T_E(MEPA_TRACE_GRP_TS, "Tag should not be greater than 2");
+            T_E(MEPA_TRACE_GRP_TS, "Tag count should not be greater than 2");
             return MEPA_RC_ERR_TS_ENG_CLR;
         }
 
@@ -603,25 +595,24 @@ static mepa_rc lan80xx_ts_rx_classifier_conf_set(struct mepa_device *dev,
 
 
         if (eng_conf->encap_type == LAN80XX_PHY_TS_ENCAP_ETH_IP_IP_PTP) {
-            ip2_flow =  &eng_conf->flow_conf.flow_conf.ptp.ip2_opt.flow_opt[eng_flow];
+            ip2_flow =  &flow_conf.flow_conf.ptp.ip2_opt.flow_opt[eng_flow];
             in_ip2_conf = &pkt_class_conf->ip2_class_conf;
 
             ip2_flow->flow_en = TRUE;
             ip2_flow->match_mode = lan80xx_get_vs_ntw_type(in_ip2_conf->ip_match_mode);
             if (in_ip2_conf->ip_ver == MEPA_TS_IP_VER_4) {
-                eng_conf->flow_conf.flow_conf.ptp.ip2_opt.comm_opt.ip_mode = LAN80XX_PHY_TS_IP_VER_4;
-                eng_conf->flow_conf.flow_conf.ptp.ip2_opt.comm_opt.dport_mask = in_ip2_conf->udp_dport_en ? 0xFFFF : 0;
-                eng_conf->flow_conf.flow_conf.ptp.ip2_opt.comm_opt.dport_val =  in_ip2_conf->udp_dport;
-                eng_conf->flow_conf.flow_conf.ptp.ip2_opt.comm_opt.sport_mask = in_ip2_conf->udp_sport_en ? 0xFFFF : 0;
-                eng_conf->flow_conf.flow_conf.ptp.ip2_opt.comm_opt.sport_val =  in_ip2_conf->udp_sport;
+                flow_conf.flow_conf.ptp.ip2_opt.comm_opt.ip_mode = LAN80XX_PHY_TS_IP_VER_4;
+                flow_conf.flow_conf.ptp.ip2_opt.comm_opt.dport_mask = in_ip2_conf->udp_dport_en ? 0xFFFF : 0;
+                flow_conf.flow_conf.ptp.ip2_opt.comm_opt.dport_val =  in_ip2_conf->udp_dport;
+                flow_conf.flow_conf.ptp.ip2_opt.comm_opt.sport_mask = in_ip2_conf->udp_sport_en ? 0xFFFF : 0;
+                flow_conf.flow_conf.ptp.ip2_opt.comm_opt.sport_val =  in_ip2_conf->udp_sport;
                 ip2_flow->ip_addr.ipv4.addr = in_ip2_conf->ip_addr.ipv4.addr;
                 ip2_flow->ip_addr.ipv4.mask = in_ip2_conf->ip_addr.ipv4.mask;
             } else {
-                eng_conf->flow_conf.flow_conf.ptp.ip2_opt.comm_opt.ip_mode = LAN80XX_PHY_TS_IP_VER_6;
+                flow_conf.flow_conf.ptp.ip2_opt.comm_opt.ip_mode = LAN80XX_PHY_TS_IP_VER_6;
                 memcpy(&ip2_flow->ip_addr.ipv6.addr, &in_ip2_conf->ip_addr.ipv6.addr, sizeof(in_ip2_conf->ip_addr.ipv6.addr));
                 memcpy(&ip2_flow->ip_addr.ipv6.mask, &in_ip2_conf->ip_addr.ipv6.mask, sizeof(in_ip2_conf->ip_addr.ipv6.mask));
             }
-
         }
 
         if ((eng_conf->encap_type == LAN80XX_PHY_TS_ENCAP_ETH_IP_PTP) ||
@@ -631,15 +622,15 @@ static mepa_rc lan80xx_ts_rx_classifier_conf_set(struct mepa_device *dev,
             ip_flow->flow_en = TRUE;
             ip_flow->match_mode = lan80xx_get_vs_ntw_type(in_ip_conf->ip_match_mode);
             if (in_ip_conf->ip_ver == MEPA_TS_IP_VER_4) {
-                eng_conf->flow_conf.flow_conf.ptp.ip1_opt.comm_opt.ip_mode = LAN80XX_PHY_TS_IP_VER_4;
-                eng_conf->flow_conf.flow_conf.ptp.ip1_opt.comm_opt.dport_mask = in_ip_conf->udp_dport_en ? 0xFFFF : 0;
-                eng_conf->flow_conf.flow_conf.ptp.ip1_opt.comm_opt.dport_val = in_ip_conf->udp_dport;
-                eng_conf->flow_conf.flow_conf.ptp.ip1_opt.comm_opt.sport_mask = in_ip_conf->udp_sport_en ? 0xFFFF : 0;
-                eng_conf->flow_conf.flow_conf.ptp.ip1_opt.comm_opt.sport_val = in_ip_conf->udp_sport;
+                flow_conf.flow_conf.ptp.ip1_opt.comm_opt.ip_mode = LAN80XX_PHY_TS_IP_VER_4;
+                flow_conf.flow_conf.ptp.ip1_opt.comm_opt.dport_mask = in_ip_conf->udp_dport_en ? 0xFFFF : 0;
+                flow_conf.flow_conf.ptp.ip1_opt.comm_opt.dport_val = in_ip_conf->udp_dport;
+                flow_conf.flow_conf.ptp.ip1_opt.comm_opt.sport_mask = in_ip_conf->udp_sport_en ? 0xFFFF : 0;
+                flow_conf.flow_conf.ptp.ip1_opt.comm_opt.sport_val = in_ip_conf->udp_sport;
                 ip_flow->ip_addr.ipv4.addr = in_ip_conf->ip_addr.ipv4.addr;
                 ip_flow->ip_addr.ipv4.mask = in_ip_conf->ip_addr.ipv4.mask;
             } else {
-                eng_conf->flow_conf.flow_conf.ptp.ip1_opt.comm_opt.ip_mode = LAN80XX_PHY_TS_IP_VER_6;
+                flow_conf.flow_conf.ptp.ip1_opt.comm_opt.ip_mode = LAN80XX_PHY_TS_IP_VER_6;
                 memcpy(&ip_flow->ip_addr.ipv6.addr, &in_ip_conf->ip_addr.ipv6.addr, sizeof(in_ip_conf->ip_addr.ipv6.addr));
                 memcpy(&ip_flow->ip_addr.ipv6.mask, &in_ip_conf->ip_addr.ipv6.mask, sizeof(in_ip_conf->ip_addr.ipv6.mask));
             }
@@ -648,11 +639,11 @@ static mepa_rc lan80xx_ts_rx_classifier_conf_set(struct mepa_device *dev,
 
         if ((eng_conf->encap_type  == LAN80XX_PHY_TS_ENCAP_ETH_ETH_PTP) || (eng_conf->encap_type == LAN80XX_PHY_TS_ENCAP_ETH_ETH_IP_PTP)
             || (eng_conf->encap_type == LAN80XX_PHY_TS_ENCAP_ETH_MPLS_ETH_PTP) || (eng_conf->encap_type == LAN80XX_PHY_TS_ENCAP_ETH_MPLS_ETH_IP_PTP)) {
-            eth2_flow = &eng_conf->flow_conf.flow_conf.ptp.eth2_opt.flow_opt[eng_flow];
+            eth2_flow = &flow_conf.flow_conf.ptp.eth2_opt.flow_opt[eng_flow];
             eth2_in =  &pkt_class_conf->eth2_class_conf;
 
-            eng_conf->flow_conf.flow_conf.ptp.eth2_opt.comm_opt.etype = eth2_in->vlan_conf.etype;
-            eng_conf->flow_conf.flow_conf.ptp.eth2_opt.comm_opt.tpid = eth2_in->vlan_conf.tpid;
+            flow_conf.flow_conf.ptp.eth2_opt.comm_opt.etype = eth2_in->vlan_conf.etype;
+            flow_conf.flow_conf.ptp.eth2_opt.comm_opt.tpid = eth2_in->vlan_conf.tpid;
 
             eth2_flow->flow_en = TRUE;
             eth2_flow->addr_match_mode = lan80xx_get_vs_addr_type(pkt_class_conf->eth2_class_conf.mac_match_mode);
@@ -694,10 +685,13 @@ static mepa_rc lan80xx_ts_rx_classifier_conf_set(struct mepa_device *dev,
             memcpy(eth2_flow->mac_addr, pkt_class_conf->eth2_class_conf.mac_addr, sizeof(pkt_class_conf->eth2_class_conf.mac_addr));
         }
 
-
-        memcpy(eth_flow->mac_addr, pkt_class_conf->eth_class_conf.mac_addr, sizeof(pkt_class_conf->eth_class_conf.mac_addr));
         if ((rc = lan80xx_ts_ingress_engine_conf_set(dev, eng_id, eng_flow, &flow_conf)) != MEPA_RC_OK) {
+            T_E(MEPA_TRACE_GRP_TS, "TS ingress engine conf set failed (%d)\n", rc);
             return MEPA_RC_ERROR;
+        } else {
+            /* Save the flow config */
+            memcpy(&eng_conf->flow_conf, &flow_conf,
+                   sizeof(phy25g_ts_engine_flow_conf_t));
         }
 
     }
@@ -730,9 +724,8 @@ static mepa_rc lan80xx_ts_tx_clock_conf_set(struct mepa_device *dev, uint16_t cl
         T_E(MEPA_TRACE_GRP_TS, "Engine not initialized");
         return MEPA_RC_ERROR;
     }
-    action = &eng_conf->action_conf.action.ptp_conf;
     memcpy(&action_conf, &eng_conf->action_conf, sizeof(phy25g_ts_engine_action_t));
-    //action = &action_conf.action.ptp_conf;
+    action = &action_conf.action.ptp_conf;
     if ((ptpclock_conf->clk_mode == MEPA_TS_PTP_CLOCK_MODE_NONE) ||
         (!ptpclock_conf->enable)) {
         T_I(MEPA_TRACE_GRP_TS, "disabling action for engine ");
@@ -742,18 +735,18 @@ static mepa_rc lan80xx_ts_tx_clock_conf_set(struct mepa_device *dev, uint16_t cl
             T_E(MEPA_TRACE_GRP_TS, "Prev Action not found for Engine");
             return MEPA_RC_ERROR;
         }
-    }
-#if 0
-    else if (action->enable) {
+    } else if (action->enable) {
+        T_I(MEPA_TRACE_GRP_TS, "action enabled already with clk_mode %d in mode %d\n",
+            action->clk_mode, ptpclock_conf->clk_mode);
         if ((action->clk_mode != ptpclock_conf->clk_mode) ||
             (action->delaym_type != ptpclock_conf->delaym_type) ||
             (action->cf_update != ptpclock_conf->cf_update)) {
             T_E(MEPA_TRACE_GRP_TS, "Action in use");
             return MEPA_RC_ERR_TS_ACTION_IN_USE;
         }
-    }
-#endif
-    else {
+    } else {
+        T_I(MEPA_TRACE_GRP_TS, "clk_mode %d delaym_type %d\n",
+            ptpclock_conf->clk_mode, ptpclock_conf->delaym_type);
         action->enable = TRUE;
         action->clk_mode = ptpclock_conf->clk_mode;
         action->delaym_type = ptpclock_conf->delaym_type;
@@ -868,14 +861,24 @@ static mepa_rc lan80xx_ts_ltc_ls_en(mepa_device_t *dev, mepa_ts_ls_type_t const 
 
 static mepa_rc lan80xx_ts_mode_get(mepa_device_t *dev, mepa_bool_t *const enable)
 {
-    phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
-    return lan80xx_phy_ts_mode_get(dev, data->port_no,  enable);
+    mepa_rc rc = MEPA_RC_ERROR;
+
+    MEPA_ENTER(dev);
+    rc = lan80xx_ts_mode_get_priv(dev, enable);
+    MEPA_EXIT(dev);
+
+    return rc;
 }
 
 static mepa_rc lan80xx_ts_mode_set(mepa_device_t *dev, const mepa_bool_t enable)
 {
-    phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
-    return lan80xx_phy_ts_mode_set(dev, data->port_no,  enable);
+    mepa_rc rc = MEPA_RC_ERROR;
+
+    MEPA_ENTER(dev);
+    rc = lan80xx_ts_mode_set_priv(dev, enable);
+    MEPA_EXIT(dev);
+
+    return rc;
 }
 
 static mepa_rc lan80xx_ts_ltc_get(mepa_device_t *dev, mepa_timestamp_t *const ts)
@@ -883,43 +886,44 @@ static mepa_rc lan80xx_ts_ltc_get(mepa_device_t *dev, mepa_timestamp_t *const ts
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
     u32 value = 0;
 
-    LAN80XX_CSR_RD(dev, data->port_no, LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, LAN80XX_PTP_LTC_PTP_CUR_SEC_LSB), &value);
+    LAN80XX_CSR_RD(dev, data->port_no,
+                   LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, LAN80XX_PTP_LTC_PTP_CUR_SEC_LSB),
+                   &value);
     ts->seconds.low = (value & 0xffffffff);
 
-    LAN80XX_CSR_RD(dev, data->port_no, LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, LAN80XX_PTP_LTC_PTP_CUR_SEC_MSB), &value);
+    LAN80XX_CSR_RD(dev, data->port_no,
+                   LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, LAN80XX_PTP_LTC_PTP_CUR_SEC_MSB),
+                   &value);
     ts->seconds.high = (value & 0xffff) ;
 
-    LAN80XX_CSR_RD(dev, data->port_no, LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, LAN80XX_PTP_LTC_PTP_CUR_NSEC), &value);
-    ts->nanoseconds = (value & 0xffffffff);
+    LAN80XX_CSR_RD(dev, data->port_no,
+                   LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, LAN80XX_PTP_LTC_PTP_CUR_NSEC),
+                   &value);
+    ts->nanoseconds = (value & 0x3fffffff);
 
-    LAN80XX_CSR_RD(dev, data->port_no, LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, LAN80XX_PTP_LTC_PTP_CUR_NSEC_FRAC), &value);
+    LAN80XX_CSR_RD(dev, data->port_no,
+                   LAN80XX_IOREG(MMD_ID_PTP_LTC, 1, LAN80XX_PTP_LTC_PTP_CUR_NSEC_FRAC),
+                   &value);
     ts->picoseconds = (value & 0xff);
-    return MEPA_RC_OK;
 
-#if 0
-    /* LTC value in case of Serial TOD*/
-    if ((rc = lan80xx_ts_csr_ptptime_get_priv(dev, data->port_no, &m25gts)) == MESA_RC_OK) {
-        ts->seconds.high = m25gts.seconds.high;
-        ts->seconds.low  = m25gts.seconds.low;
-        ts->nanoseconds  = m25gts.nanoseconds;
-        ts->picoseconds  = m25gts.subnanoseconds;
-        return MEPA_RC_OK;
-    } else {
-        return MEPA_RC_ERROR;
-    }
-#endif
+    return MEPA_RC_OK;
 }
 
 static mepa_rc lan80xx_ts_ltc_set(mepa_device_t *dev, const mepa_timestamp_t *const ts)
 {
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
     phy25g_phy_timestamp_t m25gts;
+    mepa_rc rc = MEPA_RC_ERROR;
 
     m25gts.seconds.high = ts->seconds.high;
     m25gts.seconds.low = ts->seconds.low;
     m25gts.nanoseconds = ts->nanoseconds;
-    m25gts.subnanoseconds  = ts->picoseconds ;
-    return lan80xx_ts_csr_ptptime_set_priv(dev, data->port_no, &m25gts);
+    m25gts.subnanoseconds  = ts->picoseconds;
+    MEPA_ENTER(dev);
+    rc = lan80xx_ts_csr_ptptime_set_priv(dev, data->port_no, &m25gts);
+    MEPA_EXIT(dev);
+
+    return rc;
 }
 
 static void lan80xx_phy_ts_fifo_read_cb(mepa_device_t  *dev,

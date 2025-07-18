@@ -277,7 +277,7 @@ typedef enum {
     LAN80XX_PHY_TS_PATH_DELAY_SET,  /* called from mepa_ts_path_delay_set*/
     LAN80XX_PHY_TS_DELAY_ASYM_SET,  /* called from mepa_ts_delay_asymmetry_set*/
     LAN80XX_PHY_TS_RATE_ADJ_SET,
-    LAN80XX_PHY_TS_PORT_ENA_SET,   /* called from lan80xx_phy_ts_mode_set*/
+    LAN80XX_PHY_TS_PORT_ENA_SET,   /* called from lan80xx_ts_mode_set*/
     LAN80XX_PHY_TS_PORT_EVT_MASK_SET,
     LAN80XX_PHY_TS_PORT_OPER_MODE_CHANGE_SET,
     LAN80XX_PHY_TS_PPS_OUTPUT_CONF_SET,
@@ -799,13 +799,11 @@ mepa_rc lan80xx_phy_ts_clock_rateadj_set(mepa_device_t  *dev,
                                          const phy25g_ts_scaled_ppb_t *const adj);
 
 
-mepa_rc lan80xx_phy_ts_mode_set(mepa_device_t *dev,
-                                const mepa_port_no_t  port_no,
-                                const mepa_bool_t   enable);
+mepa_rc lan80xx_ts_mode_set_priv(mepa_device_t *dev,
+                                 const mepa_bool_t   enable);
 
-mepa_rc lan80xx_phy_ts_mode_get( mepa_device_t *dev,
-                                 const mepa_port_no_t  port_no,
-                                 mepa_bool_t      *const enable);
+mepa_rc lan80xx_ts_mode_get_priv( mepa_device_t *dev,
+                                  mepa_bool_t      *const enable);
 
 mepa_rc lan80xx_phy_ts_pps_conf_get(const mepa_device_t *dev,
                                     phy25g_ts_pps_conf_t *const phy_pps_conf);

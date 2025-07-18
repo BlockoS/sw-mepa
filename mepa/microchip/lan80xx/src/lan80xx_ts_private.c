@@ -1685,39 +1685,38 @@ static mepa_rc lan80xx_phy_ts_ip2_different_offset_set(
     return MEPA_RC_OK;
 }
 
-
-#if 1
 static mepa_rc lan80xx_ts_mpls_flow_conf(mepa_device_t *dev,
                                          const phy25g_ts_engine_t eng_id,
                                          const u16 flow_index,
                                          BOOL ingress,
                                          const phy25g_ts_next_comp_t next_comp,
                                          phy25g_ts_engine_flow_conf_t *const flow_conf,
-                                         phy25g_ts_eng_conf_t *eng_conf)
+                                         phy25g_ts_mpls_conf_t *mpls_conf)
 {
     mepa_rc rc;
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
     phy25g_ts_blk_id_t blk_id;
     u32 value = 0, temp = 0;
     u8 stack_ref_point = 0;
-
     mepa_bool_t  bool2, bool3, bool4;
     phy25g_ts_mpls_conf_t *old_mpls_conf;
-    phy25g_ts_mpls_conf_t *new_mpls_conf;
-
     const mepa_port_no_t       port_no = data->port_no;
     BOOL cw_present = FALSE;
+    phy25g_ts_eng_conf_t *eng_conf;
+
+    if (ingress) {
+        eng_conf = &data->phy_ts_port_conf.ingress_eng_conf[eng_id];
+    } else {
+        eng_conf = &data->phy_ts_port_conf.egress_eng_conf[eng_id];
+    }
 
     old_mpls_conf = &flow_conf->flow_conf.ptp.mpls_opt;
-    new_mpls_conf = &eng_conf->flow_conf.flow_conf.ptp.mpls_opt;
 
-#if 1
     if (((eng_conf->encap_type == LAN80XX_PHY_TS_ENCAP_ETH_MPLS_ETH_PTP) ||
-         (eng_conf->encap_type == LAN80XX_PHY_TS_ENCAP_ETH_MPLS_ETH_IP_PTP)) && (new_mpls_conf->comm_opt.cw_en)) {
-        //  printf("Port: %u engine: %u:: Wrong control word configuration for encaptype : %d",(u32)port_no, (u32)eng_id, eng_conf->encap_type);
-        cw_present = new_mpls_conf->comm_opt.cw_en;
+         (eng_conf->encap_type == LAN80XX_PHY_TS_ENCAP_ETH_MPLS_ETH_IP_PTP)) && (mpls_conf->comm_opt.cw_en)) {
+        T_E(MEPA_TRACE_GRP_TS, "Port: %u engine: %u:: Wrong control word configuration for encaptype : %d", (u32)port_no, (u32)eng_id, eng_conf->encap_type);
+        cw_present = mpls_conf->comm_opt.cw_en;
     }
-#endif
 
 
     if ((rc = lan80xx_phy_ts_ana_blk_id_get(eng_id, ingress, &blk_id)) != MEPA_RC_OK) {
@@ -1728,7 +1727,7 @@ static mepa_rc lan80xx_ts_mpls_flow_conf(mepa_device_t *dev,
 
     if (eng_id == LAN80XX_PHY_TS_PTP_ENGINE_ID_0 ||
         eng_id == LAN80XX_PHY_TS_PTP_ENGINE_ID_1 || eng_id == LAN80XX_PHY_TS_OAM_ENGINE_ID_2A) {
-        if (old_mpls_conf->comm_opt.cw_en != new_mpls_conf->comm_opt.cw_en) {
+        if (old_mpls_conf->comm_opt.cw_en != mpls_conf->comm_opt.cw_en) {
             MEPA_RC(LAN80XX_PHY_TS_READ_CSR(port_no, blk_id, LAN80XX_ANA_MPLS_NXT_COMPARATOR_MPLS_NXT_COMPARATOR, &value));
             if (cw_present) {
                 value |= LAN80XX_F_ANA_MPLS_NXT_COMPARATOR_MPLS_NXT_COMPARATOR_MPLS_CTL_WORD;
@@ -1740,9 +1739,9 @@ static mepa_rc lan80xx_ts_mpls_flow_conf(mepa_device_t *dev,
         }
         /* PTP engine MPLS config */
         /* channel map, flow enable, stack depth and stack ref point config */
-        bool2 = (new_mpls_conf->flow_opt[flow_index].flow_en != old_mpls_conf->flow_opt[flow_index].flow_en);
-        bool3 = (new_mpls_conf->flow_opt[flow_index].stack_depth != old_mpls_conf->flow_opt[flow_index].stack_depth);
-        bool4 = (new_mpls_conf->flow_opt[flow_index].stack_ref_point != old_mpls_conf->flow_opt[flow_index].stack_ref_point);
+        bool2 = (mpls_conf->flow_opt[flow_index].flow_en != old_mpls_conf->flow_opt[flow_index].flow_en);
+        bool3 = (mpls_conf->flow_opt[flow_index].stack_depth != old_mpls_conf->flow_opt[flow_index].stack_depth);
+        bool4 = (mpls_conf->flow_opt[flow_index].stack_ref_point != old_mpls_conf->flow_opt[flow_index].stack_ref_point);
         if (bool2 || bool3 || bool4) {
             MEPA_RC(LAN80XX_PHY_TS_READ_CSR(port_no, blk_id, LAN80XX_ANA_MPLS_FLOW_CFG_MPLS_FLOW_CONTROL(flow_index), &value));
 
@@ -1751,18 +1750,18 @@ static mepa_rc lan80xx_ts_mpls_flow_conf(mepa_device_t *dev,
             value = LAN80XX_PHY_TS_CLR_BITS(value, LAN80XX_M_ANA_MPLS_FLOW_CFG_MPLS_FLOW_CONTROL_MPLS_CHANNEL_MASK) | temp;
 
             if (bool2) {
-                if (new_mpls_conf->flow_opt[flow_index].flow_en) {
+                if (mpls_conf->flow_opt[flow_index].flow_en) {
                     value |=  LAN80XX_F_ANA_MPLS_FLOW_CFG_MPLS_FLOW_CONTROL_MPLS_FLOW_ENA;
                 } else {
                     value &=  ~LAN80XX_F_ANA_MPLS_FLOW_CFG_MPLS_FLOW_CONTROL_MPLS_FLOW_ENA;
                 }
             }
             if (bool3) {
-                temp = LAN80XX_F_ANA_MPLS_FLOW_CFG_MPLS_FLOW_CONTROL_MPLS_STACK_DEPTH(new_mpls_conf->flow_opt[flow_index].stack_depth);
+                temp = LAN80XX_F_ANA_MPLS_FLOW_CFG_MPLS_FLOW_CONTROL_MPLS_STACK_DEPTH(mpls_conf->flow_opt[flow_index].stack_depth);
                 value = LAN80XX_PHY_TS_CLR_BITS(value, LAN80XX_M_ANA_MPLS_FLOW_CFG_MPLS_FLOW_CONTROL_MPLS_STACK_DEPTH) | temp;
             }
             if (bool4) {
-                if (new_mpls_conf->flow_opt[flow_index].stack_ref_point == LAN80XX_PHY_TS_MPLS_STACK_REF_POINT_END) {
+                if (mpls_conf->flow_opt[flow_index].stack_ref_point == LAN80XX_PHY_TS_MPLS_STACK_REF_POINT_END) {
                     stack_ref_point = LAN80XX_PHY_TS_MPLS_STACK_REF_POINT_END;
                     value |=  LAN80XX_F_ANA_MPLS_FLOW_CFG_MPLS_FLOW_CONTROL_MPLS_REF_PNT;
                 } else {
@@ -1779,58 +1778,58 @@ static mepa_rc lan80xx_ts_mpls_flow_conf(mepa_device_t *dev,
         /* configure stack levels based on ref point */
         /* top-of-stack referenced */
         temp = (stack_ref_point == LAN80XX_PHY_TS_MPLS_STACK_REF_POINT_TOP) ?
-               new_mpls_conf->flow_opt[flow_index].stack_level.top_down.top.lower :
-               new_mpls_conf->flow_opt[flow_index].stack_level.bottom_up.thrd_lvl_before_end.lower;
+               mpls_conf->flow_opt[flow_index].stack_level.top_down.top.lower :
+               mpls_conf->flow_opt[flow_index].stack_level.bottom_up.thrd_lvl_before_end.lower;
         value = LAN80XX_F_ANA_MPLS_FLOW_CFG_MPLS_LABEL_RANGE_LOWER_0_MPLS_LABEL_RANGE_LOWER_0(temp);
         MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_MPLS_FLOW_CFG_MPLS_LABEL_RANGE_LOWER_0(flow_index), &value));
         temp = (stack_ref_point == LAN80XX_PHY_TS_MPLS_STACK_REF_POINT_TOP) ?
-               new_mpls_conf->flow_opt[flow_index].stack_level.top_down.top.upper :
-               new_mpls_conf->flow_opt[flow_index].stack_level.bottom_up.thrd_lvl_before_end.upper;
+               mpls_conf->flow_opt[flow_index].stack_level.top_down.top.upper :
+               mpls_conf->flow_opt[flow_index].stack_level.bottom_up.thrd_lvl_before_end.upper;
         value = LAN80XX_F_ANA_MPLS_FLOW_CFG_MPLS_LABEL_RANGE_UPPER_0_MPLS_LABEL_RANGE_UPPER_0(temp);
         MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_MPLS_FLOW_CFG_MPLS_LABEL_RANGE_UPPER_0(flow_index), &value));
         /* 1st after top */
         temp = (stack_ref_point == LAN80XX_PHY_TS_MPLS_STACK_REF_POINT_TOP) ?
-               new_mpls_conf->flow_opt[flow_index].stack_level.top_down.frst_lvl_after_top.lower :
-               new_mpls_conf->flow_opt[flow_index].stack_level.bottom_up.snd_lvl_before_end.lower;
+               mpls_conf->flow_opt[flow_index].stack_level.top_down.frst_lvl_after_top.lower :
+               mpls_conf->flow_opt[flow_index].stack_level.bottom_up.snd_lvl_before_end.lower;
         value = LAN80XX_F_ANA_MPLS_FLOW_CFG_MPLS_LABEL_RANGE_LOWER_1_MPLS_LABEL_RANGE_LOWER_1(temp);
         MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_MPLS_FLOW_CFG_MPLS_LABEL_RANGE_LOWER_1(flow_index), &value));
         temp = (stack_ref_point == LAN80XX_PHY_TS_MPLS_STACK_REF_POINT_TOP) ?
-               new_mpls_conf->flow_opt[flow_index].stack_level.top_down.frst_lvl_after_top.upper :
-               new_mpls_conf->flow_opt[flow_index].stack_level.bottom_up.snd_lvl_before_end.upper;
+               mpls_conf->flow_opt[flow_index].stack_level.top_down.frst_lvl_after_top.upper :
+               mpls_conf->flow_opt[flow_index].stack_level.bottom_up.snd_lvl_before_end.upper;
         value = LAN80XX_F_ANA_MPLS_FLOW_CFG_MPLS_LABEL_RANGE_UPPER_1_MPLS_LABEL_RANGE_UPPER_1(temp);
         MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_MPLS_FLOW_CFG_MPLS_LABEL_RANGE_UPPER_1(flow_index),  &value));
         /* 2nd after top */
         temp = (stack_ref_point == LAN80XX_PHY_TS_MPLS_STACK_REF_POINT_TOP) ?
-               new_mpls_conf->flow_opt[flow_index].stack_level.top_down.snd_lvl_after_top.lower :
-               new_mpls_conf->flow_opt[flow_index].stack_level.bottom_up.frst_lvl_before_end.lower;
+               mpls_conf->flow_opt[flow_index].stack_level.top_down.snd_lvl_after_top.lower :
+               mpls_conf->flow_opt[flow_index].stack_level.bottom_up.frst_lvl_before_end.lower;
         value = LAN80XX_F_ANA_MPLS_FLOW_CFG_MPLS_LABEL_RANGE_LOWER_2_MPLS_LABEL_RANGE_LOWER_2(temp);
         MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_MPLS_FLOW_CFG_MPLS_LABEL_RANGE_LOWER_2(flow_index),  &value));
         temp = (stack_ref_point == LAN80XX_PHY_TS_MPLS_STACK_REF_POINT_TOP) ?
-               new_mpls_conf->flow_opt[flow_index].stack_level.top_down.snd_lvl_after_top.upper :
-               new_mpls_conf->flow_opt[flow_index].stack_level.bottom_up.frst_lvl_before_end.upper;
+               mpls_conf->flow_opt[flow_index].stack_level.top_down.snd_lvl_after_top.upper :
+               mpls_conf->flow_opt[flow_index].stack_level.bottom_up.frst_lvl_before_end.upper;
         value = LAN80XX_F_ANA_MPLS_FLOW_CFG_MPLS_LABEL_RANGE_UPPER_2_MPLS_LABEL_RANGE_UPPER_2(temp);
         MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_MPLS_FLOW_CFG_MPLS_LABEL_RANGE_UPPER_2(flow_index),  &value));
         /* 3rd after top */
         temp = (stack_ref_point == LAN80XX_PHY_TS_MPLS_STACK_REF_POINT_TOP) ?
-               new_mpls_conf->flow_opt[flow_index].stack_level.top_down.thrd_lvl_after_top.lower :
-               new_mpls_conf->flow_opt[flow_index].stack_level.bottom_up.end.lower;
+               mpls_conf->flow_opt[flow_index].stack_level.top_down.thrd_lvl_after_top.lower :
+               mpls_conf->flow_opt[flow_index].stack_level.bottom_up.end.lower;
         value = LAN80XX_F_ANA_MPLS_FLOW_CFG_MPLS_LABEL_RANGE_LOWER_3_MPLS_LABEL_RANGE_LOWER_3(temp);
         MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_MPLS_FLOW_CFG_MPLS_LABEL_RANGE_LOWER_3(flow_index),  &value));
         temp = (stack_ref_point == LAN80XX_PHY_TS_MPLS_STACK_REF_POINT_TOP) ?
-               new_mpls_conf->flow_opt[flow_index].stack_level.top_down.thrd_lvl_after_top.upper :
-               new_mpls_conf->flow_opt[flow_index].stack_level.bottom_up.end.upper;
+               mpls_conf->flow_opt[flow_index].stack_level.top_down.thrd_lvl_after_top.upper :
+               mpls_conf->flow_opt[flow_index].stack_level.bottom_up.end.upper;
         value = LAN80XX_F_ANA_MPLS_FLOW_CFG_MPLS_LABEL_RANGE_UPPER_3_MPLS_LABEL_RANGE_UPPER_3(temp);
         MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_MPLS_FLOW_CFG_MPLS_LABEL_RANGE_UPPER_3(flow_index),  &value));
 
 
         value = 0;
 
-        value |=  new_mpls_conf->flow_opt[flow_index].stack_level.top_down.frst_lvl_after_top.match_mode << LAN80XX_8_BIT_SHIFT |
-                  new_mpls_conf->flow_opt[flow_index].stack_level.top_down.top.match_mode;
+        value |=  mpls_conf->flow_opt[flow_index].stack_level.top_down.frst_lvl_after_top.match_mode << LAN80XX_8_BIT_SHIFT |
+                  mpls_conf->flow_opt[flow_index].stack_level.top_down.top.match_mode;
 
-        value |= new_mpls_conf->flow_opt[flow_index].stack_level.top_down.snd_lvl_after_top.match_mode << LAN80XX_16_BIT_SHIFT;
+        value |= mpls_conf->flow_opt[flow_index].stack_level.top_down.snd_lvl_after_top.match_mode << LAN80XX_16_BIT_SHIFT;
 
-        value |= new_mpls_conf->flow_opt[flow_index].stack_level.top_down.thrd_lvl_after_top.match_mode << LAN80XX_24_BIT_SHIFT;
+        value |= mpls_conf->flow_opt[flow_index].stack_level.top_down.thrd_lvl_after_top.match_mode << LAN80XX_24_BIT_SHIFT;
 
         MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_MPLS_FLOW_CFG_MPLS_FLOW_MATCH_MODE(flow_index), &value));
 
@@ -1838,7 +1837,6 @@ static mepa_rc lan80xx_ts_mpls_flow_conf(mepa_device_t *dev,
 
     return MEPA_RC_OK;
 }
-#endif
 
 static mepa_rc lan80xx_ts_eth1_flow_conf(mepa_device_t *dev,
                                          const phy25g_ts_engine_t eng_id,
@@ -1873,7 +1871,9 @@ static mepa_rc lan80xx_ts_eth1_flow_conf(mepa_device_t *dev,
 
         //Shift engine id to egress bit position.
         temp = temp << LAN80XX_4_BIT_SHIFT;
-        // value = LAN80XX_PHY_TS_CLR_BITS(value, LAN80XX_M_PTP_PROC_ANALYZER_MODE_EGR_ENCAP_ENGINE_ENA) | temp;
+        value = LAN80XX_PHY_TS_CLR_BITS(value, LAN80XX_M_PTP_PROC_ANALYZER_MODE_EGR_ENCAP_ENGINE_ENA);
+    } else {
+        value = LAN80XX_PHY_TS_CLR_BITS(value, LAN80XX_M_PTP_PROC_ANALYZER_MODE_INGR_ENCAP_ENGINE_ENA);
     }
 
     //Enable Ingress, Egress individual Encap flow.
@@ -1892,9 +1892,11 @@ static mepa_rc lan80xx_ts_eth1_flow_conf(mepa_device_t *dev,
         if (eth_conf->comm_opt.pbb_en) {
 
             if (eth_conf->flow_opt[flow_index].num_tag == 0) {
+                T_E(MEPA_TRACE_GRP_TS, "Port: %u engine: %u:: PBB requires at least I-tag", (u32)data->port_no, (u32)eng_id);
                 return MEPA_RC_ERROR;
             }
             if (eth_conf->flow_opt[flow_index].tag_range_mode != LAN80XX_PHY_TS_TAG_RANGE_NONE) {
+                T_E(MEPA_TRACE_GRP_TS, "Port: %u engine: %u:: Tag range not supported when PBB enabled", (u32)data->port_no, (u32)eng_id);
                 return MEPA_RC_ERROR;
             }
             /* For single tag, inner_tag is always I-tag, for double tag, inner is
@@ -1902,6 +1904,7 @@ static mepa_rc lan80xx_ts_eth1_flow_conf(mepa_device_t *dev,
             if (eth_conf->flow_opt[flow_index].inner_tag_type != LAN80XX_PHY_TS_TAG_TYPE_I ||
                 (eth_conf->flow_opt[flow_index].num_tag == 2 &&
                  eth_conf->flow_opt[flow_index].outer_tag_type != LAN80XX_PHY_TS_TAG_TYPE_B)) {
+                T_E(MEPA_TRACE_GRP_TS, "Port: %u engine: %u:: Wrong tag type for PBB", (u32)data->port_no, (u32)eng_id);
                 return MEPA_RC_ERROR;
             }
 
@@ -1935,9 +1938,9 @@ static mepa_rc lan80xx_ts_eth1_flow_conf(mepa_device_t *dev,
 
         if (eth_conf->flow_opt[flow_index].flow_en != old_eth_conf->flow_opt[flow_index].flow_en) {
             if (eth_conf->flow_opt[flow_index].flow_en) {
-                value =  LAN80XX_F_ANA_ETH1_FLOW_CFG_ETH1_FLOW_ENABLE_ETH1_FLOW_ENABLE | temp;
+                value |= LAN80XX_F_ANA_ETH1_FLOW_CFG_ETH1_FLOW_ENABLE_ETH1_FLOW_ENABLE;
             } else {
-                value =  ~LAN80XX_F_ANA_ETH1_FLOW_CFG_ETH1_FLOW_ENABLE_ETH1_FLOW_ENABLE | temp;
+                value &= ~LAN80XX_F_ANA_ETH1_FLOW_CFG_ETH1_FLOW_ENABLE_ETH1_FLOW_ENABLE;
             }
         }
 
@@ -2188,9 +2191,9 @@ static  mepa_rc lan80xx_ts_eth2_flow_conf(mepa_device_t *dev,
 
         if (eth_conf->flow_opt[flow_index].flow_en != old_eth_conf->flow_opt[flow_index].flow_en) {
             if (eth_conf->flow_opt[flow_index].flow_en) {
-                value =  LAN80XX_F_ANA_ETH2_FLOW_CFG_ETH2_FLOW_ENABLE_ETH2_FLOW_ENABLE | temp;
+                value |= LAN80XX_F_ANA_ETH2_FLOW_CFG_ETH2_FLOW_ENABLE_ETH2_FLOW_ENABLE;
             } else {
-                value =  ~LAN80XX_F_ANA_ETH2_FLOW_CFG_ETH2_FLOW_ENABLE_ETH2_FLOW_ENABLE | temp;
+                value &= ~LAN80XX_F_ANA_ETH2_FLOW_CFG_ETH2_FLOW_ENABLE_ETH2_FLOW_ENABLE;
             }
 
             MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_ETH2_FLOW_CFG_ETH2_FLOW_ENABLE(flow_index), &value));
@@ -2442,7 +2445,7 @@ static mepa_rc lan80xx_ts_ip2_flow_conf(mepa_device_t *dev,
                     value = ip_conf->flow_opt[flow_index].ip_addr.ipv4.mask;
                     /* As suggested by HW team, mask set to '0' should log error message and further continue with configuration */
                     if (!ip_conf->flow_opt[flow_index].ip_addr.ipv4.mask) {
-                        T_I(MEPA_TRACE_GRP_GEN, "1588 IP mask is set to zero");
+                        T_W(MEPA_TRACE_GRP_TS, "1588 IP mask is set to zero");
                     }
                     MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP2_FLOW_CFG_IP2_FLOW_MASK_UPPER(flow_index), &value));
                     /* clear the other mask register */
@@ -2575,8 +2578,6 @@ static mepa_rc lan80xx_ts_ip1_flow_conf(mepa_device_t *dev,
                     value = ip_conf->comm_opt.sport_mask << 16 | ip_conf->comm_opt.dport_mask;
                     MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_NXT_PROTOCOL_IP1_PROT_MASK_2_UPPER, &value));
                 }
-                //please review below st in M10G.
-                /* UDP port number offset from IP header: taken care in def conf */
             }
 
         }
@@ -2611,7 +2612,7 @@ static mepa_rc lan80xx_ts_ip1_flow_conf(mepa_device_t *dev,
                 value = ip_conf->flow_opt[flow_index].ip_addr.ipv4.mask;
                 /* As suggested by HW team, mask set to '0' should log error message and further continue with configuration */
                 if (!ip_conf->flow_opt[flow_index].ip_addr.ipv4.mask) {
-                    T_I(MEPA_TRACE_GRP_GEN, "1588 IP mask is set to zero");
+                    T_W(MEPA_TRACE_GRP_TS, "1588 IP mask is set to zero");
                 }
                 MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_FLOW_CFG_IP1_FLOW_MASK_UPPER(flow_index), &value));
                 /* clear the other mask register */
@@ -2747,238 +2748,8 @@ static mepa_rc lan80xx_phy_ts_engine_ptp_action_flow_conf_priv(
     if (data->phy_ts_port_conf.rx_ts_pos == LAN80XX_PHY_TS_RX_TIMESTAMP_POS_IN_PTP) {
         rx_ts_pos = 16; /* timestamp at reserved bytes */
     }
-#if 0
+
     if (blk_id != LAN80XX_PHY_TS_ANA_BLK_ID_ING_2 && blk_id != LAN80XX_PHY_TS_ANA_BLK_ID_EGR_2) {
-        /* by default no need to clear any field */
-        value = 0;
-        value |= LAN80XX_ANA_PTP_FLOW_PTP_ZERO_FIELD_CTL_PTP_OAM_FRAME; /*Enable for PTP frame*/
-        value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ZERO_FIELD_CTL_PTP_RSVD_CHK_EN;/* Enabling check for the non zero of 4-byte reserved field */
-        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_PTP_FLOW_PTP_ZERO_FIELD_CTL(flow_index), &value));
-
-        switch (cmd) {
-        case PTP_ACTION_CMD_NOP:
-            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_TIME_STRG_FIELD_OFFSET(8);
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(cmd); /* NOP */
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_PTP_FLOW_PTP_ACTION(flow_index), &value));
-            value = 0;
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_PTP_FLOW_PTP_ACTION_2(flow_index), &value));
-            break;
-        case PTP_ACTION_CMD_SUB:
-            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_TIME_STRG_FIELD_OFFSET(8);
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(cmd); /* SUB */
-            if (asym == PTP_ACTION_ASYM_ADD) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_ADD_DELAY_ASYM_ENA;
-            } else if (asym == PTP_ACTION_ASYM_SUB) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_SUB_DELAY_ASYM_ENA;
-            }
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_CORR_FIELD_OFFSET(8);
-            if (data->phy_ts_port_conf.chk_ing_modified) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_MOD_FRAME_STAT_UPDATE;
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_MOD_FRAME_BYTE_OFFSET(6);
-            }
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_PTP_FLOW_PTP_ACTION(flow_index), &value));
-            /* action_2 setting */
-            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_OFFSET(8); /*  nothing to write */
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_BYTES(8); /* CF bytes length */
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_PTP_FLOW_PTP_ACTION_2(flow_index), &value));
-            break;
-        case PTP_ACTION_CMD_ADD:
-            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_TIME_STRG_FIELD_OFFSET(8);
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(cmd);
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_CORR_FIELD_OFFSET(8);
-            if (asym == PTP_ACTION_ASYM_ADD) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_ADD_DELAY_ASYM_ENA;
-            } else if (asym == PTP_ACTION_ASYM_SUB) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_SUB_DELAY_ASYM_ENA;
-            }
-            if (data->phy_ts_port_conf.chk_ing_modified) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_MOD_FRAME_STAT_UPDATE;
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_MOD_FRAME_BYTE_OFFSET(6);
-            }
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_PTP_FLOW_PTP_ACTION(flow_index), &value));
-            /* action_2 setting */
-            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_OFFSET(8); /*  nothing to write */
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_BYTES(8); /* for CF */
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_PTP_FLOW_PTP_ACTION_2(flow_index), &value));
-            /* clear frame bytes */
-            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ZERO_FIELD_CTL_PTP_ZERO_FIELD_BYTE_CNT(0); /* nothing to clear in Mode A */
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_PTP_FLOW_PTP_ZERO_FIELD_CTL(flow_index), &value));
-            break;
-        case PTP_ACTION_CMD_SUB_ADD:
-            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_TIME_STRG_FIELD_OFFSET(rx_ts_pos); /* Ingress stored timestamp location */
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(cmd); /* sub_add */
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_CORR_FIELD_OFFSET(8);
-            if (asym == PTP_ACTION_ASYM_ADD) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_ADD_DELAY_ASYM_ENA;
-            } else if (asym == PTP_ACTION_ASYM_SUB) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_SUB_DELAY_ASYM_ENA;
-            }
-            if (data->phy_ts_port_conf.chk_ing_modified) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_MOD_FRAME_STAT_UPDATE;
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_MOD_FRAME_BYTE_OFFSET(6);
-            }
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_PTP_FLOW_PTP_ACTION(flow_index), &value));
-            /* action_2 setting */
-            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_OFFSET(8); /* nothing to write */
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_BYTES(8); /* for CF */
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_PTP_FLOW_PTP_ACTION_2(flow_index), &value));
-            /* clear frame bytes */
-            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ZERO_FIELD_CTL_PTP_ZERO_FIELD_OFFSET(rx_ts_pos); /* stored timestamp in reserved btes should be clear */
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ZERO_FIELD_CTL_PTP_ZERO_FIELD_BYTE_CNT(4); /* 4 bytes stored timestamp */
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_PTP_FLOW_PTP_ZERO_FIELD_CTL(flow_index), &value));
-            break;
-        case PTP_ACTION_CMD_WRITE_1588:
-            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_TIME_STRG_FIELD_OFFSET(8);
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(cmd); /* write_1588 */
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_CORR_FIELD_OFFSET(8);
-            if (asym == PTP_ACTION_ASYM_ADD) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_ADD_DELAY_ASYM_ENA;
-            } else if (asym == PTP_ACTION_ASYM_SUB) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_SUB_DELAY_ASYM_ENA;
-            }
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_PTP_FLOW_PTP_ACTION(flow_index), &value));
-            /* action_2 setting */
-            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_OFFSET(34); /* origintimestamp offset */
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_BYTES(10); /* full timestamp */
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_PTP_FLOW_PTP_ACTION_2(flow_index), &value));
-            break;
-        case PTP_ACTION_CMD_WRITE_NS:
-            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_TIME_STRG_FIELD_OFFSET(8);
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(cmd); /* write_ns */
-            if (asym == PTP_ACTION_ASYM_ADD) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_ADD_DELAY_ASYM_ENA;
-            } else if (asym == PTP_ACTION_ASYM_SUB) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_SUB_DELAY_ASYM_ENA;
-            }
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_CORR_FIELD_OFFSET(8);
-            if (data->phy_ts_port_conf.chk_ing_modified) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_MOD_FRAME_STAT_UPDATE;
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_MOD_FRAME_BYTE_OFFSET(6);
-            }
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_PTP_FLOW_PTP_ACTION(flow_index), &value));
-            /* action_2 setting */
-            if (data->phy_ts_port_conf.rx_ts_pos == LAN80XX_PHY_TS_RX_TIMESTAMP_POS_IN_PTP) {
-                value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_OFFSET(rx_ts_pos); /* reserved bytes offset */
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_BYTES(4); /* rsvd bytes length */
-            } else {
-                value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_OFFSET(0); /* no use */
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_BYTES(0xE); /* Append at end */
-            }
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_PTP_FLOW_PTP_ACTION_2(flow_index), &value));
-            break;
-        case PTP_ACTION_CMD_WRITE_NS_P2P:
-            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_TIME_STRG_FIELD_OFFSET(8);
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(cmd); /* write_ns_p2p */
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_CORR_FIELD_OFFSET(8);
-            if (asym == PTP_ACTION_ASYM_ADD) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_ADD_DELAY_ASYM_ENA;
-            } else if (asym == PTP_ACTION_ASYM_SUB) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_SUB_DELAY_ASYM_ENA;
-            }
-            if (data->phy_ts_port_conf.chk_ing_modified) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_MOD_FRAME_STAT_UPDATE;
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_MOD_FRAME_BYTE_OFFSET(6);
-            }
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_PTP_FLOW_PTP_ACTION(flow_index), &value));
-            /* action_2 setting */
-            if (data->phy_ts_port_conf.rx_ts_pos == LAN80XX_PHY_TS_RX_TIMESTAMP_POS_IN_PTP) {
-                value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_OFFSET(rx_ts_pos); /* reserved bytes offset */
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_BYTES(4); /* rsvd bytes length */
-            } else {
-                value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_OFFSET(0); /* no use */
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_BYTES(0xE); /* Append at end */
-            }
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_PTP_FLOW_PTP_ACTION_2(flow_index), &value));
-            break;
-        case PTP_ACTION_CMD_SAVE_IN_TS_FIFO:
-            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_TIME_STRG_FIELD_OFFSET(8);
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_SAVE_LOCAL_TIME; /* save in FIFO */
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_CORR_FIELD_OFFSET(8);
-            if (asym == PTP_ACTION_ASYM_ADD) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_ADD_DELAY_ASYM_ENA;
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(PTP_ACTION_CMD_WRITE_1588); /* To write CF, cmd NOP not work */
-            } else if (asym == PTP_ACTION_ASYM_SUB) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_SUB_DELAY_ASYM_ENA;
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(PTP_ACTION_CMD_WRITE_1588); /* To write CF, cmd NOP not work */
-            } else {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(PTP_ACTION_CMD_NOP); /* need to save in FIFO only, no write */
-            }
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_PTP_FLOW_PTP_ACTION(flow_index), &value));
-            /* action_2 setting */
-            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_OFFSET(0); /* no rewrite */
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_BYTES(0); /* no rewrite */
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_PTP_FLOW_PTP_ACTION_2(flow_index), &value));
-            break;
-        case PTP_ACTION_CMD_ADD_2:
-            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_TIME_STRG_FIELD_OFFSET(8);
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(cmd);
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_CORR_FIELD_OFFSET(8);
-            if (asym == PTP_ACTION_ASYM_ADD) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_ADD_DELAY_ASYM_ENA;
-            } else if (asym == PTP_ACTION_ASYM_SUB) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_SUB_DELAY_ASYM_ENA;
-            }
-            if (data->phy_ts_port_conf.chk_ing_modified) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_MOD_FRAME_STAT_UPDATE;
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_MOD_FRAME_BYTE_OFFSET(6);
-            }
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_PTP_FLOW_PTP_ACTION(flow_index), &value));
-
-            /* action_2 setting */
-            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_OFFSET(8); /*  nothing to write */
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_BYTES(8); /* for CF */
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_PTP_FLOW_PTP_ACTION_2(flow_index), &value));
-            /* clear frame bytes */
-            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ZERO_FIELD_CTL_PTP_ZERO_FIELD_BYTE_CNT(0); /* nothing to clear in Mode C */
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_PTP_FLOW_PTP_ZERO_FIELD_CTL(flow_index), &value));
-            break;
-        case PTP_ACTION_CMD_SUB_2:
-            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_TIME_STRG_FIELD_OFFSET(8);
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(cmd); /* SUB */
-            if (asym == PTP_ACTION_ASYM_ADD) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_ADD_DELAY_ASYM_ENA;
-            } else if (asym == PTP_ACTION_ASYM_SUB) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_SUB_DELAY_ASYM_ENA;
-            }
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_CORR_FIELD_OFFSET(8);
-            if (data->phy_ts_port_conf.chk_ing_modified) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_MOD_FRAME_STAT_UPDATE;
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_MOD_FRAME_BYTE_OFFSET(6);
-            }
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_PTP_FLOW_PTP_ACTION(flow_index), &value));
-            /* action_2 setting */
-            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_OFFSET(8); /*  nothing to write */
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_BYTES(8); /* CF bytes length */
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_PTP_FLOW_PTP_ACTION_2(flow_index), &value));
-            break;
-
-#ifdef LAN80XX_FEATURE_PTP_DELAY_COMP_ENGINE
-        case PTP_ACTION_CMD_DCE:
-            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_TIME_STRG_FIELD_OFFSET(8);
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_CORR_FIELD_OFFSET(8);
-            if (asym == PTP_ACTION_ASYM_ADD) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_ADD_DELAY_ASYM_ENA;
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(PTP_ACTION_CMD_WRITE_1588); /* To write CF, cmd NOP not work */
-            } else if (asym == PTP_ACTION_ASYM_SUB) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_SUB_DELAY_ASYM_ENA;
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(PTP_ACTION_CMD_WRITE_1588); /* To write CF, cmd NOP not work */
-            } else {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(PTP_ACTION_CMD_NOP);
-            }
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_PTP_FLOW_PTP_ACTION(flow_index), &value));
-
-            /* action_2 setting */
-            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_OFFSET(0x22); /* no rewrite */
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_BYTES(0); /* no rewrite */
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_PTP_FLOW_PTP_ACTION_2(flow_index), &value));
-            break;
-#endif /* LAN80XX_FEATURE_PTP_DELAY_COMP_ENGINE */
-        default:
-            break;
-        }
-    } else
-#endif
-    {
         /* by default no need to clear any field */
         value = 0;
         value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ZERO_FIELD_CTL_PTP_RSVD_CHK_EN;/* Enabling check for the non zero of 4-byte reserved field */
@@ -3168,7 +2939,6 @@ static mepa_rc lan80xx_phy_ts_engine_ptp_action_flow_conf_priv(
             value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_SAVE_LOCAL_TIME; /* save in FIFO */
             value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_CORR_FIELD_OFFSET(8);
 
-
             if (asym == PTP_ACTION_ASYM_ADD) {
                 value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_ADD_DELAY_ASYM_ENA;
                 value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(PTP_ACTION_CMD_WRITE_1588); /* To write CF, cmd NOP not work */
@@ -3178,75 +2948,13 @@ static mepa_rc lan80xx_phy_ts_engine_ptp_action_flow_conf_priv(
             } else {
                 value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(PTP_ACTION_CMD_NOP); /* need to save in FIFO only, no write */
             }
-
             MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_PTP_FLOW_PTP_ACTION(flow_index), &value));
-
-
-#if 0
-            value = 0x2400;
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, LAN80XX_PHY_TS_PROC_BLK_ID(0),
-                                             LAN80XX_PTP_PROC_EGR_TSFIFO_CSR, &value));
-
-
-            printf("Action saved to the PTP Action =%x, flowindex=%x\n", value, flow_index);
-#endif
-
-#if 1
             value = 0;
-
             /* action_2 setting */
             value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_OFFSET(0); /* no rewrite */
             value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_BYTES(0); /* no rewrite */
 
             MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_PTP_FLOW_PTP_ACTION_2(flow_index), &value));
-#endif
-
-
-
-#if 0
-            value = 0x002300;
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, LAN80XX_PHY_TS_PROC_BLK_ID(0),
-                                             LAN80XX_PTP_PROC_EGR_TSFIFO_CSR, &value))
-
-            value = 0x214115;
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_PTP_FLOW_PTP_ACTION(flow_index), &value));
-            printf("PTP write Fifo value %x\n", value);
-            value = 0x220a;
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_PTP_FLOW_PTP_ACTION_2(flow_index), &value));
-            printf("PTP write Fifo value %x\n", value);
-#endif
-#if 0
-            ioreg_blk *io_reg = (ioreg_blk *)malloc(sizeof(ioreg_blk));
-            io_reg->mmd = 0xa;
-            io_reg->is32 = 1;
-            io_reg->addr = 0xab32;
-            value = 0;
-            value = 0 | 1 << 5 | 2 << 10 | 3 << 15 | 4 << 20;
-            LAN80XX_CSR_WR(dev, port_no, io_reg, value);
-            value = 0;
-            value = 5 | 6 << 5 | 7 << 10 | 8 << 15 | 9 << 20;
-            io_reg->addr = 0xab33;
-            LAN80XX_CSR_WR(dev, port_no, io_reg, value);
-
-            value = 0;
-            value = 10 | 11 << 5 | 12 << 10 | 13 << 15 | 14 << 20;
-            io_reg->addr = 0xab34;
-            LAN80XX_CSR_WR(dev, port_no, io_reg, value);
-            value = 0;
-            value = 15 | 16 << 5 | 17 << 10 | 18 << 15 | 19 << 20;
-            io_reg->addr = 0xab35;
-            LAN80XX_CSR_WR(dev, port_no, io_reg, value);
-
-            value = 0;
-            value = 20 | 21 << 5 | 22 << 10 | 23 << 15 | 24 << 20;
-            io_reg->addr = 0xab36;
-            LAN80XX_CSR_WR(dev, port_no, io_reg, value);
-
-            value = 0;
-            value = 25 | 26 << 5 | 27 << 10 ;
-            io_reg->addr = 0xab36;
-            LAN80XX_CSR_WR(dev, port_no, io_reg, value);
-#endif
             break;
 #ifdef LAN80XX_FEATURE_PTP_DELAY_COMP_ENGINE
         case PTP_ACTION_CMD_DCE:
@@ -3272,6 +2980,10 @@ static mepa_rc lan80xx_phy_ts_engine_ptp_action_flow_conf_priv(
         default:
             break;
         }
+    } else {
+        /* M25G does not support OAM */
+        T_E(MEPA_TRACE_GRP_TS, "OAM is Not Supported!!");
+        return MEPA_RC_NOT_IMPLEMENTED;
     }
 
     return MEPA_RC_OK;
@@ -3295,6 +3007,7 @@ static mepa_rc lan80xx_ts_engine_ptp_action_flow_add_priv (mepa_device_t *dev,
         if ((rc = lan80xx_phy_ts_ana_blk_id_get(eng_id, ingress, &blk_id)) != MEPA_RC_OK) {
             return MEPA_RC_ERROR;
         }
+        /* M25g does have individual PTP blocks, so always keep channel mask as 3 */
         value |= LAN80XX_F_ANA_PTP_FLOW_PTP_FLOW_ENA_PTP_CHANNEL_MASK(3);
         MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_PTP_FLOW_PTP_FLOW_ENA(flow_index), &value));
 
@@ -3344,10 +3057,9 @@ static mepa_rc lan80xx_ts_engine_ptp_action_flow_add_priv (mepa_device_t *dev,
         MEPA_RC(LAN80XX_PHY_TS_READ_CSR(port_no, blk_id, LAN80XX_ANA_PTP_FLOW_PTP_FLOW_MATCH_UPPER(flow_index), &value));
         value = ~0x0F000000;
         value |= (msg_type << 24);
-        //value = 0xffffffff;
         MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_PTP_FLOW_PTP_FLOW_MATCH_UPPER(flow_index), &value));
         MEPA_RC(LAN80XX_PHY_TS_READ_CSR(port_no, blk_id, LAN80XX_ANA_PTP_FLOW_PTP_FLOW_MASK_UPPER(flow_index), &value));
-        value = 0x0F000000;
+        value |= 0x0F000000;
         MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_PTP_FLOW_PTP_FLOW_MASK_UPPER(flow_index), &value));
     } else {
         /* flow enable */
@@ -3591,6 +3303,18 @@ static mepa_rc lan80xx_ts_engine_ptp_action_flow_add_priv (mepa_device_t *dev,
             } else if (action_conf->clk_mode == MEPA_TS_PTP_CLOCK_MODE_TC1STEP &&
                        action_conf->delaym_type == MEPA_TS_PTP_DELAYM_P2P) {
                 if (data->phy_ts_port_conf.tc_op_mode == LAN80XX_PHY_TS_TC_OP_MODE_A) {
+                    /* add(TX_timestamp, correctionField) */
+                    MEPA_RC(lan80xx_phy_ts_engine_ptp_action_flow_conf_priv(dev, port_no,
+                                                                            blk_id, flow_index,
+                                                                            PTP_ACTION_CMD_ADD,
+                                                                            PTP_ACTION_ASYM_NONE));
+                } else if (data->phy_ts_port_conf.tc_op_mode == LAN80XX_PHY_TS_TC_OP_MODE_B) {
+                    /* Subtract_add(TX_timestamp, Reserved, correctionField) */
+                    MEPA_RC(lan80xx_phy_ts_engine_ptp_action_flow_conf_priv(dev, port_no,
+                                                                            blk_id, flow_index,
+                                                                            PTP_ACTION_CMD_SUB_ADD,
+                                                                            PTP_ACTION_ASYM_NONE));
+                } else if (data->phy_ts_port_conf.tc_op_mode == LAN80XX_PHY_TS_TC_OP_MODE_C) {
                     /* add(TX_timestamp, correctionField) */
                     MEPA_RC(lan80xx_phy_ts_engine_ptp_action_flow_conf_priv(dev, port_no,
                                                                             blk_id, flow_index,
@@ -3919,8 +3643,6 @@ static mepa_rc lan80xx_ts_engine_ptp_action_flow_add_priv (mepa_device_t *dev,
                                                                             PTP_ACTION_ASYM_SUB));
                 } else if (data->phy_ts_port_conf.tc_op_mode == LAN80XX_PHY_TS_TC_OP_MODE_C) {
                     /* add(TX_timestamp, correctionField); sub(Asymmetry, correctionField) */
-
-                    /* add(TX_timestamp, correctionField); sub(Asymmetry, correctionField) */
                     MEPA_RC(lan80xx_phy_ts_engine_ptp_action_flow_conf_priv(dev, port_no,
                                                                             blk_id, flow_index,
                                                                             PTP_ACTION_CMD_ADD_2,
@@ -4078,7 +3800,6 @@ static mepa_rc lan80xx_ts_engine_ptp_action_flow_add_priv (mepa_device_t *dev,
                        action_conf->delaym_type == MEPA_TS_PTP_DELAYM_P2P) {
                 /* save(TX_timestamp,  TXFiFo) */
                 MEPA_RC(lan80xx_phy_ts_engine_ptp_action_flow_conf_priv(dev, port_no,
-
                                                                         blk_id, flow_index,
                                                                         PTP_ACTION_CMD_SAVE_IN_TS_FIFO,
                                                                         PTP_ACTION_ASYM_NONE));
@@ -4242,127 +3963,136 @@ static mepa_rc lan80xx_phy_ts_engine_action_set_priv(
     const phy25g_ts_engine_action_t *const new_action_conf)
 {
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
-    // phy25g_ts_eng_conf_t *eng_conf = &data->phy_ts_port_conf.egress_eng_conf[eng_id];
-    phy25g_ts_ptp_engine_action_t *action = &eng_conf->action_conf.action.ptp_conf;
+    phy25g_ts_engine_action_t *old_action_conf;
     phy25g_ts_blk_id_t blk_id;
     u32 action_index = 0;
     mepa_rc rc = MEPA_RC_OK;
 
-    if (!action->enable) {
+    old_action_conf = &eng_conf->action_conf;
+    /*
+     * if the old config was action enable, delete the flow first
+     * corresponding to the old action and add new flow based on new config
+     */
+    if (old_action_conf->action.ptp_conf.enable) {
         rc = lan80xx_phy_ts_ana_blk_id_get(eng_id, ingress, &blk_id);
 
         if (rc != MEPA_RC_OK) {
-            T_E(MEPA_TRACE_GRP_GEN, "Invalid engine id (%d), ingress %d", eng_id, ingress);
+            T_E(MEPA_TRACE_GRP_TS, "Invalid engine id (%d), ingress %d", eng_id, ingress);
             return MEPA_RC_ERROR;
         }
 
         for (int i = 0; i < LAN80XX_PTP_MAX_FLOW; i++) {
-            MEPA_RC(LAN80XX_RC_COLD(lan80xx_phy_ts_engine_ptp_action_flow_delete_priv(dev, port_no, blk_id, eng_id, i)));
+            if (eng_conf->action_flow_map[i] == (action_index + 1)) {
+                MEPA_RC(LAN80XX_RC_COLD(lan80xx_phy_ts_engine_ptp_action_flow_delete_priv(dev, port_no, blk_id, eng_id, i)));
+                eng_conf->action_flow_map[i] = 0;
+            }
         }
+    }
+    if (!new_action_conf->action.ptp_conf.enable) {
         return MEPA_RC_OK;
     }
-    if (action->clk_mode == MEPA_TS_PTP_CLOCK_MODE_BC1STEP &&
-        action->delaym_type == MEPA_TS_PTP_DELAYM_E2E) {
+    if (new_action_conf->action.ptp_conf.clk_mode == MEPA_TS_PTP_CLOCK_MODE_BC1STEP &&
+        new_action_conf->action.ptp_conf.delaym_type == MEPA_TS_PTP_DELAYM_E2E) {
         //implementation of BC1STEP sync and dreq.
         MEPA_RC(LAN80XX_RC_COLD(lan80xx_ts_engine_ptp_action_flow_add_priv(dev, ingress,
-                                                                           port_no, eng_id, PTP_MSG_TYPE_SYNC, LAN80XX_PTP_FLOW_INDEX_0, &eng_conf->action_conf.action.ptp_conf)));
-        eng_conf->action_flow_map[LAN80XX_PTP_FLOW_INDEX_0] = 1;
-        MEPA_RC(LAN80XX_RC_COLD(lan80xx_ts_engine_ptp_action_flow_add_priv(dev, ingress,
-                                                                           port_no, eng_id, PTP_MSG_TYPE_DELAY_REQ, LAN80XX_PTP_FLOW_INDEX_1, &eng_conf->action_conf.action.ptp_conf)));
-        eng_conf->action_flow_map[LAN80XX_PTP_FLOW_INDEX_1] = 2;
-    } else if (action->clk_mode == MEPA_TS_PTP_CLOCK_MODE_BC1STEP &&
-               action->delaym_type == MEPA_TS_PTP_DELAYM_P2P) {
-        MEPA_RC(LAN80XX_RC_COLD(lan80xx_ts_engine_ptp_action_flow_add_priv(dev, ingress,
-                                                                           port_no, eng_id, PTP_MSG_TYPE_SYNC, LAN80XX_PTP_FLOW_INDEX_0, &eng_conf->action_conf.action.ptp_conf)));
+                                                                           port_no, eng_id, PTP_MSG_TYPE_SYNC, LAN80XX_PTP_FLOW_INDEX_0, &new_action_conf->action.ptp_conf)));
         eng_conf->action_flow_map[LAN80XX_PTP_FLOW_INDEX_0] = action_index + 1;
         MEPA_RC(LAN80XX_RC_COLD(lan80xx_ts_engine_ptp_action_flow_add_priv(dev, ingress,
-                                                                           port_no, eng_id, PTP_MSG_TYPE_PDELAY_REQ, LAN80XX_PTP_FLOW_INDEX_1, &eng_conf->action_conf.action.ptp_conf)));
+                                                                           port_no, eng_id, PTP_MSG_TYPE_DELAY_REQ, LAN80XX_PTP_FLOW_INDEX_1, &new_action_conf->action.ptp_conf)));
+        eng_conf->action_flow_map[LAN80XX_PTP_FLOW_INDEX_1] = action_index + 1;
+    } else if (new_action_conf->action.ptp_conf.clk_mode == MEPA_TS_PTP_CLOCK_MODE_BC1STEP &&
+               new_action_conf->action.ptp_conf.delaym_type == MEPA_TS_PTP_DELAYM_P2P) {
+        MEPA_RC(LAN80XX_RC_COLD(lan80xx_ts_engine_ptp_action_flow_add_priv(dev, ingress,
+                                                                           port_no, eng_id, PTP_MSG_TYPE_SYNC, LAN80XX_PTP_FLOW_INDEX_0, &new_action_conf->action.ptp_conf)));
+        eng_conf->action_flow_map[LAN80XX_PTP_FLOW_INDEX_0] = action_index + 1;
+        MEPA_RC(LAN80XX_RC_COLD(lan80xx_ts_engine_ptp_action_flow_add_priv(dev, ingress,
+                                                                           port_no, eng_id, PTP_MSG_TYPE_PDELAY_REQ, LAN80XX_PTP_FLOW_INDEX_1, &new_action_conf->action.ptp_conf)));
         eng_conf->action_flow_map[LAN80XX_PTP_FLOW_INDEX_1] = action_index + 1;
         MEPA_RC(LAN80XX_RC_COLD(lan80xx_ts_engine_ptp_action_flow_add_priv(dev, ingress,
-                                                                           port_no, eng_id, PTP_MSG_TYPE_PDELAY_RESP, LAN80XX_PTP_FLOW_INDEX_2, &eng_conf->action_conf.action.ptp_conf)));
+                                                                           port_no, eng_id, PTP_MSG_TYPE_PDELAY_RESP, LAN80XX_PTP_FLOW_INDEX_2, &new_action_conf->action.ptp_conf)));
         eng_conf->action_flow_map[LAN80XX_PTP_FLOW_INDEX_2] = action_index + 1;
-    } else if (action->clk_mode == MEPA_TS_PTP_CLOCK_MODE_BC2STEP &&
-               action->delaym_type == MEPA_TS_PTP_DELAYM_E2E) {
+    } else if (new_action_conf->action.ptp_conf.clk_mode == MEPA_TS_PTP_CLOCK_MODE_BC2STEP &&
+               new_action_conf->action.ptp_conf.delaym_type == MEPA_TS_PTP_DELAYM_E2E) {
         MEPA_RC(LAN80XX_RC_COLD(lan80xx_ts_engine_ptp_action_flow_add_priv(dev, ingress,
-                                                                           port_no, eng_id, PTP_MSG_TYPE_SYNC, LAN80XX_PTP_FLOW_INDEX_0, &eng_conf->action_conf.action.ptp_conf)));
+                                                                           port_no, eng_id, PTP_MSG_TYPE_SYNC, LAN80XX_PTP_FLOW_INDEX_0, &new_action_conf->action.ptp_conf)));
         eng_conf->action_flow_map[LAN80XX_PTP_FLOW_INDEX_0] = action_index + 1;
         MEPA_RC(LAN80XX_RC_COLD(lan80xx_ts_engine_ptp_action_flow_add_priv(dev, ingress,
-                                                                           port_no, eng_id, PTP_MSG_TYPE_DELAY_REQ, LAN80XX_PTP_FLOW_INDEX_1, &eng_conf->action_conf.action.ptp_conf)));
+                                                                           port_no, eng_id, PTP_MSG_TYPE_DELAY_REQ, LAN80XX_PTP_FLOW_INDEX_1, &new_action_conf->action.ptp_conf)));
         eng_conf->action_flow_map[LAN80XX_PTP_FLOW_INDEX_1] = action_index + 1;
-    }  else if (action->clk_mode == MEPA_TS_PTP_CLOCK_MODE_BC2STEP &&
-                action->delaym_type == MEPA_TS_PTP_DELAYM_P2P) {
+    }  else if (new_action_conf->action.ptp_conf.clk_mode == MEPA_TS_PTP_CLOCK_MODE_BC2STEP &&
+                new_action_conf->action.ptp_conf.delaym_type == MEPA_TS_PTP_DELAYM_P2P) {
         MEPA_RC(LAN80XX_RC_COLD(lan80xx_ts_engine_ptp_action_flow_add_priv(dev, ingress,
-                                                                           port_no, eng_id, PTP_MSG_TYPE_SYNC, LAN80XX_PTP_FLOW_INDEX_0, &eng_conf->action_conf.action.ptp_conf)));
+                                                                           port_no, eng_id, PTP_MSG_TYPE_SYNC, LAN80XX_PTP_FLOW_INDEX_0, &new_action_conf->action.ptp_conf)));
         eng_conf->action_flow_map[LAN80XX_PTP_FLOW_INDEX_0] = action_index + 1;
         MEPA_RC(LAN80XX_RC_COLD(lan80xx_ts_engine_ptp_action_flow_add_priv(dev, ingress,
-                                                                           port_no, eng_id, PTP_MSG_TYPE_PDELAY_REQ, LAN80XX_PTP_FLOW_INDEX_1, &eng_conf->action_conf.action.ptp_conf)));
+                                                                           port_no, eng_id, PTP_MSG_TYPE_PDELAY_REQ, LAN80XX_PTP_FLOW_INDEX_1, &new_action_conf->action.ptp_conf)));
         eng_conf->action_flow_map[LAN80XX_PTP_FLOW_INDEX_1] = action_index + 1;
         MEPA_RC(LAN80XX_RC_COLD(lan80xx_ts_engine_ptp_action_flow_add_priv(dev, ingress,
-                                                                           port_no, eng_id, PTP_MSG_TYPE_PDELAY_RESP, LAN80XX_PTP_FLOW_INDEX_2, &eng_conf->action_conf.action.ptp_conf)));
+                                                                           port_no, eng_id, PTP_MSG_TYPE_PDELAY_RESP, LAN80XX_PTP_FLOW_INDEX_2, &new_action_conf->action.ptp_conf)));
         eng_conf->action_flow_map[LAN80XX_PTP_FLOW_INDEX_2] = action_index + 1;
-    } else if (action->clk_mode == MEPA_TS_PTP_CLOCK_MODE_TC1STEP &&
-               action->delaym_type == MEPA_TS_PTP_DELAYM_E2E) {
+    } else if (new_action_conf->action.ptp_conf.clk_mode == MEPA_TS_PTP_CLOCK_MODE_TC1STEP &&
+               new_action_conf->action.ptp_conf.delaym_type == MEPA_TS_PTP_DELAYM_E2E) {
         MEPA_RC(LAN80XX_RC_COLD(lan80xx_ts_engine_ptp_action_flow_add_priv(dev, ingress,
-                                                                           port_no, eng_id, PTP_MSG_TYPE_SYNC, LAN80XX_PTP_FLOW_INDEX_0,  &eng_conf->action_conf.action.ptp_conf)));
+                                                                           port_no, eng_id, PTP_MSG_TYPE_SYNC, LAN80XX_PTP_FLOW_INDEX_0, &new_action_conf->action.ptp_conf)));
         eng_conf->action_flow_map[LAN80XX_PTP_FLOW_INDEX_0] = action_index + 1;
         MEPA_RC(LAN80XX_RC_COLD(lan80xx_ts_engine_ptp_action_flow_add_priv(dev, ingress,
-                                                                           port_no, eng_id, PTP_MSG_TYPE_DELAY_REQ, LAN80XX_PTP_FLOW_INDEX_1, &eng_conf->action_conf.action.ptp_conf)));
+                                                                           port_no, eng_id, PTP_MSG_TYPE_DELAY_REQ, LAN80XX_PTP_FLOW_INDEX_1, &new_action_conf->action.ptp_conf)));
         eng_conf->action_flow_map[LAN80XX_PTP_FLOW_INDEX_1] = action_index + 1;
         MEPA_RC(LAN80XX_RC_COLD(lan80xx_ts_engine_ptp_action_flow_add_priv(dev, ingress,
-                                                                           port_no, eng_id, PTP_MSG_TYPE_PDELAY_REQ, LAN80XX_PTP_FLOW_INDEX_2, &eng_conf->action_conf.action.ptp_conf)));
+                                                                           port_no, eng_id, PTP_MSG_TYPE_PDELAY_REQ, LAN80XX_PTP_FLOW_INDEX_2, &new_action_conf->action.ptp_conf)));
         eng_conf->action_flow_map[LAN80XX_PTP_FLOW_INDEX_2] = action_index + 1;
         MEPA_RC(LAN80XX_RC_COLD(lan80xx_ts_engine_ptp_action_flow_add_priv(dev, ingress,
-                                                                           port_no, eng_id, PTP_MSG_TYPE_PDELAY_RESP, LAN80XX_PTP_FLOW_INDEX_3, &eng_conf->action_conf.action.ptp_conf)));
+                                                                           port_no, eng_id, PTP_MSG_TYPE_PDELAY_RESP, LAN80XX_PTP_FLOW_INDEX_3, &new_action_conf->action.ptp_conf)));
         eng_conf->action_flow_map[LAN80XX_PTP_FLOW_INDEX_3] = action_index + 1;
-    } else if (action->clk_mode == MEPA_TS_PTP_CLOCK_MODE_TC1STEP &&
-               action->delaym_type == MEPA_TS_PTP_DELAYM_P2P) {
+    } else if (new_action_conf->action.ptp_conf.clk_mode == MEPA_TS_PTP_CLOCK_MODE_TC1STEP &&
+               new_action_conf->action.ptp_conf.delaym_type == MEPA_TS_PTP_DELAYM_P2P) {
         MEPA_RC(LAN80XX_RC_COLD(lan80xx_ts_engine_ptp_action_flow_add_priv(dev, ingress,
-                                                                           port_no, eng_id, PTP_MSG_TYPE_SYNC, LAN80XX_PTP_FLOW_INDEX_0, &eng_conf->action_conf.action.ptp_conf)));
+                                                                           port_no, eng_id, PTP_MSG_TYPE_SYNC, LAN80XX_PTP_FLOW_INDEX_0, &new_action_conf->action.ptp_conf)));
         eng_conf->action_flow_map[LAN80XX_PTP_FLOW_INDEX_0] = action_index + 1;
         MEPA_RC(LAN80XX_RC_COLD(lan80xx_ts_engine_ptp_action_flow_add_priv(dev, ingress,
-                                                                           port_no, eng_id, PTP_MSG_TYPE_PDELAY_REQ, LAN80XX_PTP_FLOW_INDEX_1, &eng_conf->action_conf.action.ptp_conf)));
+                                                                           port_no, eng_id, PTP_MSG_TYPE_PDELAY_REQ, LAN80XX_PTP_FLOW_INDEX_1, &new_action_conf->action.ptp_conf)));
         eng_conf->action_flow_map[LAN80XX_PTP_FLOW_INDEX_1] = action_index + 1;
         MEPA_RC(LAN80XX_RC_COLD(lan80xx_ts_engine_ptp_action_flow_add_priv(dev, ingress,
-                                                                           port_no, eng_id, PTP_MSG_TYPE_PDELAY_RESP, LAN80XX_PTP_FLOW_INDEX_2, &eng_conf->action_conf.action.ptp_conf)));
+                                                                           port_no, eng_id, PTP_MSG_TYPE_PDELAY_RESP, LAN80XX_PTP_FLOW_INDEX_2, &new_action_conf->action.ptp_conf)));
         eng_conf->action_flow_map[LAN80XX_PTP_FLOW_INDEX_2] = action_index + 1;
-    } else if (action->clk_mode == MEPA_TS_PTP_CLOCK_MODE_TC2STEP &&
-               action->delaym_type == MEPA_TS_PTP_DELAYM_E2E) {
+    } else if (new_action_conf->action.ptp_conf.clk_mode == MEPA_TS_PTP_CLOCK_MODE_TC2STEP &&
+               new_action_conf->action.ptp_conf.delaym_type == MEPA_TS_PTP_DELAYM_E2E) {
         MEPA_RC(LAN80XX_RC_COLD(lan80xx_ts_engine_ptp_action_flow_add_priv(dev, ingress,
-                                                                           port_no, eng_id, PTP_MSG_TYPE_SYNC, LAN80XX_PTP_FLOW_INDEX_0, &eng_conf->action_conf.action.ptp_conf)));
+                                                                           port_no, eng_id, PTP_MSG_TYPE_SYNC, LAN80XX_PTP_FLOW_INDEX_0, &new_action_conf->action.ptp_conf)));
         eng_conf->action_flow_map[LAN80XX_PTP_FLOW_INDEX_0] = action_index + 1;
         MEPA_RC(LAN80XX_RC_COLD(lan80xx_ts_engine_ptp_action_flow_add_priv(dev, ingress,
-                                                                           port_no, eng_id, PTP_MSG_TYPE_DELAY_REQ, LAN80XX_PTP_FLOW_INDEX_1, &eng_conf->action_conf.action.ptp_conf)));
+                                                                           port_no, eng_id, PTP_MSG_TYPE_DELAY_REQ, LAN80XX_PTP_FLOW_INDEX_1, &new_action_conf->action.ptp_conf)));
         eng_conf->action_flow_map[LAN80XX_PTP_FLOW_INDEX_1] = action_index + 1;
         MEPA_RC(LAN80XX_RC_COLD(lan80xx_ts_engine_ptp_action_flow_add_priv(dev, ingress,
-                                                                           port_no, eng_id, PTP_MSG_TYPE_PDELAY_REQ, LAN80XX_PTP_FLOW_INDEX_2, &eng_conf->action_conf.action.ptp_conf)));
+                                                                           port_no, eng_id, PTP_MSG_TYPE_PDELAY_REQ, LAN80XX_PTP_FLOW_INDEX_2, &new_action_conf->action.ptp_conf)));
         eng_conf->action_flow_map[LAN80XX_PTP_FLOW_INDEX_2] = action_index + 1;
         MEPA_RC(LAN80XX_RC_COLD(lan80xx_ts_engine_ptp_action_flow_add_priv(dev, ingress,
-                                                                           port_no, eng_id, PTP_MSG_TYPE_PDELAY_RESP, LAN80XX_PTP_FLOW_INDEX_3, &eng_conf->action_conf.action.ptp_conf)));
+                                                                           port_no, eng_id, PTP_MSG_TYPE_PDELAY_RESP, LAN80XX_PTP_FLOW_INDEX_3, &new_action_conf->action.ptp_conf)));
         eng_conf->action_flow_map[LAN80XX_PTP_FLOW_INDEX_3] = action_index + 1;
-    }  else if (action->clk_mode == MEPA_TS_PTP_CLOCK_MODE_TC2STEP &&
-                action->delaym_type == MEPA_TS_PTP_DELAYM_P2P) {
+    }  else if (new_action_conf->action.ptp_conf.clk_mode == MEPA_TS_PTP_CLOCK_MODE_TC2STEP &&
+                new_action_conf->action.ptp_conf.delaym_type == MEPA_TS_PTP_DELAYM_P2P) {
         MEPA_RC(LAN80XX_RC_COLD(lan80xx_ts_engine_ptp_action_flow_add_priv(dev, ingress,
-                                                                           port_no, eng_id, PTP_MSG_TYPE_SYNC, LAN80XX_PTP_FLOW_INDEX_0, &eng_conf->action_conf.action.ptp_conf)));
+                                                                           port_no, eng_id, PTP_MSG_TYPE_SYNC, LAN80XX_PTP_FLOW_INDEX_0, &new_action_conf->action.ptp_conf)));
         eng_conf->action_flow_map[LAN80XX_PTP_FLOW_INDEX_0] = action_index + 1;
         MEPA_RC(LAN80XX_RC_COLD(lan80xx_ts_engine_ptp_action_flow_add_priv(dev, ingress,
-                                                                           port_no, eng_id, PTP_MSG_TYPE_PDELAY_REQ, LAN80XX_PTP_FLOW_INDEX_1, &eng_conf->action_conf.action.ptp_conf)));
+                                                                           port_no, eng_id, PTP_MSG_TYPE_PDELAY_REQ, LAN80XX_PTP_FLOW_INDEX_1, &new_action_conf->action.ptp_conf)));
         eng_conf->action_flow_map[LAN80XX_PTP_FLOW_INDEX_1] = action_index + 1;
         MEPA_RC(LAN80XX_RC_COLD(lan80xx_ts_engine_ptp_action_flow_add_priv(dev, ingress,
-                                                                           port_no, eng_id, PTP_MSG_TYPE_PDELAY_RESP, LAN80XX_PTP_FLOW_INDEX_2, &eng_conf->action_conf.action.ptp_conf)));
+                                                                           port_no, eng_id, PTP_MSG_TYPE_PDELAY_RESP, LAN80XX_PTP_FLOW_INDEX_2, &new_action_conf->action.ptp_conf)));
         eng_conf->action_flow_map[LAN80XX_PTP_FLOW_INDEX_2] = action_index + 1;
 #ifdef LAN80XX_FEATURE_PTP_DELAY_COMP_ENGINE
     } else if (action->clk_mode == LAN80XX_PHY_TS_PTP_DELAY_COMP_ENGINE) {
         MEPA_RC(LAN80XX_RC_COLD(lan80xx_ts_engine_ptp_action_flow_add_priv(dev, ingress,
-                                                                           port_no, eng_id, PTP_MSG_TYPE_SYNC, LAN80XX_PTP_FLOW_INDEX_0, &eng_conf->action_conf.action.ptp_conf)));
+                                                                           port_no, eng_id, PTP_MSG_TYPE_SYNC, LAN80XX_PTP_FLOW_INDEX_0, &new_action_conf->action.ptp_conf)));
         eng_conf->action_flow_map[LAN80XX_PTP_FLOW_INDEX_0] = action_index + 1;
         MEPA_RC(LAN80XX_RC_COLD(lan80xx_ts_engine_ptp_action_flow_add_priv(dev, ingress,
-                                                                           port_no, eng_id, PTP_MSG_TYPE_DELAY_REQ, LAN80XX_PTP_FLOW_INDEX_1, &eng_conf->action_conf.action.ptp_conf)));
+                                                                           port_no, eng_id, PTP_MSG_TYPE_DELAY_REQ, LAN80XX_PTP_FLOW_INDEX_1, &new_action_conf->action.ptp_conf)));
         eng_conf->action_flow_map[LAN80XX_PTP_FLOW_INDEX_1] = action_index + 1;
         MEPA_RC(LAN80XX_RC_COLD(lan80xx_ts_engine_ptp_action_flow_add_priv(dev, ingress,
-                                                                           port_no, eng_id, PTP_MSG_TYPE_PDELAY_REQ, LAN80XX_PTP_FLOW_INDEX_2, &eng_conf->action_conf.action.ptp_conf)));
+                                                                           port_no, eng_id, PTP_MSG_TYPE_PDELAY_REQ, LAN80XX_PTP_FLOW_INDEX_2, &new_action_conf->action.ptp_conf)));
         eng_conf->action_flow_map[LAN80XX_PTP_FLOW_INDEX_2] = action_index + 1;
         MEPA_RC(LAN80XX_RC_COLD(lan80xx_ts_engine_ptp_action_flow_add_priv(dev, ingress,
-                                                                           port_no, eng_id, PTP_MSG_TYPE_PDELAY_RESP, LAN80XX_PTP_FLOW_INDEX_3, &eng_conf->action_conf.action.ptp_conf)));
+                                                                           port_no, eng_id, PTP_MSG_TYPE_PDELAY_RESP, LAN80XX_PTP_FLOW_INDEX_3, &new_action_conf->action.ptp_conf)));
         eng_conf->action_flow_map[LAN80XX_PTP_FLOW_INDEX_3] = action_index + 1;
 #endif /* LAN80XX_FEATURE_PTP_DELAY_COMP_ENGINE */
     }
@@ -4425,87 +4155,65 @@ mepa_rc lan80xx_ts_egress_engine_conf_set(mepa_device_t *dev,
 
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
     phy25g_ts_eng_conf_t *eng_conf;
-    phy25g_ts_eth_conf_t *eth_conf;
+
     MEPA_ENTER(dev);
     do {
         eng_conf = &data->phy_ts_port_conf.egress_eng_conf[eng_id];
-        eth_conf = &eng_conf->flow_conf.flow_conf.ptp.eth1_opt;
-        if (eth_conf->comm_opt.pbb_en) {
-            if (eth_conf->flow_opt[flow_index].flow_en == FALSE) {
-                break;
-            }
-            if (eth_conf->flow_opt[flow_index].num_tag == 0) {
-                T_E(MEPA_TRACE_GRP_GEN, "Port: %u engine: %u:: PBB requires at least I-tag", (u32)data->port_no, (u32)eng_id);
-                return MEPA_RC_ERROR;
-            }
 
-            if (eth_conf->flow_opt[flow_index].tag_range_mode != LAN80XX_PHY_TS_TAG_RANGE_NONE) {
-                T_E(MEPA_TRACE_GRP_GEN, "Port: %u engine: %u:: Tag range not supported when PBB enabled", (u32)data->port_no, (u32)eng_id);
-                return MEPA_RC_ERROR;
-            }
-            if (eth_conf->flow_opt[flow_index].inner_tag_type != LAN80XX_PHY_TS_TAG_TYPE_I ||
-                (eth_conf->flow_opt[flow_index].num_tag == 2 &&
-                 eth_conf->flow_opt[flow_index].outer_tag_type != LAN80XX_PHY_TS_TAG_TYPE_B)) {
-                T_E(MEPA_TRACE_GRP_GEN, "Port: %u engine: %u:: Wrong tag type for PBB", (u32)data->port_no, (u32)eng_id);
-                return MEPA_RC_ERROR;
-            }
-
-        }
         switch (eng_conf->encap_type) {
         case LAN80XX_PHY_TS_ENCAP_ETH_PTP:
             /*configure eth flow */
-            lan80xx_ts_eth1_flow_conf(dev, eng_id, flow_index, FALSE, LAN80XX_PHY_TS_NEXT_COMP_PTP_OAM, flow_conf, &eng_conf->flow_conf.flow_conf.ptp.eth1_opt);
+            lan80xx_ts_eth1_flow_conf(dev, eng_id, flow_index, FALSE, LAN80XX_PHY_TS_NEXT_COMP_PTP_OAM, &eng_conf->flow_conf, &flow_conf->flow_conf.ptp.eth1_opt);
             break;
 
         case LAN80XX_PHY_TS_ENCAP_ETH_IP_PTP:
             /*configure eth flow */
-            lan80xx_ts_eth1_flow_conf(dev, eng_id, flow_index, FALSE, LAN80XX_PHY_TS_NEXT_COMP_IP1, flow_conf, &eng_conf->flow_conf.flow_conf.ptp.eth1_opt);
+            lan80xx_ts_eth1_flow_conf(dev, eng_id, flow_index, FALSE, LAN80XX_PHY_TS_NEXT_COMP_IP1, &eng_conf->flow_conf, &flow_conf->flow_conf.ptp.eth1_opt);
             /*Configure IP flow */
-            lan80xx_ts_ip1_flow_conf(dev, eng_id, flow_index, FALSE, LAN80XX_PHY_TS_NEXT_COMP_PTP_OAM, FALSE, flow_conf, &eng_conf->flow_conf.flow_conf.ptp.ip1_opt);
+            lan80xx_ts_ip1_flow_conf(dev, eng_id, flow_index, FALSE, LAN80XX_PHY_TS_NEXT_COMP_PTP_OAM, FALSE, &eng_conf->flow_conf, &flow_conf->flow_conf.ptp.ip1_opt);
             break;
 
         case LAN80XX_PHY_TS_ENCAP_ETH_IP_IP_PTP:
             /*configure eth flow */
-            lan80xx_ts_eth1_flow_conf(dev, eng_id, flow_index, FALSE, LAN80XX_PHY_TS_NEXT_COMP_IP1, flow_conf, &eng_conf->flow_conf.flow_conf.ptp.eth1_opt);
+            lan80xx_ts_eth1_flow_conf(dev, eng_id, flow_index, FALSE, LAN80XX_PHY_TS_NEXT_COMP_IP1, &eng_conf->flow_conf, &flow_conf->flow_conf.ptp.eth1_opt);
             /*Configure IP flow */
-            lan80xx_ts_ip1_flow_conf(dev, eng_id, flow_index, FALSE, LAN80XX_PHY_TS_NEXT_COMP_IP2, TRUE, flow_conf, &eng_conf->flow_conf.flow_conf.ptp.ip1_opt);
-            lan80xx_ts_ip2_flow_conf(dev, eng_id, flow_index, FALSE, LAN80XX_PHY_TS_NEXT_COMP_PTP_OAM, flow_conf, &eng_conf->flow_conf.flow_conf.ptp.ip2_opt);
+            lan80xx_ts_ip1_flow_conf(dev, eng_id, flow_index, FALSE, LAN80XX_PHY_TS_NEXT_COMP_IP2, TRUE, &eng_conf->flow_conf, &flow_conf->flow_conf.ptp.ip1_opt);
+            lan80xx_ts_ip2_flow_conf(dev, eng_id, flow_index, FALSE, LAN80XX_PHY_TS_NEXT_COMP_PTP_OAM, &eng_conf->flow_conf, &flow_conf->flow_conf.ptp.ip2_opt);
             break;
 
         case LAN80XX_PHY_TS_ENCAP_ETH_ETH_PTP:
             /*configure eth flow */
-            lan80xx_ts_eth1_flow_conf(dev, eng_id, flow_index, FALSE, LAN80XX_PHY_TS_NEXT_COMP_ETH2, flow_conf, &eng_conf->flow_conf.flow_conf.ptp.eth1_opt);
-            lan80xx_ts_eth2_flow_conf(dev, eng_id, flow_index, FALSE, LAN80XX_PHY_TS_NEXT_COMP_PTP_OAM, flow_conf, &eng_conf->flow_conf.flow_conf.ptp.eth2_opt);
+            lan80xx_ts_eth1_flow_conf(dev, eng_id, flow_index, FALSE, LAN80XX_PHY_TS_NEXT_COMP_ETH2, &eng_conf->flow_conf, &flow_conf->flow_conf.ptp.eth1_opt);
+            lan80xx_ts_eth2_flow_conf(dev, eng_id, flow_index, FALSE, LAN80XX_PHY_TS_NEXT_COMP_PTP_OAM, &eng_conf->flow_conf, &flow_conf->flow_conf.ptp.eth2_opt);
             break;
 
         case LAN80XX_PHY_TS_ENCAP_ETH_ETH_IP_PTP:
             /*configure eth flow */
-            lan80xx_ts_eth1_flow_conf(dev, eng_id, flow_index, FALSE, LAN80XX_PHY_TS_NEXT_COMP_ETH2, flow_conf, &eng_conf->flow_conf.flow_conf.ptp.eth1_opt);
-            lan80xx_ts_eth2_flow_conf(dev, eng_id, flow_index, FALSE, LAN80XX_PHY_TS_NEXT_COMP_IP1, flow_conf, &eng_conf->flow_conf.flow_conf.ptp.eth2_opt);
-            lan80xx_ts_ip1_flow_conf(dev, eng_id, flow_index, FALSE, LAN80XX_PHY_TS_NEXT_COMP_PTP_OAM, FALSE, flow_conf, &eng_conf->flow_conf.flow_conf.ptp.ip1_opt);
+            lan80xx_ts_eth1_flow_conf(dev, eng_id, flow_index, FALSE, LAN80XX_PHY_TS_NEXT_COMP_ETH2, &eng_conf->flow_conf, &flow_conf->flow_conf.ptp.eth1_opt);
+            lan80xx_ts_eth2_flow_conf(dev, eng_id, flow_index, FALSE, LAN80XX_PHY_TS_NEXT_COMP_IP1, &eng_conf->flow_conf, &flow_conf->flow_conf.ptp.eth2_opt);
+            lan80xx_ts_ip1_flow_conf(dev, eng_id, flow_index, FALSE, LAN80XX_PHY_TS_NEXT_COMP_PTP_OAM, FALSE, &eng_conf->flow_conf, &flow_conf->flow_conf.ptp.ip1_opt);
             break;
 
         case LAN80XX_PHY_TS_ENCAP_ETH_MPLS_IP_PTP:
             /*configure eth flow */
-            lan80xx_ts_eth1_flow_conf(dev, eng_id, flow_index, FALSE, LAN80XX_PHY_TS_NEXT_COMP_MPLS, flow_conf, &eng_conf->flow_conf.flow_conf.ptp.eth1_opt);
-            lan80xx_ts_mpls_flow_conf(dev, eng_id, flow_index, FALSE, LAN80XX_PHY_TS_NEXT_COMP_IP1, flow_conf, eng_conf);
-            lan80xx_ts_ip1_flow_conf(dev, eng_id, flow_index, FALSE, LAN80XX_PHY_TS_NEXT_COMP_PTP_OAM, FALSE, flow_conf, &eng_conf->flow_conf.flow_conf.ptp.ip1_opt);
+            lan80xx_ts_eth1_flow_conf(dev, eng_id, flow_index, FALSE, LAN80XX_PHY_TS_NEXT_COMP_MPLS, &eng_conf->flow_conf, &flow_conf->flow_conf.ptp.eth1_opt);
+            lan80xx_ts_mpls_flow_conf(dev, eng_id, flow_index, FALSE, LAN80XX_PHY_TS_NEXT_COMP_IP1, &eng_conf->flow_conf, &flow_conf->flow_conf.ptp.mpls_opt);
+            lan80xx_ts_ip1_flow_conf(dev, eng_id, flow_index, FALSE, LAN80XX_PHY_TS_NEXT_COMP_PTP_OAM, FALSE, &eng_conf->flow_conf, &flow_conf->flow_conf.ptp.ip1_opt);
             break;
 
 
         case LAN80XX_PHY_TS_ENCAP_ETH_MPLS_ETH_PTP:
-            lan80xx_ts_eth1_flow_conf(dev, eng_id, flow_index, FALSE, LAN80XX_PHY_TS_NEXT_COMP_MPLS, flow_conf, &eng_conf->flow_conf.flow_conf.ptp.eth1_opt);
-            lan80xx_ts_mpls_flow_conf(dev, eng_id, flow_index, FALSE, LAN80XX_PHY_TS_NEXT_COMP_ETH2, flow_conf, eng_conf);
-            lan80xx_ts_eth2_flow_conf(dev, eng_id, flow_index, FALSE, LAN80XX_PHY_TS_NEXT_COMP_PTP_OAM, flow_conf, &eng_conf->flow_conf.flow_conf.ptp.eth2_opt);
+            lan80xx_ts_eth1_flow_conf(dev, eng_id, flow_index, FALSE, LAN80XX_PHY_TS_NEXT_COMP_MPLS, &eng_conf->flow_conf, &flow_conf->flow_conf.ptp.eth1_opt);
+            lan80xx_ts_mpls_flow_conf(dev, eng_id, flow_index, FALSE, LAN80XX_PHY_TS_NEXT_COMP_ETH2, &eng_conf->flow_conf, &flow_conf->flow_conf.ptp.mpls_opt);
+            lan80xx_ts_eth2_flow_conf(dev, eng_id, flow_index, FALSE, LAN80XX_PHY_TS_NEXT_COMP_PTP_OAM, &eng_conf->flow_conf, &flow_conf->flow_conf.ptp.eth2_opt);
             break;
 
         case LAN80XX_PHY_TS_ENCAP_ETH_MPLS_ETH_IP_PTP:
-            lan80xx_ts_eth1_flow_conf(dev, eng_id, flow_index, FALSE, LAN80XX_PHY_TS_NEXT_COMP_MPLS, flow_conf, &eng_conf->flow_conf.flow_conf.ptp.eth1_opt);
-            lan80xx_ts_mpls_flow_conf(dev, eng_id, flow_index, FALSE, LAN80XX_PHY_TS_NEXT_COMP_ETH2, flow_conf, eng_conf);
-            lan80xx_ts_eth2_flow_conf(dev, eng_id, flow_index, FALSE, LAN80XX_PHY_TS_NEXT_COMP_IP1, flow_conf, &eng_conf->flow_conf.flow_conf.ptp.eth2_opt);
-            lan80xx_ts_ip1_flow_conf(dev, eng_id, flow_index, FALSE, LAN80XX_PHY_TS_NEXT_COMP_PTP_OAM, FALSE, flow_conf, &eng_conf->flow_conf.flow_conf.ptp.ip1_opt);
+            lan80xx_ts_eth1_flow_conf(dev, eng_id, flow_index, FALSE, LAN80XX_PHY_TS_NEXT_COMP_MPLS, &eng_conf->flow_conf, &flow_conf->flow_conf.ptp.eth1_opt);
+            lan80xx_ts_mpls_flow_conf(dev, eng_id, flow_index, FALSE, LAN80XX_PHY_TS_NEXT_COMP_ETH2, &eng_conf->flow_conf, &flow_conf->flow_conf.ptp.mpls_opt);
+            lan80xx_ts_eth2_flow_conf(dev, eng_id, flow_index, FALSE, LAN80XX_PHY_TS_NEXT_COMP_IP1, &eng_conf->flow_conf, &flow_conf->flow_conf.ptp.eth2_opt);
+            lan80xx_ts_ip1_flow_conf(dev, eng_id, flow_index, FALSE, LAN80XX_PHY_TS_NEXT_COMP_PTP_OAM, FALSE, &eng_conf->flow_conf, &flow_conf->flow_conf.ptp.ip1_opt);
             break;
-
 
         default:
             break;
@@ -4524,12 +4232,7 @@ mepa_rc lan80xx_ts_egress_engine_action_set(mepa_device_t *dev, mepa_port_no_t p
     mepa_rc rc;
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
     phy25g_ts_eng_conf_t *eng_conf;
-#if 0
-    LAN80XX_PHY_TS_ASSERT(action_conf == NULL);
-    if (!LAN80XX_PHY_TS_ENGINE_ID_VALID(eng_id)) {
-        return LAN80XX_RC_ERROR;
-    }
-#endif
+
     MEPA_ENTER(dev);
     do {
         eng_conf = &data->phy_ts_port_conf.egress_eng_conf[eng_id];
@@ -4537,16 +4240,12 @@ mepa_rc lan80xx_ts_egress_engine_action_set(mepa_device_t *dev, mepa_port_no_t p
             rc = MEPA_RC_ERROR;
             break;
         }
-        //LAN80XX_PHY_TS_SPI_PAUSE_COLD(port_no);
         rc = lan80xx_phy_ts_engine_action_set_priv(dev, FALSE, port_no,
                                                    eng_id, eng_conf, action_conf);
-        //LAN80XX_PHY_TS_SPI_UNPAUSE_COLD(port_no);
         /* save the action config */
-#if 0
         if (rc == MEPA_RC_OK) {
-            //memcpy(&eng_conf->action_conf, action_conf, sizeof(phy25g_ts_engine_action_t));
+            memcpy(&eng_conf->action_conf, action_conf, sizeof(phy25g_ts_engine_action_t));
         }
-#endif
     } while (0);
     MEPA_EXIT(dev);
 
@@ -4561,84 +4260,62 @@ mepa_rc lan80xx_ts_ingress_engine_conf_set(mepa_device_t *dev,
 
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
     phy25g_ts_eng_conf_t *eng_conf;
-    phy25g_ts_eth_conf_t *eth_conf;
+
     MEPA_ENTER(dev);
     do {
         eng_conf = &data->phy_ts_port_conf.ingress_eng_conf[eng_id];
-        eth_conf = &eng_conf->flow_conf.flow_conf.ptp.eth1_opt;
-        if (eth_conf->comm_opt.pbb_en) {
-            if (eth_conf->flow_opt[flow_index].flow_en == FALSE) {
-                break;
-            }
-            if (eth_conf->flow_opt[flow_index].num_tag == 0) {
-                T_E(MEPA_TRACE_GRP_GEN, "Port: %u engine: %u:: PBB requires at least I-tag", (u32)data->port_no, (u32)eng_id);
-                return MEPA_RC_ERROR;
-            }
-            if (eth_conf->flow_opt[flow_index].tag_range_mode != LAN80XX_PHY_TS_TAG_RANGE_NONE) {
-                T_E(MEPA_TRACE_GRP_GEN, "Port: %u engine: %u:: Tag range not supported when PBB enabled", (u32)data->port_no, (u32)eng_id);
-                return MEPA_RC_ERROR;
-            }
-            /* For single tag, inner_tag is always I-tag, for double tag, inner is
-              I-tag, outer is B-tag always */
-            if (eth_conf->flow_opt[flow_index].inner_tag_type != LAN80XX_PHY_TS_TAG_TYPE_I ||
-                (eth_conf->flow_opt[flow_index].num_tag == 2 &&
-                 eth_conf->flow_opt[flow_index].outer_tag_type != LAN80XX_PHY_TS_TAG_TYPE_B)) {
-                T_E(MEPA_TRACE_GRP_GEN, "Port: %u engine: %u:: Wrong tag type for PBB", (u32)data->port_no, (u32)eng_id);
-                return MEPA_RC_ERROR;
-            }
 
-        }
         switch (eng_conf->encap_type) {
         case LAN80XX_PHY_TS_ENCAP_ETH_PTP:
             /*configure eth flow */
-            lan80xx_ts_eth1_flow_conf(dev, eng_id, flow_index, TRUE, LAN80XX_PHY_TS_NEXT_COMP_PTP_OAM, flow_conf, &eng_conf->flow_conf.flow_conf.ptp.eth1_opt);
+            lan80xx_ts_eth1_flow_conf(dev, eng_id, flow_index, TRUE, LAN80XX_PHY_TS_NEXT_COMP_PTP_OAM, &eng_conf->flow_conf, &flow_conf->flow_conf.ptp.eth1_opt);
             break;
         case LAN80XX_PHY_TS_ENCAP_ETH_IP_PTP:
             /*configure eth flow */
-            lan80xx_ts_eth1_flow_conf(dev, eng_id, flow_index, TRUE, LAN80XX_PHY_TS_NEXT_COMP_IP1, flow_conf, &eng_conf->flow_conf.flow_conf.ptp.eth1_opt);
-            lan80xx_ts_ip1_flow_conf(dev, eng_id, flow_index,  TRUE, LAN80XX_PHY_TS_NEXT_COMP_PTP_OAM, FALSE, flow_conf, &eng_conf->flow_conf.flow_conf.ptp.ip1_opt);
+            lan80xx_ts_eth1_flow_conf(dev, eng_id, flow_index, TRUE, LAN80XX_PHY_TS_NEXT_COMP_IP1, &eng_conf->flow_conf, &flow_conf->flow_conf.ptp.eth1_opt);
+            lan80xx_ts_ip1_flow_conf(dev, eng_id, flow_index,  TRUE, LAN80XX_PHY_TS_NEXT_COMP_PTP_OAM, FALSE, &eng_conf->flow_conf, &flow_conf->flow_conf.ptp.ip1_opt);
             break;
 
         case LAN80XX_PHY_TS_ENCAP_ETH_IP_IP_PTP:
             /*configure eth flow */
-            lan80xx_ts_eth1_flow_conf(dev, eng_id, flow_index, TRUE, LAN80XX_PHY_TS_NEXT_COMP_IP1, flow_conf, &eng_conf->flow_conf.flow_conf.ptp.eth1_opt);
+            lan80xx_ts_eth1_flow_conf(dev, eng_id, flow_index, TRUE, LAN80XX_PHY_TS_NEXT_COMP_IP1, &eng_conf->flow_conf, &flow_conf->flow_conf.ptp.eth1_opt);
             /*Configure IP flow */
-            lan80xx_ts_ip1_flow_conf(dev, eng_id, flow_index, TRUE, LAN80XX_PHY_TS_NEXT_COMP_IP2, TRUE, flow_conf, &eng_conf->flow_conf.flow_conf.ptp.ip1_opt);
-            lan80xx_ts_ip2_flow_conf(dev, eng_id, flow_index, TRUE, LAN80XX_PHY_TS_NEXT_COMP_PTP_OAM, flow_conf, &eng_conf->flow_conf.flow_conf.ptp.ip2_opt);
+            lan80xx_ts_ip1_flow_conf(dev, eng_id, flow_index, TRUE, LAN80XX_PHY_TS_NEXT_COMP_IP2, TRUE, &eng_conf->flow_conf, &flow_conf->flow_conf.ptp.ip1_opt);
+            lan80xx_ts_ip2_flow_conf(dev, eng_id, flow_index, TRUE, LAN80XX_PHY_TS_NEXT_COMP_PTP_OAM, &eng_conf->flow_conf, &flow_conf->flow_conf.ptp.ip2_opt);
             break;
 
         case LAN80XX_PHY_TS_ENCAP_ETH_ETH_PTP:
             /*configure eth flow */
-            lan80xx_ts_eth1_flow_conf(dev, eng_id, flow_index, TRUE, LAN80XX_PHY_TS_NEXT_COMP_ETH2, flow_conf, &eng_conf->flow_conf.flow_conf.ptp.eth1_opt);
-            lan80xx_ts_eth2_flow_conf(dev, eng_id, flow_index, TRUE, LAN80XX_PHY_TS_NEXT_COMP_PTP_OAM, flow_conf, &eng_conf->flow_conf.flow_conf.ptp.eth2_opt);
+            lan80xx_ts_eth1_flow_conf(dev, eng_id, flow_index, TRUE, LAN80XX_PHY_TS_NEXT_COMP_ETH2, &eng_conf->flow_conf, &flow_conf->flow_conf.ptp.eth1_opt);
+            lan80xx_ts_eth2_flow_conf(dev, eng_id, flow_index, TRUE, LAN80XX_PHY_TS_NEXT_COMP_PTP_OAM, &eng_conf->flow_conf, &flow_conf->flow_conf.ptp.eth2_opt);
             break;
 
         case LAN80XX_PHY_TS_ENCAP_ETH_ETH_IP_PTP:
             /*configure eth flow */
-            lan80xx_ts_eth1_flow_conf(dev, eng_id, flow_index, TRUE, LAN80XX_PHY_TS_NEXT_COMP_ETH2, flow_conf, &eng_conf->flow_conf.flow_conf.ptp.eth1_opt);
-            lan80xx_ts_eth2_flow_conf(dev, eng_id, flow_index, TRUE, LAN80XX_PHY_TS_NEXT_COMP_IP1, flow_conf, &eng_conf->flow_conf.flow_conf.ptp.eth2_opt);
-            lan80xx_ts_ip1_flow_conf(dev, eng_id, flow_index,  TRUE, LAN80XX_PHY_TS_NEXT_COMP_PTP_OAM, FALSE, flow_conf, &eng_conf->flow_conf.flow_conf.ptp.ip1_opt);
+            lan80xx_ts_eth1_flow_conf(dev, eng_id, flow_index, TRUE, LAN80XX_PHY_TS_NEXT_COMP_ETH2, &eng_conf->flow_conf, &flow_conf->flow_conf.ptp.eth1_opt);
+            lan80xx_ts_eth2_flow_conf(dev, eng_id, flow_index, TRUE, LAN80XX_PHY_TS_NEXT_COMP_IP1, &eng_conf->flow_conf, &flow_conf->flow_conf.ptp.eth2_opt);
+            lan80xx_ts_ip1_flow_conf(dev, eng_id, flow_index,  TRUE, LAN80XX_PHY_TS_NEXT_COMP_PTP_OAM, FALSE, &eng_conf->flow_conf, &flow_conf->flow_conf.ptp.ip1_opt);
             break;
 
         case LAN80XX_PHY_TS_ENCAP_ETH_MPLS_IP_PTP:
             /*configure eth flow */
-            lan80xx_ts_eth1_flow_conf(dev, eng_id, flow_index, TRUE, LAN80XX_PHY_TS_NEXT_COMP_MPLS, flow_conf, &eng_conf->flow_conf.flow_conf.ptp.eth1_opt);
-            lan80xx_ts_mpls_flow_conf(dev, eng_id, flow_index, TRUE, LAN80XX_PHY_TS_NEXT_COMP_IP1, flow_conf, eng_conf);
-            lan80xx_ts_ip1_flow_conf(dev, eng_id, flow_index,  TRUE, LAN80XX_PHY_TS_NEXT_COMP_PTP_OAM, FALSE, flow_conf, &eng_conf->flow_conf.flow_conf.ptp.ip1_opt);
+            lan80xx_ts_eth1_flow_conf(dev, eng_id, flow_index, TRUE, LAN80XX_PHY_TS_NEXT_COMP_MPLS, &eng_conf->flow_conf, &flow_conf->flow_conf.ptp.eth1_opt);
+            lan80xx_ts_mpls_flow_conf(dev, eng_id, flow_index, TRUE, LAN80XX_PHY_TS_NEXT_COMP_IP1, &eng_conf->flow_conf, &flow_conf->flow_conf.ptp.mpls_opt);
+            lan80xx_ts_ip1_flow_conf(dev, eng_id, flow_index,  TRUE, LAN80XX_PHY_TS_NEXT_COMP_PTP_OAM, FALSE, &eng_conf->flow_conf, &flow_conf->flow_conf.ptp.ip1_opt);
             break;
 
 
         case LAN80XX_PHY_TS_ENCAP_ETH_MPLS_ETH_PTP:
-            lan80xx_ts_eth1_flow_conf(dev, eng_id, flow_index, TRUE, LAN80XX_PHY_TS_NEXT_COMP_MPLS, flow_conf, &eng_conf->flow_conf.flow_conf.ptp.eth1_opt);
-            lan80xx_ts_mpls_flow_conf(dev, eng_id, flow_index, TRUE, LAN80XX_PHY_TS_NEXT_COMP_ETH2, flow_conf, eng_conf);
-            lan80xx_ts_eth2_flow_conf(dev, eng_id, flow_index, TRUE, LAN80XX_PHY_TS_NEXT_COMP_PTP_OAM, flow_conf, &eng_conf->flow_conf.flow_conf.ptp.eth2_opt);
+            lan80xx_ts_eth1_flow_conf(dev, eng_id, flow_index, TRUE, LAN80XX_PHY_TS_NEXT_COMP_MPLS, &eng_conf->flow_conf, &flow_conf->flow_conf.ptp.eth1_opt);
+            lan80xx_ts_mpls_flow_conf(dev, eng_id, flow_index, TRUE, LAN80XX_PHY_TS_NEXT_COMP_ETH2, &eng_conf->flow_conf, &flow_conf->flow_conf.ptp.mpls_opt);
+            lan80xx_ts_eth2_flow_conf(dev, eng_id, flow_index, TRUE, LAN80XX_PHY_TS_NEXT_COMP_PTP_OAM, &eng_conf->flow_conf, &flow_conf->flow_conf.ptp.eth2_opt);
             break;
 
         case LAN80XX_PHY_TS_ENCAP_ETH_MPLS_ETH_IP_PTP:
-            lan80xx_ts_eth1_flow_conf(dev, eng_id, flow_index, TRUE, LAN80XX_PHY_TS_NEXT_COMP_MPLS, flow_conf, &eng_conf->flow_conf.flow_conf.ptp.eth1_opt);
-            lan80xx_ts_mpls_flow_conf(dev, eng_id, flow_index, TRUE, LAN80XX_PHY_TS_NEXT_COMP_ETH2, flow_conf, eng_conf);
-            lan80xx_ts_eth2_flow_conf(dev, eng_id, flow_index, TRUE, LAN80XX_PHY_TS_NEXT_COMP_IP1, flow_conf, &eng_conf->flow_conf.flow_conf.ptp.eth2_opt);
-            lan80xx_ts_ip1_flow_conf(dev, eng_id, flow_index,  TRUE, LAN80XX_PHY_TS_NEXT_COMP_PTP_OAM, FALSE, flow_conf, &eng_conf->flow_conf.flow_conf.ptp.ip1_opt);
+            lan80xx_ts_eth1_flow_conf(dev, eng_id, flow_index, TRUE, LAN80XX_PHY_TS_NEXT_COMP_MPLS, &eng_conf->flow_conf, &flow_conf->flow_conf.ptp.eth1_opt);
+            lan80xx_ts_mpls_flow_conf(dev, eng_id, flow_index, TRUE, LAN80XX_PHY_TS_NEXT_COMP_ETH2, &eng_conf->flow_conf, &flow_conf->flow_conf.ptp.mpls_opt);
+            lan80xx_ts_eth2_flow_conf(dev, eng_id, flow_index, TRUE, LAN80XX_PHY_TS_NEXT_COMP_IP1, &eng_conf->flow_conf, &flow_conf->flow_conf.ptp.eth2_opt);
+            lan80xx_ts_ip1_flow_conf(dev, eng_id, flow_index,  TRUE, LAN80XX_PHY_TS_NEXT_COMP_PTP_OAM, FALSE, &eng_conf->flow_conf, &flow_conf->flow_conf.ptp.ip1_opt);
             break;
 
 
@@ -4668,13 +4345,11 @@ mepa_rc lan80xx_ts_ingress_engine_action_set(mepa_device_t *dev, mepa_port_no_t 
             rc = MEPA_RC_ERROR;
             break;
         }
-        //LAN80XX_PHY_TS_SPI_PAUSE_COLD(port_no);
         rc = lan80xx_phy_ts_engine_action_set_priv(dev, TRUE, port_no,
                                                    eng_id, eng_conf, action_conf);
-        //LAN80XX_PHY_TS_SPI_UNPAUSE_COLD(port_no);
         /* save the action config */
         if (rc == MEPA_RC_OK) {
-            //memcpy(&eng_conf->action_conf, action_conf, sizeof(phy25g_ts_engine_action_t));
+            memcpy(&eng_conf->action_conf, action_conf, sizeof(phy25g_ts_engine_action_t));
         }
     } while (0);
     MEPA_EXIT(dev);
@@ -4978,8 +4653,7 @@ static mepa_rc lan80xx_rx_classifier_conf_get_priv( mepa_device_t *dev, u16 in_f
         lan80xx_get_class_from_flow(&flow_conf, flow_id, out_conf);
         out_conf->clock_id = eng_id; // 1 clock per engine
     }
-    //lan8042_dump_flow_conf(&flow_conf);
-    //lan8042_dump_chip_matching_flow(dev, TRUE);
+
     return MEPA_RC_OK;
 }
 
@@ -5016,8 +4690,7 @@ static mepa_rc lan80xx_tx_classifier_conf_get_priv( mepa_device_t *dev, u16 in_f
         lan80xx_get_class_from_flow(&flow_conf, flow_id, out_conf);
         out_conf->clock_id = eng_id; // 1 clock per engine
     }
-    //lan8042_dump_flow_conf(&flow_conf);
-    //lan8042_dump_chip_matching_flow(dev, TRUE);
+
     return MEPA_RC_OK;
 }
 
@@ -5048,16 +4721,14 @@ mepa_rc lan80xx_ts_csr_ptptime_set_priv( mepa_device_t *dev,
         return rc;
     }
 
-
     /* Write the timestamp in the phy*/
     value = (ts->seconds.high & 0xffff);
-    //value = LAN80XX_F_PTP_LTC_PTP_TOD_SEC_MSB_PTP_TOD_SEC_MSB(value);
     LAN80XX_CSR_WR(dev, base_port, LAN80XX_PTP_LTC_PTP_TOD_SEC_MSB(base_data->lsc_select), value);
 
     value = (ts->seconds.low & 0xffffffff);
     LAN80XX_CSR_WR(dev, base_port, LAN80XX_PTP_LTC_PTP_TOD_SEC_LSB(base_data->lsc_select), value);
 
-    value = (ts->nanoseconds & 0xffffffff);
+    value = (ts->nanoseconds & 0x3fffffff);
     LAN80XX_CSR_WR(dev, base_port, LAN80XX_PTP_LTC_PTP_TOD_NSEC(base_data->lsc_select), value);
 
     value = (ts->subnanoseconds & 0xff);
@@ -6735,43 +6406,40 @@ mepa_rc lan80xx_phy_ts_epps_conf_set(mepa_device_t *dev, const mepa_port_no_t   
 
 
 
-mepa_rc lan80xx_phy_ts_mode_set(mepa_device_t *dev,
-                                const mepa_port_no_t  port_no,
-                                const mepa_bool_t   enable)
+mepa_rc lan80xx_ts_mode_set_priv(mepa_device_t *dev,
+                                 const mepa_bool_t   enable)
 {
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
     mepa_rc      rc = MEPA_RC_OK;
-    MEPA_ENTER(dev);
+
     do {
         if (data->phy_ts_port_conf.port_ts_init_done == FALSE) {
+            T_E(MEPA_TRACE_GRP_TS, "Init not done, port %u", data->port_no);
             rc = MEPA_RC_ERROR;
             break;
         }
         data->phy_ts_port_conf.port_ena = enable;
-        rc = LAN80XX_RC_COLD(lan80xx_ts_csr_set_priv(dev, port_no, LAN80XX_PHY_TS_PORT_ENA_SET));
+        rc = LAN80XX_RC_COLD(lan80xx_ts_csr_set_priv(dev, data->port_no, LAN80XX_PHY_TS_PORT_ENA_SET));
     } while (0);
 
-    MEPA_EXIT(dev);
     return rc;
 }
-mepa_rc lan80xx_phy_ts_mode_get( mepa_device_t *dev,
-                                 const mepa_port_no_t  port_no,
-                                 mepa_bool_t      *const enable)
+mepa_rc lan80xx_ts_mode_get_priv( mepa_device_t *dev,
+                                  mepa_bool_t      *const enable)
 {
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
     mepa_rc      rc = MEPA_RC_OK;
 
     MEPA_ASSERT(enable == NULL);
-    MEPA_ENTER(dev);
     do {
         if (data->phy_ts_port_conf.port_ts_init_done == FALSE) {
+            T_E(MEPA_TRACE_GRP_TS, "Init not done, port %u", data->port_no);
             rc = MEPA_RC_ERROR;
             break;
         }
         *enable = data->phy_ts_port_conf.port_ena;
     } while (0);
 
-    MEPA_EXIT(dev);
     return rc;
 }
 

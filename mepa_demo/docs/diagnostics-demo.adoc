@@ -226,10 +226,10 @@ mepa-cmd pkt_bist <port_no> <eth|ptp> <egr|ingr> <conti|single> <ethtype> <src_m
 Below Command is Used to get the Statistics of Packet Checker
 
 ----
-mepa-cmd pkt_mon <port_no> reset [enable|disable]
+mepa-cmd pkt_mon <port_no> reset [reset_enable|reset_disable]
 ----
 
-* *reset [enable|disable]* -- Reset the Statistics Once read (Enable or Disable)
+* *reset [reset_enable|reset_disable]* -- Reset the Statistics Once read (Enable or Disable)
 
 
 Following Example will Generate a Single IPv4 Ethernet packet and Forward it to port 16 LINE side

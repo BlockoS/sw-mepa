@@ -72,6 +72,7 @@ typedef struct {
     mepa_bool_t           pkt_ingr;
     mepa_bool_t           pkt_frame_single;
     mepa_bool_t           user_pattern_parsed;
+    mepa_bool_t           mon_reset_enable;
 } phy25g_appl_diag_t;
 
 
@@ -83,6 +84,7 @@ static void cli_cmd_pkt_mon(cli_req_t *req)
     phy25g_pkt_mon_rst_t        pkt_mon_reset;
     phy25g_pkt_mon_counters_t   mon_counters;
     phy25g_timestamp_val_t      ts_read;
+    phy25g_appl_diag_t *mreq = req->module_req;
 
     if (!req->set) {
         cli_printf("\n Syntax : mepa-cmd pkt_mon <port_no> reset [enable|disable]\n");
@@ -108,7 +110,7 @@ static void cli_cmd_pkt_mon(cli_req_t *req)
     cli_printf("\n BER           : %ld", mon_counters.ber);
     cli_printf("\n");
 
-    if (!req->enable) {
+    if (!mreq->mon_reset_enable) {
         return;
     }
 
@@ -596,23 +598,23 @@ static int cli_param_value(cli_req_t *req)
 
 static int cli_param_keyword(cli_req_t *req)
 {
-    if (!strncasecmp(req->cmd, "ctle_r", strlen(req->cmd))) {
+    if (!strncasecmp(req->cmd, "ctle_r", strlen("ctle_r"))) {
         keyword_parsed.ctle_r_parsed = 1;
-    } else if (!strncasecmp(req->cmd, "ctle_c", strlen(req->cmd))) {
+    } else if (!strncasecmp(req->cmd, "ctle_c", strlen("ctle_c"))) {
         keyword_parsed.ctle_c_parsed = 1;
-    } else if (!strncasecmp(req->cmd, "vga", strlen(req->cmd))) {
+    } else if (!strncasecmp(req->cmd, "vga", strlen("vga"))) {
         keyword_parsed.vga_parsed = 1;
-    } else if (!strncasecmp(req->cmd, "amp", strlen(req->cmd))) {
+    } else if (!strncasecmp(req->cmd, "amp", strlen("amp"))) {
         keyword_parsed.amp_parsed = 1;
-    } else if (!strncasecmp(req->cmd, "tap_dly", strlen(req->cmd))) {
+    } else if (!strncasecmp(req->cmd, "tap_dly", strlen("tap_dly"))) {
         keyword_parsed.tap_dly_parsed = 1;
-    } else if (!strncasecmp(req->cmd, "tap_adv", strlen(req->cmd))) {
+    } else if (!strncasecmp(req->cmd, "tap_adv", strlen("tap_adv"))) {
         keyword_parsed.tap_adv_parsed = 1;
-    } else if (!strncasecmp(req->cmd, "gen", strlen(req->cmd))) {
+    } else if (!strncasecmp(req->cmd, "gen", strlen("gen"))) {
         keyword_parsed.prbs_gen_parsed = 1;
-    } else if (!strncasecmp(req->cmd, "mon", strlen(req->cmd))) {
+    } else if (!strncasecmp(req->cmd, "mon", strlen("mon"))) {
         keyword_parsed.prbs_mon_parsed = 1;
-    } else if (!strncasecmp(req->cmd, "reset", strlen(req->cmd))) {
+    } else if (!strncasecmp(req->cmd, "reset", strlen("reset"))) {
         return 0;
     } else {
         return 1;
@@ -625,57 +627,61 @@ static int cli_param_parse(cli_req_t *req)
 {
     phy25g_appl_diag_t *mreq = req->module_req;
 
-    if (!strncasecmp(req->cmd, "normal", strlen(req->cmd))) {
+    if (!strncasecmp(req->cmd, "normal", strlen("normal"))) {
         mreq->scan = LAN80XX_RX_EYE_NORMAL_SCAN;
-    } else if (!strncasecmp(req->cmd, "fast", strlen(req->cmd))) {
+    } else if (!strncasecmp(req->cmd, "fast", strlen("fast"))) {
         mreq->scan = LAN80XX_RX_EYE_FAST_SCAN;
-    } else if (!strncasecmp(req->cmd, "host", strlen(req->cmd))) {
+    } else if (!strncasecmp(req->cmd, "host", strlen("host"))) {
         mreq->is_line = 0;
-    } else if (!strncasecmp(req->cmd, "line", strlen(req->cmd))) {
+    } else if (!strncasecmp(req->cmd, "line", strlen("line"))) {
         mreq->is_line = 1;
-    } else if (!strncasecmp(req->cmd, "dfe_adp", strlen(req->cmd))) {
+    } else if (!strncasecmp(req->cmd, "dfe_adp", strlen("dfe_adp"))) {
         mreq->dfe_adpative = 1;
-    } else if (!strncasecmp(req->cmd, "dfe_man", strlen(req->cmd))) {
+    } else if (!strncasecmp(req->cmd, "dfe_man", strlen("dfe_man"))) {
         mreq->dfe_manual = 1;
-    } else if (!strncasecmp(req->cmd, "disable", strlen(req->cmd))) {
+    } else if (!strncasecmp(req->cmd, "disable", strlen("disable"))) {
         mreq->dfe_adpative = 0;
         mreq->dfe_manual = 0;
-    } else if (!strncasecmp(req->cmd, "prbs7", strlen(req->cmd))) {
+    } else if (!strncasecmp(req->cmd, "prbs7", strlen("prbs7"))) {
         mreq->prbs_pattern = MEPA_PRBS7;
-    } else if (!strncasecmp(req->cmd, "prbs9", strlen(req->cmd))) {
+    } else if (!strncasecmp(req->cmd, "prbs9", strlen("prbs9"))) {
         mreq->prbs_pattern = MEPA_PRBS9;
-    } else if (!strncasecmp(req->cmd, "prbs11", strlen(req->cmd))) {
+    } else if (!strncasecmp(req->cmd, "prbs11", strlen("prbs11"))) {
         mreq->prbs_pattern = MEPA_PRBS11;
-    } else if (!strncasecmp(req->cmd, "prbs15", strlen(req->cmd))) {
+    } else if (!strncasecmp(req->cmd, "prbs15", strlen("prbs15"))) {
         mreq->prbs_pattern = MEPA_PRBS15;
-    } else if (!strncasecmp(req->cmd, "prbs23", strlen(req->cmd))) {
+    } else if (!strncasecmp(req->cmd, "prbs23", strlen("prbs23"))) {
         mreq->prbs_pattern = MEPA_PRBS23;
-    } else if (!strncasecmp(req->cmd, "prbs31", strlen(req->cmd))) {
+    } else if (!strncasecmp(req->cmd, "prbs31", strlen("prbs31"))) {
         mreq->prbs_pattern = MEPA_PRBS31;
-    } else if (!strncasecmp(req->cmd, "user_ptn", strlen(req->cmd))) {
+    } else if (!strncasecmp(req->cmd, "user_ptn", strlen("user_ptn"))) {
         mreq->prbs_pattern = MEPA_USER_DEFINED_PATTERN;
-    } else if (!strncasecmp(req->cmd, "mon_enable", strlen(req->cmd))) {
+    } else if (!strncasecmp(req->cmd, "mon_enable", strlen("mon_enable"))) {
         keyword_parsed.prbs_mon_parsed = TRUE;
         mreq->prbs_pcs_mon_ena = TRUE;
-    } else if (!strncasecmp(req->cmd, "mon_disable", strlen(req->cmd))) {
+    } else if (!strncasecmp(req->cmd, "mon_disable", strlen("mon_disable"))) {
         keyword_parsed.prbs_mon_parsed = TRUE;
         mreq->prbs_pcs_mon_ena = FALSE;
-    } else if (!strncasecmp(req->cmd, "gen_enable", strlen(req->cmd))) {
+    } else if (!strncasecmp(req->cmd, "gen_enable", strlen("gen_enable"))) {
         mreq->prbs_gen_ena = TRUE;
-    } else if (!strncasecmp(req->cmd, "gen_disable", strlen(req->cmd))) {
+    } else if (!strncasecmp(req->cmd, "gen_disable", strlen("gen_disable"))) {
         mreq->prbs_gen_ena = FALSE;
-    } else if (!strncasecmp(req->cmd, "eth", strlen(req->cmd))) {
+    } else if (!strncasecmp(req->cmd, "eth", strlen("eth"))) {
         mreq->pkt_ptp = 0;
-    } else if (!strncasecmp(req->cmd, "ptp", strlen(req->cmd))) {
+    } else if (!strncasecmp(req->cmd, "ptp", strlen("ptp"))) {
         mreq->pkt_ptp = 1;
-    } else if (!strncasecmp(req->cmd, "egr", strlen(req->cmd))) {
+    } else if (!strncasecmp(req->cmd, "egr", strlen("egr"))) {
         mreq->pkt_ingr = 0;
-    } else if (!strncasecmp(req->cmd, "ingr", strlen(req->cmd))) {
+    } else if (!strncasecmp(req->cmd, "ingr", strlen("ingr"))) {
         mreq->pkt_ingr = 1;
-    } else if (!strncasecmp(req->cmd, "conti", strlen(req->cmd))) {
+    } else if (!strncasecmp(req->cmd, "conti", strlen("conti"))) {
         mreq->pkt_frame_single = 0;
-    } else if (!strncasecmp(req->cmd, "single", strlen(req->cmd))) {
+    } else if (!strncasecmp(req->cmd, "single", strlen("single"))) {
         mreq->pkt_frame_single = 1;
+    } else if (!strncasecmp(req->cmd, "reset_enable", strlen("reset_enable"))) {
+        mreq->mon_reset_enable = 1;
+    } else if (!strncasecmp(req->cmd, "reset_disable", strlen("reset_disable"))) {
+        mreq->mon_reset_enable = 0;
     } else {
         return 1;
     }
@@ -768,7 +774,7 @@ static cli_cmd_t cli_cmd_table[] = {
     },
 
     {
-        "pkt_mon <port_no> reset [enable|disable]",
+        "pkt_mon <port_no> reset <reset_enable|reset_disable>",
         "Packet Monitor Status",
         cli_cmd_pkt_mon,
     },
@@ -885,6 +891,13 @@ static cli_parm_t cli_parm_table[] = {
         "<dfe_adp|dfe_man|disable>",
         "Adpative DFE or Manual DFE or Disable DFE",
         CLI_PARM_FLAG_NONE,
+        cli_param_parse
+    },
+
+    {
+        "<reset_enable|reset_disable>",
+        "Enable/Disable Pkt Monitor Reset",
+        CLI_PARM_FLAG_SET,
         cli_param_parse
     },
 

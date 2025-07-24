@@ -1044,10 +1044,10 @@ static int cli_parm_keyword(cli_req_t *req)
     if ((found = cli_parse_find(req->cmd, req->stx)) == NULL) {
         return 1;
     }
-    if (!strncasecmp(found, "intr_a", strlen(req->cmd))) {
+    if (!strncasecmp(found, "intr_a", strlen("intr_a"))) {
         mreq->intr_a = 0;
     }
-    if (!strncasecmp(found, "intr_b", strlen(req->cmd))) {
+    if (!strncasecmp(found, "intr_b", strlen("intr_b"))) {
         mreq->intr_a = 1;
     }
     return 0;

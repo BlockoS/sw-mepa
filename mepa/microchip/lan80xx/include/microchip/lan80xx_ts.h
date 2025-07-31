@@ -285,21 +285,6 @@ mepa_rc lan80xx_phy_ts_fifo_sig_set(mepa_device_t *dev, const mepa_port_no_t  po
                                     const phy25g_ts_fifo_sig_mask_t sig_mask);
 
 /**
- * \brief configure the MPLS paramters for MPLS encap (egress/ingress direction).
- * based on ingress_flow[ingress-TRUE, egress-FALSE].
- * cw_en [IN]  Controword enable
- * \param dev [IN]            mepa driver
- * \param ingress_flow[IN]    ingress/egress direction [ingress-TRUE, egress-FALSE].
- * \param flow_index[IN]      flow_index to select the Engine.
- * \param phy25g_ts_mpls_flow_conf_t[IN] mpls flow config parameter.
-*/
-
-mepa_rc lan80xx_mpls_config_set(mepa_device_t *dev,
-                                const mepa_port_no_t  port_no,
-                                BOOL ingress_flow, uint16_t flow_index,
-                                BOOL in_cw_en, const phy25g_ts_mpls_flow_conf_t *const mpls_conf);
-
-/**
  * \brief configure LSC pin config for LS controller.
  * * \param dev [IN]            mepa driver
  * \param port_no               port number

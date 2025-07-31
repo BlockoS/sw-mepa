@@ -145,7 +145,7 @@ typedef enum {
     MEPA_TS_TC_OP_MODE_A = 0, /**< RX_timestamp using reserved bytes or append at the end as defined in vtss_phy_ts_rxtimestamp_pos_t */
     MEPA_TS_TC_OP_MODE_B = 1, /**< Sub local time at ingress and add at egress from CF */
     MEPA_TS_TC_OP_MODE_C = 2, /**< Sub local time at ingress and add at egress from CF and use 48 bits in CF */
-}mepa_ts_tc_op_mode_t;
+} mepa_ts_tc_op_mode_t;
 
 /* timestamp length in the MCH header*/
 typedef enum {
@@ -334,6 +334,29 @@ typedef struct {
     mepa_ts_match_uint8_t       sdoid;
 } mepa_ts_classifier_ptp_t;
 
+/**
+ * \brief MPLS level range
+ **/
+typedef struct {
+    uint32_t    lower; /**< lower range value */
+    uint32_t    upper; /**< upper range value */
+    uint8_t     match_mode;/*Label match mode for the label */
+} mepa_ts_mpls_lvl_rng_t;
+
+/** \brief MPLS header classifier */
+typedef struct {
+    mepa_bool_t       cw_en;  /**< control word enable/disable */
+    mepa_bool_t       flow_en;  /**< flow enable/disable */
+    uint8_t           stack_depth; /**< depth of MPLS level; multiple depth match can be possible using OR */
+    uint8_t           stack_ref_point; /**< Search direction for label matching: top to bottom or bottom to top */
+    struct {
+        mepa_ts_mpls_lvl_rng_t  first_lvl; /**< First label */
+        mepa_ts_mpls_lvl_rng_t  second_lvl; /**< Second label */
+        mepa_ts_mpls_lvl_rng_t  third_lvl; /**< Third label */
+        mepa_ts_mpls_lvl_rng_t  fourth_lvl; /**< Fourth label */
+    } stack_level; /**< 4 level values; top_down or bottom_up depends on stack_ref_point */
+} mepa_ts_classifier_mpls_t;
+
 /** \brief VSC_phy note : In VSC phys, all flows of engine share 2 clocks of corresponding engine. Flows [0-7] share clock-ids {0,1}, flows [8-15] share clock-ids {2,3} *  , flows [16-24] use {4,5} clocks.
  *   PTP packet classifier configuration parameters */
 typedef struct {
@@ -344,6 +367,7 @@ typedef struct {
     mepa_ts_classifier_ip_t         ip_class_conf;
     mepa_ts_classifier_eth_t        eth2_class_conf;
     mepa_ts_classifier_ip_t         ip2_class_conf;
+    mepa_ts_classifier_mpls_t       mpls_class_conf;
 } mepa_ts_classifier_t;
 
 typedef enum {

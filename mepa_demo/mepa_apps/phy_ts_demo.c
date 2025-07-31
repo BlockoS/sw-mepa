@@ -902,20 +902,29 @@ static void update_ts_classifier_encap(mepa_ts_classifier_t *ts_classifier, uint
     }
 }
 
-static void update_ts_mpls_flow(phy25g_ts_mpls_flow_conf_t *mpls_flow)
+static void update_ts_mpls_flow(mepa_ts_classifier_mpls_t *mpls_conf)
 {
-    uint8_t flow_en, stack_depth, stack_ref_point;
+    uint8_t flow_en, stack_depth, stack_ref_point, cw_en;
+
     flow_en = get_user_input("\n Flow Enable [0 : Disable, 1: Enable]: ");
     if ((flow_en == 0) || (flow_en == 1)) {
-        mpls_flow->flow_en = flow_en;
+        mpls_conf->flow_en = flow_en;
     } else {
         cli_printf("\n Invalid input for Flow Enable");
         return;
     }
 
+    cw_en = get_user_input("\n CW Enable [0 : Disable, 1: Enable]: ");
+    if ((cw_en == 0) || (cw_en == 1)) {
+        mpls_conf->cw_en = cw_en;
+    } else {
+        cli_printf("\n Invalid input for CW Enable");
+        return;
+    }
+
     stack_depth = get_user_input("\n Stack Depth [1 : Depth 1, 2: Depth 2, 3: Depth 3, 4: Depth 4]: ");
     if ((stack_depth > 0) && (stack_depth <= 4)) {
-        mpls_flow->stack_depth = (1 << (stack_depth - 1));
+        mpls_conf->stack_depth = (1 << (stack_depth - 1));
     } else {
         cli_printf("\n Invalid input for Stack Depth");
         return;
@@ -923,56 +932,29 @@ static void update_ts_mpls_flow(phy25g_ts_mpls_flow_conf_t *mpls_flow)
 
     stack_ref_point = get_user_input("\n Stack Reference Point [0 : Top, 1: End]: ");
     if ((stack_ref_point == 0) || (stack_ref_point == 1)) {
-        mpls_flow->stack_ref_point = stack_ref_point;
+        mpls_conf->stack_ref_point = stack_ref_point;
     } else {
         cli_printf("\n Invalid input for Stack Reference Point");
         return;
     }
 
-    if (mpls_flow->stack_ref_point == 0) { //Top
-        // Array of pointers to the levels within the top_down configuration
-        phy25g_ts_mpls_lvl_rng_t *levels[] = {
-            &mpls_flow->stack_level.top_down.top,
-            &mpls_flow->stack_level.top_down.frst_lvl_after_top,
-            &mpls_flow->stack_level.top_down.snd_lvl_after_top,
-            &mpls_flow->stack_level.top_down.thrd_lvl_after_top
-        };
+    mepa_ts_mpls_lvl_rng_t *levels[] = {
+        &mpls_conf->stack_level.first_lvl,
+        &mpls_conf->stack_level.second_lvl,
+        &mpls_conf->stack_level.third_lvl,
+        &mpls_conf->stack_level.fourth_lvl
+    };
+    for (int i = 0; i < stack_depth; i++) {
+        cli_printf("\n Enter lower, upper, and match mode (e.g., 10 20 1): ");
 
-        for (int i = 0; i < stack_depth; i++) {
-            cli_printf("\n Enter lower, upper, and match mode (e.g., 10 20 1): ");
-
-            if (i < 4) { // Ensure index is within bounds
-                if (scanf("%u %u %hhu", &levels[i]->lower, &levels[i]->upper, &levels[i]->match_mode) != 3) {
-                    cli_printf("Invalid input. Please enter three numbers.\n");
-                    return;
-                }
-            } else {
-                cli_printf("Invalid stack level index.\n");
+        if (i < 4) { // Ensure index is within bounds
+            if (scanf("%u %u %hhu", &levels[i]->lower, &levels[i]->upper, &levels[i]->match_mode) != 3) {
+                cli_printf("Invalid input. Please enter three numbers.\n");
                 return;
             }
-        }
-    }
-    if (mpls_flow->stack_ref_point == 1) { //Bottom
-        // Array of pointers to the levels within the top_down configuration
-        phy25g_ts_mpls_lvl_rng_t *levels[] = {
-            &mpls_flow->stack_level.bottom_up.end,
-            &mpls_flow->stack_level.bottom_up.frst_lvl_before_end,
-            &mpls_flow->stack_level.bottom_up.snd_lvl_before_end,
-            &mpls_flow->stack_level.bottom_up.thrd_lvl_before_end
-        };
-
-        for (int i = 0; i < stack_depth; i++) {
-            cli_printf("\n Enter lower, upper, and match mode (e.g., 10 20 1): ");
-
-            if (i < 4) { // Ensure index is within bounds
-                if (scanf("%u %u %hhu", &levels[i]->lower, &levels[i]->upper, &levels[i]->match_mode) != 3) {
-                    cli_printf("Invalid input. Please enter three numbers.\n");
-                    return;
-                }
-            } else {
-                cli_printf("Invalid stack level index.\n");
-                return;
-            }
+        } else {
+            cli_printf("Invalid stack level index.\n");
+            return;
         }
     }
 }
@@ -981,13 +963,10 @@ static void cli_cmd_ts_tx_class_conf(cli_req_t *req)
     mepa_port_no_t  port_no;
     mepa_ts_classifier_t ts_classifier;
     ts_configuration *mreq = req->module_req;
-
-    phy25g_ts_mpls_flow_conf_t mpls_flow;
     uint16_t flow_index = 0;
 
     // Initialize the structure
     memset(&ts_classifier, 0, sizeof(ts_classifier));
-    memset(&mpls_flow, 0, sizeof(mpls_flow));
 
     // Update default Values
     update_ts_classifier(&ts_classifier);
@@ -998,7 +977,7 @@ static void cli_cmd_ts_tx_class_conf(cli_req_t *req)
         if ((mreq->encap_type == MEPA_TS_ENCAP_ETH_MPLS_IP_PTP) || \
             (mreq->encap_type == MEPA_TS_ENCAP_ETH_MPLS_ETH_PTP) || \
             (mreq->encap_type == MEPA_TS_ENCAP_ETH_MPLS_ETH_IP_PTP)) {
-            update_ts_mpls_flow(&mpls_flow);
+            update_ts_mpls_flow(&ts_classifier.mpls_class_conf);
         }
     }
 
@@ -1012,15 +991,8 @@ static void cli_cmd_ts_tx_class_conf(cli_req_t *req)
             cli_printf(" Dev is Not Created for the port : %d\n", iport);
             return;
         }
-
         flow_index = mreq->flow_index;
         ts_classifier.pkt_encap_type = mreq->encap_type;
-
-        if ((mreq->encap_type == MEPA_TS_ENCAP_ETH_MPLS_IP_PTP) || \
-            (mreq->encap_type == MEPA_TS_ENCAP_ETH_MPLS_ETH_PTP) || \
-            (mreq->encap_type == MEPA_TS_ENCAP_ETH_MPLS_ETH_IP_PTP)) {
-            lan80xx_mpls_config_set(meba_ts_instance->phy_devices[iport], iport, 0, flow_index, 0, &mpls_flow);
-        }
 
         if (MEPA_RC_OK == mepa_ts_tx_classifier_conf_set(meba_ts_instance->phy_devices[iport], flow_index, &ts_classifier)) {
             cli_printf("\n ...... TS Tx classifier Configuration on Port : %d......\n", iport);
@@ -1103,13 +1075,10 @@ static void cli_cmd_ts_rx_class_conf(cli_req_t *req)
     mepa_port_no_t  port_no;
     mepa_ts_classifier_t ts_classifier;
     ts_configuration *mreq = req->module_req;
-
-    phy25g_ts_mpls_flow_conf_t mpls_flow;
     uint16_t flow_index = 0;
 
     // Initialize the structure
     memset(&ts_classifier, 0, sizeof(ts_classifier));
-    memset(&mpls_flow, 0, sizeof(mpls_flow));
 
     // Update default Values
     update_ts_classifier(&ts_classifier);
@@ -1120,7 +1089,7 @@ static void cli_cmd_ts_rx_class_conf(cli_req_t *req)
         if ((mreq->encap_type == MEPA_TS_ENCAP_ETH_MPLS_IP_PTP) || \
             (mreq->encap_type == MEPA_TS_ENCAP_ETH_MPLS_ETH_PTP) || \
             (mreq->encap_type == MEPA_TS_ENCAP_ETH_MPLS_ETH_IP_PTP)) {
-            update_ts_mpls_flow(&mpls_flow);
+            update_ts_mpls_flow(&ts_classifier.mpls_class_conf);
         }
     }
     for (int iport = 0; iport < MAX_PRTS; iport++) {
@@ -1135,12 +1104,6 @@ static void cli_cmd_ts_rx_class_conf(cli_req_t *req)
 
         flow_index = mreq->flow_index;
         ts_classifier.pkt_encap_type = mreq->encap_type;
-
-        if ((mreq->encap_type == MEPA_TS_ENCAP_ETH_MPLS_IP_PTP) || \
-            (mreq->encap_type == MEPA_TS_ENCAP_ETH_MPLS_ETH_PTP) || \
-            (mreq->encap_type == MEPA_TS_ENCAP_ETH_MPLS_ETH_IP_PTP)) {
-            lan80xx_mpls_config_set(meba_ts_instance->phy_devices[iport], iport, 1, flow_index, 0, &mpls_flow);
-        }
 
         if (MEPA_RC_OK == mepa_ts_rx_classifier_conf_set(meba_ts_instance->phy_devices[iport], flow_index, &ts_classifier)) {
             cli_printf("\n ...... TS Rx classifier Configuration on Port : %d......\n", iport);

@@ -11,7 +11,7 @@
 #include "regs_lan80xx.h"
 #include <lan80xx_ts.h>
 
-static mepa_ts_fifo_read_t fifo_cb;
+static mepa_ts_fifo_read_t fifo_cb = NULL;
 
 static uint8_t lan80xx_get_vs_addr_type(mepa_ts_mac_match_mode_t mac_match)
 {
@@ -286,23 +286,23 @@ static mepa_rc lan80xx_ts_tx_classifier_conf_set(struct mepa_device *dev,
     u16 eng_flow;
     phy25g_ts_encap_t encap;
     phy25g_ts_engine_t eng_id;
+    phy25g_ts_mpls_flow_conf_t *mpls_flow;
 
     if ((rc = lan80xx_get_eng_flow_info(flow_index, &eng_id, &eng_flow) != MEPA_RC_OK)) {
-        T_E(MEPA_TRACE_GRP_GEN, "Invalid engine ID: %d", eng_id);
+        T_E(MEPA_TRACE_GRP_TS, "Invalid engine ID: %d", eng_id);
         return MEPA_RC_ERROR;
     }
 
     if ((rc = mepa_to_lan80xx_encap(pkt_class_conf->pkt_encap_type, &encap) != MEPA_RC_OK)) {
-        T_E(MEPA_TRACE_GRP_GEN, "Invalid Encapsulation : %d", pkt_class_conf->pkt_encap_type);
+        T_E(MEPA_TRACE_GRP_TS, "Invalid Encapsulation : %d", pkt_class_conf->pkt_encap_type);
         return MEPA_RC_ERROR;
-
     }
 
     eng_conf = &data->phy_ts_port_conf.egress_eng_conf[eng_id];
-    memcpy(&flow_conf, &eng_conf->flow_conf, sizeof(phy25g_ts_engine_flow_conf_t));
     eth_in = &pkt_class_conf->eth_class_conf;
     eth_flow = &flow_conf.flow_conf.ptp.eth1_opt.flow_opt[eng_flow];
     ip_flow = &flow_conf.flow_conf.ptp.ip1_opt.flow_opt[eng_flow];
+    mpls_flow = &flow_conf.flow_conf.ptp.mpls_opt.flow_opt[eng_flow];
 
     if (eng_conf->eng_used && pkt_class_conf->pkt_encap_type != MEPA_TS_ENCAP_NONE && encap != eng_conf->encap_type) {
         T_E(MEPA_TRACE_GRP_TS, "engine encap error");
@@ -319,6 +319,8 @@ static mepa_rc lan80xx_ts_tx_classifier_conf_set(struct mepa_device *dev,
     }
 
     else {
+        T_D(MEPA_TRACE_GRP_TS, "Initializing engine (%d)flow...\n", eng_id);
+        memcpy(&flow_conf, &eng_conf->flow_conf, sizeof(phy25g_ts_engine_flow_conf_t));
         eng_conf->encap_type = encap;
         eng_conf->eng_used = TRUE;
         //Stict mode
@@ -334,7 +336,6 @@ static mepa_rc lan80xx_ts_tx_classifier_conf_set(struct mepa_device *dev,
         memcpy(eth_flow->mac_addr, eth_in->mac_addr, sizeof(eth_in->mac_addr));
         eth_flow->vlan_check = eth_in->vlan_check;
         eth_flow->num_tag = eth_in->vlan_conf.num_tag;
-
         eth_flow->tag_range_mode = LAN80XX_PHY_TS_TAG_RANGE_NONE;
 
         if ((flow_conf.flow_conf.ptp.eth1_opt.comm_opt.pbb_en) &&
@@ -466,6 +467,24 @@ static mepa_rc lan80xx_ts_tx_classifier_conf_set(struct mepa_device *dev,
 
             memcpy(eth2_flow->mac_addr, pkt_class_conf->eth2_class_conf.mac_addr, sizeof(pkt_class_conf->eth2_class_conf.mac_addr));
         }
+        /**
+         * MEPA-1163
+         * Update the new flow config for mpls as per the pkt_class_config
+         **/
+        if ((eng_conf->encap_type == LAN80XX_PHY_TS_ENCAP_ETH_MPLS_ETH_PTP) ||
+            (eng_conf->encap_type == LAN80XX_PHY_TS_ENCAP_ETH_MPLS_ETH_IP_PTP) ||
+            (eng_conf->encap_type == LAN80XX_PHY_TS_ENCAP_ETH_MPLS_IP_PTP)) {
+            void *Ptrmem = NULL;
+            flow_conf.flow_conf.ptp.mpls_opt.comm_opt.cw_en = pkt_class_conf->mpls_class_conf.cw_en;
+            mpls_flow->flow_en = pkt_class_conf->mpls_class_conf.flow_en;
+            mpls_flow->stack_depth = pkt_class_conf->mpls_class_conf.stack_depth;
+            mpls_flow->stack_ref_point = pkt_class_conf->mpls_class_conf.stack_ref_point;
+            Ptrmem = memcpy(&mpls_flow->stack_level.top_down, &pkt_class_conf->mpls_class_conf.stack_level, sizeof(mpls_flow->stack_level.top_down));
+            if (Ptrmem == NULL) {
+                T_E (MEPA_TRACE_GRP_TS, "TS mpls flow update failed\n");
+                return MEPA_RC_ERROR;
+            }
+        }
 
         if ((rc = lan80xx_ts_egress_engine_conf_set(dev, eng_id, eng_flow, &flow_conf)) != MEPA_RC_OK) {
             T_E(MEPA_TRACE_GRP_TS, "TS egress engine conf set failed (%d)\n", rc);
@@ -503,23 +522,24 @@ static mepa_rc lan80xx_ts_rx_classifier_conf_set(struct mepa_device *dev,
     uint16_t eng_flow;
     phy25g_ts_encap_t encap;
     phy25g_ts_engine_t eng_id;
+    phy25g_ts_mpls_flow_conf_t *mpls_flow;
 
 
     if ((rc = lan80xx_get_eng_flow_info(flow_index, &eng_id, &eng_flow) != MEPA_RC_OK)) {
-        T_E(MEPA_TRACE_GRP_GEN, "Invalid engine ID: %d", eng_id);
+        T_E(MEPA_TRACE_GRP_TS, "Invalid engine ID: %d", eng_id);
         return MEPA_RC_ERROR;
     }
 
     if ((rc = mepa_to_lan80xx_encap(pkt_class_conf->pkt_encap_type, &encap) != MEPA_RC_OK)) {
-        T_E(MEPA_TRACE_GRP_GEN, "Invalid Encapsulation : %d", pkt_class_conf->pkt_encap_type);
+        T_E(MEPA_TRACE_GRP_TS, "Invalid Encapsulation : %d", pkt_class_conf->pkt_encap_type);
         return MEPA_RC_ERROR;
     }
 
     eng_conf = &data->phy_ts_port_conf.ingress_eng_conf[eng_id];
-    memcpy(&flow_conf, &eng_conf->flow_conf, sizeof(phy25g_ts_engine_flow_conf_t));
     eth_in = &pkt_class_conf->eth_class_conf;
     eth_flow = &flow_conf.flow_conf.ptp.eth1_opt.flow_opt[eng_flow];
     ip_flow = &flow_conf.flow_conf.ptp.ip1_opt.flow_opt[eng_flow];
+    mpls_flow = &flow_conf.flow_conf.ptp.mpls_opt.flow_opt[eng_flow];
     /* if engine is initialized */
     if (eng_conf->eng_used && pkt_class_conf->pkt_encap_type != MEPA_TS_ENCAP_NONE && encap != eng_conf->encap_type) {
         T_E(MEPA_TRACE_GRP_TS, "engine encap error");
@@ -683,6 +703,24 @@ static mepa_rc lan80xx_ts_rx_classifier_conf_set(struct mepa_device *dev,
             }
 
             memcpy(eth2_flow->mac_addr, pkt_class_conf->eth2_class_conf.mac_addr, sizeof(pkt_class_conf->eth2_class_conf.mac_addr));
+        }
+        /**
+         * MEPA-1163
+         * Update the new flow config for mpls as per the pkt_class_config
+         **/
+        if ((eng_conf->encap_type == LAN80XX_PHY_TS_ENCAP_ETH_MPLS_ETH_PTP) ||
+            (eng_conf->encap_type == LAN80XX_PHY_TS_ENCAP_ETH_MPLS_ETH_IP_PTP) ||
+            (eng_conf->encap_type == LAN80XX_PHY_TS_ENCAP_ETH_MPLS_IP_PTP)) {
+            void *Ptrmem = NULL;
+            flow_conf.flow_conf.ptp.mpls_opt.comm_opt.cw_en = pkt_class_conf->mpls_class_conf.cw_en;
+            mpls_flow->flow_en = pkt_class_conf->mpls_class_conf.flow_en;
+            mpls_flow->stack_depth = pkt_class_conf->mpls_class_conf.stack_depth;
+            mpls_flow->stack_ref_point = pkt_class_conf->mpls_class_conf.stack_ref_point;
+            Ptrmem = memcpy(&mpls_flow->stack_level.top_down, &pkt_class_conf->mpls_class_conf.stack_level, sizeof(mpls_flow->stack_level.top_down));
+            if (Ptrmem == NULL) {
+                T_E (MEPA_TRACE_GRP_TS, "TS mpls flow update failed\n");
+                return MEPA_RC_ERROR;
+            }
         }
 
         if ((rc = lan80xx_ts_ingress_engine_conf_set(dev, eng_id, eng_flow, &flow_conf)) != MEPA_RC_OK) {
@@ -944,7 +982,9 @@ static void lan80xx_phy_ts_fifo_read_cb(mepa_device_t  *dev,
     memcpy(mep_sig.src_port_identity, sig->src_port_identity, sizeof(mep_sig.src_port_identity));
     mep_sig.has_crc_src = FALSE;
     mep_sig.crc_src_port = 0;
-    fifo_cb(port_no, &ts, &mep_sig, (mepa_ts_fifo_status_t)status);
+    if (fifo_cb != NULL) {
+        fifo_cb(port_no, &ts, &mep_sig, (mepa_ts_fifo_status_t)status);
+    }
 }
 
 static void lan80xx_ts_fifo_read_install(mepa_device_t  *dev, mepa_ts_fifo_read_t rd_cb)

@@ -1713,17 +1713,13 @@ static mepa_rc lan80xx_ts_mpls_flow_conf(mepa_device_t *dev,
     old_mpls_conf = &flow_conf->flow_conf.ptp.mpls_opt;
 
     if (((eng_conf->encap_type == LAN80XX_PHY_TS_ENCAP_ETH_MPLS_ETH_PTP) ||
-         (eng_conf->encap_type == LAN80XX_PHY_TS_ENCAP_ETH_MPLS_ETH_IP_PTP)) && (mpls_conf->comm_opt.cw_en)) {
-        T_E(MEPA_TRACE_GRP_TS, "Port: %u engine: %u:: Wrong control word configuration for encaptype : %d", (u32)port_no, (u32)eng_id, eng_conf->encap_type);
+         (eng_conf->encap_type == LAN80XX_PHY_TS_ENCAP_ETH_MPLS_ETH_IP_PTP))) {
         cw_present = mpls_conf->comm_opt.cw_en;
     }
-
 
     if ((rc = lan80xx_phy_ts_ana_blk_id_get(eng_id, ingress, &blk_id)) != MEPA_RC_OK) {
         return MEPA_RC_ERROR;
     }
-
-
 
     if (eng_id == LAN80XX_PHY_TS_PTP_ENGINE_ID_0 ||
         eng_id == LAN80XX_PHY_TS_PTP_ENGINE_ID_1 || eng_id == LAN80XX_PHY_TS_OAM_ENGINE_ID_2A) {
@@ -1771,10 +1767,6 @@ static mepa_rc lan80xx_ts_mpls_flow_conf(mepa_device_t *dev,
             }
             MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_MPLS_FLOW_CFG_MPLS_FLOW_CONTROL(flow_index), &value));
         }
-
-
-//      (LAN80XX_PHY_TS_READ_CSR(port_no, blk_id, LAN80XX_ANA_MPLS_FLOW_CFG_MPLS_FLOW_CONTROL(flow_index), &value)
-
         /* configure stack levels based on ref point */
         /* top-of-stack referenced */
         temp = (stack_ref_point == LAN80XX_PHY_TS_MPLS_STACK_REF_POINT_TOP) ?
@@ -1821,15 +1813,11 @@ static mepa_rc lan80xx_ts_mpls_flow_conf(mepa_device_t *dev,
         value = LAN80XX_F_ANA_MPLS_FLOW_CFG_MPLS_LABEL_RANGE_UPPER_3_MPLS_LABEL_RANGE_UPPER_3(temp);
         MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_MPLS_FLOW_CFG_MPLS_LABEL_RANGE_UPPER_3(flow_index),  &value));
 
-
         value = 0;
-
-        value |=  mpls_conf->flow_opt[flow_index].stack_level.top_down.frst_lvl_after_top.match_mode << LAN80XX_8_BIT_SHIFT |
-                  mpls_conf->flow_opt[flow_index].stack_level.top_down.top.match_mode;
-
-        value |= mpls_conf->flow_opt[flow_index].stack_level.top_down.snd_lvl_after_top.match_mode << LAN80XX_16_BIT_SHIFT;
-
-        value |= mpls_conf->flow_opt[flow_index].stack_level.top_down.thrd_lvl_after_top.match_mode << LAN80XX_24_BIT_SHIFT;
+        value |= LAN80XX_F_ANA_MPLS_FLOW_CFG_MPLS_FLOW_MATCH_MODE_0(mpls_conf->flow_opt[flow_index].stack_level.top_down.top.match_mode);
+        value |= LAN80XX_F_ANA_MPLS_FLOW_CFG_MPLS_FLOW_MATCH_MODE_1(mpls_conf->flow_opt[flow_index].stack_level.top_down.frst_lvl_after_top.match_mode);
+        value |= LAN80XX_F_ANA_MPLS_FLOW_CFG_MPLS_FLOW_MATCH_MODE_2(mpls_conf->flow_opt[flow_index].stack_level.top_down.snd_lvl_after_top.match_mode);
+        value |= LAN80XX_F_ANA_MPLS_FLOW_CFG_MPLS_FLOW_MATCH_MODE_3(mpls_conf->flow_opt[flow_index].stack_level.top_down.thrd_lvl_after_top.match_mode);
 
         MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_MPLS_FLOW_CFG_MPLS_FLOW_MATCH_MODE(flow_index), &value));
 
@@ -4835,7 +4823,7 @@ mepa_rc lan80xx_phy_ts_fifo_empty_priv(mepa_device_t *dev,
     /* Step 1:: Loop reading the TSFIFO_0 register, until TS_EMPTY bit = 0 */
     MEPA_RC(LAN80XX_PHY_TS_READ_CSR(port_no, LAN80XX_PHY_TS_PROC_BLK_ID(0),
                                     0x7a, &val_2nd));
-#if 1
+
     do {
         MEPA_RC(LAN80XX_PHY_TS_READ_CSR(port_no, LAN80XX_PHY_TS_PROC_BLK_ID(0),
                                         LAN80XX_PTP_PROC_EGR_TSFIFO_0, &val_1st));
@@ -4852,72 +4840,53 @@ mepa_rc lan80xx_phy_ts_fifo_empty_priv(mepa_device_t *dev,
         loop_cnt--;
 
     } while (loop_cnt > 0);
-#endif
+
     if (entry_found) {
         do {
             value = 0;
             pos = 0;
-            /* Step 2:: Read the TSFIFO_0 register again to get valid timestamp[15:0] data and valid flags[2:0] data */
+            /* Step 2:: Read the TSFIFO_0 register again to get valid timestamp[23:0] data and valid flags[30:27] data */
             MEPA_RC(LAN80XX_PHY_TS_READ_CSR(port_no, LAN80XX_PHY_TS_PROC_BLK_ID(0),
                                             LAN80XX_PTP_PROC_EGR_TSFIFO_0, &val_1st));
 
             if (val_1st & LAN80XX_M_PTP_PROC_EGR_TSFIFO_0_EGR_TS_EMPTY) {
                 break;
             }
-
-
-
 #if 0
-
-            //         printf("Breaking from partial ts check, valid ts is %d\n", LAN80XX_X_PTP_PROC_EGR_TSFIFO_0_EGR_TS_FLAGS(value));
-            //if (LAN80XX_X_PTP_PROC_EGR_TSFIFO_0_EGR_TS_FLAGS(value) != 9) {
-            /* Partial time stamps are invalid, empty the FIFO */
-            MEPA_RC(LAN80XX_PHY_TS_READ_CSR(port_no, LAN80XX_PHY_TS_PROC_BLK_ID(0),
-                                            LAN80XX_PTP_PROC_EGR_TSFIFO_1, &value));
-            printf("The value of TSFIFO_0 is %x\n", val_1st);
-
-            MEPA_RC(LAN80XX_PHY_TS_READ_CSR(port_no, LAN80XX_PHY_TS_PROC_BLK_ID(0),
-                                            LAN80XX_PTP_PROC_EGR_TSFIFO_1, &value));
-
-            printf("The value of TSFIFO_1 is %x\n", value);
-            MEPA_RC(LAN80XX_PHY_TS_READ_CSR(port_no, LAN80XX_PHY_TS_PROC_BLK_ID(0),
-                                            LAN80XX_PTP_PROC_EGR_TSFIFO_2, &value));
-            printf("The value of TSFIFO_2 is %x\n", value);
-            MEPA_RC(LAN80XX_PHY_TS_READ_CSR(port_no, LAN80XX_PHY_TS_PROC_BLK_ID(0),
-                                            LAN80XX_PTP_PROC_EGR_TSFIFO_3, &value));
-            printf("The value of TSFIFO_3 is %x\n", value);
-            MEPA_RC(LAN80XX_PHY_TS_READ_CSR(port_no, LAN80XX_PHY_TS_PROC_BLK_ID(0),
-                                            LAN80XX_PTP_PROC_EGR_TSFIFO_4, &value));
-            printf("The value of TSFIFO_4 is %x\n", value);
-            MEPA_RC(LAN80XX_PHY_TS_READ_CSR(port_no, LAN80XX_PHY_TS_PROC_BLK_ID(0),
-                                            LAN80XX_PTP_PROC_EGR_TSFIFO_5, &value));
-            printf("The value of TSFIFO_5 is %x\n", value);
-            MEPA_RC(LAN80XX_PHY_TS_READ_CSR(port_no, LAN80XX_PHY_TS_PROC_BLK_ID(0),
-                                            LAN80XX_PTP_PROC_EGR_TSFIFO_6, &value));
-            printf("The value of TSFIFO_6 is %x\n", value);
-            MEPA_RC(LAN80XX_PHY_TS_READ_CSR(port_no, LAN80XX_PHY_TS_PROC_BLK_ID(0),
-                                            LAN80XX_PTP_PROC_EGR_TSFIFO_7, &value));
-            printf("The value of TSFIFO_7 is %x\n", value);
-            MEPA_RC(LAN80XX_PHY_TS_READ_CSR(port_no, LAN80XX_PHY_TS_PROC_BLK_ID(0),
-                                            LAN80XX_PTP_PROC_EGR_TSFIFO_8, &value));
-            printf("The value of TSFIFO_8 is %x\n", value);
-            MEPA_RC(LAN80XX_PHY_TS_READ_CSR(port_no, LAN80XX_PHY_TS_PROC_BLK_ID(0),
-                                            LAN80XX_PTP_PROC_EGR_TSFIFO_9, &value));
-            printf("The value of TSFIFO_9 is %x\n", value);
-            //           printf("Breaking from partial ts check, valid ts is %d\n", LAN80XX_X_PTP_PROC_EGR_TSFIFO_0_EGR_TS_FLAGS(value));
-            // break;
-            //}
+            if (LAN80XX_X_PTP_PROC_EGR_TSFIFO_0_EGR_TS_FLAGS(value) != 15) {
+                T_D(MEPA_TRACE_GRP_TS, "Breaking from partial ts check, valid ts is %d\n",
+                    LAN80XX_X_PTP_PROC_EGR_TSFIFO_0_EGR_TS_FLAGS(value));
+                /* Partial time stamps are invalid, empty the FIFO */
+                MEPA_RC(LAN80XX_PHY_TS_READ_CSR(port_no, LAN80XX_PHY_TS_PROC_BLK_ID(0),
+                                                LAN80XX_PTP_PROC_EGR_TSFIFO_1, &value));
+                MEPA_RC(LAN80XX_PHY_TS_READ_CSR(port_no, LAN80XX_PHY_TS_PROC_BLK_ID(0),
+                                                LAN80XX_PTP_PROC_EGR_TSFIFO_1, &value));
+                MEPA_RC(LAN80XX_PHY_TS_READ_CSR(port_no, LAN80XX_PHY_TS_PROC_BLK_ID(0),
+                                                LAN80XX_PTP_PROC_EGR_TSFIFO_2, &value));
+                MEPA_RC(LAN80XX_PHY_TS_READ_CSR(port_no, LAN80XX_PHY_TS_PROC_BLK_ID(0),
+                                                LAN80XX_PTP_PROC_EGR_TSFIFO_3, &value));
+                MEPA_RC(LAN80XX_PHY_TS_READ_CSR(port_no, LAN80XX_PHY_TS_PROC_BLK_ID(0),
+                                                LAN80XX_PTP_PROC_EGR_TSFIFO_4, &value));
+                MEPA_RC(LAN80XX_PHY_TS_READ_CSR(port_no, LAN80XX_PHY_TS_PROC_BLK_ID(0),
+                                                LAN80XX_PTP_PROC_EGR_TSFIFO_5, &value));
+                MEPA_RC(LAN80XX_PHY_TS_READ_CSR(port_no, LAN80XX_PHY_TS_PROC_BLK_ID(0),
+                                                LAN80XX_PTP_PROC_EGR_TSFIFO_6, &value));
+                MEPA_RC(LAN80XX_PHY_TS_READ_CSR(port_no, LAN80XX_PHY_TS_PROC_BLK_ID(0),
+                                                LAN80XX_PTP_PROC_EGR_TSFIFO_7, &value));
+                MEPA_RC(LAN80XX_PHY_TS_READ_CSR(port_no, LAN80XX_PHY_TS_PROC_BLK_ID(0),
+                                                LAN80XX_PTP_PROC_EGR_TSFIFO_8, &value));
+                MEPA_RC(LAN80XX_PHY_TS_READ_CSR(port_no, LAN80XX_PHY_TS_PROC_BLK_ID(0),
+                                                LAN80XX_PTP_PROC_EGR_TSFIFO_9, &value));
+                break;
+            }
 #endif
             memset(&signature, 0, sizeof(phy25g_ts_fifo_sig_t));
             memset(&ts, 0, sizeof(phy25g_phy_timestamp_t));
 
-#if 1
             sig[0] = LAN80XX_PHY_TS_EXTRACT_BYTE(val_1st, 0);
             sig[1] = LAN80XX_PHY_TS_EXTRACT_BYTE(val_1st, 8);
             sig[2] = LAN80XX_PHY_TS_EXTRACT_BYTE(val_1st, 16);
-            //sig[1] = (LAN80XX_X_PTP_PROC_EGR_TSFIFO_0_EGR_TSFIFO_0(val_1st) & 0xff00) >> 8;
-            //sig[0] = LAN80XX_X_PTP_PROC_EGR_TSFIFO_0_EGR_TSFIFO_0(val_1st) & 0xff;
-            /* Step 3:: Read the TSFIFO_1 to TSFIFO_9 registers to get valid timestamp[207:16] data;
+            /* Step 3:: Read the TSFIFO_1 to TSFIFO_9 registers to get valid timestamp[311:24] data;
                         must always read the TSFIFO_9 register and it must be read last */
             value = 0;
             MEPA_RC(LAN80XX_PHY_TS_READ_CSR(port_no, LAN80XX_PHY_TS_PROC_BLK_ID(0),
@@ -4988,26 +4957,18 @@ mepa_rc lan80xx_phy_ts_fifo_empty_priv(mepa_device_t *dev,
             sig[36] = LAN80XX_PHY_TS_EXTRACT_BYTE(value, 8);
             sig[37] = LAN80XX_PHY_TS_EXTRACT_BYTE(value, 16);
             sig[38] = LAN80XX_PHY_TS_EXTRACT_BYTE(value, 24);
-
-#endif
             /* Step 4:: Read the TSFIFO_CSR register and check the value of TS_FIFO_LEVEL */
             MEPA_RC(LAN80XX_PHY_TS_READ_CSR(port_no, LAN80XX_PHY_TS_PROC_BLK_ID(0),
                                             LAN80XX_PTP_PROC_EGR_TSFIFO_CSR, &value));
 
-
-
             depth = LAN80XX_X_PTP_PROC_EGR_TSFIFO_CSR_EGR_TS_LEVEL(value);
-
-
-
             signature.sig_mask = sig_mask;
             ts.subnanoseconds = sig[0];
             ts.nanoseconds = (sig[4] << 24) | (sig[3] << 16) | (sig[2] << 8)  | sig[1];
             ts.seconds.low = (sig[8] << 24) | (sig[7] << 16) | (sig[6] << 8)  | sig[5];
             ts.seconds.high = (sig[10] << 8) | sig[9];
 
-//            printf("Time sh: %d ,sl: %d ns: %d fns=%d\n", ts.seconds.high, ts.seconds.low, ts.nanoseconds,ts.subnanoseconds);
-#if 1
+            T_D(MEPA_TRACE_GRP_TS, "Time sh: %d ,sl: %d ns: %d fns=%d\n", ts.seconds.high, ts.seconds.low, ts.nanoseconds, ts.subnanoseconds);
             pos += LAN80XX_PHY_TS_SIG_TIME_STAMP_LEN; /* 11 Byte Timestamp length */
             if (sig_mask & LAN80XX_PHY_TS_FIFO_SIG_SEQ_ID) {
                 MEPA_ASSERT((pos + LAN80XX_PHY_TS_SIG_SEQUENCE_ID_LEN) > (LAN80XX_PTP_SIGNATURE_LEN + LAN80XX_PHY_TS_SIG_TIME_STAMP_LEN)); /* LINT */
@@ -5072,7 +5033,7 @@ mepa_rc lan80xx_phy_ts_fifo_empty_priv(mepa_device_t *dev,
 
             if (callback) {
                 status = LAN80XX_PHY_TS_FIFO_SUCCESS;
-                /* avoid using vtss_state while outside the API lock, as the API may be called from an other thread */
+                /* avoid using mepa dev while outside the API lock, as the API may be called from an other thread */
                 MEPA_EXIT(dev);
                 /* call out of the API */
                 cb(dev, port_no, &ts, &signature, cx, status);
@@ -5085,9 +5046,7 @@ mepa_rc lan80xx_phy_ts_fifo_empty_priv(mepa_device_t *dev,
                     break;
                 }
             }
-#endif
         } while (depth > 1);  /* Step 4a:: If TS_FIFO_LEVEL > 1, go back and repeat steps 2 through 4 */
-
         /* Step 4b:: If TS_FIFO_LEVEL = 1, finished handling the TS_FIFO */
     }
     return rc;
@@ -7180,57 +7139,6 @@ mepa_rc lan80xx_linkup_delay(mepa_device_t *dev)
     return MEPA_RC_OK;
 
 }
-
-
-mepa_rc lan80xx_mpls_config_set(mepa_device_t *dev, const mepa_port_no_t port_no,
-                                BOOL ingress_flow, uint16_t flow_index, BOOL in_cw_en, const phy25g_ts_mpls_flow_conf_t  *const  mpls_conf)
-{
-    mepa_rc rc;
-    phy25g_ts_eng_conf_t *eng_conf;
-    phy25g_ts_mpls_flow_conf_t *mpls_flow;
-    u16 eng_flow;
-    phy25g_ts_engine_t eng_id;
-    void *Ptrmem = NULL;
-
-    if (mpls_conf == NULL) {
-        return MEPA_RC_ERROR;
-    }
-
-
-    phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
-
-    if ((rc = lan80xx_get_eng_flow_info(flow_index, &eng_id, &eng_flow) != MEPA_RC_OK)) {
-        T_E(MEPA_TRACE_GRP_GEN, "Invalid engine ID: %d", eng_id);
-        return MEPA_RC_ERROR;
-    }
-
-    if (ingress_flow) {
-
-        eng_conf = &data->phy_ts_port_conf.ingress_eng_conf[eng_id];
-    } else {
-        eng_conf = &data->phy_ts_port_conf.egress_eng_conf[eng_id];
-    }
-
-    mpls_flow = &eng_conf->flow_conf.flow_conf.ptp.mpls_opt.flow_opt[eng_flow];
-
-
-    eng_conf->flow_conf.flow_conf.ptp.mpls_opt.comm_opt.cw_en = in_cw_en;
-
-    mpls_flow->flow_en = mpls_conf->flow_en;
-    mpls_flow->stack_depth = mpls_conf->stack_depth;
-    mpls_flow->stack_ref_point = mpls_conf->stack_ref_point;
-
-    Ptrmem = memcpy(&mpls_flow->stack_level.top_down, &mpls_conf->stack_level.top_down, sizeof(mpls_flow->stack_level.top_down));
-
-    if (Ptrmem == NULL) {
-        return MEPA_RC_ERROR;
-    }
-
-    return MEPA_RC_OK;
-}
-
-
-
 
 mepa_rc lan80xx_ptp_reg_dump(mepa_device_t            *dev,
                              const mepa_port_no_t     port_no,

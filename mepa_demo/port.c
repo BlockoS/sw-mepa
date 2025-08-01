@@ -48,6 +48,8 @@ static meba_sfp_driver_t *sfp_drivers = NULL;
 
 static port_entry_t *port_table;
 static mesa_bool_t  port_polling = 1;
+static mesa_bool_t fan_speed_poll = 0;
+static uint8_t duty_cycle_configured = 25; /* Default duty cycle */
 static uint32_t     port_poll_cnt;
 static mesa_bool_t  port_bulk_setup = TRUE;
 
@@ -2055,6 +2057,38 @@ void port_kr_status(mesa_port_no_t  port_no, mesa_bool_t *link)
     }
 }
 
+void fan_support_check(meba_inst_t inst)
+{
+    fan_speed_poll = MEBA_WRAP(meba_capability, inst, MEBA_CAP_FAN_SUPPORT);
+    return;
+}
+
+void fan_speed_control(meba_inst_t inst)
+{
+    int16_t  temp_celsius = 0;
+    uint8_t  duty_cycle = 0;
+    mesa_bool_t cap_sensor = MEBA_WRAP(meba_capability, inst, MEBA_CAP_TEMP_SENSORS);
+    if ((cap_sensor == 0) || mesa_temp_sensor_get(NULL, &temp_celsius) != MESA_RC_OK) {
+        return;     
+    }
+    if (temp_celsius < 50) {
+        duty_cycle = 25;
+    } else if (temp_celsius < 75) {
+        duty_cycle = 50;
+    } else if (temp_celsius < 90) {
+        duty_cycle = 75;
+    } else {
+        duty_cycle = 100;
+    }
+    if (duty_cycle_configured == duty_cycle) {
+        return;
+    }
+    // Set fan level (scaled to 0–255)
+    mesa_fan_cool_lvl_set(NULL, ((255 * duty_cycle)/100));
+    duty_cycle_configured = duty_cycle;
+    return;
+}
+
 
 void port_poll(meba_inst_t inst)
 {
@@ -2170,6 +2204,7 @@ void mscc_appl_port_init(mscc_appl_init_t *init)
 
         port_init(init->board_inst);
         port_cli_init();
+        fan_support_check(init->board_inst);
         break;
 
     case MSCC_INIT_CMD_INIT_WARM:
@@ -2179,6 +2214,9 @@ void mscc_appl_port_init(mscc_appl_init_t *init)
     case MSCC_INIT_CMD_POLL:
         if (port_polling) {
             port_poll(init->board_inst);
+        }
+        if (fan_speed_poll) {
+            fan_speed_control(init->board_inst);
         }
         break;
 

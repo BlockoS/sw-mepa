@@ -232,7 +232,7 @@ typedef enum {
     MEPA_TS_IP_MATCH_SRC_OR_DEST,
 } mepa_ts_ip_match_select_t;
 
-/** \brief IPV6 network address */
+/** \brief IPV4 network address */
 typedef struct {
     uint32_t   addr;
     uint32_t   mask;

@@ -562,6 +562,279 @@ static void cli_cmd_ts_conf_init(cli_req_t *req)
     return;
 }
 
+// Helper function to trim whitespace
+static char *trim(char *str)
+{
+    char *end;
+    while (isspace((unsigned char)*str)) {
+        str++;
+    }
+    if (*str == 0) {
+        return str;
+    }
+    end = str + strlen(str) - 1;
+    while (end > str && isspace((unsigned char)*end)) {
+        end--;
+    }
+    end[1] = '\0';
+    return str;
+}
+
+// Helper function to map string to enum value
+static int parse_enum(const char *value, const char *const *names, int count)
+{
+    for (int i = 0; i < count; ++i) {
+        if (strcmp(value, names[i]) == 0) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+static void parse_mac(const char *value, uint8_t mac[6])
+{
+    unsigned int b[6] = {0};
+    sscanf(value, "%2x:%2x:%2x:%2x:%2x:%2x", &b[0], &b[1], &b[2], &b[3], &b[4], &b[5]);
+    for (int i = 0; i < 6; ++i) {
+        mac[i] = (uint8_t)b[i];
+    }
+}
+
+static void parse_u32_array(const char *value, uint32_t *arr, int n)
+{
+    char buf[256];
+    strncpy(buf, value, sizeof(buf));
+    buf[sizeof(buf) - 1] = 0;
+    char *token = strtok(buf, ",");
+    int i = 0;
+    while (token && i < n) {
+        arr[i++] = (uint32_t)strtoul(token, NULL, 0);
+        token = strtok(NULL, ",");
+    }
+    while (i < n) {
+        arr[i++] = 0;
+    }
+}
+
+const char *match_mode_names[] = {
+    "MEPA_TS_MATCH_MODE_RANGE",
+    "MEPA_TS_MATCH_MODE_VALUE"
+};
+const char *clk_mode_names[] = {
+    "MEPA_TS_PTP_CLOCK_MODE_NONE",
+    "MEPA_TS_PTP_CLOCK_MODE_BC1STEP",
+    "MEPA_TS_PTP_CLOCK_MODE_BC2STEP",
+    "MEPA_TS_PTP_CLOCK_MODE_TC1STEP",
+    "MEPA_TS_PTP_CLOCK_MODE_TC2STEP"
+};
+const char *delaym_type_names[] = {
+    "MEPA_TS_PTP_DELAYM_P2P",
+    "MEPA_TS_PTP_DELAYM_E2E"
+};
+const char *pkt_encap_names[] = {
+    "MEPA_TS_ENCAP_NONE",
+    "MEPA_TS_ENCAP_ETH_PTP",
+    "MEPA_TS_ENCAP_ETH_IP_PTP",
+    "MEPA_TS_ENCAP_ETH_HSR_PTP",
+    "MEPA_TS_ENCAP_ETH_IP_IP_PTP",
+    "MEPA_TS_ENCAP_ETH_ETH_PTP",
+    "MEPA_TS_ENCAP_ETH_ETH_IP_PTP",
+    "MEPA_TS_ENCAP_ETH_MPLS_IP_PTP",
+    "MEPA_TS_ENCAP_ETH_MPLS_ETH_PTP",
+    "MEPA_TS_ENCAP_ETH_MPLS_ETH_IP_PTP"
+};
+const char *mac_match_mode_names[] = {
+    "MEPA_TS_ETH_ADDR_MATCH_ANY",
+    "MEPA_TS_ETH_ADDR_MATCH_48BIT",
+    "MEPA_TS_ETH_ADDR_MATCH_ANY_UNICAST",
+    "MEPA_TS_ETH_ADDR_MATCH_ANY_MULTICAST"
+};
+const char *mac_match_select_names[] = {
+    "MEPA_TS_ETH_MATCH_NONE",
+    "MEPA_TS_ETH_MATCH_DEST_ADDR",
+    "MEPA_TS_ETH_MATCH_SRC_ADDR",
+    "MEPA_TS_ETH_MATCH_SRC_OR_DEST"
+};
+const char *ip_ver_names[] = {
+    "MEPA_TS_IP_VER_4",
+    "MEPA_TS_IP_VER_6"
+};
+const char *ip_match_mode_names[] = {
+    "MEPA_TS_IP_MATCH_NONE",
+    "MEPA_TS_IP_MATCH_DEST",
+    "MEPA_TS_IP_MATCH_SRC",
+    "MEPA_TS_IP_MATCH_SRC_OR_DEST"
+};
+
+// Enum string tables
+const char *clk_freq_names[] = {
+    "MEPA_TS_CLOCK_FREQ_25M",
+    "MEPA_TS_CLOCK_FREQ_125M",
+    "MEPA_TS_CLOCK_FREQ_15625M",
+    "MEPA_TS_CLOCK_FREQ_200M",
+    "MEPA_TS_CLOCK_FREQ_250M",
+    "MEPA_TS_CLOCK_FREQ_500M",
+    "MEPA_TS_CLOCK_FREQ_MAX"
+};
+const char *clk_src_names[] = {
+    "MEPA_TS_CLOCK_SRC_EXTERNAL",
+    "MEPA_TS_CLOCK_SRC_CLIENT_RX",
+    "MEPA_TS_CLOCK_SRC_CLIENT_TX",
+    "MEPA_TS_CLOCK_SRC_INTERNAL",
+    "MEPA_TS_CLOCK_SRC_125MHZ_INTERNAL_SYS_PLL",
+    "MEPA_TS_CLOCK_SRC_125MHZ_QSGMII_REC_CLOCK",
+    "MEPA_TS_CLOCK_SRC_EXT_1588_REF_CLOCK",
+    "MEPA_TS_CLOCK_SRC_RESERVED",
+    "MEPA_TS_CLOCK_SRC_FROM_RX_PORT0",
+    "MEPA_TS_CLOCK_SRC_FROM_RX_PORT1",
+    "MEPA_TS_CLOCK_SRC_FROM_RX_PORT2",
+    "MEPA_TS_CLOCK_SRC_FROM_RX_PORT3"
+};
+const char *rx_ts_pos_names[] = {
+    "MEPA_TS_RX_TIMESTAMP_POS_IN_PTP",
+    "MEPA_TS_RX_TIMESTAMP_POS_AT_END"
+};
+const char *rx_ts_len_names[] = {
+    "MEPA_TS_RX_TIMESTAMP_LEN_30BIT",
+    "MEPA_TS_RX_TIMESTAMP_LEN_32BIT"
+};
+const char *tx_fifo_mode_names[] = {
+    "MEPA_TS_FIFO_MODE_NORMAL",
+    "MEPA_TS_FIFO_MODE_SPI"
+};
+const char *tx_ts_len_names[] = {
+    "MEPA_TS_FIFO_TIMESTAMP_LEN_4BYTE",
+    "MEPA_TS_FIFO_TIMESTAMP_LEN_10BYTE"
+};
+const char *tc_op_mode_names[] = {
+    "MEPA_TS_TC_OP_MODE_A",
+    "MEPA_TS_TC_OP_MODE_B",
+    "MEPA_TS_TC_OP_MODE_C"
+};
+const char *ts_len_names[] = {
+    "MEPA_MCH_TS_32NS_ONS",
+    "MEPA_MCH_TS_28NS_4SNS",
+    "MEPA_MCH_TS_24NS_8SNS",
+    "MEPA_MCH_TS_16NS_16SNS"
+};
+
+// Main parser function
+int parse_mepa_ts_init_conf(const char *filename, mepa_ts_init_conf_t *conf)
+{
+    FILE *f = fopen(filename, "r");
+    if (!f) {
+        return -1;
+    }
+    char line[256];
+    while (fgets(line, sizeof(line), f)) {
+        char *trimmed = trim(line);
+        if (trimmed[0] == '#' || trimmed[0] == '\0') {
+            continue;
+        }
+        char *eq = strchr(trimmed, '=');
+        if (!eq) {
+            continue;
+        }
+        *eq = '\0';
+        char *tag = trim(trimmed);
+        char *value = trim(eq + 1);
+
+        // Top-level fields
+        if (strcmp(tag, "clk_freq") == 0) {
+            int idx = parse_enum(value, clk_freq_names, sizeof(clk_freq_names) / sizeof(clk_freq_names[0]));
+            if (idx >= 0) {
+                conf->clk_freq = (mepa_ts_clock_freq_t)idx;
+            }
+        } else if (strcmp(tag, "clk_src") == 0) {
+            int idx = parse_enum(value, clk_src_names, sizeof(clk_src_names) / sizeof(clk_src_names[0]));
+            if (idx >= 0) {
+                conf->clk_src = (mepa_ts_clock_src_t)idx;
+            }
+        } else if (strcmp(tag, "rx_ts_pos") == 0) {
+            int idx = parse_enum(value, rx_ts_pos_names, sizeof(rx_ts_pos_names) / sizeof(rx_ts_pos_names[0]));
+            if (idx >= 0) {
+                conf->rx_ts_pos = (mepa_ts_rx_timestamp_pos_t)idx;
+            }
+        } else if (strcmp(tag, "rx_ts_len") == 0) {
+            int idx = parse_enum(value, rx_ts_len_names, sizeof(rx_ts_len_names) / sizeof(rx_ts_len_names[0]));
+            if (idx >= 0) {
+                conf->rx_ts_len = (mepa_ts_rx_timestamp_len_t)idx;
+            }
+        } else if (strcmp(tag, "tx_fifo_mode") == 0) {
+            int idx = parse_enum(value, tx_fifo_mode_names, sizeof(tx_fifo_mode_names) / sizeof(tx_fifo_mode_names[0]));
+            if (idx >= 0) {
+                conf->tx_fifo_mode = (mepa_ts_fifo_mode_t)idx;
+            }
+        } else if (strcmp(tag, "tx_ts_len") == 0) {
+            int idx = parse_enum(value, tx_ts_len_names, sizeof(tx_ts_len_names) / sizeof(tx_ts_len_names[0]));
+            if (idx >= 0) {
+                conf->tx_ts_len = (mepa_ts_fifo_timestamp_len_t)idx;
+            }
+        } else if (strcmp(tag, "tx_fifo_spi_conf") == 0) {
+            conf->tx_fifo_spi_conf = atoi(value) ? 1 : 0;
+        } else if (strcmp(tag, "auto_clear_ls") == 0) {
+            conf->auto_clear_ls = atoi(value) ? 1 : 0;
+        } else if (strcmp(tag, "tc_op_mode") == 0) {
+            int idx = parse_enum(value, tc_op_mode_names, sizeof(tc_op_mode_names) / sizeof(tc_op_mode_names[0]));
+            if (idx >= 0) {
+                conf->tc_op_mode = (mepa_ts_tc_op_mode_t)idx;
+            }
+        } else if (strcmp(tag, "dly_req_recv_10byte_ts") == 0) {
+            conf->dly_req_recv_10byte_ts = atoi(value) ? 1 : 0;
+        } else if (strcmp(tag, "tx_auto_followup_ts") == 0) {
+            conf->tx_auto_followup_ts = atoi(value) ? 1 : 0;
+        }
+        // Nested mch_pch_conf fields
+        else if (strcmp(tag, "mch_pch_conf.pch_en") == 0) {
+            conf->mch_pch_conf.pch_en = atoi(value) ? 1 : 0;
+        } else if (strcmp(tag, "mch_pch_conf.save_ts_with_crc_err") == 0) {
+            conf->mch_pch_conf.save_ts_with_crc_err = atoi(value) ? 1 : 0;
+        } else if (strcmp(tag, "mch_pch_conf.mch_en") == 0) {
+            conf->mch_pch_conf.mch_en = atoi(value) ? 1 : 0;
+        } else if (strcmp(tag, "mch_pch_conf.ts_len_ing") == 0) {
+            int idx = parse_enum(value, ts_len_names, sizeof(ts_len_names) / sizeof(ts_len_names[0]));
+            if (idx >= 0) {
+                conf->mch_pch_conf.ts_len_ing = (ing_egr_ts_len_t)idx;
+            }
+        } else if (strcmp(tag, "mch_pch_conf.ts_len_egr") == 0) {
+            int idx = parse_enum(value, ts_len_names, sizeof(ts_len_names) / sizeof(ts_len_names[0]));
+            if (idx >= 0) {
+                conf->mch_pch_conf.ts_len_egr = (ing_egr_ts_len_t)idx;
+            }
+        }
+    }
+    fclose(f);
+    return 0;
+}
+
+static void cli_cmd_ts_init_f(cli_req_t *req)
+{
+    mepa_port_no_t  port_no;
+    mepa_ts_init_conf_t ts_init_conf;
+
+    memset(&ts_init_conf, 0, sizeof(ts_init_conf));
+    if (parse_mepa_ts_init_conf("/root/mepa_scripts/ts_init_conf.cfg", &ts_init_conf) == 0) {
+        // conf is now filled with values from the config file
+        for (int iport = 0; iport < MAX_PRTS; iport++) {
+            port_no = iport2uport(iport);
+            if (req->port_list[port_no] == 0) {
+                continue;
+            }
+            if (!meba_ts_instance->phy_devices[iport]) {
+                cli_printf(" Dev is Not Created for the port : %d\n", iport);
+                return;
+            }
+            if (MEPA_RC_OK == mepa_ts_init_conf_set(meba_ts_instance->phy_devices[iport], &ts_init_conf)) {
+                cli_printf("\n ...... TS Block Configured on Port : %d......\n", iport);
+            } else {
+                cli_printf("\n ...... TS Block Configuration Failed on Port : %d......\n", iport);
+            }
+        }
+    } else {
+        cli_printf("cfg file open failed\n");
+    }
+    return;
+}
 
 static void cli_cmd_ts_ena(cli_req_t *req)
 {
@@ -837,6 +1110,8 @@ static void update_ts_classifier_encap(mepa_ts_classifier_t *ts_classifier, uint
         (encap_type == MEPA_TS_ENCAP_ETH_MPLS_ETH_IP_PTP)) {
         if (encap_type == MEPA_TS_ENCAP_ETH_IP_IP_PTP) {
             nheaderreq = 2;
+        } else {
+            nheaderreq = 1;
         }
 
         ip_ver = get_user_input("\n IP Version [0 : ip4v, 1: ip6v]: ");
@@ -1003,6 +1278,300 @@ static void cli_cmd_ts_tx_class_conf(cli_req_t *req)
     return;
 }
 
+int parse_mepa_ts_classifier(const char *filename, mepa_ts_classifier_t *conf)
+{
+    FILE *f = fopen(filename, "r");
+    if (!f) {
+        return -1;
+    }
+    char line[512];
+    int ip_class_conf_ipver = -1, ip2_class_conf_ipver = -1;
+    while (fgets(line, sizeof(line), f)) {
+        char *trimmed = trim(line);
+        if (trimmed[0] == '#' || trimmed[0] == '\0') {
+            continue;
+        }
+        char *eq = strchr(trimmed, '=');
+        if (!eq) {
+            continue;
+        }
+        *eq = '\0';
+        char *tag = trim(trimmed);
+        char *value = trim(eq + 1);
+
+        // Top-level
+        if (strcmp(tag, "enable") == 0) {
+            conf->enable = atoi(value) ? 1 : 0;
+        } else if (strcmp(tag, "pkt_encap_type") == 0) {
+            int idx = parse_enum(value, pkt_encap_names, sizeof(pkt_encap_names) / sizeof(pkt_encap_names[0]));
+            if (idx >= 0) {
+                conf->pkt_encap_type = (mepa_ts_pkt_encap_t)idx;
+            }
+        } else if (strcmp(tag, "clock_id") == 0) {
+            conf->clock_id = (uint16_t)strtoul(value, NULL, 0);
+        }
+        // eth_class_conf
+        else if (strcmp(tag, "eth_class_conf.mac_match_mode") == 0) {
+            int idx = parse_enum(value, mac_match_mode_names, sizeof(mac_match_mode_names) / sizeof(mac_match_mode_names[0]));
+            if (idx >= 0) {
+                conf->eth_class_conf.mac_match_mode = (mepa_ts_mac_match_mode_t)idx;
+            }
+        } else if (strcmp(tag, "eth_class_conf.mac_match_select") == 0) {
+            int idx = parse_enum(value, mac_match_select_names, sizeof(mac_match_select_names) / sizeof(mac_match_select_names[0]));
+            if (idx >= 0) {
+                conf->eth_class_conf.mac_match_select = (mepa_ts_mac_match_select_t)idx;
+            }
+        } else if (strcmp(tag, "eth_class_conf.mac_addr") == 0) {
+            parse_mac(value, conf->eth_class_conf.mac_addr);
+        } else if (strcmp(tag, "eth_class_conf.vlan_check") == 0) {
+            conf->eth_class_conf.vlan_check = atoi(value) ? 1 : 0;
+        } else if (strcmp(tag, "eth_class_conf.vlan_conf.pbb_en") == 0) {
+            conf->eth_class_conf.vlan_conf.pbb_en = atoi(value) ? 1 : 0;
+        } else if (strcmp(tag, "eth_class_conf.vlan_conf.tpid") == 0) {
+            conf->eth_class_conf.vlan_conf.tpid = (uint16_t)strtoul(value, NULL, 0);
+        } else if (strcmp(tag, "eth_class_conf.vlan_conf.etype") == 0) {
+            conf->eth_class_conf.vlan_conf.etype = (uint16_t)strtoul(value, NULL, 0);
+        } else if (strcmp(tag, "eth_class_conf.vlan_conf.num_tag") == 0) {
+            conf->eth_class_conf.vlan_conf.num_tag = (uint8_t)atoi(value);
+        } else if (strcmp(tag, "eth_class_conf.vlan_conf.outer_tag.mode") == 0) {
+            conf->eth_class_conf.vlan_conf.outer_tag.mode = (mepa_ts_match_mode_t)atoi(value);
+        } else if (strcmp(tag, "eth_class_conf.vlan_conf.outer_tag.match.range.lower") == 0) {
+            conf->eth_class_conf.vlan_conf.outer_tag.match.range.lower = (uint16_t)strtoul(value, NULL, 0);
+        } else if (strcmp(tag, "eth_class_conf.vlan_conf.outer_tag.match.range.upper") == 0) {
+            conf->eth_class_conf.vlan_conf.outer_tag.match.range.upper = (uint16_t)strtoul(value, NULL, 0);
+        } else if (strcmp(tag, "eth_class_conf.vlan_conf.outer_tag.match.value.val") == 0) {
+            conf->eth_class_conf.vlan_conf.outer_tag.match.value.val = (uint16_t)strtoul(value, NULL, 0);
+        } else if (strcmp(tag, "eth_class_conf.vlan_conf.outer_tag.match.value.mask") == 0) {
+            conf->eth_class_conf.vlan_conf.outer_tag.match.value.mask = (uint16_t)strtoul(value, NULL, 0);
+        } else if (strcmp(tag, "eth_class_conf.vlan_conf.inner_tag.mode") == 0) {
+            conf->eth_class_conf.vlan_conf.inner_tag.mode = (mepa_ts_match_mode_t)atoi(value);
+        } else if (strcmp(tag, "eth_class_conf.vlan_conf.inner_tag.match.range.lower") == 0) {
+            conf->eth_class_conf.vlan_conf.inner_tag.match.range.lower = (uint16_t)strtoul(value, NULL, 0);
+        } else if (strcmp(tag, "eth_class_conf.vlan_conf.inner_tag.match.range.upper") == 0) {
+            conf->eth_class_conf.vlan_conf.inner_tag.match.range.upper = (uint16_t)strtoul(value, NULL, 0);
+        } else if (strcmp(tag, "eth_class_conf.vlan_conf.inner_tag.match.value.val") == 0) {
+            conf->eth_class_conf.vlan_conf.inner_tag.match.value.val = (uint16_t)strtoul(value, NULL, 0);
+        } else if (strcmp(tag, "eth_class_conf.vlan_conf.inner_tag.match.value.mask") == 0) {
+            conf->eth_class_conf.vlan_conf.inner_tag.match.value.mask = (uint16_t)strtoul(value, NULL, 0);
+        }
+        // ip_class_conf
+        else if (strcmp(tag, "ip_class_conf.ip_ver") == 0) {
+            int idx = parse_enum(value, ip_ver_names, sizeof(ip_ver_names) / sizeof(ip_ver_names[0]));
+            if (idx >= 0) {
+                conf->ip_class_conf.ip_ver = (mepa_ts_ip_ver_t)idx;
+                ip_class_conf_ipver = idx;
+            }
+        } else if (strcmp(tag, "ip_class_conf.ip_match_mode") == 0) {
+            int idx = parse_enum(value, ip_match_mode_names, sizeof(ip_match_mode_names) / sizeof(ip_match_mode_names[0]));
+            if (idx >= 0) {
+                conf->ip_class_conf.ip_match_mode = (mepa_ts_ip_match_select_t)idx;
+            }
+        } else if (strncmp(tag, "ip_class_conf.ip_addr.ipv4.", 27) == 0 && ip_class_conf_ipver == 0) {
+            if (strcmp(tag, "ip_class_conf.ip_addr.ipv4.addr") == 0) {
+                conf->ip_class_conf.ip_addr.ipv4.addr = (uint32_t)strtoul(value, NULL, 0);
+            } else if (strcmp(tag, "ip_class_conf.ip_addr.ipv4.mask") == 0) {
+                conf->ip_class_conf.ip_addr.ipv4.mask = (uint32_t)strtoul(value, NULL, 0);
+            }
+        } else if (strncmp(tag, "ip_class_conf.ip_addr.ipv6.", 27) == 0 && ip_class_conf_ipver == 1) {
+            if (strcmp(tag, "ip_class_conf.ip_addr.ipv6.addr") == 0) {
+                parse_u32_array(value, conf->ip_class_conf.ip_addr.ipv6.addr, 4);
+            } else if (strcmp(tag, "ip_class_conf.ip_addr.ipv6.mask") == 0) {
+                parse_u32_array(value, conf->ip_class_conf.ip_addr.ipv6.mask, 4);
+            }
+        } else if (strcmp(tag, "ip_class_conf.udp_sport_en") == 0) {
+            conf->ip_class_conf.udp_sport_en = atoi(value) ? 1 : 0;
+        } else if (strcmp(tag, "ip_class_conf.udp_dport_en") == 0) {
+            conf->ip_class_conf.udp_dport_en = atoi(value) ? 1 : 0;
+        } else if (strcmp(tag, "ip_class_conf.udp_sport") == 0) {
+            conf->ip_class_conf.udp_sport = (uint16_t)strtoul(value, NULL, 0);
+        } else if (strcmp(tag, "ip_class_conf.udp_dport") == 0) {
+            conf->ip_class_conf.udp_dport = (uint16_t)strtoul(value, NULL, 0);
+        }
+        // eth2_class_conf
+        else if (strncmp(tag, "eth2_class_conf.", 16) == 0) {
+            char *subtag = tag + 16;
+            if (strcmp(subtag, "mac_match_mode") == 0) {
+                int idx = parse_enum(value, mac_match_mode_names, sizeof(mac_match_mode_names) / sizeof(mac_match_mode_names[0]));
+                if (idx >= 0) {
+                    conf->eth2_class_conf.mac_match_mode = (mepa_ts_mac_match_mode_t)idx;
+                }
+            } else if (strcmp(subtag, "mac_match_select") == 0) {
+                int idx = parse_enum(value, mac_match_select_names, sizeof(mac_match_select_names) / sizeof(mac_match_select_names[0]));
+                if (idx >= 0) {
+                    conf->eth2_class_conf.mac_match_select = (mepa_ts_mac_match_select_t)idx;
+                }
+            } else if (strcmp(subtag, "mac_addr") == 0) {
+                parse_mac(value, conf->eth2_class_conf.mac_addr);
+            } else if (strcmp(subtag, "vlan_check") == 0) {
+                conf->eth2_class_conf.vlan_check = atoi(value) ? 1 : 0;
+            } else if (strcmp(subtag, "vlan_conf.pbb_en") == 0) {
+                conf->eth2_class_conf.vlan_conf.pbb_en = atoi(value) ? 1 : 0;
+            } else if (strcmp(subtag, "vlan_conf.tpid") == 0) {
+                conf->eth2_class_conf.vlan_conf.tpid = (uint16_t)strtoul(value, NULL, 0);
+            } else if (strcmp(subtag, "vlan_conf.etype") == 0) {
+                conf->eth2_class_conf.vlan_conf.etype = (uint16_t)strtoul(value, NULL, 0);
+            } else if (strcmp(subtag, "vlan_conf.num_tag") == 0) {
+                conf->eth2_class_conf.vlan_conf.num_tag = (uint8_t)atoi(value);
+            } else if (strcmp(subtag, "vlan_conf.outer_tag.mode") == 0) {
+                conf->eth2_class_conf.vlan_conf.outer_tag.mode = (mepa_ts_match_mode_t)atoi(value);
+            } else if (strcmp(subtag, "vlan_conf.outer_tag.match.range.lower") == 0) {
+                conf->eth2_class_conf.vlan_conf.outer_tag.match.range.lower = (uint16_t)strtoul(value, NULL, 0);
+            } else if (strcmp(subtag, "vlan_conf.outer_tag.match.range.upper") == 0) {
+                conf->eth2_class_conf.vlan_conf.outer_tag.match.range.upper = (uint16_t)strtoul(value, NULL, 0);
+            } else if (strcmp(subtag, "vlan_conf.outer_tag.match.value.val") == 0) {
+                conf->eth2_class_conf.vlan_conf.outer_tag.match.value.val = (uint16_t)strtoul(value, NULL, 0);
+            } else if (strcmp(subtag, "vlan_conf.outer_tag.match.value.mask") == 0) {
+                conf->eth2_class_conf.vlan_conf.outer_tag.match.value.mask = (uint16_t)strtoul(value, NULL, 0);
+            } else if (strcmp(subtag, "vlan_conf.inner_tag.mode") == 0) {
+                conf->eth2_class_conf.vlan_conf.inner_tag.mode = (mepa_ts_match_mode_t)atoi(value);
+            } else if (strcmp(subtag, "vlan_conf.inner_tag.match.range.lower") == 0) {
+                conf->eth2_class_conf.vlan_conf.inner_tag.match.range.lower = (uint16_t)strtoul(value, NULL, 0);
+            } else if (strcmp(subtag, "vlan_conf.inner_tag.match.range.upper") == 0) {
+                conf->eth2_class_conf.vlan_conf.inner_tag.match.range.upper = (uint16_t)strtoul(value, NULL, 0);
+            } else if (strcmp(subtag, "vlan_conf.inner_tag.match.value.val") == 0) {
+                conf->eth2_class_conf.vlan_conf.inner_tag.match.value.val = (uint16_t)strtoul(value, NULL, 0);
+            } else if (strcmp(subtag, "vlan_conf.inner_tag.match.value.mask") == 0) {
+                conf->eth2_class_conf.vlan_conf.inner_tag.match.value.mask = (uint16_t)strtoul(value, NULL, 0);
+            }
+        }
+        // ip2_class_conf
+        else if (strcmp(tag, "ip2_class_conf.ip_ver") == 0) {
+            int idx = parse_enum(value, ip_ver_names, sizeof(ip_ver_names) / sizeof(ip_ver_names[0]));
+            if (idx >= 0) {
+                conf->ip2_class_conf.ip_ver = (mepa_ts_ip_ver_t)idx;
+                ip2_class_conf_ipver = idx;
+            }
+        } else if (strcmp(tag, "ip2_class_conf.ip_match_mode") == 0) {
+            int idx = parse_enum(value, ip_match_mode_names, sizeof(ip_match_mode_names) / sizeof(ip_match_mode_names[0]));
+            if (idx >= 0) {
+                conf->ip2_class_conf.ip_match_mode = (mepa_ts_ip_match_select_t)idx;
+            }
+        } else if (strncmp(tag, "ip2_class_conf.ip_addr.ipv4.", 27) == 0 && ip2_class_conf_ipver == 0) {
+            if (strcmp(tag, "ip2_class_conf.ip_addr.ipv4.addr") == 0) {
+                conf->ip2_class_conf.ip_addr.ipv4.addr = (uint32_t)strtoul(value, NULL, 0);
+            } else if (strcmp(tag, "ip2_class_conf.ip_addr.ipv4.mask") == 0) {
+                conf->ip2_class_conf.ip_addr.ipv4.mask = (uint32_t)strtoul(value, NULL, 0);
+            }
+        } else if (strncmp(tag, "ip2_class_conf.ip_addr.ipv6.", 27) == 0 && ip2_class_conf_ipver == 1) {
+            if (strcmp(tag, "ip2_class_conf.ip_addr.ipv6.addr") == 0) {
+                parse_u32_array(value, conf->ip2_class_conf.ip_addr.ipv6.addr, 4);
+            } else if (strcmp(tag, "ip2_class_conf.ip_addr.ipv6.mask") == 0) {
+                parse_u32_array(value, conf->ip2_class_conf.ip_addr.ipv6.mask, 4);
+            }
+        } else if (strcmp(tag, "ip2_class_conf.udp_sport_en") == 0) {
+            conf->ip2_class_conf.udp_sport_en = atoi(value) ? 1 : 0;
+        } else if (strcmp(tag, "ip2_class_conf.udp_dport_en") == 0) {
+            conf->ip2_class_conf.udp_dport_en = atoi(value) ? 1 : 0;
+        } else if (strcmp(tag, "ip2_class_conf.udp_sport") == 0) {
+            conf->ip2_class_conf.udp_sport = (uint16_t)strtoul(value, NULL, 0);
+        } else if (strcmp(tag, "ip2_class_conf.udp_dport") == 0) {
+            conf->ip2_class_conf.udp_dport = (uint16_t)strtoul(value, NULL, 0);
+        }
+        // mpls_class_conf
+        else if (strncmp(tag, "mpls_class_conf.", 16) == 0) {
+            char *subtag = tag + 16;
+            if (strcmp(subtag, "cw_en") == 0) {
+                conf->mpls_class_conf.cw_en = atoi(value) ? 1 : 0;
+            } else if (strcmp(subtag, "flow_en") == 0) {
+                conf->mpls_class_conf.flow_en = atoi(value) ? 1 : 0;
+            } else if (strcmp(subtag, "stack_depth") == 0) {
+                conf->mpls_class_conf.stack_depth = (uint8_t)atoi(value);
+            } else if (strcmp(subtag, "stack_ref_point") == 0) {
+                conf->mpls_class_conf.stack_ref_point = (uint8_t)atoi(value);
+            } else if (strcmp(subtag, "stack_level.first_lvl.lower") == 0) {
+                conf->mpls_class_conf.stack_level.first_lvl.lower = (uint32_t)strtoul(value, NULL, 0);
+            } else if (strcmp(subtag, "stack_level.first_lvl.upper") == 0) {
+                conf->mpls_class_conf.stack_level.first_lvl.upper = (uint32_t)strtoul(value, NULL, 0);
+            } else if (strcmp(subtag, "stack_level.first_lvl.match_mode") == 0) {
+                conf->mpls_class_conf.stack_level.first_lvl.match_mode = (uint8_t)atoi(value);
+            } else if (strcmp(subtag, "stack_level.second_lvl.lower") == 0) {
+                conf->mpls_class_conf.stack_level.second_lvl.lower = (uint32_t)strtoul(value, NULL, 0);
+            } else if (strcmp(subtag, "stack_level.second_lvl.upper") == 0) {
+                conf->mpls_class_conf.stack_level.second_lvl.upper = (uint32_t)strtoul(value, NULL, 0);
+            } else if (strcmp(subtag, "stack_level.second_lvl.match_mode") == 0) {
+                conf->mpls_class_conf.stack_level.second_lvl.match_mode = (uint8_t)atoi(value);
+            } else if (strcmp(subtag, "stack_level.third_lvl.lower") == 0) {
+                conf->mpls_class_conf.stack_level.third_lvl.lower = (uint32_t)strtoul(value, NULL, 0);
+            } else if (strcmp(subtag, "stack_level.third_lvl.upper") == 0) {
+                conf->mpls_class_conf.stack_level.third_lvl.upper = (uint32_t)strtoul(value, NULL, 0);
+            } else if (strcmp(subtag, "stack_level.third_lvl.match_mode") == 0) {
+                conf->mpls_class_conf.stack_level.third_lvl.match_mode = (uint8_t)atoi(value);
+            } else if (strcmp(subtag, "stack_level.fourth_lvl.lower") == 0) {
+                conf->mpls_class_conf.stack_level.fourth_lvl.lower = (uint32_t)strtoul(value, NULL, 0);
+            } else if (strcmp(subtag, "stack_level.fourth_lvl.upper") == 0) {
+                conf->mpls_class_conf.stack_level.fourth_lvl.upper = (uint32_t)strtoul(value, NULL, 0);
+            } else if (strcmp(subtag, "stack_level.fourth_lvl.match_mode") == 0) {
+                conf->mpls_class_conf.stack_level.fourth_lvl.match_mode = (uint8_t)atoi(value);
+            }
+        }
+    }
+    fclose(f);
+    return 0;
+}
+
+static void cli_cmd_ts_tx_class_f(cli_req_t *req)
+{
+    mepa_port_no_t  port_no;
+    mepa_ts_classifier_t ts_classifier;
+    uint16_t flow_index = 0;
+
+    memset(&ts_classifier, 0, sizeof(ts_classifier));
+    if (parse_mepa_ts_classifier("/root/mepa_scripts/ts_tx_class.cfg", &ts_classifier) == 0) {
+        // conf is now filled with values from the config file
+        for (int iport = 0; iport < MAX_PRTS; iport++) {
+            port_no = iport2uport(iport);
+            if (req->port_list[port_no] == 0) {
+                continue;
+            }
+            if (!meba_ts_instance->phy_devices[iport]) {
+                cli_printf(" Dev is Not Created for the port : %d\n", iport);
+                return;
+            }
+
+            if (MEPA_RC_OK == mepa_ts_tx_classifier_conf_set(meba_ts_instance->phy_devices[iport], flow_index, &ts_classifier)) {
+                cli_printf("\n ...... TS Tx classifier Configuration on Port : %d......\n", iport);
+            } else {
+                cli_printf("\n ...... TS Tx classifier Configuration Failed on Port : %d......\n", iport);
+            }
+        }
+    } else {
+        cli_printf("cfg file open failed\n");
+    }
+    return;
+}
+
+
+static void cli_cmd_ts_rx_class_f(cli_req_t *req)
+{
+    mepa_port_no_t  port_no;
+    mepa_ts_classifier_t ts_classifier;
+    uint16_t flow_index = 0;
+
+    memset(&ts_classifier, 0, sizeof(ts_classifier));
+    if (parse_mepa_ts_classifier("/root/mepa_scripts/ts_rx_class.cfg", &ts_classifier) == 0) {
+        // conf is now filled with values from the config file
+        for (int iport = 0; iport < MAX_PRTS; iport++) {
+            port_no = iport2uport(iport);
+            if (req->port_list[port_no] == 0) {
+                continue;
+            }
+            if (!meba_ts_instance->phy_devices[iport]) {
+                cli_printf(" Dev is Not Created for the port : %d\n", iport);
+                return;
+            }
+
+            if (MEPA_RC_OK == mepa_ts_rx_classifier_conf_set(meba_ts_instance->phy_devices[iport], flow_index, &ts_classifier)) {
+                cli_printf("\n ...... TS Tx classifier Configuration on Port : %d......\n", iport);
+            } else {
+                cli_printf("\n ...... TS Tx classifier Configuration Failed on Port : %d......\n", iport);
+            }
+        }
+    } else {
+        cli_printf("cfg file open failed\n");
+    }
+    return;
+}
+
 static void update_ptp_clock_conf(mepa_ts_ptp_clock_conf_t *ptp_clock_conf)
 {
     ptp_clock_conf->enable = 1;
@@ -1069,6 +1638,172 @@ static void cli_cmd_ts_tx_clock_conf(cli_req_t *req)
     }
     return;
 }
+
+int parse_mepa_ts_ptp_clock_conf(const char *filename, mepa_ts_ptp_clock_conf_t *conf)
+{
+    FILE *f = fopen(filename, "r");
+    if (!f) {
+        return -1;
+    }
+    char line[256];
+    while (fgets(line, sizeof(line), f)) {
+        char *trimmed = trim(line);
+        if (trimmed[0] == '#' || trimmed[0] == '\0') {
+            continue;
+        }
+        char *eq = strchr(trimmed, '=');
+        if (!eq) {
+            continue;
+        }
+        *eq = '\0';
+        char *tag = trim(trimmed);
+        char *value = trim(eq + 1);
+
+        // Top-level
+        if (strcmp(tag, "enable") == 0) {
+            conf->enable = atoi(value) ? 1 : 0;
+        }
+        // ptp_class_conf.version
+        else if (strcmp(tag, "ptp_class_conf.version.lower") == 0) {
+            conf->ptp_class_conf.version.lower = (uint8_t)strtoul(value, NULL, 0);
+        } else if (strcmp(tag, "ptp_class_conf.version.upper") == 0) {
+            conf->ptp_class_conf.version.upper = (uint8_t)strtoul(value, NULL, 0);
+        }
+        // ptp_class_conf.minor_version
+        else if (strcmp(tag, "ptp_class_conf.minor_version.lower") == 0) {
+            conf->ptp_class_conf.minor_version.lower = (uint8_t)strtoul(value, NULL, 0);
+        } else if (strcmp(tag, "ptp_class_conf.minor_version.upper") == 0) {
+            conf->ptp_class_conf.minor_version.upper = (uint8_t)strtoul(value, NULL, 0);
+        }
+        // ptp_class_conf.domain
+        else if (strcmp(tag, "ptp_class_conf.domain.mode") == 0) {
+            int idx = parse_enum(value, match_mode_names, sizeof(match_mode_names) / sizeof(match_mode_names[0]));
+            if (idx >= 0) {
+                conf->ptp_class_conf.domain.mode = (mepa_ts_match_mode_t)idx;
+            }
+        } else if (strcmp(tag, "ptp_class_conf.domain.match.range.lower") == 0) {
+            conf->ptp_class_conf.domain.match.range.lower = (uint8_t)strtoul(value, NULL, 0);
+        } else if (strcmp(tag, "ptp_class_conf.domain.match.range.upper") == 0) {
+            conf->ptp_class_conf.domain.match.range.upper = (uint8_t)strtoul(value, NULL, 0);
+        } else if (strcmp(tag, "ptp_class_conf.domain.match.value.val") == 0) {
+            conf->ptp_class_conf.domain.match.value.val = (uint8_t)strtoul(value, NULL, 0);
+        } else if (strcmp(tag, "ptp_class_conf.domain.match.value.mask") == 0) {
+            conf->ptp_class_conf.domain.match.value.mask = (uint8_t)strtoul(value, NULL, 0);
+        }
+        // ptp_class_conf.sdoid
+        else if (strcmp(tag, "ptp_class_conf.sdoid.mode") == 0) {
+            int idx = parse_enum(value, match_mode_names, sizeof(match_mode_names) / sizeof(match_mode_names[0]));
+            if (idx >= 0) {
+                conf->ptp_class_conf.sdoid.mode = (mepa_ts_match_mode_t)idx;
+            }
+        } else if (strcmp(tag, "ptp_class_conf.sdoid.match.range.lower") == 0) {
+            conf->ptp_class_conf.sdoid.match.range.lower = (uint8_t)strtoul(value, NULL, 0);
+        } else if (strcmp(tag, "ptp_class_conf.sdoid.match.range.upper") == 0) {
+            conf->ptp_class_conf.sdoid.match.range.upper = (uint8_t)strtoul(value, NULL, 0);
+        } else if (strcmp(tag, "ptp_class_conf.sdoid.match.value.val") == 0) {
+            conf->ptp_class_conf.sdoid.match.value.val = (uint8_t)strtoul(value, NULL, 0);
+        } else if (strcmp(tag, "ptp_class_conf.sdoid.match.value.mask") == 0) {
+            conf->ptp_class_conf.sdoid.match.value.mask = (uint8_t)strtoul(value, NULL, 0);
+        }
+        // clk_mode
+        else if (strcmp(tag, "clk_mode") == 0) {
+            int idx = parse_enum(value, clk_mode_names, sizeof(clk_mode_names) / sizeof(clk_mode_names[0]));
+            if (idx >= 0) {
+                conf->clk_mode = (mepa_ts_ptp_clock_mode_t)idx;
+            }
+        }
+        // delaym_type
+        else if (strcmp(tag, "delaym_type") == 0) {
+            int idx = parse_enum(value, delaym_type_names, sizeof(delaym_type_names) / sizeof(delaym_type_names[0]));
+            if (idx >= 0) {
+                conf->delaym_type = (mepa_ts_ptp_delaym_type_t)idx;
+            }
+        }
+        // cf_update
+        else if (strcmp(tag, "cf_update") == 0) {
+            conf->cf_update = atoi(value) ? 1 : 0;
+        }
+    }
+    fclose(f);
+    return 0;
+}
+
+static void cli_cmd_ts_tx_clock_f(cli_req_t *req)
+{
+    mepa_port_no_t  port_no;
+    mepa_ts_ptp_clock_conf_t ts_clock;
+    uint16_t clk_id = 0;
+
+    memset(&ts_clock, 0, sizeof(ts_clock));
+    if (parse_mepa_ts_ptp_clock_conf("/root/mepa_scripts/ts_tx_clock.cfg", &ts_clock) == 0) {
+        // conf is now filled with values from the config file
+        for (int iport = 0; iport < MAX_PRTS; iport++) {
+            port_no = iport2uport(iport);
+            if (req->port_list[port_no] == 0) {
+                continue;
+            }
+            if (!meba_ts_instance->phy_devices[iport]) {
+                cli_printf(" Dev is Not Created for the port : %d\n", iport);
+                return;
+            }
+
+            if (MEPA_RC_OK == mepa_ts_tx_clock_conf_set(meba_ts_instance->phy_devices[iport], clk_id, &ts_clock)) {
+                cli_printf("\n ...... TS Tx Clock Configuration on Port : %d......\n", iport);
+            } else {
+                cli_printf("\n ...... TS Tx Clock Configuration Failed on Port : %d......\n", iport);
+                return;
+            }
+            /*
+            * MEPA-1155
+            * TS event must be enabled for all ports irrespective of the clock mode
+            */
+            mepa_ts_fifo_read_install(meba_ts_instance->phy_devices[iport], NULL);
+            mepa_ts_event_set(meba_ts_instance->phy_devices[iport], 1, 0xFFFF);
+        }
+    } else {
+        cli_printf("cfg file open failed\n");
+    }
+
+    return;
+}
+
+
+static void cli_cmd_ts_rx_clock_f(cli_req_t *req)
+{
+    mepa_port_no_t  port_no;
+    mepa_ts_ptp_clock_conf_t ts_clock;
+    uint16_t clk_id = 0;
+
+    memset(&ts_clock, 0, sizeof(ts_clock));
+    if (parse_mepa_ts_ptp_clock_conf("mepa_scripts/ts_rx_clock.cfg", &ts_clock) == 0) {
+        // conf is now filled with values from the config file
+        for (int iport = 0; iport < MAX_PRTS; iport++) {
+            port_no = iport2uport(iport);
+            if (req->port_list[port_no] == 0) {
+                continue;
+            }
+            if (!meba_ts_instance->phy_devices[iport]) {
+                cli_printf(" Dev is Not Created for the port : %d\n", iport);
+                return;
+            }
+
+            if (MEPA_RC_OK == mepa_ts_rx_clock_conf_set(meba_ts_instance->phy_devices[iport], clk_id, &ts_clock)) {
+                cli_printf("\n ...... TS Tx Clock Configuration on Port : %d......\n", iport);
+            } else {
+                cli_printf("\n ...... TS Tx Clock Configuration Failed on Port : %d......\n", iport);
+                return;
+            }
+            /*
+            * MEPA-1155
+            * TS event must be enabled for all ports irrespective of the clock mode
+            */
+            mepa_ts_fifo_read_install(meba_ts_instance->phy_devices[iport], NULL);
+            mepa_ts_event_set(meba_ts_instance->phy_devices[iport], 1, 0xFFFF);
+        }
+    }
+    return;
+}
+
 
 static void cli_cmd_ts_rx_class_conf(cli_req_t *req)
 {
@@ -1818,9 +2553,45 @@ static cli_cmd_t cli_cmd_ts_table[] = {
 
 static cli_cmd_t cli_cmd_table[] = {
     {
-        "ts",
+        "ts demo",
         "Time Stamping Operational Demo",
         cli_cmd_ts_demo,
+    },
+    {
+        "ts init <port_list>",
+        "TS init configuration",
+        cli_cmd_ts_init_f,
+    },
+    {
+        "ts tx_class <port_list>",
+        "Configures Tx classifier",
+        cli_cmd_ts_tx_class_f,
+    },
+    {
+        "ts tx_clock <port_list>",
+        "Configures Tx clock",
+        cli_cmd_ts_tx_clock_f,
+    },
+    {
+        "ts rx_class <port_list>",
+        "Configures Tx classifier",
+        cli_cmd_ts_rx_class_f,
+    },
+    {
+        "ts rx_clock <port_list>",
+        "Configures Tx clock",
+        cli_cmd_ts_rx_clock_f,
+    },
+    {
+        "ts enable <port_list>",
+        "Enable the TS Block",
+        cli_cmd_ts_ena,
+    },
+
+    {
+        "ts disable <port_list>",
+        "Disable the TS Block",
+        cli_cmd_ts_dis,
     },
 };
 

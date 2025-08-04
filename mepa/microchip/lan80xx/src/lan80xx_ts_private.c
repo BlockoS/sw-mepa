@@ -2496,142 +2496,138 @@ static mepa_rc lan80xx_ts_ip1_flow_conf(mepa_device_t *dev,
     if (eng_id == LAN80XX_PHY_TS_OAM_ENGINE_ID_2A ||
         eng_id == LAN80XX_PHY_TS_OAM_ENGINE_ID_2B) {
         return MEPA_RC_ERROR;
+    }
+    if ((rc = lan80xx_phy_ts_ana_blk_id_get(eng_id, ingress, &blk_id)) != MEPA_RC_OK) {
+        return MEPA_RC_ERROR;
+    }
+
+    if (double_ip) {
+        if (old_ip_conf->comm_opt.ip_mode != ip_conf->comm_opt.ip_mode) {
+            if (ip_conf->comm_opt.ip_mode == LAN80XX_PHY_TS_IP_VER_4) {
+                /* IP1 next protocol i.e. number of bytes in this header */
+                MEPA_RC(LAN80XX_PHY_TS_READ_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR, &value));
+                value = LAN80XX_PHY_TS_CLR_BITS(value, LAN80XX_M_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR_IP1_NXT_COMPARATOR) |
+                        LAN80XX_F_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR_IP1_NXT_COMPARATOR(next_comp);
+                value = LAN80XX_PHY_TS_CLR_BITS(value, LAN80XX_M_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR_IP1_NXT_PROTOCOL)
+                        | LAN80XX_F_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR_IP1_NXT_PROTOCOL(20);    /* default IP4 header length */
+                MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR, &value));
+                MEPA_RC(lan80xx_phy_ts_ip1_different_offset_set(dev, data->port_no, blk_id, LAN80XX_PHY_TS_IP_VER_4, TRUE));
+            } else if (ip_conf->comm_opt.ip_mode == LAN80XX_PHY_TS_IP_VER_6) {
+                /* IP1 next protocol i.e. number of bytes in this header */
+                MEPA_RC(LAN80XX_PHY_TS_READ_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR, &value));
+                value = LAN80XX_PHY_TS_CLR_BITS(value, LAN80XX_M_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR_IP1_NXT_COMPARATOR) |
+                        LAN80XX_F_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR_IP1_NXT_COMPARATOR(next_comp);
+                value = LAN80XX_PHY_TS_CLR_BITS(value, LAN80XX_M_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR_IP1_NXT_PROTOCOL)
+                        | LAN80XX_F_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR_IP1_NXT_PROTOCOL(40);
+                MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR, &value));
+                MEPA_RC(lan80xx_phy_ts_ip1_different_offset_set(dev, data->port_no, blk_id, LAN80XX_PHY_TS_IP_VER_6, TRUE));
+            }
+        }
+
+        /* Src and dest port number is not valid for IP1 i.e. IP over IP,
+        so PROT_MATCH_2 no need to config, already set to default from
+        def conf */
 
     } else {
-        if ((rc = lan80xx_phy_ts_ana_blk_id_get(eng_id, ingress, &blk_id)) != MEPA_RC_OK) {
-            return MEPA_RC_ERROR;
-        }
-
-        if (double_ip) {
-            if (old_ip_conf->comm_opt.ip_mode != ip_conf->comm_opt.ip_mode) {
-                if (ip_conf->comm_opt.ip_mode == LAN80XX_PHY_TS_IP_VER_4) {
-                    /* IP1 next protocol i.e. number of bytes in this header */
-                    MEPA_RC(LAN80XX_PHY_TS_READ_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR, &value));
-                    value = LAN80XX_PHY_TS_CLR_BITS(value, LAN80XX_M_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR_IP1_NXT_COMPARATOR) |
-                            LAN80XX_F_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR_IP1_NXT_COMPARATOR(next_comp);
-                    value = LAN80XX_PHY_TS_CLR_BITS(value, LAN80XX_M_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR_IP1_NXT_PROTOCOL)
-                            | LAN80XX_F_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR_IP1_NXT_PROTOCOL(20);    /* default IP4 header length */
-                    MEPA_RC(lan80xx_phy_ts_ip1_different_offset_set(dev, data->port_no, blk_id, LAN80XX_PHY_TS_IP_VER_4, TRUE))
-                    MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR, &value));
-                } else if (ip_conf->comm_opt.ip_mode == LAN80XX_PHY_TS_IP_VER_6) {
-                    /* IP1 next protocol i.e. number of bytes in this header */
-                    MEPA_RC(LAN80XX_PHY_TS_READ_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR, &value));
-                    value = LAN80XX_PHY_TS_CLR_BITS(value, LAN80XX_M_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR_IP1_NXT_COMPARATOR) |
-                            LAN80XX_F_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR_IP1_NXT_COMPARATOR(next_comp);
-                    value = LAN80XX_PHY_TS_CLR_BITS(value, LAN80XX_M_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR_IP1_NXT_PROTOCOL)
-                            | LAN80XX_F_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR_IP1_NXT_PROTOCOL(40);
-                    MEPA_RC(lan80xx_phy_ts_ip1_different_offset_set(dev, data->port_no, blk_id, LAN80XX_PHY_TS_IP_VER_6, TRUE));
-                    MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR, &value));
-                }
-
-            }
-
-            /* Src and dest port number is not valid for IP1 i.e. IP over IP,
-            so PROT_MATCH_2 no need to config, already set to default from
-            def conf */
-
-        } else {
-            if (old_ip_conf->comm_opt.ip_mode != ip_conf->comm_opt.ip_mode) {
-                if (ip_conf->comm_opt.ip_mode == LAN80XX_PHY_TS_IP_VER_4) {
-                    /* IP1 next protocol i.e. number of bytes in this header */
-                    MEPA_RC(LAN80XX_PHY_TS_READ_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR, &value));
-                    value = LAN80XX_PHY_TS_CLR_BITS(value, LAN80XX_M_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR_IP1_NXT_COMPARATOR) |
-                            LAN80XX_F_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR_IP1_NXT_COMPARATOR(next_comp);
-                    value = LAN80XX_PHY_TS_CLR_BITS(value, LAN80XX_M_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR_IP1_NXT_PROTOCOL)
-                            | LAN80XX_F_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR_IP1_NXT_PROTOCOL(28);
-                    MEPA_RC(lan80xx_phy_ts_ip1_different_offset_set(dev, data->port_no, blk_id, LAN80XX_PHY_TS_IP_VER_4, FALSE))
-                    MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR, &value));
-                } else if (ip_conf->comm_opt.ip_mode == LAN80XX_PHY_TS_IP_VER_6) {
-                    /* IP1 next protocol i.e. number of bytes in this header */
-                    MEPA_RC(LAN80XX_PHY_TS_READ_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR, &value));
-                    value = LAN80XX_PHY_TS_CLR_BITS(value, LAN80XX_M_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR_IP1_NXT_COMPARATOR) |
-                            LAN80XX_F_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR_IP1_NXT_COMPARATOR(next_comp);
-                    value = LAN80XX_PHY_TS_CLR_BITS(value, LAN80XX_M_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR_IP1_NXT_PROTOCOL)
-                            | LAN80XX_F_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR_IP1_NXT_PROTOCOL(48);
-                    MEPA_RC(lan80xx_phy_ts_ip1_different_offset_set(dev, data->port_no, blk_id, LAN80XX_PHY_TS_IP_VER_6, FALSE));
-                    MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR, &value));
-                }
-
-                /* Src and dest port number */
-                bool1 = (old_ip_conf->comm_opt.sport_val != ip_conf->comm_opt.sport_val);
-                bool2 = (old_ip_conf->comm_opt.dport_val != ip_conf->comm_opt.dport_val);
-                if (bool1 || bool2) {
-                    value = ip_conf->comm_opt.sport_val << 16 | ip_conf->comm_opt.dport_val;
-                    MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_NXT_PROTOCOL_IP1_PROT_MATCH_2_UPPER, &value));
-                }
-                bool1 = (old_ip_conf->comm_opt.sport_mask != ip_conf->comm_opt.sport_mask);
-                bool2 = (old_ip_conf->comm_opt.dport_mask != ip_conf->comm_opt.dport_mask);
-
-                if (bool1 || bool2) {
-                    value = ip_conf->comm_opt.sport_mask << 16 | ip_conf->comm_opt.dport_mask;
-                    MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_NXT_PROTOCOL_IP1_PROT_MASK_2_UPPER, &value));
-                }
-            }
-
-        }
-
-
-        bool2 = (ip_conf->flow_opt[flow_index].flow_en != old_ip_conf->flow_opt[flow_index].flow_en);
-        bool3 = (ip_conf->flow_opt[flow_index].match_mode != old_ip_conf->flow_opt[flow_index].match_mode);
-        if (bool2 || bool3) {
-            MEPA_RC(LAN80XX_PHY_TS_READ_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_FLOW_CFG_IP1_FLOW_ENA(flow_index), &value));
-
-            if (bool2) {
-                if (ip_conf->flow_opt[flow_index].flow_en) {
-                    value |=  LAN80XX_F_ANA_IP1_FLOW_CFG_IP1_FLOW_ENA_IP1_FLOW_ENA;
-                } else {
-                    value &=  ~LAN80XX_F_ANA_IP1_FLOW_CFG_IP1_FLOW_ENA_IP1_FLOW_ENA;
-                }
-            }
-
-            if (bool3) {
-                temp = LAN80XX_F_ANA_IP1_FLOW_CFG_IP1_FLOW_ENA_IP1_FLOW_MATCH_MODE(ip_conf->flow_opt[flow_index].match_mode);
-                value = LAN80XX_PHY_TS_CLR_BITS(value, LAN80XX_M_ANA_IP1_FLOW_CFG_IP1_FLOW_ENA_IP1_FLOW_MATCH_MODE) | temp;
-            }
-            value = value | LAN80XX_F_ANA_IP1_FLOW_CFG_IP1_FLOW_ENA_IP1_CHANNEL_MASK(3);
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_FLOW_CFG_IP1_FLOW_ENA(flow_index), &value));
-        }
-
-        /* IP address */
-        if (memcmp(&old_ip_conf->flow_opt[flow_index].ip_addr, &ip_conf->flow_opt[flow_index].ip_addr, sizeof(old_ip_conf->flow_opt[flow_index].ip_addr)) != 0) {
+        if (old_ip_conf->comm_opt.ip_mode != ip_conf->comm_opt.ip_mode) {
             if (ip_conf->comm_opt.ip_mode == LAN80XX_PHY_TS_IP_VER_4) {
-                value = ip_conf->flow_opt[flow_index].ip_addr.ipv4.addr;
-                MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_FLOW_CFG_IP1_FLOW_MATCH_UPPER(flow_index), &value));
-                value = ip_conf->flow_opt[flow_index].ip_addr.ipv4.mask;
-                /* As suggested by HW team, mask set to '0' should log error message and further continue with configuration */
-                if (!ip_conf->flow_opt[flow_index].ip_addr.ipv4.mask) {
-                    T_W(MEPA_TRACE_GRP_TS, "1588 IP mask is set to zero");
-                }
-                MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_FLOW_CFG_IP1_FLOW_MASK_UPPER(flow_index), &value));
-                /* clear the other mask register */
-                value = 0;
-                MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_FLOW_CFG_IP1_FLOW_MASK_UPPER_MID(flow_index), &value));
-                MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_FLOW_CFG_IP1_FLOW_MASK_LOWER_MID(flow_index), &value));
-                MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_FLOW_CFG_IP1_FLOW_MASK_LOWER(flow_index), &value));
-            } else {
-                /* Upper 32-bit of ipv6 address */
-                value = ip_conf->flow_opt[flow_index].ip_addr.ipv6.addr[3];
-                MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_FLOW_CFG_IP1_FLOW_MATCH_UPPER(flow_index), &value));
-                value = ip_conf->flow_opt[flow_index].ip_addr.ipv6.mask[3];
-                MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_FLOW_CFG_IP1_FLOW_MASK_UPPER(flow_index), &value));
-                /* Upper mid 32-bit of ipv6 address */
-                value = ip_conf->flow_opt[flow_index].ip_addr.ipv6.addr[2];
-                MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_FLOW_CFG_IP1_FLOW_MATCH_UPPER_MID(flow_index), &value));
-                value = ip_conf->flow_opt[flow_index].ip_addr.ipv6.mask[2];
-                MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_FLOW_CFG_IP1_FLOW_MASK_UPPER_MID(flow_index), &value));
-
-                /* Lower mid 32-bit of ipv6 address */
-                value = ip_conf->flow_opt[flow_index].ip_addr.ipv6.addr[1];
-                MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_FLOW_CFG_IP1_FLOW_MATCH_LOWER_MID(flow_index), &value));
-                value = ip_conf->flow_opt[flow_index].ip_addr.ipv6.mask[1];
-                MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_FLOW_CFG_IP1_FLOW_MASK_LOWER_MID(flow_index), &value));
-                /* Lower 32-bit of ipv6 address */
-                value = ip_conf->flow_opt[flow_index].ip_addr.ipv6.addr[0];
-                MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_FLOW_CFG_IP1_FLOW_MATCH_LOWER(flow_index), &value));
-                value = ip_conf->flow_opt[flow_index].ip_addr.ipv6.mask[0];
-                MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_FLOW_CFG_IP1_FLOW_MASK_LOWER(flow_index), &value));
+                /* IP1 next protocol i.e. number of bytes in this header */
+                MEPA_RC(LAN80XX_PHY_TS_READ_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR, &value));
+                value = LAN80XX_PHY_TS_CLR_BITS(value, LAN80XX_M_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR_IP1_NXT_COMPARATOR) |
+                        LAN80XX_F_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR_IP1_NXT_COMPARATOR(next_comp);
+                value = LAN80XX_PHY_TS_CLR_BITS(value, LAN80XX_M_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR_IP1_NXT_PROTOCOL)
+                        | LAN80XX_F_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR_IP1_NXT_PROTOCOL(28);
+                MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR, &value));
+                MEPA_RC(lan80xx_phy_ts_ip1_different_offset_set(dev, data->port_no, blk_id, LAN80XX_PHY_TS_IP_VER_4, FALSE));
+            } else if (ip_conf->comm_opt.ip_mode == LAN80XX_PHY_TS_IP_VER_6) {
+                /* IP1 next protocol i.e. number of bytes in this header */
+                MEPA_RC(LAN80XX_PHY_TS_READ_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR, &value));
+                value = LAN80XX_PHY_TS_CLR_BITS(value, LAN80XX_M_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR_IP1_NXT_COMPARATOR) |
+                        LAN80XX_F_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR_IP1_NXT_COMPARATOR(next_comp);
+                value = LAN80XX_PHY_TS_CLR_BITS(value, LAN80XX_M_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR_IP1_NXT_PROTOCOL)
+                        | LAN80XX_F_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR_IP1_NXT_PROTOCOL(48);
+                MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_NXT_PROTOCOL_IP1_NXT_COMPARATOR, &value));
+                MEPA_RC(lan80xx_phy_ts_ip1_different_offset_set(dev, data->port_no, blk_id, LAN80XX_PHY_TS_IP_VER_6, FALSE));
             }
 
+            /* Src and dest port number */
+            bool1 = (old_ip_conf->comm_opt.sport_val != ip_conf->comm_opt.sport_val);
+            bool2 = (old_ip_conf->comm_opt.dport_val != ip_conf->comm_opt.dport_val);
+            if (bool1 || bool2) {
+                value = ip_conf->comm_opt.sport_val << 16 | ip_conf->comm_opt.dport_val;
+                MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_NXT_PROTOCOL_IP1_PROT_MATCH_2_UPPER, &value));
+            }
+            bool1 = (old_ip_conf->comm_opt.sport_mask != ip_conf->comm_opt.sport_mask);
+            bool2 = (old_ip_conf->comm_opt.dport_mask != ip_conf->comm_opt.dport_mask);
+
+            if (bool1 || bool2) {
+                value = ip_conf->comm_opt.sport_mask << 16 | ip_conf->comm_opt.dport_mask;
+                MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_NXT_PROTOCOL_IP1_PROT_MASK_2_UPPER, &value));
+            }
+        }
+
+    }
+
+
+    bool2 = (ip_conf->flow_opt[flow_index].flow_en != old_ip_conf->flow_opt[flow_index].flow_en);
+    bool3 = (ip_conf->flow_opt[flow_index].match_mode != old_ip_conf->flow_opt[flow_index].match_mode);
+    if (bool2 || bool3) {
+        MEPA_RC(LAN80XX_PHY_TS_READ_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_FLOW_CFG_IP1_FLOW_ENA(flow_index), &value));
+
+        if (bool2) {
+            if (ip_conf->flow_opt[flow_index].flow_en) {
+                value |=  LAN80XX_F_ANA_IP1_FLOW_CFG_IP1_FLOW_ENA_IP1_FLOW_ENA;
+            } else {
+                value &=  ~LAN80XX_F_ANA_IP1_FLOW_CFG_IP1_FLOW_ENA_IP1_FLOW_ENA;
+            }
+        }
+
+        if (bool3) {
+            temp = LAN80XX_F_ANA_IP1_FLOW_CFG_IP1_FLOW_ENA_IP1_FLOW_MATCH_MODE(ip_conf->flow_opt[flow_index].match_mode);
+            value = LAN80XX_PHY_TS_CLR_BITS(value, LAN80XX_M_ANA_IP1_FLOW_CFG_IP1_FLOW_ENA_IP1_FLOW_MATCH_MODE) | temp;
+        }
+        value = value | LAN80XX_F_ANA_IP1_FLOW_CFG_IP1_FLOW_ENA_IP1_CHANNEL_MASK(3);
+        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_FLOW_CFG_IP1_FLOW_ENA(flow_index), &value));
+    }
+
+    /* IP address */
+    if (memcmp(&old_ip_conf->flow_opt[flow_index].ip_addr, &ip_conf->flow_opt[flow_index].ip_addr, sizeof(old_ip_conf->flow_opt[flow_index].ip_addr)) != 0) {
+        if (ip_conf->comm_opt.ip_mode == LAN80XX_PHY_TS_IP_VER_4) {
+            value = ip_conf->flow_opt[flow_index].ip_addr.ipv4.addr;
+            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_FLOW_CFG_IP1_FLOW_MATCH_UPPER(flow_index), &value));
+            value = ip_conf->flow_opt[flow_index].ip_addr.ipv4.mask;
+            /* As suggested by HW team, mask set to '0' should log error message and further continue with configuration */
+            if (!ip_conf->flow_opt[flow_index].ip_addr.ipv4.mask) {
+                T_W(MEPA_TRACE_GRP_TS, "1588 IP mask is set to zero");
+            }
+            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_FLOW_CFG_IP1_FLOW_MASK_UPPER(flow_index), &value));
+            /* clear the other mask register */
+            value = 0;
+            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_FLOW_CFG_IP1_FLOW_MASK_UPPER_MID(flow_index), &value));
+            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_FLOW_CFG_IP1_FLOW_MASK_LOWER_MID(flow_index), &value));
+            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_FLOW_CFG_IP1_FLOW_MASK_LOWER(flow_index), &value));
+        } else {
+            /* Upper 32-bit of ipv6 address */
+            value = ip_conf->flow_opt[flow_index].ip_addr.ipv6.addr[3];
+            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_FLOW_CFG_IP1_FLOW_MATCH_UPPER(flow_index), &value));
+            value = ip_conf->flow_opt[flow_index].ip_addr.ipv6.mask[3];
+            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_FLOW_CFG_IP1_FLOW_MASK_UPPER(flow_index), &value));
+            /* Upper mid 32-bit of ipv6 address */
+            value = ip_conf->flow_opt[flow_index].ip_addr.ipv6.addr[2];
+            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_FLOW_CFG_IP1_FLOW_MATCH_UPPER_MID(flow_index), &value));
+            value = ip_conf->flow_opt[flow_index].ip_addr.ipv6.mask[2];
+            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_FLOW_CFG_IP1_FLOW_MASK_UPPER_MID(flow_index), &value));
+
+            /* Lower mid 32-bit of ipv6 address */
+            value = ip_conf->flow_opt[flow_index].ip_addr.ipv6.addr[1];
+            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_FLOW_CFG_IP1_FLOW_MATCH_LOWER_MID(flow_index), &value));
+            value = ip_conf->flow_opt[flow_index].ip_addr.ipv6.mask[1];
+            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_FLOW_CFG_IP1_FLOW_MASK_LOWER_MID(flow_index), &value));
+            /* Lower 32-bit of ipv6 address */
+            value = ip_conf->flow_opt[flow_index].ip_addr.ipv6.addr[0];
+            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_FLOW_CFG_IP1_FLOW_MATCH_LOWER(flow_index), &value));
+            value = ip_conf->flow_opt[flow_index].ip_addr.ipv6.mask[0];
+            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_IP1_FLOW_CFG_IP1_FLOW_MASK_LOWER(flow_index), &value));
         }
 
     }

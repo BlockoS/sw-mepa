@@ -24,10 +24,10 @@ Refer Section link:#mepa_demo/docs/getting-started[Getting-Started] to know abou
 to run 'mepa-demo' Application.
 
 Once 'mepa-demo' application is started the TS Demo Application can be started with the command
-'mepa-cmd ts'.
+'mepa-cmd ts demo'.
 
 ----
-#mepa-cmd ts 
+#mepa-cmd ts demo
 ----
 
 The above is used to start the TS Demo Application once it is started it will list the available commands in 
@@ -655,4 +655,131 @@ The following command is used get TS Statistics for selected port.
  Timestamp FIFO Drop Count: 0
 ----
 
+=== TS init/classifier/clock configuration through cfg File
+TS demo has the support to read the required configuration parameters from the config file
+instead of user input.
+The following commands added to configure
 
+    * mepa-cmd ts init <port_no>
+    * mepa-cmd ts tx_class <port_no>
+    * mepa-cmd ts tx_clock <port_no>
+    * mepa-cmd ts rx_class <port_no>
+    * mepa-cmd ts rx_clock <port_no>
+
+The config files are placed under "/root/mepa_scripts/" and the file names are listed below
+
+    * ts_init_conf.cfg
+    * ts_tx_class.cfg
+    * ts_tx_clock.cfg
+    * ts_rx_class.cfg
+    * ts_rx_class.cfg
+
+Each cfg file can be edited based on the test need and use the commands listed above.
+the commands (added above) reads the config file and fills local structure and then calls API.
+
+---
+The enum names for parameter values are given below
+
+const char *match_mode_names[] = {
+    "MEPA_TS_MATCH_MODE_RANGE",
+    "MEPA_TS_MATCH_MODE_VALUE"
+};
+const char *clk_mode_names[] = {
+    "MEPA_TS_PTP_CLOCK_MODE_NONE",
+    "MEPA_TS_PTP_CLOCK_MODE_BC1STEP",
+    "MEPA_TS_PTP_CLOCK_MODE_BC2STEP",
+    "MEPA_TS_PTP_CLOCK_MODE_TC1STEP",
+    "MEPA_TS_PTP_CLOCK_MODE_TC2STEP"
+};
+const char *delaym_type_names[] = {
+    "MEPA_TS_PTP_DELAYM_P2P",
+    "MEPA_TS_PTP_DELAYM_E2E"
+};
+const char *pkt_encap_names[] = {
+    "MEPA_TS_ENCAP_NONE",
+    "MEPA_TS_ENCAP_ETH_PTP",
+    "MEPA_TS_ENCAP_ETH_IP_PTP",
+    "MEPA_TS_ENCAP_ETH_HSR_PTP",
+    "MEPA_TS_ENCAP_ETH_IP_IP_PTP",
+    "MEPA_TS_ENCAP_ETH_ETH_PTP",
+    "MEPA_TS_ENCAP_ETH_ETH_IP_PTP",
+    "MEPA_TS_ENCAP_ETH_MPLS_IP_PTP",
+    "MEPA_TS_ENCAP_ETH_MPLS_ETH_PTP",
+    "MEPA_TS_ENCAP_ETH_MPLS_ETH_IP_PTP"
+};
+const char *mac_match_mode_names[] = {
+    "MEPA_TS_ETH_ADDR_MATCH_ANY",
+    "MEPA_TS_ETH_ADDR_MATCH_48BIT",
+    "MEPA_TS_ETH_ADDR_MATCH_ANY_UNICAST",
+    "MEPA_TS_ETH_ADDR_MATCH_ANY_MULTICAST"
+};
+const char *mac_match_select_names[] = {
+    "MEPA_TS_ETH_MATCH_NONE",
+    "MEPA_TS_ETH_MATCH_DEST_ADDR",
+    "MEPA_TS_ETH_MATCH_SRC_ADDR",
+    "MEPA_TS_ETH_MATCH_SRC_OR_DEST"
+};
+const char *ip_ver_names[] = {
+    "MEPA_TS_IP_VER_4",
+    "MEPA_TS_IP_VER_6"
+};
+const char *ip_match_mode_names[] = {
+    "MEPA_TS_IP_MATCH_NONE",
+    "MEPA_TS_IP_MATCH_DEST",
+    "MEPA_TS_IP_MATCH_SRC",
+    "MEPA_TS_IP_MATCH_SRC_OR_DEST"
+};
+
+// Enum string tables
+const char *clk_freq_names[] = {
+    "MEPA_TS_CLOCK_FREQ_25M",
+    "MEPA_TS_CLOCK_FREQ_125M",
+    "MEPA_TS_CLOCK_FREQ_15625M",
+    "MEPA_TS_CLOCK_FREQ_200M",
+    "MEPA_TS_CLOCK_FREQ_250M",
+    "MEPA_TS_CLOCK_FREQ_500M",
+    "MEPA_TS_CLOCK_FREQ_MAX"
+};
+const char *clk_src_names[] = {
+    "MEPA_TS_CLOCK_SRC_EXTERNAL",
+    "MEPA_TS_CLOCK_SRC_CLIENT_RX",
+    "MEPA_TS_CLOCK_SRC_CLIENT_TX",
+    "MEPA_TS_CLOCK_SRC_INTERNAL",
+    "MEPA_TS_CLOCK_SRC_125MHZ_INTERNAL_SYS_PLL",
+    "MEPA_TS_CLOCK_SRC_125MHZ_QSGMII_REC_CLOCK",
+    "MEPA_TS_CLOCK_SRC_EXT_1588_REF_CLOCK",
+    "MEPA_TS_CLOCK_SRC_RESERVED",
+    "MEPA_TS_CLOCK_SRC_FROM_RX_PORT0",
+    "MEPA_TS_CLOCK_SRC_FROM_RX_PORT1",
+    "MEPA_TS_CLOCK_SRC_FROM_RX_PORT2",
+    "MEPA_TS_CLOCK_SRC_FROM_RX_PORT3"
+};
+const char *rx_ts_pos_names[] = {
+    "MEPA_TS_RX_TIMESTAMP_POS_IN_PTP",
+    "MEPA_TS_RX_TIMESTAMP_POS_AT_END"
+};
+const char *rx_ts_len_names[] = {
+    "MEPA_TS_RX_TIMESTAMP_LEN_30BIT",
+    "MEPA_TS_RX_TIMESTAMP_LEN_32BIT"
+};
+const char *tx_fifo_mode_names[] = {
+    "MEPA_TS_FIFO_MODE_NORMAL",
+    "MEPA_TS_FIFO_MODE_SPI"
+};
+const char *tx_ts_len_names[] = {
+    "MEPA_TS_FIFO_TIMESTAMP_LEN_4BYTE",
+    "MEPA_TS_FIFO_TIMESTAMP_LEN_10BYTE"
+};
+const char *tc_op_mode_names[] = {
+    "MEPA_TS_TC_OP_MODE_A",
+    "MEPA_TS_TC_OP_MODE_B",
+    "MEPA_TS_TC_OP_MODE_C"
+};
+const char *ts_len_names[] = {
+    "MEPA_MCH_TS_32NS_ONS",
+    "MEPA_MCH_TS_28NS_4SNS",
+    "MEPA_MCH_TS_24NS_8SNS",
+    "MEPA_MCH_TS_16NS_16SNS"
+};
+
+---

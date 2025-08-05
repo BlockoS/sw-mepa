@@ -89,6 +89,12 @@ end
   next if ".cmake/deps-bsp.json" == f
   next if ".cmake/docker/Cisco_Umbrella_Root_CA.cer" == f
   next if ".cmake/docker/mchp-ca.cer" == f
+  #ts cfg
+  next if "mepa_demo/mepa_scripts/ts_init_conf.cfg" == f
+  next if "mepa_demo/mepa_scripts/ts_tx_class.cfg" == f
+  next if "mepa_demo/mepa_scripts/ts_rx_class.cfg" == f
+  next if "mepa_demo/mepa_scripts/ts_tx_clock.cfg" == f
+  next if "mepa_demo/mepa_scripts/ts_rx_clock.cfg" == f
 
   begin
     check f

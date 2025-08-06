@@ -681,10 +681,10 @@ the commands (added above) reads the config file and fills local structure and t
 
 The enum names for parameter values are given below
 
-const char *match_mode_names[] = { +
-    "MEPA_TS_MATCH_MODE_RANGE", +
-    "MEPA_TS_MATCH_MODE_VALUE" +
-}; +
+const char *match_mode_names[] = {
+    "MEPA_TS_MATCH_MODE_RANGE",
+    "MEPA_TS_MATCH_MODE_VALUE"
+};
 
 const char *clk_mode_names[] = {
     "MEPA_TS_PTP_CLOCK_MODE_NONE",

@@ -1118,6 +1118,10 @@ static mepa_rc phy_10g_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
     if(vtss_phy_10g_init(data->vtss_instance, data->port_no, NULL) != VTSS_RC_OK) {
         return MEPA_RC_ERROR;
     }
+    if (config->conf_10g.h_media > MEPA_MEDIA_TYPE_KR_SC || config->conf_10g.l_media > MEPA_MEDIA_TYPE_KR_SC) {
+        T_E(data, MEPA_TRACE_GRP_GEN, "\n PHY doesn't support the given host/line media");
+        return MEPA_RC_ERROR;
+    }
     mode.oper_mode = config->conf_10g.oper_mode;
     mode.interface  = config->conf_10g.interface_mode;
     mode.channel_id = config->conf_10g.channel_id;

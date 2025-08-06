@@ -249,14 +249,14 @@ typedef enum {
     MEPA_MEDIA_TYPE_DAC,              /**< DAC,Direct attach cable 10GBASE-SR 1M*/
     MEPA_MEDIA_TYPE_ZR,               /**< ZR,10GBASE-ZR */
     MEPA_MEDIA_TYPE_KR,               /**< KR,10GBASE-KR */
-    MEPA_MEDIA_TYPE_LR,               /**< LR,10GBASE-LR */
-    MEPA_MEDIA_TYPE_ER,               /**< LR,10GBASE-ER */
     MEPA_MEDIA_TYPE_SR_SC,            /**< SR,10GBASE-SR with software control*/
     MEPA_MEDIA_TYPE_SR2_SC,           /**< SR,10GBASE-SR with software control*/
     MEPA_MEDIA_TYPE_DAC_SC,           /**< DAC,Direct attach cable with software control*/
     MEPA_MEDIA_TYPE_ZR_SC,            /**< ZR,10GBASE-ZR with software control*/
     MEPA_MEDIA_TYPE_ZR2_SC,           /**< ZR,10GBASE-ZR with software control with ld_lev_ini:40*/
     MEPA_MEDIA_TYPE_KR_SC,            /**< KR,10GBASE-KR with software control*/
+    MEPA_MEDIA_TYPE_LR,               /**< LR,10GBASE-LR */
+    MEPA_MEDIA_TYPE_ER,               /**< LR,10GBASE-ER */
     MEPA_MEDIA_TYPE_SFP28_25G_SR,     /**< SR 25GBASE-SR, SFP28 Optical */
     MEPA_MEDIA_TYPE_SFP28_25G_LR,     /**< SR 25GBASE-LR, SFP28 Optical */
     MEPA_MEDIA_TYPE_SFP28_25G_ER,     /**< SR 25GBASE-ER, SFP28 Optical */

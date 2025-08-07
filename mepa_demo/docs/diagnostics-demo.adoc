@@ -22,6 +22,10 @@ Following are the Debug Features supported by the Application:
 == Directory
 * `./mepa_demo/mepa_apps/phy25g_diagnostics.c` - Source File for Diagnostics Sample Application
 
+== Supported PHYs
+
+    * The Diagnostics application is currenlty supported only for Malibu25G(LAN80XX) PHYs.
+
 == Diagnostics Application Features
 Following Sections describe the various features supported by this application.
 

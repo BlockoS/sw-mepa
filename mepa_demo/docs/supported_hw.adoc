@@ -12,10 +12,11 @@ Switches.
 
 [cols="1,1,1", options="header"]
 |===
-| PHY       | SKU     | Host Interface
-| Malibu10G | VSC8258 | SFI
-| Malibu25G | LAN80XX | SFI
+| PHY       | SKU                                                                    | Host Interface
+| Malibu10G | VSC8258                                                                | SFI
+| Malibu25G | LAN8044, LAN8043, LAN8042, LAN8022, LAN8023, LAN8268, LAN8267, LAN8264 | SFI
 |===
+
 
 Below diagram illustrates the port number to channel ID mapping in LAN80XX PHY.
 

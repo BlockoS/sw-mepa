@@ -13,6 +13,9 @@ Timestamp(TS) Demo Application is used to configure the TS Block of PHYs.
 * `./mepa_demo/mepa_apps/phy_ts_demo.h` - Header File for TS Demo Application
 * `./mepa_demo/mepa_apps/phy_ts_demo.c` - Source File for TS Demo Application
 
+== Supported PHYs
+
+    * The PTP Demo application is currenlty supported only for Malibu25G(LAN80XX) PHYs.
 
 == Procedure to Start/Exit TS Demo Application
 

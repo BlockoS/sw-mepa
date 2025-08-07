@@ -24,7 +24,7 @@ Following methods used for SyncE-Demo Application.
 * `./mepa_demo/mepa_scripts/synce_config.json` - JSON file for Chip specific Sync-E config, application will take configuration from this File
 
 == Prerequisites
-SyncE Demo Application to run on EDSx Platform User needs to flash `arm64_vsc7558MSEC.ext4` image on
+SyncE Demo Application to run on EDSx Platform User needs to flash `ext4` image on
 eMMC flash, the application will not work with `.itb` image because it doesn't have the Linux File System.
 To Configure the Chip specific SyncE we have a JSON file.
 

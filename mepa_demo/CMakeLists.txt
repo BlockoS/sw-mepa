@@ -58,7 +58,7 @@ list(APPEND API_MEBA_CACHE_IN mepa/microchip/lan80xx/include/microchip/lan80xx.h
 list(APPEND API_MEBA_CACHE_IN mepa/microchip/lan80xx/src/lan80xx_types.h)
 list(APPEND API_MEBA_CACHE_IN mepa/microchip/lan80xx/include/microchip/lan80xx_ts.h)
 list(APPEND API_MEBA_CACHE_IN mepa/microchip/lan80xx/src/lan80xx_ts_private.h)
-#list(APPEND API_MEBA_CACHE_IN mepa/microchip/lan80xx/src/lan80xx_macsec_private.h)
+list(APPEND API_MEBA_CACHE_IN mepa/microchip/lan80xx/src/lan80xx_macsec_private.h)
 set(API_MESA_CACHE_AG_IN)
 list (APPEND API_MESA_CACHE_AG_IN sw-mesa/mesa/include/microchip/ethernet/switch/api.h)
 list (APPEND API_MESA_CACHE_AG_IN sw-mesa/me/include/microchip/ethernet/common.h)

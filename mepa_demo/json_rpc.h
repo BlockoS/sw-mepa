@@ -144,3 +144,15 @@ mesa_rc json_rpc_get2_phy25g_ts_engine_flow_conf_t(json_rpc_req_t *req, json_obj
 mesa_rc json_rpc_add2_phy25g_ts_engine_flow_conf_t(json_rpc_req_t *req, json_object *obj,  phy25g_ts_engine_flow_conf_t *parm);
 mesa_rc json_rpc_get2_phy25g_ts_engine_action_t(json_rpc_req_t *req, json_object *obj, phy25g_ts_engine_action_t *parm);
 mesa_rc json_rpc_add2_phy25g_ts_engine_action_t(json_rpc_req_t *req, json_object *obj,  phy25g_ts_engine_action_t *parm);
+
+
+// MACsec
+mesa_rc json_rpc_add_phy25g_macsec_internal_secy_t(json_rpc_req_t *req, json_object *obj, phy25g_macsec_internal_secy_t *parm);
+mesa_rc json_rpc_add_phy25g_macsec_internal_rx_sa_t(json_rpc_req_t *req, json_object *obj, phy25g_macsec_internal_rx_sa_t *parm);
+mesa_rc json_rpc_add_phy25g_macsec_internal_rx_sc_t(json_rpc_req_t *req, json_object *obj, phy25g_macsec_internal_rx_sc_t *parm);
+mesa_rc json_rpc_get_idx_phy25g_macsec_internal_secy_t(json_rpc_req_t *req, json_object *obj, int *idx, phy25g_macsec_internal_secy_t *parm, phy25g_macsec_internal_conf_t *data);
+mesa_rc json_rpc_get_idx_phy25g_macsec_internal_rx_sa_t(json_rpc_req_t *req, json_object *obj, int *idx, phy25g_macsec_internal_rx_sa_t *parm);
+mesa_rc json_rpc_get_idx_phy25g_macsec_internal_rx_sc_t(json_rpc_req_t *req, json_object *obj, int *idx, phy25g_macsec_internal_rx_sc_t *parm, phy25g_macsec_internal_conf_t *data);
+mesa_rc json_rpc_get_idx_phy25g_macsec_internal_tx_sa_t(json_rpc_req_t *req, json_object *obj, int *idx, phy25g_macsec_internal_tx_sa_t *parm);
+mesa_rc json_rpc_get_name_phy25g_macsec_internal_conf_t(json_rpc_req_t *req, json_object *obj, const char *name, phy25g_macsec_internal_conf_t *parm);
+mesa_rc json_rpc_add_name_phy25g_macsec_internal_conf_t(json_rpc_req_t *req, json_object *obj, const char *name, phy25g_macsec_internal_conf_t *parm);

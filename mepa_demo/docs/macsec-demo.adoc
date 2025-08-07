@@ -33,9 +33,13 @@ Following are list of features supported in MACsec-Demo Application.
 * `./mepa_demo/mepa_scripts/macsec_key.json` - JSON file for MACsec Key, Application will take Key from this File
 
 == Prerequisites
-MACsec Demo Application to run on EDSx Platform User needs to flash `arm64_vsc7558MSEC.ext4` image on 
+MACsec Demo Application to run on EDSx Platform User needs to flash `ext4` image on 
 eMMC flash, the application will not work with `.itb` image because it doesn't have the Linux File System.
 To Configure the MACsec Key we have JSON file in Linux File System.
+
+== Supported PHYs
+
+    * The MACsec Demo application is supported for all MEPA supported PHYs
 
 == Procedure to Start/Exit MACsec Demo Application
 

@@ -1302,6 +1302,624 @@ mesa_rc json_rpc_add2_phy25g_ts_engine_action_t(json_rpc_req_t *req, json_object
     MESA_RC(json_rpc_add_name_phy25g_ts_ptp_engine_action_t(req, obj_value, "ptp_conf", &parm->action.ptp_conf));
     return MESA_RC_OK;
 }
+mesa_rc json_rpc_new_phy25g_macsec_internal_tx_sa_t(json_rpc_req_t *req, json_object **obj, phy25g_macsec_internal_tx_sa_t *parm)
+{
+    MESA_RC(json_rpc_new(req, obj));
+    MESA_RC(json_rpc_add_name_uint8_t(req, *obj, "in_use", &(parm->in_use)));
+    MESA_RC(json_rpc_add_name_uint8_t(req, *obj, "enabled", &(parm->enabled)));
+    MESA_RC(json_rpc_add_name_uint32_t(req, *obj, "record", &(parm->record)));
+    MESA_RC(json_rpc_add_name_uint8_t(req, *obj, "confidentiality", &(parm->confidentiality)));
+    MESA_RC(json_rpc_add_name_mepa_macsec_sak_t(req, *obj, "sak", &(parm->sak)));
+    MESA_RC(json_rpc_add_name_mepa_macsec_tx_sa_status_t(req, *obj, "status", &(parm->status)));
+    MESA_RC(json_rpc_add_name_mepa_macsec_tx_sa_counters_t(req, *obj, "cnt", &(parm->cnt)));
+    MESA_RC(json_rpc_add_name_mepa_macsec_ssci_t(req, *obj, "ssci", &(parm->ssci)));
+    return MESA_RC_OK;
+}
+
+
+mesa_rc json_rpc_add_name_phy25g_macsec_internal_tx_sa_t(json_rpc_req_t *req, json_object *obj, const char *name, phy25g_macsec_internal_tx_sa_t *parm)
+{
+    json_object *obj_value;
+
+    MESA_RC(json_rpc_new_phy25g_macsec_internal_tx_sa_t(req, &obj_value, parm));
+    MESA_RC(json_rpc_add_name_json_object(req, obj, name, obj_value));
+    return MESA_RC_OK;
+}
+
+mesa_rc json_rpc_new_phy25g_macsec_internal_tx_sc_t(json_rpc_req_t *req, json_object **obj, phy25g_macsec_internal_tx_sc_t *parm)
+{
+    MESA_RC(json_rpc_new(req, obj));
+    MESA_RC(json_rpc_add_name_uint8_t(req, *obj, "in_use", &(parm->in_use)));
+    MESA_RC(json_rpc_add_name_mepa_macsec_tx_sc_status_t(req, *obj, "status", &(parm->status)));
+    MESA_RC(json_rpc_add_name_mepa_macsec_tx_sc_counters_t(req, *obj, "cnt", &(parm->cnt)));
+    MESA_RC(json_rpc_add_name_mepa_macsec_tx_sa_counters_t(req, *obj, "del_tx_sa_cnt", &(parm->del_tx_sa_cnt)));
+    {
+        json_object *obj0;
+        MESA_RC(json_rpc_array_new(req, &obj0));
+        MESA_RC(json_rpc_add_name_json_object(req, *obj, "sa", obj0));
+
+        for (int i0 = 0; i0 < MEPA_MACSEC_SA_PER_SC_MAX; i0++) {
+            json_object *entry_obj, *sa_obj;
+            MESA_RC(json_rpc_new(req, &entry_obj));
+
+            phy25g_macsec_internal_tx_sa_t *temp_sa = parm->sa[i0];
+            phy25g_macsec_internal_tx_sa_t sa_zero;
+            if (temp_sa == NULL) {
+                memset(&sa_zero, 0, sizeof(sa_zero));
+                temp_sa = &sa_zero;
+            }
+
+            MESA_RC(json_rpc_new_phy25g_macsec_internal_tx_sa_t(req, &sa_obj, temp_sa));
+            json_object_object_add(entry_obj, "index", json_object_new_int(i0));
+            json_object_object_add(entry_obj, "value", sa_obj);
+            MESA_RC(json_rpc_add_json_array(req, obj0, entry_obj));
+        }
+    }
+
+    MESA_RC(json_rpc_add_name_uint64_t(req, *obj, "out_octets_untagged", &(parm->out_octets_untagged)));
+    return MESA_RC_OK;
+}
+
+mesa_rc json_rpc_add_name_phy25g_macsec_internal_tx_sc_t(json_rpc_req_t *req, json_object *obj, const char *name, phy25g_macsec_internal_tx_sc_t *parm)
+{
+    json_object *obj_value;
+
+    MESA_RC(json_rpc_new_phy25g_macsec_internal_tx_sc_t(req, &obj_value, parm));
+    MESA_RC(json_rpc_add_name_json_object(req, obj, name, obj_value));
+    return MESA_RC_OK;
+}
+
+mesa_rc json_rpc_new_phy25g_macsec_internal_rx_sa_t(json_rpc_req_t *req, json_object **obj, phy25g_macsec_internal_rx_sa_t *parm)
+{
+    MESA_RC(json_rpc_new(req, obj));
+    MESA_RC(json_rpc_add_name_uint8_t(req, *obj, "in_use", &(parm->in_use)));
+    MESA_RC(json_rpc_add_name_uint8_t(req, *obj, "enabled", &(parm->enabled)));
+    MESA_RC(json_rpc_add_name_uint32_t(req, *obj, "record", &(parm->record)));
+    MESA_RC(json_rpc_add_name_mepa_macsec_sak_t(req, *obj, "sak", &(parm->sak)));
+    MESA_RC(json_rpc_add_name_mepa_macsec_rx_sa_status_t(req, *obj, "status", &(parm->status)));
+    MESA_RC(json_rpc_add_name_mepa_macsec_rx_sa_counters_t(req, *obj, "cnt", &(parm->cnt)));
+    MESA_RC(json_rpc_add_name_mepa_macsec_ssci_t(req, *obj, "ssci", &(parm->ssci)));
+    return MESA_RC_OK;
+}
+
+mesa_rc json_rpc_add_name_phy25g_macsec_internal_rx_sa_t(json_rpc_req_t *req, json_object *obj, const char *name, phy25g_macsec_internal_rx_sa_t *parm)
+{
+    json_object *obj_value;
+
+    MESA_RC(json_rpc_new_phy25g_macsec_internal_rx_sa_t(req, &obj_value, parm));
+    MESA_RC(json_rpc_add_name_json_object(req, obj, name, obj_value));
+    return MESA_RC_OK;
+}
+
+
+
+mesa_rc json_rpc_new_phy25g_macsec_internal_rx_sc_t(json_rpc_req_t *req, json_object **obj, phy25g_macsec_internal_rx_sc_t *parm)
+{
+    MESA_RC(json_rpc_new(req, obj));
+
+    MESA_RC(json_rpc_add_name_uint8_t(req, *obj, "in_use", &(parm->in_use)));
+    MESA_RC(json_rpc_add_name_mepa_macsec_sci_t(req, *obj, "sci", &(parm->sci)));
+    MESA_RC(json_rpc_add_name_mepa_macsec_rx_sc_status_t(req, *obj, "status", &(parm->status)));
+    MESA_RC(json_rpc_add_name_mepa_macsec_rx_sc_counters_t(req, *obj, "cnt", &(parm->cnt)));
+
+    {
+        json_object *obj0;
+        MESA_RC(json_rpc_array_new(req, &obj0));
+        MESA_RC(json_rpc_add_name_json_object(req, *obj, "sa", obj0));
+
+        for (int i0 = 0; i0 < MEPA_MACSEC_SA_PER_SC_MAX; i0++) {
+            json_object *entry_obj, *sa_obj;
+            MESA_RC(json_rpc_new(req, &entry_obj));
+
+            phy25g_macsec_internal_rx_sa_t *temp_sa = parm->sa[i0];
+            phy25g_macsec_internal_rx_sa_t sa_zero;
+
+            // Use zeroed temp struct if NULL or not in use
+            if (temp_sa == NULL || temp_sa->in_use != 1) {
+                memset(&sa_zero, 0, sizeof(sa_zero));
+                temp_sa = &sa_zero;
+            }
+
+            MESA_RC(json_rpc_new_phy25g_macsec_internal_rx_sa_t(req, &sa_obj, temp_sa));
+
+            json_object_object_add(entry_obj, "index", json_object_new_int(i0));
+            json_object_object_add(entry_obj, "value", sa_obj);
+            MESA_RC(json_rpc_add_json_array(req, obj0, entry_obj));
+        }
+    }
+
+    MESA_RC(json_rpc_add_name_mepa_macsec_rx_sc_conf_t(req, *obj, "conf", &(parm->conf)));
+    MESA_RC(json_rpc_add_name_mepa_macsec_rx_sa_counters_t(req, *obj, "del_rx_sa_cnt", &(parm->del_rx_sa_cnt)));
+    MESA_RC(json_rpc_add_name_uint64_t(req, *obj, "in_octets_validation_disabled", &(parm->in_octets_validation_disabled)));
+
+    return MESA_RC_OK;
+}
+
+
+
+mesa_rc json_rpc_add_phy25g_macsec_internal_rx_sc_t(json_rpc_req_t *req, json_object *obj, phy25g_macsec_internal_rx_sc_t *parm)
+{
+    json_object *obj_value;
+
+    MESA_RC(json_rpc_new_phy25g_macsec_internal_rx_sc_t(req, &obj_value, parm));
+    MESA_RC(json_rpc_add_json_array(req, obj, obj_value));
+    return MESA_RC_OK;
+}
+
+mesa_rc json_rpc_new_phy25g_macsec_internal_secy_t(json_rpc_req_t *req, json_object **obj, phy25g_macsec_internal_secy_t *parm)
+{
+    MESA_RC(json_rpc_new(req, obj));
+    MESA_RC(json_rpc_add_name_uint8_t(req, *obj, "in_use", &(parm->in_use)));
+    MESA_RC(json_rpc_add_name_mepa_macsec_sci_t(req, *obj, "sci", &(parm->sci)));
+    MESA_RC(json_rpc_add_name_uint32_t(req, *obj, "service_id", &(parm->service_id)));
+    MESA_RC(json_rpc_add_name_uint8_t(req, *obj, "controlled_port_enabled", &(parm->controlled_port_enabled)));
+    MESA_RC(json_rpc_add_name_mepa_macsec_secy_port_counters_t(req, *obj, "controlled_cnt", &(parm->controlled_cnt)));
+    MESA_RC(json_rpc_add_name_mepa_macsec_common_counters_t(req, *obj, "common_cnt", &(parm->common_cnt)));
+    MESA_RC(json_rpc_add_name_mepa_macsec_uncontrolled_counters_t(req, *obj, "uncontrolled_cnt", &(parm->uncontrolled_cnt)));
+    MESA_RC(json_rpc_add_name_mepa_macsec_secy_counters_t(req, *obj, "secy_cnt", &(parm->secy_cnt)));
+    MESA_RC(json_rpc_add_name_mepa_macsec_secy_conf_t(req, *obj, "conf", &(parm->conf)));
+    {
+        json_object *obj0;
+        MESA_RC(json_rpc_array_new(req, &obj0));
+        MESA_RC(json_rpc_add_name_json_object(req, *obj, "rx_sc", obj0));
+        for (int i0 = 0; i0 < LAN80XX_MACSEC_MAX_RX_SC; i0++) {
+            if (parm->rx_sc[i0] == NULL) {
+                continue;
+            }
+            MESA_RC(json_rpc_add_phy25g_macsec_internal_rx_sc_t(req, obj0, (parm->rx_sc)[i0]));
+        }
+    }
+    MESA_RC(json_rpc_add_name_phy25g_macsec_internal_tx_sc_t(req, *obj, "tx_sc", &(parm->tx_sc)));
+    {
+        json_object *obj0;
+        MESA_RC(json_rpc_array_new(req, &obj0));
+        MESA_RC(json_rpc_add_name_json_object(req, *obj, "pattern", obj0));
+        for (int i0 = 0; i0 < LAN80XX_MACSEC_ACTION_MAX; i0++) {
+            {
+                json_object *obj1;
+                MESA_RC(json_rpc_array_new(req, &obj1));
+                MESA_RC(json_rpc_add_json_array(req, obj0, obj1));
+                for (int i1 = 0; i1 < LAN80XX_MACSEC_DIRECTION_MAX; i1++) {
+                    MESA_RC(json_rpc_add_mepa_macsec_match_pattern_t(req, obj1, &(parm->pattern)[i0][i1]));
+                }
+            }
+        }
+    }
+    {
+        json_object *obj0;
+        MESA_RC(json_rpc_array_new(req, &obj0));
+        MESA_RC(json_rpc_add_name_json_object(req, *obj, "pattern_record", obj0));
+        for (int i0 = 0; i0 < LAN80XX_MACSEC_ACTION_MAX; i0++) {
+            {
+                json_object *obj1;
+                MESA_RC(json_rpc_array_new(req, &obj1));
+                MESA_RC(json_rpc_add_json_array(req, obj0, obj1));
+                for (int i1 = 0; i1 < LAN80XX_MACSEC_DIRECTION_MAX; i1++) {
+                    MESA_RC(json_rpc_add_uint32_t(req, obj1, &(parm->pattern_record)[i0][i1]));
+                }
+            }
+        }
+    }
+    MESA_RC(json_rpc_add_name_mepa_macsec_tag_bypass_t(req, *obj, "tag_bypass", &(parm->tag_bypass)));
+    return MESA_RC_OK;
+}
+
+mesa_rc json_rpc_add_phy25g_macsec_internal_rx_sa_t(json_rpc_req_t *req, json_object *obj, phy25g_macsec_internal_rx_sa_t *parm)
+{
+    json_object *obj_value;
+
+    MESA_RC(json_rpc_new_phy25g_macsec_internal_rx_sa_t(req, &obj_value, parm));
+    MESA_RC(json_rpc_add_json_array(req, obj, obj_value));
+    return MESA_RC_OK;
+}
+
+mesa_rc json_rpc_add_phy25g_macsec_internal_secy_t(json_rpc_req_t *req, json_object *obj, phy25g_macsec_internal_secy_t *parm)
+{
+    json_object *obj_value;
+
+    MESA_RC(json_rpc_new_phy25g_macsec_internal_secy_t(req, &obj_value, parm));
+    MESA_RC(json_rpc_add_json_array(req, obj, obj_value));
+    return MESA_RC_OK;
+}
+
+
+mesa_rc json_rpc_get_phy25g_macsec_internal_tx_sa_t(json_rpc_req_t *req, json_object *obj, phy25g_macsec_internal_tx_sa_t *parm)
+{
+    MESA_RC(json_rpc_get_name_uint8_t(req, obj, "in_use", &(parm->in_use)));
+    MESA_RC(json_rpc_get_name_uint8_t(req, obj, "enabled", &(parm->enabled)));
+    MESA_RC(json_rpc_get_name_uint32_t(req, obj, "record", &(parm->record)));
+    MESA_RC(json_rpc_get_name_uint8_t(req, obj, "confidentiality", &(parm->confidentiality)));
+    MESA_RC(json_rpc_get_name_mepa_macsec_sak_t(req, obj, "sak", &(parm->sak)));
+    MESA_RC(json_rpc_get_name_mepa_macsec_tx_sa_status_t(req, obj, "status", &(parm->status)));
+    MESA_RC(json_rpc_get_name_mepa_macsec_tx_sa_counters_t(req, obj, "cnt", &(parm->cnt)));
+    MESA_RC(json_rpc_get_name_mepa_macsec_ssci_t(req, obj, "ssci", &(parm->ssci)));
+    return MESA_RC_OK;
+}
+
+mesa_rc json_rpc_get_idx_phy25g_macsec_internal_tx_sa_t(json_rpc_req_t *req, json_object *obj, int *idx, phy25g_macsec_internal_tx_sa_t *parm)
+{
+    json_object *obj_value;
+
+    MESA_RC(json_rpc_get_idx_json_object(req, obj, idx, &obj_value));
+    MESA_RC(json_rpc_get_phy25g_macsec_internal_tx_sa_t(req, obj_value, parm));
+    return MESA_RC_OK;
+}
+
+mesa_rc json_rpc_get_name_phy25g_macsec_internal_tx_sa_t(json_rpc_req_t *req, json_object *obj, const char *name, phy25g_macsec_internal_tx_sa_t *parm)
+{
+    json_object *obj_value;
+
+    MESA_RC(json_rpc_get_name_json_object(req, obj, name, &obj_value));
+    MESA_RC(json_rpc_get_phy25g_macsec_internal_tx_sa_t(req, obj_value, parm));
+    return MESA_RC_OK;
+}
+
+mesa_rc json_rpc_get_phy25g_macsec_internal_tx_sc_t(json_rpc_req_t *req, json_object *obj, phy25g_macsec_internal_tx_sc_t *parm, phy25g_macsec_internal_conf_t *data)
+{
+    MESA_RC(json_rpc_get_name_uint8_t(req, obj, "in_use", &(parm->in_use)));
+    MESA_RC(json_rpc_get_name_mepa_macsec_tx_sc_status_t(req, obj, "status", &(parm->status)));
+    MESA_RC(json_rpc_get_name_mepa_macsec_tx_sc_counters_t(req, obj, "cnt", &(parm->cnt)));
+    MESA_RC(json_rpc_get_name_mepa_macsec_tx_sa_counters_t(req, obj, "del_tx_sa_cnt", &(parm->del_tx_sa_cnt)));
+
+    // Parse the 'sa' array only if present
+    json_object *obj_sa_array;
+    if (json_rpc_get_name_json_object(req, obj, "sa", &obj_sa_array) == MESA_RC_OK) {
+        int sa_count = json_object_array_length(obj_sa_array);
+
+        for (int i = 0; i < sa_count && i < MEPA_MACSEC_SA_PER_SC_MAX; i++) {
+            json_object *entry_obj = json_object_array_get_idx(obj_sa_array, i);
+            if (!entry_obj) {
+                continue;
+            }
+
+            json_object *sa_obj = NULL;
+            if (!json_object_object_get_ex(entry_obj, "value", &sa_obj) || sa_obj == NULL) {
+                continue;
+            }
+
+            json_object *in_use_obj = NULL;
+            if (!json_object_object_get_ex(sa_obj, "in_use", &in_use_obj)) {
+                continue;
+            }
+
+            int in_use = json_object_get_int(in_use_obj);
+
+            uint32_t record = 0;
+            MESA_RC(json_rpc_get_name_uint32_t(req, sa_obj, "record", &record));
+
+            if (record >= LAN80XX_MACSEC_MAX_SA) {
+                return MESA_RC_ERROR;  // guard against out-of-bounds access
+            }
+
+            if (in_use == 1) {
+                // Allocate and parse full SA only if in_use == 1
+                if (parm->sa[i] == NULL) {
+                    parm->sa[i] = &data->tx_sa[record];
+                 }
+                 MESA_RC(json_rpc_get_phy25g_macsec_internal_tx_sa_t(req, sa_obj, parm->sa[i]));
+            } else {
+                parm->sa[i] = NULL;
+            }
+        }
+    }
+    MESA_RC(json_rpc_get_name_uint64_t(req, obj, "out_octets_untagged", &(parm->out_octets_untagged)));
+    return MESA_RC_OK;
+}
+
+
+mesa_rc json_rpc_get_name_phy25g_macsec_internal_tx_sc_t(json_rpc_req_t *req, json_object *obj, const char *name, phy25g_macsec_internal_tx_sc_t *parm, phy25g_macsec_internal_conf_t *data)
+{
+    json_object *obj_value;
+
+    MESA_RC(json_rpc_get_name_json_object(req, obj, name, &obj_value));
+    MESA_RC(json_rpc_get_phy25g_macsec_internal_tx_sc_t(req, obj_value, parm, data));
+    return MESA_RC_OK;
+}
+
+
+
+mesa_rc json_rpc_get_phy25g_macsec_internal_rx_sa_t(json_rpc_req_t *req, json_object *obj, phy25g_macsec_internal_rx_sa_t *parm)
+{
+    MESA_RC(json_rpc_get_name_uint8_t(req, obj, "in_use", &(parm->in_use)));
+    MESA_RC(json_rpc_get_name_uint8_t(req, obj, "enabled", &(parm->enabled)));
+    MESA_RC(json_rpc_get_name_uint32_t(req, obj, "record", &(parm->record)));
+    MESA_RC(json_rpc_get_name_mepa_macsec_sak_t(req, obj, "sak", &(parm->sak)));
+    MESA_RC(json_rpc_get_name_mepa_macsec_rx_sa_status_t(req, obj, "status", &(parm->status)));
+    MESA_RC(json_rpc_get_name_mepa_macsec_rx_sa_counters_t(req, obj, "cnt", &(parm->cnt)));
+    MESA_RC(json_rpc_get_name_mepa_macsec_ssci_t(req, obj, "ssci", &(parm->ssci)));
+    return MESA_RC_OK;
+}
+
+
+mesa_rc json_rpc_get_idx_phy25g_macsec_internal_rx_sa_t(json_rpc_req_t *req, json_object *obj, int *idx, phy25g_macsec_internal_rx_sa_t *parm)
+{
+    json_object *obj_value;
+
+    MESA_RC(json_rpc_get_idx_json_object(req, obj, idx, &obj_value));
+    MESA_RC(json_rpc_get_phy25g_macsec_internal_rx_sa_t(req, obj_value, parm));
+    return MESA_RC_OK;
+}
+
+mesa_rc json_rpc_get_name_phy25g_macsec_internal_rx_sa_t(json_rpc_req_t *req, json_object *obj, const char *name, phy25g_macsec_internal_rx_sa_t *parm)
+{
+    json_object *obj_value;
+
+    MESA_RC(json_rpc_get_name_json_object(req, obj, name, &obj_value));
+    MESA_RC(json_rpc_get_phy25g_macsec_internal_rx_sa_t(req, obj_value, parm));
+    return MESA_RC_OK;
+}
+
+
+mesa_rc json_rpc_get_phy25g_macsec_internal_rx_sc_t(json_rpc_req_t *req, json_object *obj, phy25g_macsec_internal_rx_sc_t *parm, phy25g_macsec_internal_conf_t *data)
+{
+    MESA_RC(json_rpc_get_name_uint8_t(req, obj, "in_use", &(parm->in_use)));
+    MESA_RC(json_rpc_get_name_mepa_macsec_sci_t(req, obj, "sci", &(parm->sci)));
+    MESA_RC(json_rpc_get_name_mepa_macsec_rx_sc_status_t(req, obj, "status", &(parm->status)));
+    MESA_RC(json_rpc_get_name_mepa_macsec_rx_sc_counters_t(req, obj, "cnt", &(parm->cnt)));
+
+    {
+        json_object *obj_value;
+        MESA_RC(json_rpc_get_name_json_object(req, obj, "sa", &obj_value));
+
+        int sa_count = json_object_array_length(obj_value);
+        for (int i0 = 0; i0 < sa_count; i0++) {
+            json_object *entry_obj;
+            MESA_RC(json_rpc_get_idx_json_object(req, obj_value, &i0, &entry_obj));
+
+            json_object *sa_obj;
+            MESA_RC(json_rpc_get_name_json_object(req, entry_obj, "value", &sa_obj));
+
+            uint8_t in_use = 0;
+            MESA_RC(json_rpc_get_name_uint8_t(req, sa_obj, "in_use", &in_use));
+
+            uint32_t record = 0;
+            MESA_RC(json_rpc_get_name_uint32_t(req, sa_obj, "record", &record));
+
+            if (record >= LAN80XX_MACSEC_MAX_SA) {
+                return MESA_RC_ERROR;  // guard against out-of-bounds access
+            }
+
+            if (in_use == 1) {
+                if (parm->sa[i0] == NULL) {
+                    parm->sa[i0] = &data->rx_sa[record];
+                }
+                MESA_RC(json_rpc_get_phy25g_macsec_internal_rx_sa_t(req, sa_obj, parm->sa[i0]));
+            } else {
+                parm->sa[i0] = NULL;
+            }
+        }
+    }
+
+    MESA_RC(json_rpc_get_name_mepa_macsec_rx_sc_conf_t(req, obj, "conf", &(parm->conf)));
+    MESA_RC(json_rpc_get_name_mepa_macsec_rx_sa_counters_t(req, obj, "del_rx_sa_cnt", &(parm->del_rx_sa_cnt)));
+    MESA_RC(json_rpc_get_name_uint64_t(req, obj, "in_octets_validation_disabled", &(parm->in_octets_validation_disabled)));
+
+    return MESA_RC_OK;
+}
+
+
+mesa_rc json_rpc_get_idx_phy25g_macsec_internal_rx_sc_t(json_rpc_req_t *req, json_object *obj, int *idx, phy25g_macsec_internal_rx_sc_t *parm, phy25g_macsec_internal_conf_t *data)
+{
+    json_object *obj_value;
+
+    MESA_RC(json_rpc_get_idx_json_object(req, obj, idx, &obj_value));
+    MESA_RC(json_rpc_get_phy25g_macsec_internal_rx_sc_t(req, obj_value, parm, data));
+    return MESA_RC_OK;
+}
+
+mesa_rc json_rpc_get_phy25g_macsec_internal_secy_t(json_rpc_req_t *req, json_object *obj, phy25g_macsec_internal_secy_t *parm, phy25g_macsec_internal_conf_t *data)
+{
+    MESA_RC(json_rpc_get_name_uint8_t(req, obj, "in_use", &(parm->in_use)));
+    MESA_RC(json_rpc_get_name_mepa_macsec_sci_t(req, obj, "sci", &(parm->sci)));
+    MESA_RC(json_rpc_get_name_uint32_t(req, obj, "service_id", &(parm->service_id)));
+    MESA_RC(json_rpc_get_name_uint8_t(req, obj, "controlled_port_enabled", &(parm->controlled_port_enabled)));
+    MESA_RC(json_rpc_get_name_mepa_macsec_secy_port_counters_t(req, obj, "controlled_cnt", &(parm->controlled_cnt)));
+    MESA_RC(json_rpc_get_name_mepa_macsec_common_counters_t(req, obj, "common_cnt", &(parm->common_cnt)));
+    MESA_RC(json_rpc_get_name_mepa_macsec_uncontrolled_counters_t(req, obj, "uncontrolled_cnt", &(parm->uncontrolled_cnt)));
+    MESA_RC(json_rpc_get_name_mepa_macsec_secy_counters_t(req, obj, "secy_cnt", &(parm->secy_cnt)));
+    MESA_RC(json_rpc_get_name_mepa_macsec_secy_conf_t(req, obj, "conf", &(parm->conf)));
+    {
+    json_object *obj_value;
+    MESA_RC(json_rpc_get_name_json_object(req, obj, "rx_sc", &obj_value));
+    int array_len = json_object_array_length(obj_value);
+    int i0 = 0;  // Initialize the index before the loop
+    while (i0 < array_len && i0 < LAN80XX_MACSEC_MAX_RX_SC) {
+        json_object *entry = json_object_array_get_idx(obj_value, i0);
+        if (!entry) {
+            i0++;
+            continue;
+        }
+
+        json_object *in_use_obj = NULL;
+        if (!json_object_object_get_ex(entry, "in_use", &in_use_obj)) {
+            i0++;
+            continue; // No "in_use" field
+        }
+
+        int in_use_val = json_object_get_int(in_use_obj);
+        if (in_use_val == 0) {
+            i0++;
+            continue; // Skip unused entries
+        }
+
+        // Assign static memory and zero it
+        parm->rx_sc[i0] = &data->rx_sc[i0];
+        memset(parm->rx_sc[i0], 0, sizeof(phy25g_macsec_internal_rx_sc_t));
+
+        // Parse full rx_sc entry
+        MESA_RC(json_rpc_get_phy25g_macsec_internal_rx_sc_t(req, entry, parm->rx_sc[i0], data));
+
+        i0++;
+    }
+    } 
+
+    MESA_RC(json_rpc_get_name_phy25g_macsec_internal_tx_sc_t(req, obj, "tx_sc", &(parm->tx_sc), data));
+    {
+        json_object *obj_value;
+        MESA_RC(json_rpc_get_name_json_object(req, obj, "pattern", &obj_value));
+        for (int i0 = 0; i0 < LAN80XX_MACSEC_ACTION_MAX; ) {
+            json_object *obj0;
+            MESA_RC(json_rpc_get_idx_json_object(req, obj_value, &i0, &obj0));
+            for (int i1 = 0; i1 < json_object_array_length(obj_value); ) {
+                MESA_RC(json_rpc_get_idx_mepa_macsec_match_pattern_t(req, obj0, &i1, &(parm->pattern)[i0 - 1][i1]));
+            }
+        }
+    }
+    {
+        json_object *obj_value;
+        MESA_RC(json_rpc_get_name_json_object(req, obj, "pattern_record", &obj_value));
+        for (int i0 = 0; i0 < LAN80XX_MACSEC_ACTION_MAX; ) {
+            json_object *obj0;
+            MESA_RC(json_rpc_get_idx_json_object(req, obj_value, &i0, &obj0));
+            for (int i1 = 0; i1 < json_object_array_length(obj_value); ) {
+                MESA_RC(json_rpc_get_idx_uint32_t(req, obj0, &i1, &(parm->pattern_record)[i0 - 1][i1]));
+            }
+        }
+    }
+    MESA_RC(json_rpc_get_name_mepa_macsec_tag_bypass_t(req, obj, "tag_bypass", &(parm->tag_bypass)));
+    return MESA_RC_OK;
+}
+
+mesa_rc json_rpc_add_phy25g_macsec_internal_tx_sa_t(json_rpc_req_t *req, json_object *obj, phy25g_macsec_internal_tx_sa_t *parm)
+{
+    json_object *obj_value;
+
+    MESA_RC(json_rpc_new_phy25g_macsec_internal_tx_sa_t(req, &obj_value, parm));
+    MESA_RC(json_rpc_add_json_array(req, obj, obj_value));
+    return MESA_RC_OK;
+}
+
+
+mesa_rc json_rpc_get_idx_phy25g_macsec_internal_secy_t(json_rpc_req_t *req, json_object *obj, int *idx, phy25g_macsec_internal_secy_t *parm, phy25g_macsec_internal_conf_t *data)
+{
+    json_object *obj_value;
+
+    MESA_RC(json_rpc_get_idx_json_object(req, obj, idx, &obj_value));
+    MESA_RC(json_rpc_get_phy25g_macsec_internal_secy_t(req, obj_value, parm, data));
+    return MESA_RC_OK;
+}
+
+
+// Get struct
+mesa_rc json_rpc_get_phy25g_macsec_internal_conf_t(json_rpc_req_t *req, json_object *obj, phy25g_macsec_internal_conf_t *parm)
+{
+    {
+        json_object *obj_value;
+        MESA_RC(json_rpc_get_name_json_object(req, obj, "rx_sa", &obj_value));
+        for (int i0 = 0; i0 < LAN80XX_MACSEC_MAX_SA; ) {
+            MESA_RC(json_rpc_get_idx_phy25g_macsec_internal_rx_sa_t(req, obj_value, &i0, &(parm->rx_sa)[i0]));
+        }
+    }
+    {
+        json_object *obj_value;
+        MESA_RC(json_rpc_get_name_json_object(req, obj, "tx_sa", &obj_value));
+        for (int i0 = 0; i0 < LAN80XX_MACSEC_MAX_SA; ) {
+            MESA_RC(json_rpc_get_idx_phy25g_macsec_internal_tx_sa_t(req, obj_value, &i0, &(parm->tx_sa)[i0]));
+        }
+    }
+    {
+        json_object *obj_value;
+        MESA_RC(json_rpc_get_name_json_object(req, obj, "secy", &obj_value));
+        for (int i0 = 0; i0 < LAN80XX_MACSEC_MAX_SECY; ) {
+            MESA_RC(json_rpc_get_idx_phy25g_macsec_internal_secy_t(req, obj_value, &i0, &(parm->secy)[i0], parm));
+        }
+    }
+    {
+        json_object *obj_value;
+        MESA_RC(json_rpc_get_name_json_object(req, obj, "rx_sc", &obj_value));
+        for (int i0 = 0; i0 < LAN80XX_MACSEC_MAX_RX_SC; ) {
+            MESA_RC(json_rpc_get_idx_phy25g_macsec_internal_rx_sc_t(req, obj_value, &i0, &(parm->rx_sc)[i0], parm));
+        }
+    }
+    MESA_RC(json_rpc_get_name_phy25g_macsec_internal_glb_t(req, obj, "glb", &(parm->glb)));
+    MESA_RC(json_rpc_get_name_mepa_macsec_rc_dbg_counters_t(req, obj, "rc_dbg_counters", &(parm->rc_dbg_counters)));
+    return MESA_RC_OK;
+}
+
+
+
+
+// Get struct from array
+mesa_rc json_rpc_get_idx_phy25g_macsec_internal_conf_t(json_rpc_req_t *req, json_object *obj, int *idx, phy25g_macsec_internal_conf_t *parm)
+{
+    json_object *obj_value;
+
+    MESA_RC(json_rpc_get_idx_json_object(req, obj, idx, &obj_value));
+    MESA_RC(json_rpc_get_phy25g_macsec_internal_conf_t(req, obj_value, parm));
+    return MESA_RC_OK;
+}
+
+// Get struct from object
+mesa_rc json_rpc_get_name_phy25g_macsec_internal_conf_t(json_rpc_req_t *req, json_object *obj, const char *name, phy25g_macsec_internal_conf_t *parm)
+{
+    json_object *obj_value;
+
+    MESA_RC(json_rpc_get_name_json_object(req, obj, name, &obj_value));
+    MESA_RC(json_rpc_get_phy25g_macsec_internal_conf_t(req, obj_value, parm));
+    return MESA_RC_OK;
+}
+
+// Create struct object
+mesa_rc json_rpc_new_phy25g_macsec_internal_conf_t(json_rpc_req_t *req, json_object **obj, phy25g_macsec_internal_conf_t *parm)
+{
+    MESA_RC(json_rpc_new(req, obj));
+    {
+        json_object *obj0;
+        MESA_RC(json_rpc_array_new(req, &obj0));
+        MESA_RC(json_rpc_add_name_json_object(req, *obj, "secy", obj0));
+        for (int i0 = 0; i0 < LAN80XX_MACSEC_MAX_SECY; i0++) {
+            MESA_RC(json_rpc_add_phy25g_macsec_internal_secy_t(req, obj0, &(parm->secy)[i0]));
+        }
+    }
+    {
+        json_object *obj0;
+        MESA_RC(json_rpc_array_new(req, &obj0));
+        MESA_RC(json_rpc_add_name_json_object(req, *obj, "rx_sc", obj0));
+        for (int i0 = 0; i0 < LAN80XX_MACSEC_MAX_RX_SC; i0++) {
+            MESA_RC(json_rpc_add_phy25g_macsec_internal_rx_sc_t(req, obj0, &(parm->rx_sc)[i0]));
+        }
+    }
+    {
+        json_object *obj0;
+        MESA_RC(json_rpc_array_new(req, &obj0));
+        MESA_RC(json_rpc_add_name_json_object(req, *obj, "rx_sa", obj0));
+        for (int i0 = 0; i0 < LAN80XX_MACSEC_MAX_SA; i0++) {
+            MESA_RC(json_rpc_add_phy25g_macsec_internal_rx_sa_t(req, obj0, &(parm->rx_sa)[i0]));
+        }
+    }
+    {
+        json_object *obj0;
+        MESA_RC(json_rpc_array_new(req, &obj0));
+        MESA_RC(json_rpc_add_name_json_object(req, *obj, "tx_sa", obj0));
+        for (int i0 = 0; i0 < LAN80XX_MACSEC_MAX_SA; i0++) {
+            MESA_RC(json_rpc_add_phy25g_macsec_internal_tx_sa_t(req, obj0, &(parm->tx_sa)[i0]));
+        }
+    }
+    MESA_RC(json_rpc_add_name_phy25g_macsec_internal_glb_t(req, *obj, "glb", &(parm->glb)));
+    MESA_RC(json_rpc_add_name_mepa_macsec_rc_dbg_counters_t(req, *obj, "rc_dbg_counters", &(parm->rc_dbg_counters)));
+    return MESA_RC_OK;
+}
+
+
+// Add struct to array
+mesa_rc json_rpc_add_phy25g_macsec_internal_conf_t(json_rpc_req_t *req, json_object *obj, phy25g_macsec_internal_conf_t *parm)
+{
+    json_object *obj_value;
+
+    MESA_RC(json_rpc_new_phy25g_macsec_internal_conf_t(req, &obj_value, parm));
+    MESA_RC(json_rpc_add_json_array(req, obj, obj_value));
+    return MESA_RC_OK;
+}
+
+// Add struct to object
+mesa_rc json_rpc_add_name_phy25g_macsec_internal_conf_t(json_rpc_req_t *req, json_object *obj, const char *name, phy25g_macsec_internal_conf_t *parm)
+{
+    json_object *obj_value;
+
+    MESA_RC(json_rpc_new_phy25g_macsec_internal_conf_t(req, &obj_value, parm));
+    MESA_RC(json_rpc_add_name_json_object(req, obj, name, obj_value));
+    return MESA_RC_OK;
+}
 
 /* Warm start application - Malibu 25G - End -------------------------------------------- */
 

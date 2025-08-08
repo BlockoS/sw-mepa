@@ -561,7 +561,7 @@ mepa_rc lan80xx_macsec_hmac_counters_clear_priv(mepa_device_t         *dev,
 static mepa_rc lan80xx_macsec_init_set_(mepa_device_t *dev, mepa_port_no_t port_no, const mepa_macsec_init_t *const init)
 {
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
-    u8 record, egr_latency, ingr_latency;
+    u8 egr_latency, ingr_latency;
     phy25g_oper_speed_mode_t phy_speed;
     phy_speed = data->port_state.speed;
 
@@ -617,33 +617,32 @@ static mepa_rc lan80xx_macsec_init_set_(mepa_device_t *dev, mepa_port_no_t port_
                             LAN80XX_M_MACSEC_EGR_MACSEC_EGR_MACSEC_ENA_CFG_CLK_ENA);
 
         /* Set the context */
-        if ( !data -> sync_calling_private ) {
-            /* Selcting the Ethertype to be insterted secTag which is 88E5 represented in little endian format and enabling sequence number threshold mode */
-            LAN80XX_CSR_WARM_WR(port_no, LAN80XX_MACSEC_INGR_CORE_CONTEXT_CTRL, LAN80XX_MACSEC_CONTEX_CTRL);
-            /* Writing the latency value to LATENCY_CONTROL reg */
-            LAN80XX_CSR_COLD_WR(port_no, LAN80XX_MACSEC_INGR_CORE_LATENCY_CONTROL,
-                                LAN80XX_F_MACSEC_INGR_MACSEC_INGR_LATENCY_CONTROL_MC_LATENCY_FIX_0(ingr_latency));
-            /* Dynamic Latency Enable */
-            LAN80XX_CSR_COLD_WR(port_no, LAN80XX_MACSEC_INGR_CORE_DYN_LATENCY_CONTROL,
-                                LAN80XX_F_MACSEC_INGR_MACSEC_INGR_LATENCY_CONTROL_MC_DYN_LATENCY_WORDS_0(LAN80XX_MACSEC_DYN_LATENCY) |
-                                LAN80XX_M_MACSEC_INGR_MACSEC_INGR_DYN_LAT_ENABLE_0);
+        /* Selcting the Ethertype to be insterted secTag which is 88E5 represented in little endian format and enabling sequence number threshold mode */
+        LAN80XX_CSR_WARM_WR(port_no, LAN80XX_MACSEC_INGR_CORE_CONTEXT_CTRL, LAN80XX_MACSEC_CONTEX_CTRL);
+        /* Writing the latency value to LATENCY_CONTROL reg */
+        LAN80XX_CSR_COLD_WR(port_no, LAN80XX_MACSEC_INGR_CORE_LATENCY_CONTROL,
+                            LAN80XX_F_MACSEC_INGR_MACSEC_INGR_LATENCY_CONTROL_MC_LATENCY_FIX_0(ingr_latency));
+        /* Dynamic Latency Enable */
+        LAN80XX_CSR_COLD_WR(port_no, LAN80XX_MACSEC_INGR_CORE_DYN_LATENCY_CONTROL,
+                            LAN80XX_F_MACSEC_INGR_MACSEC_INGR_LATENCY_CONTROL_MC_DYN_LATENCY_WORDS_0(LAN80XX_MACSEC_DYN_LATENCY) |
+                            LAN80XX_M_MACSEC_INGR_MACSEC_INGR_DYN_LAT_ENABLE_0);
 
-            LAN80XX_CSR_WARM_WR(port_no, LAN80XX_MACSEC_INGR_CORE_SAM_NM_FLOW_CP, 0x0);
-            LAN80XX_CSR_WARM_WR(port_no, LAN80XX_MACSEC_INGR_CORE_SAM_NM_FLOW_NCP, 0x0);
-            LAN80XX_CSR_WARM_WR(port_no, LAN80XX_MACSEC_EGR_CORE_SAM_NM_FLOW_NCP, 0x0);
-            LAN80XX_CSR_WARM_WR(port_no, LAN80XX_MACSEC_EGR_CORE_SAM_NM_FLOW_CP, 0x0);
+        LAN80XX_CSR_WARM_WR(port_no, LAN80XX_MACSEC_INGR_CORE_SAM_NM_FLOW_CP, 0x0);
+        LAN80XX_CSR_WARM_WR(port_no, LAN80XX_MACSEC_INGR_CORE_SAM_NM_FLOW_NCP, 0x0);
+        LAN80XX_CSR_WARM_WR(port_no, LAN80XX_MACSEC_EGR_CORE_SAM_NM_FLOW_NCP, 0x0);
+        LAN80XX_CSR_WARM_WR(port_no, LAN80XX_MACSEC_EGR_CORE_SAM_NM_FLOW_CP, 0x0);
 
-            /* Egress */
-            /* Selcting the Ethertype to be insterted secTag which is 88E5 represented in little endian format and enabling sequence number threshold mode */
-            LAN80XX_CSR_WARM_WR(port_no, LAN80XX_MACSEC_EGR_CORE_CONTEXT_CTRL, LAN80XX_MACSEC_CONTEX_CTRL);
-            /* Writing the latency value to LATENCY_CONTROL reg */
-            LAN80XX_CSR_COLD_WR(port_no, LAN80XX_MACSEC_EGR_CORE_LATENCY_CONTROL,
-                                LAN80XX_F_MACSEC_EGR_MACSEC_EGR_LATENCY_CONTROL_MC_LATENCY_FIX_0(egr_latency));
-            /* Dynamic Latency Enable */
-            LAN80XX_CSR_COLD_WR(port_no, LAN80XX_MACSEC_EGR_CORE_DYN_LATENCY_CONTROL,
-                                LAN80XX_F_MACSEC_EGR_MACSEC_EGR_LATENCY_CONTROL_MC_DYN_LATENCY_WORDS_0(LAN80XX_MACSEC_DYN_LATENCY) |
-                                LAN80XX_M_MACSEC_EGR_MACSEC_EGR_DYN_LAT_ENABLE_0);
-        }
+        /* Egress */
+        /* Selcting the Ethertype to be insterted secTag which is 88E5 represented in little endian format and enabling sequence number threshold mode */
+        LAN80XX_CSR_WARM_WR(port_no, LAN80XX_MACSEC_EGR_CORE_CONTEXT_CTRL, LAN80XX_MACSEC_CONTEX_CTRL);
+        /* Writing the latency value to LATENCY_CONTROL reg */
+        LAN80XX_CSR_COLD_WR(port_no, LAN80XX_MACSEC_EGR_CORE_LATENCY_CONTROL,
+                            LAN80XX_F_MACSEC_EGR_MACSEC_EGR_LATENCY_CONTROL_MC_LATENCY_FIX_0(egr_latency));
+        /* Dynamic Latency Enable */
+        LAN80XX_CSR_COLD_WR(port_no, LAN80XX_MACSEC_EGR_CORE_DYN_LATENCY_CONTROL,
+                            LAN80XX_F_MACSEC_EGR_MACSEC_EGR_LATENCY_CONTROL_MC_DYN_LATENCY_WORDS_0(LAN80XX_MACSEC_DYN_LATENCY) |
+                            LAN80XX_M_MACSEC_EGR_MACSEC_EGR_DYN_LAT_ENABLE_0);
+
         /* Counters are clear on read */
         LAN80XX_CSR_WARM_WRM(port_no, LAN80XX_MACSEC_EGR_CORE_TCAM_COUNT_CONTROL,
                              LAN80XX_M_MACSEC_EGR_MACSEC_EGR_TCAM_COUNT_CONTROL_AUTO_CNTR_RESET_0,
@@ -715,30 +714,20 @@ static mepa_rc lan80xx_macsec_init_set_(mepa_device_t *dev, mepa_port_no_t port_
         /* Making both threshold and rollover event as zero */
         LAN80XX_CSR_WARM_WRM(port_no, LAN80XX_MACSEC_EGR_CORE_INT_CTRL_STAT, 0, LAN80XX_MACSEC_SEQ_NUM_THR_MASK | LAN80XX_MACSEC_SEQ_NUM_ROLL_MASK);
 
-        if (!data->macsec_conf.glb.spd_change_macsec_recfg) {
-            /* Clear Mac block counters */
-            MEPA_RC(lan80xx_macsec_lmac_counters_clear_priv(dev, port_no));
-            MEPA_RC(lan80xx_macsec_hmac_counters_clear_priv(dev, port_no));
+        /* Clear Mac block counters */
+        MEPA_RC(lan80xx_macsec_lmac_counters_clear_priv(dev, port_no));
+        MEPA_RC(lan80xx_macsec_hmac_counters_clear_priv(dev, port_no));
 
-            /* We set MTU to maximum, because we don't know which frame size the MAC/Switch supports.*/
-            data->macsec_conf.glb.mtu_conf.mtu  = LAN80XX_MACSEC_MTU_MAX;
-            data->macsec_conf.glb.mtu_conf.drop = TRUE;
-            MEPA_RC(lan80xx_macsec_mtu_set_(dev, port_no));
+        /* We set MTU to maximum, because we don't know which frame size the MAC/Switch supports.*/
+        data->macsec_conf.glb.mtu_conf.mtu  = LAN80XX_MACSEC_MTU_MAX;
+        data->macsec_conf.glb.mtu_conf.drop = TRUE;
+        MEPA_RC(lan80xx_macsec_mtu_set_(dev, port_no));
 
-            for (u8 i = 0; i < LAN80XX_MACSEC_CP_RULES; i++) {
-                data->macsec_conf.glb.control_match[i].match = MEPA_MACSEC_MATCH_DISABLE;
-                data->macsec_conf.glb.egr_bypass_record[i] = MACSEC_NOT_IN_USE;
-            }
-        } else {
-            for (u8 i = 0; i < LAN80XX_MACSEC_CP_RULES; i++) {
-                if (data->macsec_conf.glb.egr_bypass_record[i] == MACSEC_NOT_IN_USE) {
-                    continue;
-                }
-                record = data->macsec_conf.glb.egr_bypass_record[i];
-                memset(&(data->macsec_conf.tx_sa[record]), 0, sizeof(phy25g_macsec_internal_tx_sa_t));
-                data->macsec_conf.glb.egr_bypass_record[i] = MACSEC_NOT_IN_USE;
-            }
+        for (u8 i = 0; i < LAN80XX_MACSEC_CP_RULES; i++) {
+            data->macsec_conf.glb.control_match[i].match = MEPA_MACSEC_MATCH_DISABLE;
+            data->macsec_conf.glb.egr_bypass_record[i] = MACSEC_NOT_IN_USE;
         }
+
         /* Enable Ingress MacSec block and disable Ingress bypass*/
         LAN80XX_CSR_COLD_WRM(port_no, LAN80XX_MACSEC_INGR_MACSEC_INGR_MACSEC_ENA_CFG,
                              LAN80XX_M_MACSEC_INGR_MACSEC_INGR_MACSEC_ENA_CFG_CLK_ENA |
@@ -829,19 +818,11 @@ mepa_rc lan80xx_macsec_init_set_priv(mepa_device_t *dev, const mepa_macsec_init_
             mepa_macsec_init_t state_init;
             state_init = data->macsec_conf.glb.init;
             data->macsec_conf.glb.init = *init;
-            if (data->warm_start_cur) {
-                for (u8 i = 0; i < LAN80XX_MACSEC_CP_RULES; i++) {
-                    data->macsec_conf.glb.control_match[i].match = MEPA_MACSEC_MATCH_DISABLE;
-                    data->macsec_conf.glb.egr_bypass_record[i] = MACSEC_NOT_IN_USE;
-                }
-                rc = MEPA_RC_OK;
-            } else {
-                rc = lan80xx_macsec_init_set_(dev, port_no, init);
-                if (rc != MEPA_RC_OK) {
-                    data->macsec_conf.glb.init = state_init;
-                }
-                data->macsec_conf.glb.mac_block_mtu = LAN80XX_MAC_MAXLEN; /* Default MAC Block MTU */
+            rc = lan80xx_macsec_init_set_(dev, port_no, init);
+            if (rc != MEPA_RC_OK) {
+                data->macsec_conf.glb.init = state_init;
             }
+            data->macsec_conf.glb.mac_block_mtu = LAN80XX_MAC_MAXLEN; /* Default MAC Block MTU */
         }
     }
     return rc;
@@ -1611,74 +1592,6 @@ static mepa_rc lan80xx_is_ssci_valid(mepa_device_t *dev,
     return MEPA_RC_OK;
 }
 
-static mepa_rc lan80xx_record_inuse_get(mepa_device_t *dev, mepa_port_no_t port_no, mepa_bool_t egr, phy25g_macsec_internal_secy_t *secy, u16 an, u32 sc, u32 *record)
-
-{
-    phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
-    mepa_bool_t aes_128 = FALSE;
-    mepa_bool_t found = FALSE;
-    u32 index = 0, max_sa = 0, sa = 0, value = 0, mmd = 0;
-    mepa_bool_t xpn = FALSE;
-    mmd = egr ? MMD_ID_MACSEC_EGR : MMD_ID_MACSEC_INGR;
-
-    if (secy->conf.current_cipher_suite == MEPA_MACSEC_CIPHER_SUITE_GCM_AES_XPN_128 ||
-        secy->conf.current_cipher_suite == MEPA_MACSEC_CIPHER_SUITE_GCM_AES_XPN_256) {
-        xpn = TRUE;
-    }
-    if ((secy->conf.current_cipher_suite == MEPA_MACSEC_CIPHER_SUITE_GCM_AES_128) ||
-        (secy->conf.current_cipher_suite == MEPA_MACSEC_CIPHER_SUITE_GCM_AES_XPN_128)) {
-        aes_128 = TRUE;
-    }
-
-    max_sa = lan80xx_phy_capability_priv(dev, MEPA_CAP_MACSEC_MAX_SA);
-    for (sa = 0; sa < max_sa; sa++) {
-        if (egr) {
-            if (data->macsec_conf.tx_sa[sa].in_use) {
-                continue;
-            }
-        } else {
-            if (data->macsec_conf.rx_sa[sa].in_use) {
-                continue;
-            }
-        }
-        found = 1;
-        for (index = 0; index < LAN80XX_MACSEC_XFORM_REC_SIZE ; index++) {
-            if ((index == LAN80XX_MACSEC_XFORM_SEQ_NUM_0) || (aes_128 && (index == LAN80XX_MACSEC_XFORM_SEQ_NUM_1))) {
-                /* As sequence number field keeps on updating with packets not comparing it */
-                continue;
-            }
-            if (sa < LAN80XX_MACSEC_XFORM_REC_NUM_PAGE0) {
-                /* Transform Records PAGE0 register starts at address 0x0000 */
-                MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, LAN80XX_IS_REG_32,
-                                       ((LAN80XX_MACSEC_XFORM_PAGE0_ADDR + index) | (sa * LAN80XX_MACSEC_XFORM_REC_ADDR_OFFSET)), &value));
-            } else {
-                /* Transform Records PAGE1 register starts at address 0x4000 */
-                MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, LAN80XX_IS_REG_32,
-                                       ((LAN80XX_MACSEC_XFORM_PAGE1_ADDR + index) | (sa * LAN80XX_MACSEC_XFORM_REC_ADDR_OFFSET)), &value));
-            }
-
-            if (xpn == TRUE) {
-                if (lan80xx_get_xform_value_64(dev, index, egr, aes_128, secy, an, sc, sa) != value) {
-                    found = 0;
-                    break;
-                }
-            } else {
-                if (lan80xx_get_xform_value(dev, index, egr, aes_128, secy, an, sc, sa) != value) {
-                    found = 0;
-                    break;
-                }
-            }
-        }
-        if (found) {
-            *record = sa;
-            T_I(MEPA_TRACE_GRP_GEN, "Found in use record:%d", sa);
-            return MEPA_RC_OK;
-        }
-    }
-    T_E(MEPA_TRACE_GRP_GEN, "NO record found");
-    return MEPA_RC_ERROR;
-}
-
 static mepa_rc lan80xx_record_empty_get(mepa_device_t *dev, mepa_port_no_t port_no, u32 *id, mepa_bool_t tx)
 {
     u32 sa, max_sa;
@@ -1706,7 +1619,6 @@ static mepa_rc lan80xx_record_empty_get(mepa_device_t *dev, mepa_port_no_t port_
 
 static mepa_rc lan80xx_macsec_sa_xform_set(mepa_device_t *dev, mepa_port_no_t port_no, mepa_bool_t egr, u32 record, phy25g_macsec_internal_secy_t *secy, u16 an, u32 sc)
 {
-    phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
     mepa_bool_t aes_128;
     mepa_bool_t xpn = FALSE;
     u32 i, mmd;
@@ -1715,9 +1627,6 @@ static mepa_rc lan80xx_macsec_sa_xform_set(mepa_device_t *dev, mepa_port_no_t po
     if (secy->conf.current_cipher_suite == MEPA_MACSEC_CIPHER_SUITE_GCM_AES_XPN_128 ||
         secy->conf.current_cipher_suite == MEPA_MACSEC_CIPHER_SUITE_GCM_AES_XPN_256) {
         xpn = TRUE;
-    }
-    if (data->sync_calling_private) {
-        return MEPA_RC_OK;
     }
     if (xpn != TRUE) {
         aes_128 = (secy->conf.current_cipher_suite == MEPA_MACSEC_CIPHER_SUITE_GCM_AES_128) ? 1 : 0;
@@ -1752,13 +1661,8 @@ static mepa_rc lan80xx_macsec_sa_xform_set(mepa_device_t *dev, mepa_port_no_t po
 static mepa_rc lan80xx_macsec_sa_xform_reset(mepa_device_t *dev, mepa_port_no_t port_no, mepa_bool_t egr, u32 record, phy25g_macsec_internal_secy_t *secy,
                                              u16 an, u32 sc)
 {
-    phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
     u32 i = 0, mmd = 0;
     mmd = egr ? MMD_ID_MACSEC_EGR : MMD_ID_MACSEC_INGR;
-    if (data->sync_calling_private) {
-        T_I(MEPA_TRACE_GRP_GEN, "In syncronization state");
-        return MEPA_RC_OK;
-    }
 
     for (i = 0; i < LAN80XX_MACSEC_XFORM_REC_SIZE; i++) {
         if (record < LAN80XX_MACSEC_XFORM_REC_NUM_PAGE0) {
@@ -3927,68 +3831,38 @@ static mepa_rc lan80xx_macsec_rx_sa_set_(mepa_device_t   *dev,
     mepa_macsec_match_pattern_t *match = &secy->pattern[MEPA_MACSEC_MATCH_ACTION_CONTROLLED_PORT][MEPA_MACSEC_DIRECTION_INGRESS];
     u32 sc = 0, record = 0;
     mepa_bool_t create_record = 1;
-    phy25g_macsec_internal_secy_t secy_tmp;
-    phy25g_macsec_internal_rx_sa_t sa_tmp;
 
     MEPA_RC(lan80xx_sc_from_sci_get(dev, secy, sci, &sc));
     T_I(MEPA_TRACE_GRP_GEN, "port_no: %u, secy: %u, sc:%u, an:%u", port.port_no, secy_id, sc, an);
     T_I(MEPA_TRACE_GRP_GEN, LAN80XX_MPORT_SCI_AN_FMT, LAN80XX_MPORT_SCI_AN_ARG(port, *sci, an));
     MEPA_RC(lan80xx_is_sci_valid(dev, sci));   /* checking whether SCI is valid */
-    T_I(MEPA_TRACE_GRP_GEN, "sync_calling: %u, warm_start: %u", data->sync_calling_private, data->warm_start_cur);
+
     if ((secy->conf.current_cipher_suite == MEPA_MACSEC_CIPHER_SUITE_GCM_AES_XPN_128) ||
         (secy->conf.current_cipher_suite == MEPA_MACSEC_CIPHER_SUITE_GCM_AES_XPN_256)) {
-        if (!data->sync_calling_private) {
-            MEPA_RC(lan80xx_is_ssci_valid(dev, FALSE, sci, ssci, sak));
-        }
+        MEPA_RC(lan80xx_is_ssci_valid(dev, FALSE, sci, ssci, sak));
     }
     LAN80XX_MACSEC_ASSERT(an >= MEPA_MACSEC_SA_PER_SC_MAX, "AN is invalid");
 
-    if (data->sync_calling_private) {
-        if (secy->rx_sc[sc]->sa[an] == NULL) {
-            return MEPA_RC_OK;
-        }
-    } else {
-        if (secy->rx_sc[sc]->sa[an] != NULL) {
-            T_E(MEPA_TRACE_GRP_GEN, "Rx AN:%u is in use", an);
-            return dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_RX_AN_ALREADY_IN_USE);
-        }
-        if (data->warm_start_cur) {
-            T_I(MEPA_TRACE_GRP_GEN, "port_no: %u, Warm Start", port.port_no);
-            secy_tmp = *secy;
-            secy_tmp.rx_sc[sc]->sa[an] = &sa_tmp;
-            secy_tmp.rx_sc[sc]->sa[an]->sak = *sak;
-            secy_tmp.rx_sc[sc]->sa[an]->status.lowest_pn = lowest_pn.pn;
-            secy_tmp.rx_sc[sc]->sa[an]->status.pn_status.lowest_pn = lowest_pn;
-            if ((secy->conf.current_cipher_suite == MEPA_MACSEC_CIPHER_SUITE_GCM_AES_XPN_128) ||
-                (secy->conf.current_cipher_suite == MEPA_MACSEC_CIPHER_SUITE_GCM_AES_XPN_256)) {
-                memcpy(secy_tmp.rx_sc[sc]->sa[an]->ssci.buf, ssci->buf, sizeof(mepa_macsec_ssci_t));
-            }
-            if (lan80xx_record_inuse_get(dev, port.port_no, INGRESS, &secy_tmp, an, sc, &record) != MEPA_RC_OK) {
-                data->macsec_conf.glb.warm_start_reg_changed = TRUE; // Signaling that a register for this port has changed.
-                create_record = 1;
-            } else {
-                create_record = 0;
-            }
-        }
-        if (create_record && (lan80xx_record_empty_get(dev, port.port_no, &record, INGRESS) != MEPA_RC_OK)) {
-            T_E(MEPA_TRACE_GRP_GEN, "Could not get an empty record, port_no:%d  port_id:%d, secy_id:%d", port.port_no, port.port_id, secy_id);
-            return dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_EMPTY_RECORD);
-        }
-        secy->rx_sc[sc]->sa[an] = &data->macsec_conf.rx_sa[record];
-        secy->rx_sc[sc]->sa[an]->record = record;
-        secy->rx_sc[sc]->sa[an]->sak = *sak;
-        if ((secy->conf.current_cipher_suite == MEPA_MACSEC_CIPHER_SUITE_GCM_AES_XPN_128) ||
-            (secy->conf.current_cipher_suite == MEPA_MACSEC_CIPHER_SUITE_GCM_AES_XPN_256)) {
-            memcpy(secy->rx_sc[sc]->sa[an]->ssci.buf, ssci->buf, sizeof(mepa_macsec_ssci_t));
-        }
-        secy->rx_sc[sc]->sa[an]->status.lowest_pn = lowest_pn.pn;
-        secy->rx_sc[sc]->sa[an]->status.pn_status.lowest_pn = lowest_pn;
-        secy->rx_sc[sc]->sa[an]->in_use = 1;
-        secy->rx_sc[sc]->sa[an]->status.created_time = MEPA_UPTIME_SECONDS(); // TimeOfDay in seconds
+    if (secy->rx_sc[sc]->sa[an] != NULL) {
+        T_E(MEPA_TRACE_GRP_GEN, "Rx AN:%u is in use", an);
+        return dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_RX_AN_ALREADY_IN_USE);
     }
-    if (data->warm_start_cur) {
-        return MEPA_RC_OK;
+    if (create_record && (lan80xx_record_empty_get(dev, port.port_no, &record, INGRESS) != MEPA_RC_OK)) {
+        T_E(MEPA_TRACE_GRP_GEN, "Could not get an empty record, port_no:%d  port_id:%d, secy_id:%d", port.port_no, port.port_id, secy_id);
+        return dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_EMPTY_RECORD);
     }
+    secy->rx_sc[sc]->sa[an] = &data->macsec_conf.rx_sa[record];
+    secy->rx_sc[sc]->sa[an]->record = record;
+    secy->rx_sc[sc]->sa[an]->sak = *sak;
+    if ((secy->conf.current_cipher_suite == MEPA_MACSEC_CIPHER_SUITE_GCM_AES_XPN_128) ||
+        (secy->conf.current_cipher_suite == MEPA_MACSEC_CIPHER_SUITE_GCM_AES_XPN_256)) {
+        memcpy(secy->rx_sc[sc]->sa[an]->ssci.buf, ssci->buf, sizeof(mepa_macsec_ssci_t));
+    }
+    secy->rx_sc[sc]->sa[an]->status.lowest_pn = lowest_pn.pn;
+    secy->rx_sc[sc]->sa[an]->status.pn_status.lowest_pn = lowest_pn;
+    secy->rx_sc[sc]->sa[an]->in_use = 1;
+    secy->rx_sc[sc]->sa[an]->status.created_time = MEPA_UPTIME_SECONDS(); // TimeOfDay in seconds
+
     if (lan80xx_macsec_sa_xform_set(dev, port.port_no, INGRESS, secy->rx_sc[sc]->sa[an]->record, secy, an, sc) != MEPA_RC_OK) {
         T_E(MEPA_TRACE_GRP_GEN, "Could not program the xform record, port_no:%d  secy_id:%d", port.port_no, secy_id);
         return dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_COULD_NOT_PRG_XFORM);
@@ -4172,8 +4046,6 @@ static mepa_rc lan80xx_macsec_tx_sa_set_(mepa_device_t *dev, const u32 secy_id, 
     mepa_macsec_match_pattern_t *match = &secy->pattern[MEPA_MACSEC_MATCH_ACTION_CONTROLLED_PORT][MEPA_MACSEC_DIRECTION_EGRESS];
     u32 record = 0;
     mepa_bool_t create_record = 1;
-    phy25g_macsec_internal_secy_t secy_tmp;
-    phy25g_macsec_internal_tx_sa_t sa_tmp;
 
     LAN80XX_MACSEC_ASSERT(an >= MEPA_MACSEC_SA_PER_SC_MAX, "AN is invalid");
     LAN80XX_MACSEC_ASSERT(!secy->tx_sc.in_use, "No TxSC installed");
@@ -4187,22 +4059,6 @@ static mepa_rc lan80xx_macsec_tx_sa_set_(mepa_device_t *dev, const u32 secy_id, 
     if (secy->tx_sc.sa[an] != NULL) {
         T_E(MEPA_TRACE_GRP_GEN, "Tx AN:%u is in use", an);
         return dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_TX_AN_ALREADY_IN_USE);
-    }
-    if (data->warm_start_cur) {
-        secy_tmp = *secy;
-        secy_tmp.tx_sc.sa[an] = &sa_tmp;
-        secy_tmp.tx_sc.sa[an]->sak = *sak;
-        secy_tmp.tx_sc.sa[an]->status.pn_status.next_pn = next_pn;
-        if ((secy->conf.current_cipher_suite == MEPA_MACSEC_CIPHER_SUITE_GCM_AES_XPN_128) ||
-            (secy->conf.current_cipher_suite == MEPA_MACSEC_CIPHER_SUITE_GCM_AES_XPN_256)) {
-            memcpy(secy_tmp.tx_sc.sa[an]->ssci.buf, ssci->buf, sizeof(mepa_macsec_ssci_t));
-        }
-        if (lan80xx_record_inuse_get(dev, port.port_no, EGRESS, &secy_tmp, an, 0, &record) != MEPA_RC_OK) {
-            data->macsec_conf.glb.warm_start_reg_changed = TRUE; /* Signaling that a register for this port has changed*/
-            create_record = 1;
-        } else {
-            create_record = 0;
-        }
     }
     if (create_record && (lan80xx_record_empty_get(dev, port.port_no, &record, EGRESS) != MEPA_RC_OK)) {
         T_E(MEPA_TRACE_GRP_GEN, "Could not get an empty record");
@@ -4221,9 +4077,6 @@ static mepa_rc lan80xx_macsec_tx_sa_set_(mepa_device_t *dev, const u32 secy_id, 
     secy->tx_sc.sa[an]->in_use = 1;
     secy->tx_sc.sa[an]->status.created_time = MEPA_UPTIME_SECONDS(); /* TimeOfDay in seconds*/
 
-    if (data->warm_start_cur) {
-        return MEPA_RC_OK;
-    }
     if (lan80xx_macsec_sa_xform_set(dev, port.port_no, EGRESS, record, secy, an, 0) != MEPA_RC_OK) {
         T_E(MEPA_TRACE_GRP_GEN, "Could not program the xform record");
         return dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_COULD_NOT_PRG_XFORM);
@@ -4948,16 +4801,7 @@ static mepa_rc lan80xx_macsec_control_frame_match_conf_set_(mepa_device_t       
     u32 parsed_etype = 1, indx = 0;
 
     /* Get the next available index for CP rule */
-    if (data->sync_calling_private) {
-        MEPA_RC(lan80xx_cp_rule_id_get(dev, port_no, conf, &indx, rule_id, 0)); // Already have the rule, get the rule indx
-    } else {
-        MEPA_RC(lan80xx_cp_rule_id_get(dev, port_no, conf, &indx, rule_id, store));
-    }
-
-    if (data->warm_start_cur) {
-        T_I(MEPA_TRACE_GRP_GEN, "control_frame_conf_set under warmstart");
-        return MEPA_RC_OK;
-    }
+    MEPA_RC(lan80xx_cp_rule_id_get(dev, port_no, conf, &indx, rule_id, store));
 
     if ((data->macsec_conf.glb.bypass_mode.mode == MEPA_MACSEC_BYPASS_HDR)) {
         parsed_etype = 0;

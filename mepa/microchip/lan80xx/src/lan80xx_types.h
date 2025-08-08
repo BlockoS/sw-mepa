@@ -158,7 +158,6 @@ typedef struct {
     phy25g_power_t                  power;               /* Power */
     phy25g_port_mode_t              port_mode;           /* Operating mode  */
     phy25g_oper_speed_mode_t        speed;               /* Operating Speed */
-    mepa_bool_t                     warm_start_reg_changed;
     phy25g_lp_get_t                 loopback_conf;
     uint16_t                        gpio_count;          /* Number of gpios for this Phy.  Note that multiple phy channels shares GPIOs */
     phy25g_eye_backup_t             eye_reg_backup;      /* Backup of DFE configuration while enabling the EYE Scan */
@@ -189,7 +188,6 @@ typedef struct phy25g_state_s {
     mepa_bool_t                     reset_done;
     mepa_bool_t                     channel_id_lock;     /* Lock Channel ID Config */
     mepa_bool_t                     warm_start_cur;      /* Current warm start status */
-    mepa_bool_t                     warm_start_prev;     /* Previous warm start status */
     mepa_restart_t                  restart_cur;         /* Current restart configuration */
     mepa_restart_t                  restart_prev;        /* Previous restart configuration */
     mepa_bool_t                     sync_calling_private; /* Used by PHY APIs */

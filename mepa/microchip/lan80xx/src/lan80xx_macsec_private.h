@@ -164,7 +164,6 @@ typedef struct {
     phy25g_macsec_cleartags_conf_t          cleartags_conf;
     mepa_bool_t                             cleartags_init_done;
     mepa_macsec_init_t                      init;
-    mepa_bool_t                             warm_start_reg_changed;  /** Indicates the reg changed during warm start */
     mepa_macsec_mtu_t                       mtu_conf;                /** Configuration of MTU */
     u16                                     mac_block_mtu;           /** MAC Block MTU */
     mepa_bool_t                             rmon_counters_clr;       /** MACsec RMON counters clear flag */

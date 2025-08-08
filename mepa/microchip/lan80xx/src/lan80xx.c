@@ -3,12 +3,8 @@
 
 #include <microchip/ethernet/phy/api.h>
 #include <mepa_driver.h>
-#include <string.h>
-#include <stdio.h>
 #include "lan80xx_types.h"
 #include "lan80xx_private.h"
-#include "lan80xx_ts_private.h"
-#include "lan80xx_mcu.h"
 
 ////////  MEPA API Implementation  /////
 

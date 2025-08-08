@@ -33,6 +33,8 @@ static mepa_rc lan80xx_ram_init(mepa_device_t    *dev, mepa_port_no_t  port_no)
     LAN80XX_BASE_DEV(data, base_dev, base_data);
     mepa_rc rc = MEPA_RC_OK;
     u32 val = 0;
+
+    T_IM("POST 1 RAM INIT Triggered on Port : %d\n", port_no);
     /* Read Channel ID */
     LAN80XX_CSR_RD(dev, port_no, LAN80XX_HOST_SLICE_SPARE_RW_0, &val);
     u8 channel_id =  LAN80XX_X_HOST_SLICE_SPARE_RW_0_SPARE_RW_0_CHN_ID(val);
@@ -70,7 +72,6 @@ static mepa_rc lan80xx_ram_init(mepa_device_t    *dev, mepa_port_no_t  port_no)
 
     /* POST 1 RAM Init */
     LAN80XX_CSR_WR(dev, port_no, LAN80XX_LINE_SLICE_LINE_RAM_INIT_RAM_INIT, LAN80XX_POST1_TRIGGER);
-    T_I(MEPA_TRACE_GRP_GEN, "\nPOST 1 RAM INIT Triggeredon Port : %d\n", port_no);
 
     /* Wait for 50us to do RAM Initialization */
     MEPA_NSLEEP(50000);
@@ -108,6 +109,7 @@ static mepa_rc lan80xx_post1_bist_trigger(mepa_device_t  *dev, mepa_port_no_t  p
     mepa_rc rc = MEPA_RC_OK;
     u32 val = 0;
 
+    T_IM("POST 1 BIST Trigger on Port : %d\n", port_no);
     /* Read Channel ID */
     LAN80XX_CSR_RD(dev, port_no, LAN80XX_HOST_SLICE_SPARE_RW_0, &val);
     u8 channel_id =  LAN80XX_X_HOST_SLICE_SPARE_RW_0_SPARE_RW_0_CHN_ID(val);
@@ -135,7 +137,6 @@ static mepa_rc lan80xx_post1_bist_trigger(mepa_device_t  *dev, mepa_port_no_t  p
 
     LAN80XX_CSR_WRM(port_no, LAN80XX_MACSEC_EGR_MACSEC_EGR_MACSEC_ENA_CFG, 0, LAN80XX_M_MACSEC_EGR_MACSEC_EGR_MACSEC_ENA_CFG_SW_RST);
 
-    T_I(MEPA_TRACE_GRP_GEN, "POST 1 BIST Trigger on Port : %d\n", port_no);
     LAN80XX_CSR_WR(dev, port_no, LAN80XX_LINE_SLICE_BIST1_GO, LAN80XX_POST1_TRIGGER);
 
     /* Wait for 350us to run BIST */
@@ -162,7 +163,7 @@ static mepa_rc lan80xx_post1_bist_trigger(mepa_device_t  *dev, mepa_port_no_t  p
                         LAN80XX_M_MCU_IO_MNGT_MISC_POST1_SLICE0_BIST_STATUS_P1_SLICE0_BIST_TO,
                         LAN80XX_M_MCU_IO_MNGT_MISC_POST1_SLICE0_BIST_STATUS_P1_SLICE0_BIST_TO)
 
-        T_E(MEPA_TRACE_GRP_GEN, "POST 1 Init Failed on Port : %d\n", port_no);
+        T_EM("POST 1 Init Failed on Port : %d\n", port_no);
         base_data->post1_passed = 0;
         rc = MEPA_RC_ERROR;
     }
@@ -213,22 +214,24 @@ mepa_rc lan80xx_post1_init(mepa_device_t   *dev, mepa_port_no_t port_no)
         LAN80XX_CSR_WRM(base_data->port_no, LAN80XX_MCU_IO_MNGT_MISC_POST1_POST_STATUS, 0, LAN80XX_POST1_STATUS_P1_POST_DONE);
         rc = MEPA_RC_ERROR;
     }
+    T_IM("POST1 INIT Done\n");
     return rc;
 }
 
 
 mepa_rc lan80xx_check_mcu_rdy(mepa_device_t *dev)
 {
-    T_D(MEPA_TRACE_GRP_GEN, "Waiting for MCU rdy");
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
     u32 val;
     mepa_rc rc = MEPA_RC_ERROR;
+
+    T_DM("Checking MCU ready status...\n");
     LAN80XX_CSR_RD(dev, data->port_no, LAN80XX_IOREG(MMD_ID_MCU_MAILBOX, 1, MAILBOX_FLAG_REGISTER), &val);
     if (val & 0x4) {
-        T_D(MEPA_TRACE_GRP_GEN, "%s MCU ready ", __FUNCTION__);
+        T_IM("%s MCU ready ", __FUNCTION__);
         rc = MEPA_RC_OK;
     } else {
-        T_E(MEPA_TRACE_GRP_GEN, "%s Error in MCU ready ", __FUNCTION__);
+        T_EM("%s Error in MCU ready ", __FUNCTION__);
         rc = MEPA_RC_ERROR;
     }
     return rc;
@@ -247,15 +250,20 @@ mepa_rc lan80xx_mcu_mailbox_init(const mepa_device_t *dev, u32 u32McuIntMask, u3
     }
     data = (phy25g_phy_state_t *)dev->data;
 
+    T_IM("Clearing MB host mask...\n");
     /* Clearing Interrupt Mask and Flags */
     LAN80XX_CSR_WR(dev, data->port_no, LAN80XX_MCU_MAILBOX_MAILBOX_HOST_INT_MASK, 0);
+    T_IM("Clearing MB mcu mask...\n");
     LAN80XX_CSR_WR(dev, data->port_no, LAN80XX_MCU_MAILBOX_MAILBOX_MCU_INT_MASK, 0);
+    T_IM("Clearing MB flags...\n");
     LAN80XX_CSR_WR(dev, data->port_no, LAN80XX_IOREG(MMD_ID_MCU_MAILBOX, 1, MAILBOX_FLAG_REGISTER), MALIBOX_FALG_CLEAR_ALL);
-
+    T_IM("Enabling MB host mask...\n");
     /* Enable Host interrupt mask register */
     LAN80XX_CSR_WRM(data->port_no, LAN80XX_MCU_MAILBOX_MAILBOX_HOST_INT_MASK, u32HostIntMask, LAN80XX_BIT(1));
+    T_IM("Enabling MB mcu mask...\n");
     /* Enable MCU interrupt mask register */
     LAN80XX_CSR_WRM(data->port_no, LAN80XX_MCU_MAILBOX_MAILBOX_MCU_INT_MASK, u32McuIntMask, LAN80XX_BIT(0));
+    T_IM("Enabling MB src en...\n");
     /* Enable INTR_SRC_EN_1 with mailbox interrupt */
     LAN80XX_CSR_WRM(data->port_no, LAN80XX_GPIO_CTRL_INTR_SRC_EN(1), LAN80XX_M_GPIO_CTRL_INTR_SRC_EN_MCU_MBOX_INTR_EN,
                     LAN80XX_M_GPIO_CTRL_INTR_SRC_EN_MCU_MBOX_INTR_EN);
@@ -279,6 +287,20 @@ static uint16_t crc_16(const unsigned char *input, size_t num_bytes)
     T_D(MEPA_TRACE_GRP_GEN, "CRC: 0x%04x", u16crc);
 
     return u16crc & CRC_START_CCITT;
+}
+
+static void packet_dump(u8 *pu8PktBuf)
+{
+    u8 idx = 0;
+    PKT_HDR_T *pPktHdr = (PKT_HDR_T *)pu8PktBuf;
+    u16 u16Len = (pPktHdr->u16PktLen > MB_MAX_PAYLOAD_LEN) ? MB_MAX_PAYLOAD_LEN : pPktHdr->u16PktLen;
+
+    T_E(MEPA_TRACE_GRP_GEN, "***** PKT DUMP BEGIN *****\n");
+    for (idx = 0; idx < u16Len; idx += 4) {
+        T_E(MEPA_TRACE_GRP_GEN, "0x%02x 0x%02x 0x%02x 0x%02x\n",
+            pu8PktBuf[idx], pu8PktBuf[idx + 1], pu8PktBuf[idx + 2], pu8PktBuf[idx + 3]);
+    }
+    T_E(MEPA_TRACE_GRP_GEN, "***** PKT DUMP END *****\n");
 }
 
 /*
@@ -365,6 +387,7 @@ mepa_rc lan80xx_ValidatePacket(uint8_t *u8PktBuf)
     if (rc != MEPA_RC_OK) {
         T_E(MEPA_TRACE_GRP_GEN, "%s: Invalid CRC, Validate Packet failed", __FUNCTION__);
         /* Packet crc validation failed */
+        packet_dump(u8PktBuf);
     }
     return rc;
 }
@@ -554,14 +577,20 @@ mepa_rc lan80xx_MB_ReadResponse(const mepa_device_t *dev, uint8_t *u8ResponsePkt
                 break;
             }
         }
-        MEPA_NSLEEP(1);
+        MEPA_MSLEEP(1);
         u16Timeout++;
         if (u16Timeout > u16MailboxTimeout) {
             break;
         }
     }
     if (u16Timeout > u16MailboxTimeout) {
-        T_E(MEPA_TRACE_GRP_GEN, "%s: Timeout. No response from MCU", __FUNCTION__);
+        T_EM("%s: Timeout. No response from MCU", __FUNCTION__);
+        LAN80XX_CSR_RD(dev, port_no, LAN80XX_IOREG(MMD_ID_MCU_MAILBOX, 1, MAILBOX_FLAG_REGISTER), &u32Val);
+        T_E(MEPA_TRACE_GRP_GEN, "MB Flag:0x%x\n", u32Val);
+        LAN80XX_CSR_RD(dev, port_no, LAN80XX_IOREG(MMD_ID_MCU_MAILBOX, 1, MAILBOX_HOST_INTR_MASK_REGISTER), &u32Val);
+        T_E(MEPA_TRACE_GRP_GEN, "MB HOST INTR Mask reg:0x%x\n", u32Val);
+        LAN80XX_CSR_RD(dev, port_no, LAN80XX_IOREG(MMD_ID_MCU_MAILBOX, 1, MAILBOX_MCU_INTR_MASK_REGISTER), &u32Val);
+        T_E(MEPA_TRACE_GRP_GEN, "MB MCU INTR Mask reg:0x%x\n", u32Val);
         /*
         * Clear MCU request flag using Set function
         */
@@ -580,7 +609,7 @@ mepa_rc lan80xx_MB_ReadResponse(const mepa_device_t *dev, uint8_t *u8ResponsePkt
         if (pPktHdr->u16PktLen == 0) {
             /* Clear HOST interrupt flag */
             lan80xx_MB_ClearFlag(dev, MAILBOX_FLAG_CLEAR_BIT1);
-            T_W(MEPA_TRACE_GRP_GEN, "%s: Response Area is empty", __FUNCTION__);
+            T_EM("%s: Response packet length is 0, pkt: 0x%x\n", __FUNCTION__, u32Val);
             rc = MEPA_RC_ERR_MB_INVALID_PKT_LEN;
             return rc;
         }
@@ -677,13 +706,14 @@ mepa_rc lan80xx_get_fw_info(const mepa_device_t *dev, DEVICE_INFO *psDevInfo)
         T_I(MEPA_TRACE_GRP_GEN, "Firmware Version: %02x.%02x\n", pu8Payload[4], pu8Payload[5]);
     } else {
         if (recvPkt->u8PktId == eGET_DEVICE_INFO + 0x81) {
-            T_E(MEPA_TRACE_GRP_GEN, "%s. Fail", __FUNCTION__);
+            T_E(MEPA_TRACE_GRP_GEN, "%s. Fail with error code %d", __FUNCTION__, gau8RespBuffer[MB_PKT_DATA_OFFSET]);
             rc = MEPA_RC_ERR_MB_FAIL_RESPONSE;
         } else {
             T_E(MEPA_TRACE_GRP_GEN, "%s Wrong packet received (%d), expected (%d)", \
                 __FUNCTION__, (recvPkt->u8PktId - 0x80), eGET_DEVICE_INFO);
             rc = MEPA_RC_ERR_MB_CMD_PROTO_NO_SYNC;
         }
+        packet_dump(&gau8RespBuffer[0]);
     }
     return rc;
 }
@@ -753,13 +783,14 @@ mepa_rc lan80xx_memory_read(const mepa_device_t *dev, uint32_t u32Addres, uint8_
         T_I(MEPA_TRACE_GRP_GEN, "%s: Success with len %d", __FUNCTION__, u16DataLen);
     } else {
         if (recvPkt->u8PktId == eMEM_READ + 0x81) {
-            T_E(MEPA_TRACE_GRP_GEN, "%s. Fail", __FUNCTION__);
+            T_E(MEPA_TRACE_GRP_GEN, "%s. Fail with error code %d", __FUNCTION__, gau8RespBuffer[MB_PKT_DATA_OFFSET]);
             rc = MEPA_RC_ERR_MB_FAIL_RESPONSE;
         } else {
             T_E(MEPA_TRACE_GRP_GEN, "%s Wrong packet received (%d), expected (%d)", \
                 __FUNCTION__, (recvPkt->u8PktId - 0x80), eMEM_READ);
             rc = MEPA_RC_ERR_MB_CMD_PROTO_NO_SYNC;
         }
+        packet_dump(&gau8RespBuffer[0]);
     }
     return rc;
 }
@@ -832,13 +863,14 @@ mepa_rc lan80xx_memory_write(const mepa_device_t *dev, uint32_t u32Addres, uint8
         T_I(MEPA_TRACE_GRP_GEN, "%s:Memory write success", __FUNCTION__);
     } else {
         if (recvPkt->u8PktId == eMEM_WRITE + 0x81) {
-            T_E(MEPA_TRACE_GRP_GEN, "%s. Fail", __FUNCTION__);
+            T_E(MEPA_TRACE_GRP_GEN, "%s. Fail with error code %d", __FUNCTION__, gau8RespBuffer[MB_PKT_DATA_OFFSET]);
             rc = MEPA_RC_ERR_MB_FAIL_RESPONSE;
         } else {
             T_E(MEPA_TRACE_GRP_GEN, "%s Wrong packet received (%d), expected (%d)", \
                 __FUNCTION__, (recvPkt->u8PktId - 0x80), eMEM_WRITE);
             rc = MEPA_RC_ERR_MB_CMD_PROTO_NO_SYNC;
         }
+        packet_dump(&gau8RespBuffer[0]);
     }
     return rc;
 }
@@ -951,11 +983,11 @@ mepa_rc lan80xx_fw_update(mepa_device_t *dev)
     u32Val |= DFU_STRAP;
     LAN80XX_CSR_WR(dev, port_no, LAN80XX_IOREG(MMD_ID_MCU_MAILBOX, 1, STRAP_OVERRIDE_REG), u32Val);
 
-    /* Read DFU Strap*/
+    /* Read back DFU Strap */
     u16Timeout = 0;
     while (1) {
         LAN80XX_CSR_RD(dev, port_no, LAN80XX_IOREG(MMD_ID_MCU_MAILBOX, 1, STRAP_OVERRIDE_REG), &u32Val);
-        if (u32Val) {
+        if (u32Val & DFU_STRAP) {
             break;
         }
         MEPA_NSLEEP(1000);
@@ -965,8 +997,8 @@ mepa_rc lan80xx_fw_update(mepa_device_t *dev)
         }
     }
 
-    if (u32Val == 0) {
-        T_E(MEPA_TRACE_GRP_GEN, "%s. DFU Strap not set, Abort Firmware Update", __FUNCTION__);
+    if (u16Timeout > MAILBOX_INTR_TIMEOUT) {
+        T_EM("%s. DFU Strap not set, Abort Firmware Update", __FUNCTION__);
         rc = MEPA_RC_ERR_MB_FW_UPDATE_FAIL;
         return rc;
     }
@@ -974,7 +1006,7 @@ mepa_rc lan80xx_fw_update(mepa_device_t *dev)
     T_D(MEPA_TRACE_GRP_GEN, "Resetting MCU...");
     LAN80XX_CSR_WR(dev, port_no, LAN80XX_IOREG(MMD_ID_GLOBAL_REGISTERS, 1, BLOCK_LVL_SOFT_RESET2), SW_RESET_MCU);
 
-    T_D (MEPA_TRACE_GRP_GEN, "Waiting for First packet interrupt");
+    T_DM("Waiting for First packet interrupt...\n");
     /* Configure Mailbox MCU and Host interrupt mask after reset */
     rc = lan80xx_mcu_mailbox_init(dev, MAILBOX_INTR_ENABLE, MAILBOX_HOST_INTR_MASK);
     if (rc != MEPA_RC_OK) {
@@ -994,7 +1026,7 @@ mepa_rc lan80xx_fw_update(mepa_device_t *dev)
             }
         }
 
-        MEPA_NSLEEP(1000);
+        MEPA_MSLEEP(1);
         u16Timeout++;
         if (u16Timeout > (MAILBOX_INTR_TIMEOUT)) {
             break;
@@ -1012,6 +1044,7 @@ mepa_rc lan80xx_fw_update(mepa_device_t *dev)
         lan80xx_memory_read(dev, LAN80XX_MCU_CODE_RAM_START_REGION + LAN80XX_MEMORY_SLICE_THREE_OFFSET, byDataBuffer, 4);
         do {
             u16Count++;
+            T_IM("Sending DFU packet %d...\n", u16Count);
             if ((u32Offset + MB_MAX_PAYLOAD_LEN) > u32Size) {
                 u16CmdParamLen = u32Size - u32Offset;
             } else {
@@ -1036,16 +1069,17 @@ mepa_rc lan80xx_fw_update(mepa_device_t *dev)
 
             PKT_HDR_T *recvPkt = (PKT_HDR_T *)&gau8RespBuffer[0];
             if (recvPkt->u8PktId == eDFU_UPDATE + 0x80) {
-                T_D(MEPA_TRACE_GRP_GEN, "%s:DFU Packet %d success", __FUNCTION__, u16Count);
+                T_IM("%s:DFU Packet %d success", __FUNCTION__, u16Count);
             } else {
                 if (recvPkt->u8PktId == eDFU_UPDATE + 0x81) {
-                    T_E(MEPA_TRACE_GRP_GEN, "%s. Fail", __FUNCTION__);
+                    T_E(MEPA_TRACE_GRP_GEN, "%s. Fail with error code %d", __FUNCTION__, gau8RespBuffer[MB_PKT_DATA_OFFSET]);
                     rc = MEPA_RC_ERR_MB_FAIL_RESPONSE;
                 } else {
                     T_E(MEPA_TRACE_GRP_GEN, "%s Wrong packet received (%d), expected (%d)", \
                         __FUNCTION__, (recvPkt->u8PktId - 0x80), eDFU_UPDATE);
                     rc = MEPA_RC_ERR_MB_CMD_PROTO_NO_SYNC;
                 }
+                packet_dump(&gau8RespBuffer[0]);
                 break;
             }
             u32Offset += MB_MAX_PAYLOAD_LEN;
@@ -1060,7 +1094,7 @@ mepa_rc lan80xx_fw_update(mepa_device_t *dev)
             T_I(MEPA_TRACE_GRP_GEN, "All packets sent, Raise Last packet interrupt");
             LAN80XX_CSR_WR(dev, port_no, LAN80XX_IOREG(MMD_ID_MCU_MAILBOX, 1, MAILBOX_MCU_INTR_MASK_REGISTER), MAILBOX_DFU_LAST_PKT);
             if (MEPA_RC_OK != (rc = lan80xx_MB_SetFlag(dev, MAILBOX_FLAG_SET_BIT7))) {
-                T_E(MEPA_TRACE_GRP_GEN, "%s. Failed to set Bit 7 marking the end of DFU transfer", __FUNCTION__);
+                T_E(MEPA_TRACE_GRP_GEN, "%s. Failed to set last packet interrupt", __FUNCTION__);
                 rc = MEPA_RC_ERR_MB_FW_UPDATE_FAIL;
                 return rc;
             }
@@ -1075,7 +1109,7 @@ mepa_rc lan80xx_fw_update(mepa_device_t *dev)
                 }
             }
             LAN80XX_CSR_RD(dev, port_no, LAN80XX_IOREG(MMD_ID_MCU_MAILBOX, 1, STRAP_OVERRIDE_REG), &u32Val);
-            T_D(MEPA_TRACE_GRP_GEN, "Waiting for FW ready interrupt");
+            T_IM("Waiting for FW ready interrupt...\n");
             u16Timeout = 0;
             while (u16Timeout < MAILBOX_INTR_TIMEOUT) {
                 /* Read FW Status */
@@ -1083,16 +1117,16 @@ mepa_rc lan80xx_fw_update(mepa_device_t *dev)
                 /* As endianess is different, bit 0 goes to MSB*/
                 if (u32Val & 0x04) {
                     /* If BIT0 set, FW status active*/
-                    T_I(MEPA_TRACE_GRP_GEN, "Switched to Application. Took %d msecs", u16Timeout);
+                    T_DM("Switched to Application. Took %d msecs", u16Timeout);
                     break;
                 }
-                MEPA_NSLEEP(1000);
+                MEPA_MSLEEP(1);
                 u16Timeout++;
             }
             if (u16Timeout == MAILBOX_INTR_TIMEOUT) {
-                T_I(MEPA_TRACE_GRP_GEN, "MB Flag reg value : 0x%x", u32Val);
+                T_EM("MB Flag reg value : 0x%x", u32Val);
                 LAN80XX_CSR_RD(dev, port_no, LAN80XX_IOREG(MMD_ID_MCU_MAILBOX, 1, MAILBOX_MCU_INTR_MASK_REGISTER), &u32Val);
-                T_I(MEPA_TRACE_GRP_GEN, "MB mask reg value : 0x%x", u32Val);
+                T_EM("MB mask reg value : 0x%x", u32Val);
                 T_E(MEPA_TRACE_GRP_GEN, "Failed to start Application, aborting");
                 rc = MEPA_RC_ERR_MB_FW_UPDATE_FAIL;
                 return rc;
@@ -1112,10 +1146,13 @@ mepa_rc lan80xx_fw_update(mepa_device_t *dev)
                 rc = MEPA_RC_ERR_MB_FW_UPDATE_FAIL;
                 return rc;
             }
-            T_I(MEPA_TRACE_GRP_GEN, "%s. Signature Verification passed", __FUNCTION__);
+            T_D(MEPA_TRACE_GRP_GEN, "%s. Signature Verification passed", __FUNCTION__);
+            T_IM("DFU Success!!\n");
+        } else {
+            T_EM("DFU aborted!!\n");
         }
     } else {
-        T_E(MEPA_TRACE_GRP_GEN, "Timeout! No first packet interrupt received");
+        T_EM("Timeout! No first packet interrupt received");
         rc = MEPA_RC_ERR_MB_FW_UPDATE_FAIL;
         /* Clearing DFU Strap  for failure case before return */
         T_D(MEPA_TRACE_GRP_GEN, "Clearing DFU strap");
@@ -1194,13 +1231,16 @@ mepa_rc lan80xx_otp_cfg_read(const mepa_device_t  *dev,
         memcpy(pu8Cfg, &pu8Payload[0], u16PktLen);
         *pu16Len = u16PktLen;
         T_I(MEPA_TRACE_GRP_GEN, "OTP Config read success");
-    } else if (recvPkt->u8PktId == eOTP_CFG_READ + 0x81) {
-        T_E(MEPA_TRACE_GRP_GEN, "%s - Cmd Failed with %d", __FUNCTION__, pu8Payload[0]);
-        rc = MEPA_RC_ERR_MB_FAIL_RESPONSE;
     } else {
-        T_E(MEPA_TRACE_GRP_GEN, "%s Wrong packet received (%d), expected (%d)", \
-            __FUNCTION__, (recvPkt->u8PktId - 0x80), eOTP_CFG_READ);
-        rc = MEPA_RC_ERR_MB_CMD_PROTO_NO_SYNC;
+        if (recvPkt->u8PktId == eOTP_CFG_READ + 0x81) {
+            T_E(MEPA_TRACE_GRP_GEN, "%s. Fail with error code %d", __FUNCTION__, gau8RespBuffer[MB_PKT_DATA_OFFSET]);
+            rc = MEPA_RC_ERR_MB_FAIL_RESPONSE;
+        } else {
+            T_E(MEPA_TRACE_GRP_GEN, "%s Wrong packet received (%d), expected (%d)", \
+                __FUNCTION__, (recvPkt->u8PktId - 0x80), eOTP_CFG_READ);
+            rc = MEPA_RC_ERR_MB_CMD_PROTO_NO_SYNC;
+        }
+        packet_dump(&gau8RespBuffer[0]);
     }
 
     return rc;
@@ -1276,15 +1316,18 @@ mepa_rc lan80xx_otp_read(const mepa_device_t  *dev,
             u16CurLen += u16DataLen;
             u16OtpAddr += u16DataLen;
             T_I(MEPA_TRACE_GRP_GEN, "OTP read success");
-        } else if (recvPkt->u8PktId == eOTP_READ + 0x81) {
-            T_E(MEPA_TRACE_GRP_GEN, "%s - Cmd Failed with %d", __FUNCTION__, pu8Payload[0]);
-            rc = MEPA_RC_ERR_MB_FAIL_RESPONSE;
-            break;
         } else {
-            T_E(MEPA_TRACE_GRP_GEN, "%s Wrong packet received (%d), expected (%d)", \
-                __FUNCTION__, (recvPkt->u8PktId - 0x80), eOTP_READ);
-            rc = MEPA_RC_ERR_MB_CMD_PROTO_NO_SYNC;
-            break;
+            if (recvPkt->u8PktId == eOTP_READ + 0x81) {
+                T_E(MEPA_TRACE_GRP_GEN, "%s. Fail with error code %d", __FUNCTION__, gau8RespBuffer[MB_PKT_DATA_OFFSET]);
+                rc = MEPA_RC_ERR_MB_FAIL_RESPONSE;
+                break;
+            } else {
+                T_E(MEPA_TRACE_GRP_GEN, "%s Wrong packet received (%d), expected (%d)", \
+                    __FUNCTION__, (recvPkt->u8PktId - 0x80), eOTP_READ);
+                rc = MEPA_RC_ERR_MB_CMD_PROTO_NO_SYNC;
+                break;
+            }
+            packet_dump(&gau8RespBuffer[0]);
         }
     }
 
@@ -1355,8 +1398,6 @@ mepa_rc lan80xx_otp_write(const mepa_device_t  *dev,
             break;
         }
         PKT_HDR_T *recvPkt = (PKT_HDR_T *)&gau8RespBuffer[0];
-        uint8_t *pu8Payload = NULL;
-        pu8Payload = &gau8RespBuffer[4];
         if (recvPkt->u8PktId == eOTP_WRITE + 0x80) {
             u16PktLen = recvPkt->u16PktLen - MB_MAX_PKT_HEADER_LEN - MB_MAX_CRC_LEN;
             if (u16PktLen != 1) {
@@ -1370,15 +1411,18 @@ mepa_rc lan80xx_otp_write(const mepa_device_t  *dev,
             u16OtpAddr += u16DataLen;
             u16Idx += u16DataLen;
             T_I(MEPA_TRACE_GRP_GEN, "OTP write success");
-        } else if (recvPkt->u8PktId == eOTP_WRITE + 0x81) {
-            T_E(MEPA_TRACE_GRP_GEN, "%s - Cmd Failed with %d", __FUNCTION__, pu8Payload[0]);
-            rc = MEPA_RC_ERR_MB_FAIL_RESPONSE;
-            break;
         } else {
-            T_E(MEPA_TRACE_GRP_GEN, "%s Wrong packet received (%d), expected (%d)", \
-                __FUNCTION__, (recvPkt->u8PktId - 0x80), eOTP_WRITE);
-            rc = MEPA_RC_ERR_MB_CMD_PROTO_NO_SYNC;
-            break;
+            if (recvPkt->u8PktId == eOTP_WRITE + 0x81) {
+                T_E(MEPA_TRACE_GRP_GEN, "%s. Fail with error code %d", __FUNCTION__, gau8RespBuffer[MB_PKT_DATA_OFFSET]);
+                rc = MEPA_RC_ERR_MB_FAIL_RESPONSE;
+                break;
+            } else {
+                T_E(MEPA_TRACE_GRP_GEN, "%s Wrong packet received (%d), expected (%d)", \
+                    __FUNCTION__, (recvPkt->u8PktId - 0x80), eOTP_WRITE);
+                rc = MEPA_RC_ERR_MB_CMD_PROTO_NO_SYNC;
+                break;
+            }
+            packet_dump(&gau8RespBuffer[0]);
         }
     }
 
@@ -1465,13 +1509,16 @@ mepa_rc lan80xx_otp_getKey_Status(const mepa_device_t  *dev,
             break;
         }
         T_I(MEPA_TRACE_GRP_GEN, "OTP Get key status success");
-    } else if (recvPkt->u8PktId == eOTP_KEY_STATUS + 0x81) {
-        T_E(MEPA_TRACE_GRP_GEN, "%s - Cmd Failed with %d", __FUNCTION__, pu8Payload[0]);
-        rc = MEPA_RC_ERR_MB_FAIL_RESPONSE;
     } else {
-        T_E(MEPA_TRACE_GRP_GEN, "%s Wrong packet received (%d), expected (%d)", \
-            __FUNCTION__, (recvPkt->u8PktId - 0x80), eOTP_KEY_STATUS);
-        rc = MEPA_RC_ERR_MB_CMD_PROTO_NO_SYNC;
+        if (recvPkt->u8PktId == eOTP_KEY_STATUS + 0x81) {
+            T_E(MEPA_TRACE_GRP_GEN, "%s. Fail with error code %d", __FUNCTION__, gau8RespBuffer[MB_PKT_DATA_OFFSET]);
+            rc = MEPA_RC_ERR_MB_FAIL_RESPONSE;
+        } else {
+            T_E(MEPA_TRACE_GRP_GEN, "%s Wrong packet received (%d), expected (%d)", \
+                __FUNCTION__, (recvPkt->u8PktId - 0x80), eOTP_KEY_STATUS);
+            rc = MEPA_RC_ERR_MB_CMD_PROTO_NO_SYNC;
+        }
+        packet_dump(&gau8RespBuffer[0]);
     }
 
     return rc;
@@ -1770,8 +1817,6 @@ mepa_rc OTPProgReplacementKey(const mepa_device_t  *dev,
     }
 
     PKT_HDR_T *recvPkt = (PKT_HDR_T *)&gau8RespBuffer[0];
-    uint8_t *pu8Payload = NULL;
-    pu8Payload = &gau8RespBuffer[4];
 
     if (recvPkt->u8PktId == u8KeyNo + 0x80) {
         u16PktLen = recvPkt->u16PktLen - MB_MAX_PKT_HEADER_LEN - MB_MAX_CRC_LEN;
@@ -1782,13 +1827,16 @@ mepa_rc OTPProgReplacementKey(const mepa_device_t  *dev,
             return rc;
         }
         T_I(MEPA_TRACE_GRP_GEN, "OTP PRG replacement key success");
-    } else if (recvPkt->u8PktId == u8KeyNo + 0x81) {
-        T_E(MEPA_TRACE_GRP_GEN, "%s - Cmd Failed with %d", __FUNCTION__, pu8Payload[0]);
-        rc = MEPA_RC_ERR_MB_FAIL_RESPONSE;
     } else {
-        T_E(MEPA_TRACE_GRP_GEN, "%s Wrong packet received (%d), expected (%d)", \
-            __FUNCTION__, (recvPkt->u8PktId - 0x80), u8KeyNo);
-        rc = MEPA_RC_ERR_MB_CMD_PROTO_NO_SYNC;
+        if (recvPkt->u8PktId == u8KeyNo + 0x81) {
+            T_E(MEPA_TRACE_GRP_GEN, "%s. Fail with error code %d", __FUNCTION__, gau8RespBuffer[MB_PKT_DATA_OFFSET]);
+            rc = MEPA_RC_ERR_MB_FAIL_RESPONSE;
+        } else {
+            T_E(MEPA_TRACE_GRP_GEN, "%s Wrong packet received (%d), expected (%d)", \
+                __FUNCTION__, (recvPkt->u8PktId - 0x80), u8KeyNo);
+            rc = MEPA_RC_ERR_MB_CMD_PROTO_NO_SYNC;
+        }
+        packet_dump(&gau8RespBuffer[0]);
     }
 
     return rc;
@@ -1835,8 +1883,6 @@ mepa_rc RevokeAllOtpKeys(const mepa_device_t  *dev)
     }
 
     PKT_HDR_T *recvPkt = (PKT_HDR_T *)&gau8RespBuffer[0];
-    uint8_t *pu8Payload = NULL;
-    pu8Payload = &gau8RespBuffer[MB_PKT_DATA_OFFSET];
 
     if (recvPkt->u8PktId == u8PktId + 0x80) {
         u16PktLen = recvPkt->u16PktLen - MB_MAX_PKT_HEADER_LEN - MB_MAX_CRC_LEN;
@@ -1847,13 +1893,16 @@ mepa_rc RevokeAllOtpKeys(const mepa_device_t  *dev)
             return rc;
         }
         T_I(MEPA_TRACE_GRP_GEN, "OTP revoke all keys success");
-    } else if (recvPkt->u8PktId == u8PktId + 0x81) {
-        T_E(MEPA_TRACE_GRP_GEN, "%s - Cmd Failed with %d", __FUNCTION__, pu8Payload[0]);
-        rc = MEPA_RC_ERR_MB_FAIL_RESPONSE;
     } else {
-        T_E(MEPA_TRACE_GRP_GEN, "%s Wrong packet received (%d), expected (%d)", \
-            __FUNCTION__, (recvPkt->u8PktId - 0x80), u8PktId);
-        rc = MEPA_RC_ERR_MB_CMD_PROTO_NO_SYNC;
+        if (recvPkt->u8PktId == u8PktId + 0x81) {
+            T_E(MEPA_TRACE_GRP_GEN, "%s. Fail with error code %d", __FUNCTION__, gau8RespBuffer[MB_PKT_DATA_OFFSET]);
+            rc = MEPA_RC_ERR_MB_FAIL_RESPONSE;
+        } else {
+            T_E(MEPA_TRACE_GRP_GEN, "%s Wrong packet received (%d), expected (%d)", \
+                __FUNCTION__, (recvPkt->u8PktId - 0x80), u8PktId);
+            rc = MEPA_RC_ERR_MB_CMD_PROTO_NO_SYNC;
+        }
+        packet_dump(&gau8RespBuffer[0]);
     }
 
     return rc;
@@ -1900,8 +1949,6 @@ mepa_rc RevokeRotKey(const mepa_device_t  *dev)
     }
 
     PKT_HDR_T *recvPkt = (PKT_HDR_T *)&gau8RespBuffer[0];
-    uint8_t *pu8Payload = NULL;
-    pu8Payload = &gau8RespBuffer[MB_PKT_DATA_OFFSET];
 
     if (recvPkt->u8PktId == u8PktId + 0x80) {
         u16PktLen = recvPkt->u16PktLen - MB_MAX_PKT_HEADER_LEN - MB_MAX_CRC_LEN;
@@ -1912,13 +1959,16 @@ mepa_rc RevokeRotKey(const mepa_device_t  *dev)
             return rc;
         }
         T_I(MEPA_TRACE_GRP_GEN, "OTP revoke ROT key success");
-    } else if (recvPkt->u8PktId == u8PktId + 0x81) {
-        T_E(MEPA_TRACE_GRP_GEN, "%s - Cmd Failed with %d", __FUNCTION__, pu8Payload[0]);
-        rc = MEPA_RC_ERR_MB_FAIL_RESPONSE;
     } else {
-        T_E(MEPA_TRACE_GRP_GEN, "%s Wrong packet received (%d), expected (%d)", \
-            __FUNCTION__, (recvPkt->u8PktId - 0x80), u8PktId);
-        rc = MEPA_RC_ERR_MB_CMD_PROTO_NO_SYNC;
+        if (recvPkt->u8PktId == u8PktId + 0x81) {
+            T_E(MEPA_TRACE_GRP_GEN, "%s. Fail with error code %d", __FUNCTION__, gau8RespBuffer[MB_PKT_DATA_OFFSET]);
+            rc = MEPA_RC_ERR_MB_FAIL_RESPONSE;
+        } else {
+            T_E(MEPA_TRACE_GRP_GEN, "%s Wrong packet received (%d), expected (%d)", \
+                __FUNCTION__, (recvPkt->u8PktId - 0x80), u8PktId);
+            rc = MEPA_RC_ERR_MB_CMD_PROTO_NO_SYNC;
+        }
+        packet_dump(&gau8RespBuffer[0]);
     }
 
     return rc;
@@ -2100,6 +2150,7 @@ mepa_rc lan80xx_get_serdes_config(const mepa_device_t *dev, SD_CFG_SPEED_IDX_t s
                 __FUNCTION__, (recvPkt->u8PktId - 0x80), u8PktId);
             rc = MEPA_RC_ERR_MB_CMD_PROTO_NO_SYNC;
         }
+        packet_dump(&gau8RespBuffer[0]);
     }
     return rc;
 }
@@ -2241,13 +2292,14 @@ mepa_rc lan80xx_set_serdes_config(const mepa_device_t *dev, SD_CFG_SPEED_IDX_t s
         T_I(MEPA_TRACE_GRP_GEN, "SD Config set success\n");
     } else {
         if (recvPkt->u8PktId == u8PktId + 0x81) {
-            T_E(MEPA_TRACE_GRP_GEN, "%s. Fail with error code %d", __FUNCTION__, gau8RespBuffer[4]);
+            T_E(MEPA_TRACE_GRP_GEN, "%s. Fail with error code %d", __FUNCTION__, gau8RespBuffer[MB_PKT_DATA_OFFSET]);
             rc = MEPA_RC_ERR_MB_FAIL_RESPONSE;
         } else {
             T_E(MEPA_TRACE_GRP_GEN, "%s Wrong packet received (%d), expected (%d)", \
                 __FUNCTION__, (recvPkt->u8PktId - 0x80), u8PktId);
             rc = MEPA_RC_ERR_MB_CMD_PROTO_NO_SYNC;
         }
+        packet_dump(&gau8RespBuffer[0]);
     }
     return rc;
 }
@@ -2352,13 +2404,14 @@ mepa_rc lan80xx_KRLog_Enable(const mepa_device_t *dev, mepa_bool_t bkrlog_enable
         T_I(MEPA_TRACE_GRP_GEN, "%s: Success", __FUNCTION__);
     } else {
         if (recvPkt->u8PktId == eENABLE_KR_LOG + 0x81) {
-            T_E(MEPA_TRACE_GRP_GEN, "%s. Fail with error code %d", __FUNCTION__, gau8RespBuffer[4]);
+            T_E(MEPA_TRACE_GRP_GEN, "%s. Fail with error code %d", __FUNCTION__, gau8RespBuffer[MB_PKT_DATA_OFFSET]);
             rc = MEPA_RC_ERR_MB_FAIL_RESPONSE;
         } else {
             T_E(MEPA_TRACE_GRP_GEN, "%s Wrong packet received (%d), expected (%d)", \
                 __FUNCTION__, (recvPkt->u8PktId - 0x80), eENABLE_KR_LOG);
             rc = MEPA_RC_ERR_MB_CMD_PROTO_NO_SYNC;
         }
+        packet_dump(&gau8RespBuffer[0]);
     }
     MEPA_EXIT(dev);
     return rc;
@@ -2424,13 +2477,14 @@ mepa_rc lan80xx_KRLog_Reset(const mepa_device_t *dev, uint32_t u32KRLogOffset, u
         T_I(MEPA_TRACE_GRP_GEN, "%s: Success", __FUNCTION__);
     } else {
         if (recvPkt->u8PktId == eRESET_KR_LOG_MEMORY + 0x81) {
-            T_E(MEPA_TRACE_GRP_GEN, "%s. Fail with error code %d", __FUNCTION__, gau8RespBuffer[4]);
+            T_E(MEPA_TRACE_GRP_GEN, "%s. Fail with error code %d", __FUNCTION__, gau8RespBuffer[MB_PKT_DATA_OFFSET]);
             rc = MEPA_RC_ERR_MB_FAIL_RESPONSE;
         } else {
             T_E(MEPA_TRACE_GRP_GEN, "%s Wrong packet received (%d), expected (%d)", \
                 __FUNCTION__, (recvPkt->u8PktId - 0x80), eRESET_KR_LOG_MEMORY);
             rc = MEPA_RC_ERR_MB_CMD_PROTO_NO_SYNC;
         }
+        packet_dump(&gau8RespBuffer[0]);
     }
     MEPA_EXIT(dev);
     return rc;

@@ -17,6 +17,30 @@
 #define T_W(grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_WARNING, __FUNCTION__, __LINE__, __FILE__, format, ##__VA_ARGS__);
 #define T_E(grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_ERROR, __FUNCTION__, __LINE__, __FILE__, format, ##__VA_ARGS__);
 
+#define T_DM(format, ...) \
+    do { \
+        uint32_t val = 0; \
+        LAN80XX_CSR_RD(dev, 0, \
+                        LAN80XX_MCU_IO_MNGT_MISC_MCU_BOOT_STATUS_REG, &val);\
+        T_D(MEPA_TRACE_GRP_GEN, "[MCU_STS:0x%X] " format, val, ##__VA_ARGS__); \
+    } while (0)
+
+#define T_EM(format, ...) \
+    do { \
+        uint32_t val = 0; \
+        LAN80XX_CSR_RD(dev, 0, \
+                        LAN80XX_MCU_IO_MNGT_MISC_MCU_BOOT_STATUS_REG, &val);\
+        T_E(MEPA_TRACE_GRP_GEN, "[MCU_STS:0x%X] " format, val, ##__VA_ARGS__); \
+    } while (0)
+
+#define T_IM(format, ...) \
+    do { \
+        uint32_t val = 0; \
+        LAN80XX_CSR_RD(dev, 0, \
+                        LAN80XX_MCU_IO_MNGT_MISC_MCU_BOOT_STATUS_REG, &val);\
+        T_I(MEPA_TRACE_GRP_GEN, "[MCU_STS:0x%X] " format, val, ##__VA_ARGS__); \
+    } while (0)
+
 #define LAN80XX_UINT_8_MAX_VALUE                (255U)
 
 /* Polling to eye scan status bit for 500 ms */

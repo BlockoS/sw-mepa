@@ -50,7 +50,7 @@
 #define MAILBOX_FLAG_CLEAR_BIT6                (0x40000000UL)
 #define MALIBOX_FALG_CLEAR_ALL                 (0xFF000000UL)
 #define DFU_INTR_ENABLE                        (0x00000080UL)
-#define MAILBOX_INTR_TIMEOUT                   (50000U)      /* 50 msecs timeout to recv intr */
+#define MAILBOX_INTR_TIMEOUT                   (500U)      /* 500 msecs timeout to recv intr */
 #define MAILBOX_INTR_SIGN_TIMEOUT              (2000U)       /* 2 secs for sign verification commands */
 #define MCU_DATA_RAM_OFFSET                    (0x00080000UL)
 #define DFU_STATUS_REG_OFFSET                  (0x04U)

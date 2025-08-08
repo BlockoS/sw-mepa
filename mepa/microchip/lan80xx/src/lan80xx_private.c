@@ -162,7 +162,7 @@ static mepa_rc lan80xx_a0_a1_revision_serd_init_strap_wrkrd(mepa_device_t *dev, 
         LAN80XX_CSR_RD(dev, port_no, LAN80XX_IOREG(MMD_ID_MCU_MAILBOX, 1, STRAP_OVERRIDE_REG), &val);
         val |= SERDES_INIT_STRAP;
         LAN80XX_CSR_WR(dev, port_no, LAN80XX_IOREG(MMD_ID_MCU_MAILBOX, 1, STRAP_OVERRIDE_REG), val);
-        T_I(MEPA_TRACE_GRP_GEN, "\n Forcing Serdes Init strap to high for A0 and A1 silicon revison \n");
+        T_IM("Forcing Serdes Init strap to high for A0 and A1 silicon revison\n");
     }
     return MEPA_RC_OK;
 }

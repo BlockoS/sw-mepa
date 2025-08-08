@@ -1320,14 +1320,13 @@ mepa_rc lan80xx_otp_read(const mepa_device_t  *dev,
             if (recvPkt->u8PktId == eOTP_READ + 0x81) {
                 T_E(MEPA_TRACE_GRP_GEN, "%s. Fail with error code %d", __FUNCTION__, gau8RespBuffer[MB_PKT_DATA_OFFSET]);
                 rc = MEPA_RC_ERR_MB_FAIL_RESPONSE;
-                break;
             } else {
                 T_E(MEPA_TRACE_GRP_GEN, "%s Wrong packet received (%d), expected (%d)", \
                     __FUNCTION__, (recvPkt->u8PktId - 0x80), eOTP_READ);
                 rc = MEPA_RC_ERR_MB_CMD_PROTO_NO_SYNC;
-                break;
             }
             packet_dump(&gau8RespBuffer[0]);
+            break;
         }
     }
 
@@ -1415,14 +1414,13 @@ mepa_rc lan80xx_otp_write(const mepa_device_t  *dev,
             if (recvPkt->u8PktId == eOTP_WRITE + 0x81) {
                 T_E(MEPA_TRACE_GRP_GEN, "%s. Fail with error code %d", __FUNCTION__, gau8RespBuffer[MB_PKT_DATA_OFFSET]);
                 rc = MEPA_RC_ERR_MB_FAIL_RESPONSE;
-                break;
             } else {
                 T_E(MEPA_TRACE_GRP_GEN, "%s Wrong packet received (%d), expected (%d)", \
                     __FUNCTION__, (recvPkt->u8PktId - 0x80), eOTP_WRITE);
                 rc = MEPA_RC_ERR_MB_CMD_PROTO_NO_SYNC;
-                break;
             }
             packet_dump(&gau8RespBuffer[0]);
+            break;
         }
     }
 
@@ -1530,7 +1528,7 @@ mepa_rc lan80xx_otp_revoke_AllKeys(const mepa_device_t  *dev,
     mepa_rc rc = MEPA_RC_OK;
     uint16_t u16OffsetAddr;
     uint8_t i;
-    enOTP_ACTIVE_KEY KeyStatus;
+    enOTP_ACTIVE_KEY KeyStatus = eMCHP_PUB_KEY;
 
     T_I(MEPA_TRACE_GRP_GEN, "%s", __FUNCTION__);
     if (!dev) {
@@ -1588,7 +1586,7 @@ mepa_rc lan80xx_otp_revoke_ROTKey(const mepa_device_t  *dev,
                                   u8 *pu8OTPBuffer, OTPRAMUpdatedDB_t *pCfgUpdates, u8 u8UpdateCnt)
 {
     mepa_rc rc = MEPA_RC_OK;
-    enOTP_ACTIVE_KEY KeyStatus;
+    enOTP_ACTIVE_KEY KeyStatus = eMCHP_PUB_KEY;
     uint16_t u16OffsetAddr;
     uint8_t i;
 
@@ -1649,7 +1647,7 @@ mepa_rc lan80xx_otp_prog_RepKey(const mepa_device_t  *dev,
                                 u8 *pu8OTPBuffer, OTPRAMUpdatedDB_t *pCfgUpdates, u8 u8UpdateCnt)
 {
     mepa_rc rc = MEPA_RC_OK;
-    enOTP_ACTIVE_KEY KeyStatus;
+    enOTP_ACTIVE_KEY KeyStatus = eMCHP_PUB_KEY;
     uint8_t u8KeyNo, i;
     uint16_t u16OffsetAddr;
 

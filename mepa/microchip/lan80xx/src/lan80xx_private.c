@@ -1240,6 +1240,7 @@ static mepa_rc lan80xx_serdes_data_get(mepa_device_t *dev, phy25g_serdes_data_t 
     case MEPA_MEDIA_TYPE_SR:
     case MEPA_MEDIA_TYPE_LR:
     case MEPA_MEDIA_TYPE_ER:
+    case MEPA_MEDIA_TYPE_1000BASE_T:
         data->ln_cfg_en_adv = 1;
         data->ln_cfg_en_main = 1;
         data->ln_cfg_en_dly = 1;
@@ -2478,6 +2479,18 @@ static mepa_rc lan80xx_mode_conf_set(mepa_device_t *dev, mepa_port_no_t port_no,
         LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_PCS_CFG_PCS1G_MODE_CFG, LAN80XX_M_LINE_PCS_CFG_PCS1G_MODE_CFG_SAVE_PREAMBLE_ENA,
                         LAN80XX_M_LINE_PCS_CFG_PCS1G_MODE_CFG_SAVE_PREAMBLE_ENA);
 
+        /* Enable SGMII for 1000BASE-T Media type */
+        if (data->conf.conf_25g.line_media == MEPA_MEDIA_TYPE_1000BASE_T) {
+            LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_PCS_CFG_PCS1G_MODE_CFG, LAN80XX_M_LINE_PCS_CFG_PCS1G_MODE_CFG_SGMII_MODE_ENA,
+                            LAN80XX_M_LINE_PCS_CFG_PCS1G_MODE_CFG_SGMII_MODE_ENA);
+            T_I(MEPA_TRACE_GRP_GEN, "LINE PCS1G SGMII Enabled \n");
+        } else {
+            LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_PCS_CFG_PCS1G_MODE_CFG, 0,
+                            LAN80XX_M_LINE_PCS_CFG_PCS1G_MODE_CFG_SGMII_MODE_ENA);
+        }
+
+        LAN80XX_CSR_WRM(port_no, LAN80XX_HOST_PCS_CFG_PCS1G_MODE_CFG, 0, LAN80XX_M_HOST_PCS_CFG_PCS1G_MODE_CFG_SGMII_MODE_ENA);
+
         T_I(MEPA_TRACE_GRP_GEN, "PCS1G Enabled \n");
         if (lan80xx_serdes_configuration(dev, port_no, MESA_SPEED_1G, mode) != MEPA_RC_OK) {
             T_E(MEPA_TRACE_GRP_GEN, "Error in configuring Serdes in 10G Mode on port : %d", port_no);
@@ -2591,6 +2604,7 @@ static mepa_rc lan80xx_mode_set_init(mepa_device_t *dev, const mepa_port_no_t po
     data->port_state.gpio_count = LAN80XX_GPIO_COUNT;
     //Mode set enable PCS and PMA
     rc = LAN80XX_RC_COLD(lan80xx_mode_conf_set(dev, port_no, mode));
+
     if (rc != MEPA_RC_OK) {
         T_E(MEPA_TRACE_GRP_GEN, "Error in configuring lan80xx_mode_conf_set on port no : %d", port_no);
         return MEPA_RC_ERROR;
@@ -5015,6 +5029,16 @@ mepa_rc lan80xx_conf_set_priv(struct mepa_device *dev, const mepa_conf_t *config
     }
     if (config->flow_control) {
         T_E(MEPA_TRACE_GRP_GEN, "\n Use API lan80xx_flow_control_set API on Port : %d to configure Flow Control \n", data->port_no);
+    }
+
+    if (config->conf_25g.host_media == MEPA_MEDIA_TYPE_1000BASE_T) {
+        T_E(MEPA_TRACE_GRP_GEN, "\n 1000BASE-T Media not supported on HOST side on port : %d \n", data->port_no);
+        return MEPA_RC_ERROR;
+    }
+
+    if ((config->speed != MESA_SPEED_1G) && (config->conf_25g.line_media == MEPA_MEDIA_TYPE_1000BASE_T)) {
+        T_E(MEPA_TRACE_GRP_GEN, "\n 1000BASE-T Media type is supported only at 1G speed on port : %d\n", data->port_no);
+        return MEPA_RC_ERROR;
     }
 
     memset(&mode, 0, sizeof(phy25g_port_mode_t));

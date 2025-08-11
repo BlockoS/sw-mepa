@@ -371,6 +371,9 @@ static void line_media_select(struct meba_inst *meba_inst, mepa_port_no_t port_n
     case MEBA_SFP_TRANSRECEIVER_25G_ER:
         *media = MEPA_MEDIA_TYPE_SFP28_25G_ER;
         break;
+    case MEBA_SFP_TRANSRECEIVER_1000BASE_T:
+        *media = MEPA_MEDIA_TYPE_1000BASE_T;
+        break;
     default:
         *media = (speed == MESA_SPEED_25G) ? MEPA_MEDIA_TYPE_SFP28_25G_SR : MEPA_MEDIA_TYPE_SR;
         break;

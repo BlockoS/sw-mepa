@@ -107,6 +107,8 @@ and TS TX/RX settings.
 The API `mepa_delete()` is used to delete MEPA instance created for a
 PHY. It clears up the data allocated in `mepa_create()` function.
 
+NOTE: The Base dev of the Port instance needs to be deleted once the other ports instances of the PHY are deleted.
+
 == PHY SQI(Signal Quality Indicator) value
 The API `mepa_sqi_read()` is used to get the signal quality indication
 

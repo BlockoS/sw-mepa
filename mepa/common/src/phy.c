@@ -61,7 +61,7 @@ uint32_t mepa_phy_id_get(const mepa_callout_t    MEPA_SHARED_PTR *callout,
     const uint16_t special[] = { 0x8484, 0x8487, 0x8488, 0x8489, 0x8490, 0x8491,
                                  0x8254, 0x8256, 0x8257, 0x8258, 0x8044, 0x8043,
                                  0x8042, 0x8024, 0x8023, 0x8022, 0x8268, 0x8267,
-                                 0x8264
+                                 0x8264, 0x8263, 0x8262
                                };
 
 

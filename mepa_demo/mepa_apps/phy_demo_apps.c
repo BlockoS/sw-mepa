@@ -30,6 +30,8 @@ mepa_rc phy_family_detect(meba_inst_t meba_instance, mepa_port_no_t port_no, dem
     case PHY_TYPE_8268:
     case PHY_TYPE_8267:
     case PHY_TYPE_8264:
+    case PHY_TYPE_8263:
+    case PHY_TYPE_8262:
         phy_info->family = PHY_FAMILY_MALIBU_25G;
         break;
     case PHY_TYPE_8256:

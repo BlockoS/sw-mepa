@@ -51,6 +51,8 @@ typedef enum {
     LAN80XX_DEV_ID_8268 = 0x8268,      /* Quad 1G/10G PHY with 1588 and MACSEC*/
     LAN80XX_DEV_ID_8267 = 0x8267,      /* Quad 1G/10G PHY with 1588 */
     LAN80XX_DEV_ID_8264 = 0x8264,      /* Dual 1G/10G PHY with 1588 and MACSEC*/
+    LAN80XX_DEV_ID_8263 = 0x8263,      /* Dual 1G/10G PHY with 1588 */
+    LAN80XX_DEV_ID_8262 = 0x8262,      /* Dual 1G/10G PHY with MACSEC*/
 } phy25g_device_id_type_t;
 
 /* PHY Revision */

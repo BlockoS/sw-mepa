@@ -8,11 +8,11 @@
 
 ////////  MEPA API Implementation  /////
 
-#define NR_LAN80XX_DRIVERS(x) (sizeof(x) / sizeof(x[0]))
-
 static uint32_t lan80xx_ids[] = {LAN80XX_DEV_ID_8044, LAN80XX_DEV_ID_8043, LAN80XX_DEV_ID_8042, LAN80XX_DEV_ID_8024, LAN80XX_DEV_ID_8023,
                                  LAN80XX_DEV_ID_8022, LAN80XX_DEV_ID_8268, LAN80XX_DEV_ID_8267, LAN80XX_DEV_ID_8264, LAN80XX_DEV_ID_8263,
                                  LAN80XX_DEV_ID_8262};
+
+#define LAN80XX_DRIVERS_COUNT (sizeof(lan80xx_ids)/(sizeof(lan80xx_ids[0])))
 
 static mepa_rc lan80xx_delete(mepa_device_t *dev)
 {
@@ -396,7 +396,7 @@ static mepa_rc lan80xx_phy_info_get(mepa_device_t *dev, mepa_phy_info_t *const p
         phy_info->cap = MEPA_CAP_TS_MASK_GEN_2;
     }
     /* Speed Capability */
-    if (phy_info->part_number == LAN80XX_DEV_ID_8267 || phy_info->part_number == LAN80XX_DEV_ID_8268 || phy_info->part_number == LAN80XX_DEV_ID_8264) {
+    if (base_data->features.speed_25g_disable) {
         phy_info->cap |= MEPA_CAP_SPEED_MASK_10G;
     } else {
         phy_info->cap |= MEPA_CAP_SPEED_MASK_25G;
@@ -517,7 +517,7 @@ static mepa_rc lan80xx_framepreempt_get(mepa_device_t *dev, mepa_bool_t *const e
 //  //////////////  MEPA driver_init_structure//////
 mepa_bool_t lan80xx_driver_check(const mepa_device_t   *dev)
 {
-    for (uint8_t indx = 0; indx < NR_LAN80XX_DRIVERS(lan80xx_ids); indx++) {
+    for (uint8_t indx = 0; indx < LAN80XX_DRIVERS_COUNT; indx++) {
         if (dev->drv->id == lan80xx_ids[indx]) {
             return TRUE;
         }
@@ -525,7 +525,7 @@ mepa_bool_t lan80xx_driver_check(const mepa_device_t   *dev)
     return FALSE;
 }
 
-static void lan80xx_driver_assign(uint32_t id, mepa_driver_t *drv)
+static void lan80xx_driver_create(uint32_t id, mepa_driver_t *drv)
 {
     T_D(MEPA_TRACE_GRP_GEN, "\n Driver assign for phy id : 0x%x", id);
     mepa_bool_t macsec_supported = TRUE;
@@ -538,6 +538,7 @@ static void lan80xx_driver_assign(uint32_t id, mepa_driver_t *drv)
     if (id == LAN80XX_DEV_ID_8262 || id == LAN80XX_DEV_ID_8022 || id == LAN80XX_DEV_ID_8042) {
         ts_supported = FALSE;
     }
+    memset(drv, 0, sizeof(mepa_driver_t));
 
     drv->id                               = id;
     drv->mask                             = 0x00FFFF;
@@ -550,21 +551,14 @@ static void lan80xx_driver_assign(uint32_t id, mepa_driver_t *drv)
     drv->mepa_driver_if_get               = lan80xx_if_get;
     drv->mepa_driver_if_set               = lan80xx_if_set;
     drv->mepa_driver_power_set            = lan80xx_power_set;
-    drv->mepa_driver_media_set            = NULL;
-    drv->mepa_driver_media_get            = NULL;
-    drv->mepa_driver_aneg_status_get      = NULL;
     drv->mepa_driver_clause45_read        = lan80xx_clause45_read;
     drv->mepa_driver_clause45_write       = lan80xx_clause45_write;
-    drv->mepa_driver_event_enable_set     = NULL;
-    drv->mepa_driver_event_enable_get     = NULL;
-    drv->mepa_driver_event_poll           = NULL;
     drv->mepa_driver_loopback_set         = lan80xx_loopback_set;
     drv->mepa_driver_loopback_get         = lan80xx_loopback_get;
     drv->mepa_driver_gpio_mode_set        = lan80xx_gpio_mode_set;
     drv->mepa_driver_gpio_out_set         = lan80xx_gpio_write;
     drv->mepa_driver_gpio_in_get          = lan80xx_gpio_read;
     drv->mepa_driver_link_base_port       = lan80xx_link_base_port;
-    drv->mepa_driver_synce_clock_conf_set = NULL;
     drv->mepa_driver_phy_i2c_read         = lan80xx_phy_i2c_read;
     drv->mepa_driver_phy_i2c_write        = lan80xx_phy_i2c_write;
     drv->mepa_driver_phy_info_get         = lan80xx_phy_info_get;
@@ -582,31 +576,25 @@ static void lan80xx_driver_assign(uint32_t id, mepa_driver_t *drv)
 
     if (ts_supported == TRUE) {
         drv->mepa_ts                      = &lan80xx_ts_drivers;
-    } else {
-        drv->mepa_ts                      = NULL;
     }
-
     if (macsec_supported == TRUE) {
         drv->mepa_macsec                  = &lan80xx_macsec_drivers;
-    } else {
-        drv->mepa_macsec                  = NULL;
     }
 }
 
 
 mepa_drivers_t mepa_lan80xx_driver_init()
 {
-    unsigned int nr_lan80xx_drivers = NR_LAN80XX_DRIVERS(lan80xx_ids);
-    static mepa_driver_t lan80xx_drivers[NR_LAN80XX_DRIVERS(lan80xx_ids)];
+    static mepa_driver_t lan80xx_drivers[LAN80XX_DRIVERS_COUNT];
     uint8_t index = 0;
 
-    for (index = 0; index < nr_lan80xx_drivers; index++) {
-        lan80xx_driver_assign(lan80xx_ids[index], &lan80xx_drivers[index]);
+    for (index = 0; index < LAN80XX_DRIVERS_COUNT; index++) {
+        lan80xx_driver_create(lan80xx_ids[index], &lan80xx_drivers[index]);
     }
 
     mepa_drivers_t result;
     result.phy_drv = lan80xx_drivers;
-    result.count = nr_lan80xx_drivers;
+    result.count = LAN80XX_DRIVERS_COUNT;
 
     return result;
 }

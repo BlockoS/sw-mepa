@@ -1056,15 +1056,15 @@ static void cli_cmd_phy_id(cli_req_t *req)
     mesa_rc rc;
     char spd[80];
 
-    cli_printf("Port       part-id   Rev    Max speed      Host IF\n");
-    cli_printf("---------------------------------------------------\n");
+    cli_printf("Port       part-id(hex)     Rev    Max speed      Host IF\n");
+    cli_printf("----------------------------------------------------------\n");
 
     for (uint32_t port_no = 0; port_no < mesa_port_cnt(NULL); port_no++) {
         if ((rc = meba_phy_info_get(meba_global_inst, port_no, &phy_id)) == MESA_RC_OK) {
             meba_phy_if_get(meba_global_inst, port_no, 1, &mac_if);
             sprintf(spd, "%s", phy_id.cap & MEPA_CAP_SPEED_MASK_2G5 ? "2G5" : phy_id.cap & MEPA_CAP_SPEED_MASK_10G ? "10G" :
                     phy_id.cap & MEPA_CAP_SPEED_MASK_25G ? "25G" : "1G");
-            cli_printf("%-10d %-10d 0x%-8x %-10s %s\n", (port_no+1), phy_id.part_number, phy_id.revision, spd, mesa_port_if2txt(mac_if));
+            cli_printf("%-10d %6d(0x%04x)   0x%-8x %-10s %s\n", (port_no+1), phy_id.part_number, phy_id.part_number, phy_id.revision, spd, mesa_port_if2txt(mac_if));
         }
     }
 }

@@ -58,10 +58,10 @@ static const edsx_phy_config_map_t vsc825x_gpio_map[] = {
     },
 };
 
-void lan80xx_phy_conf(meba_inst_t inst, mepa_port_no_t port_no, mepa_port_no_t slot_port, uint8_t speed)
+void lan80xx_phy_conf(meba_inst_t inst, mepa_port_no_t port_no, uint8_t speed)
 {
     mepa_rc rc = MEPA_RC_ERROR;
-    const edsx_phy_config_map_t *map = &lan80xx_phy_map[port_no - slot_port];
+    const edsx_phy_config_map_t *map = &lan80xx_phy_map[port_no % 4];
     mepa_conf_t   conf = {0};
     mepa_gpio_conf_t  gpio_conf = {0};
     conf.fdx = 1;

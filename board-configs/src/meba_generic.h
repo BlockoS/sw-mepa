@@ -105,7 +105,7 @@ static inline mesa_bool_t is_10g_port(meba_port_cap_t port_cap)
     return has_cap(port_cap, MEBA_PORT_CAP_10G_FDX);
 }
 
-void lan80xx_phy_conf(meba_inst_t inst, mepa_port_no_t port_no, mepa_port_no_t slot_port, uint8_t speed);
+void lan80xx_phy_conf(meba_inst_t inst, mepa_port_no_t port_no, uint8_t speed);
 
 void m10g_mode_conf(const vtss_inst_t inst, meba_inst_t meba_inst, mepa_port_no_t iport, mepa_port_no_t slot_port);
 void phy_25g_slot1_scan(meba_inst_t inst, mepa_port_no_t port_no, meba_port_entry_t *entry, mepa_port_no_t base_port_no);

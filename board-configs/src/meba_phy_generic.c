@@ -202,15 +202,15 @@ static void meba_phy_config(meba_inst_t inst, const vtss_inst_t vtss_instance, m
     }
     if (phy_type == PHY25G_MAX_25G_SPEED) {
         /* LAN80XX PHYs Port Config to 25G Speed */
-        lan80xx_phy_conf(inst, port_no, base_port_no, MEBA_PHY_PORT_MAX_25G_SPEED);
+        lan80xx_phy_conf(inst, port_no, MEBA_PHY_PORT_MAX_25G_SPEED);
     } else if (phy_type == PHY25G_MAX_10G_SPEED) {
         /* LAN80XX PHYs Port Config to 10G Speed */
-        lan80xx_phy_conf(inst, port_no, base_port_no, MEBA_PHY_PORT_MAX_10G_SPEED);
+        lan80xx_phy_conf(inst, port_no, MEBA_PHY_PORT_MAX_10G_SPEED);
     }
 }
 
 /* MDIO PHY Address of each ports */
-uint16_t slot1_map[] = {0x3, 0x2, 0x1, 0x0};
+uint16_t slot1_map[] = {0x1b, 0x1a, 0x19, 0x18};
 //uint16_t slot1_map[] = {0x3, 0x2, 0x1, 0x0};  /* PHY address of Malibu25G ASIC */
 uint16_t slot1_map_viper[] = {0x0, 0x1, 0x2, 0x3};
 uint16_t slot2_map[] = {0x1f, 0x1e, 0x1d, 0x1c};

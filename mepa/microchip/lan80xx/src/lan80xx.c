@@ -389,6 +389,11 @@ static mepa_rc lan80xx_phy_info_get(mepa_device_t *dev, mepa_phy_info_t *const p
     phy_info->part_number = data->dev.devid;
     phy_info->revision = data->dev.rev;
 
+    if (base_data == NULL) {
+        T_E(MEPA_TRACE_GRP_GEN, "\n Base Port not linked for port : %d\n", data->port_no);
+        return MEPA_RC_ERROR;
+    }
+
     /* 1588 Capability */
     if ((data->dev.devid == LAN80XX_DEV_ID_8022) || (data->dev.devid == LAN80XX_DEV_ID_8042)) {
         phy_info->cap = MEPA_CAP_TS_MASK_NONE;
@@ -401,7 +406,7 @@ static mepa_rc lan80xx_phy_info_get(mepa_device_t *dev, mepa_phy_info_t *const p
     } else {
         phy_info->cap |= MEPA_CAP_SPEED_MASK_25G;
     }
-    phy_info->ts_base_port = base_data ? base_data->port_no : 0;
+    phy_info->ts_base_port = base_data->port_no;
     T_I(MEPA_TRACE_GRP_GEN, "Port no : %d Part number : %x Revision : %d Capability : %d ts_base_port : %d", data->port_no, phy_info->part_number, phy_info->revision,
         phy_info->cap, phy_info->ts_base_port);
     MEPA_EXIT(dev);

@@ -10587,9 +10587,9 @@ static vtss_rc vtss_macsec_dbg_xform_reg_dump_priv(vtss_state_t *vtss_state,
     return VTSS_RC_OK;
 }
 
-static vtss_rc vtss_macsec_dbg_reg_dump_priv(vtss_state_t *vtss_state,
-                                             const vtss_port_no_t port_no,
-                                             const vtss_debug_printf_t pr)
+vtss_rc vtss_macsec_dbg_reg_dump_priv(vtss_state_t *vtss_state,
+                                      const vtss_port_no_t port_no,
+                                      const vtss_debug_printf_t pr)
 {
 
     vtss_macsec_dbg_ms_ctrl_reg_dump_priv(vtss_state, port_no, pr);
@@ -10747,7 +10747,7 @@ vtss_rc vtss_macsec_dbg_fcb_block_reg_dump(const vtss_inst_t    inst,
     VTSS_I("MAC Block Register  Dump Port_no: %u\n", port_no);
 
     VTSS_ENTER();
-    if ((rc = vtss_inst_macsec_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
+    if ((rc = vtss_inst_port_no_check(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
         rc = vtss_macsec_dbg_fcb_block_reg_dump_priv(vtss_state, port_no, pr);
     }
     VTSS_EXIT();

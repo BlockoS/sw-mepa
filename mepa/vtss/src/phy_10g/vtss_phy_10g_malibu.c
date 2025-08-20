@@ -14604,7 +14604,7 @@ static void vtss_phy_malibu_register_dump( struct vtss_state_s *vtss_state,
     pr("\n");
 
     pr("\n\n\t:-:-:-:  MACSEC  :-:-:-:");
-    vtss_macsec_dbg_reg_dump(vtss_state, port_no, pr);
+    vtss_macsec_dbg_reg_dump_priv(vtss_state, port_no, pr);
 
 }
 static void prnt_reg(char *reg_name,u32 value,const vtss_debug_printf_t pr) {

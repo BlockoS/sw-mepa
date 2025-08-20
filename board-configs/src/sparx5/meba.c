@@ -41,7 +41,7 @@ typedef enum {
 static const mesa_fan_conf_t fan_spec = {
     .fan_pwm_freq = MESA_FAN_PWM_FREQ_120HZ,   // 120Hz at starting which will be changed to 2kHz
     .fan_low_pol = 1,                          // active low
-    .fan_open_col = true,                      // Open collector
+    .fan_open_col = false,                     // Open collector
     .type = MESA_FAN_4_WIRE_TYPE,              // 3-wire
     .ppr = 2,                                  // 2 PPR
 };

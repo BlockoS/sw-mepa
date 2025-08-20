@@ -201,7 +201,7 @@ coding_standards.each do |key, cfg|
   end
 
   CSV.open("#{cfg[:csv]}", "wb") do |csv|
-    csv << ["Checker Name", "File Path", "Line Number", "Function", "Impact", "Category"]
+    csv << ["Checker Name", "File Path", "Line Number", "Function", "Impact", "Category", "Description"]
     data["issues"].each do |issue|
       checker_name = issue["checkerName"] || ""
       filepath = issue["strippedMainEventFilePathname"] || ""
@@ -209,8 +209,14 @@ coding_standards.each do |key, cfg|
       function = issue["functionDisplayName"] || ""
       impact = issue.dig("checkerProperties", "impact") || ""
       category = issue.dig("checkerProperties", "MISRACategory") || ""
+      # Extract event descriptions, join multiple descriptions separated by ' | '
+      descriptions = if issue["events"]
+         issue["events"].map { |e| e["eventDescription"] }.compact.join(" | ")
+      else
+         ""
+      end
 
-      csv << [checker_name, filepath, line_number, function, impact, category]
+      csv << [checker_name, filepath, line_number, function, impact, category, descriptions]
       # Increment error count only for High or Medium impact
       if impact.casecmp?("High") || impact.casecmp?("Medium")
         $cnt_err += 1

@@ -91,7 +91,7 @@ sys "mkdir #{report_name}"
 
 sys "cp -r static_analysis_reports/* #{report_name}"
 
-cmd = [".cmake/artifactory-ci-upload"]
+cmd = [".cmake/artifactory-ci"]
 cmd << "-vvv"
 cmd << "--dep-file .cmake/deps-bsp.json"
 cmd << "--dep-file .cmake/deps-docker.json"
@@ -127,7 +127,7 @@ end
 
 run "rm -rf #{out_name}"
 
-cmd = [".cmake/artifactory-ci-upload"]
+cmd = [".cmake/artifactory-ci"]
 cmd << "-vvv"
 cmd << "--dep-file .cmake/deps-bsp.json"
 cmd << "--dep-file .cmake/deps-docker.json"

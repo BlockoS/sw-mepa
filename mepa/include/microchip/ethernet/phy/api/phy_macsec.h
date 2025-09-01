@@ -1089,11 +1089,11 @@ typedef enum {
 /** \brief Structure for Bypass mode */
 typedef struct {
     mepa_macsec_bypass_t  mode;                       /**< Bypass Mode, Tag bypass or Header bypass */
-    uint32_t hdr_bypass_len;                          /**< (ignored for TAG bypass) Header Bypass length, possible values: 2,4,6..16 bytes.  
+    uint32_t hdr_bypass_len;                          /**< (ignored for TAG bypass) Header Bypass length, possible values: 2,4,6..16 bytes.
                                                        * The bypass includes MPLS DA + MPLS SA + MPLS Etype (before frame DA/SA)
-                                                       * E.g. the value '4' means 6+6+2+4=18 bytes (MPLS dmac + MPLS smac + MPLS etype + 4) */ 
-    mepa_etype_t hdr_etype;                           /**< (ignored for TAG bypass) Header Bypass: Etype to match (at frame index 12)   
-                                                       * When matched, process control packets using DMAC/SMAC/Etype after the header 
+                                                       * E.g. the value '4' means 6+6+2+4=18 bytes (MPLS dmac + MPLS smac + MPLS etype + 4) */
+    mepa_etype_t hdr_etype;                           /**< (ignored for TAG bypass) Header Bypass: Etype to match (at frame index 12)
+                                                       * When matched, process control packets using DMAC/SMAC/Etype after the header
                                                        * If not matched process control packets using the first DMAC/SMAC/Etype (as normally done) */
 } mepa_macsec_bypass_mode_t;
 

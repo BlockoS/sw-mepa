@@ -167,7 +167,7 @@ static mepa_rc lan8770_tc10_send_sleep_request(struct mepa_device               
 
 static mepa_rc lan8770_tc10_get_state(struct mepa_device        *dev,
                                       mepa_tc10_state_t         *const state,
-				      uint16_t      *const indication)
+                                      uint16_t      *const indication)
 {
     mepa_rc rc = MEPA_RC_ERROR;
 

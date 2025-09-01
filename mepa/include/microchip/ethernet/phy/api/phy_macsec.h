@@ -1,20 +1,21 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
+#ifdef MEPA_OPT_MACSEC
 #ifndef _MEPA_MACSEC_API_H_
 #define _MEPA_MACSEC_API_H_
 
 #include <microchip/ethernet/phy/api/types.h>
 #include <microchip/ethernet/hdr_start.h>  /**< ALL INCLUDE ABOVE THIS LINE */
 
-#define MEPA_MACSEC_10G_MAX_SA 64     /**< 10G PHY Max SAs : 64 */
-#define MEPA_MACSEC_1G_MAX_SA  16     /**< 1G PHY Max SAs : 16 */
-#define MEPA_MACSEC_SA_PER_SC_MAX  4  /**< SAs per SC Max : 4 */
-#define MEPA_MACSEC_SA_PER_SC_MIN  2  /**< SAs per SC Min : 2 */
+#define MEPA_MACSEC_10G_MAX_SA 64U     /**< 10G PHY Max SAs : 64 */
+#define MEPA_MACSEC_1G_MAX_SA  16U     /**< 1G PHY Max SAs : 16 */
+#define MEPA_MACSEC_SA_PER_SC_MAX  4U  /**< SAs per SC Max : 4 */
+#define MEPA_MACSEC_SA_PER_SC_MIN  2U  /**< SAs per SC Min : 2 */
 
 #define MEPA_MACSEC_SA_PER_SC MEPA_MACSEC_SA_PER_SC_MAX /**< SAs per SCs : 4 */
 
-#define MEPA_MAC_BLOCK_MTU_MAX 0x2748                   /**< MAC Block Max MTU Size */
+#define MEPA_MAC_BLOCK_MTU_MAX 0x2748U                   /**< MAC Block Max MTU Size */
 
 
 /** \brief SecY port status as defined by 802.1AE */
@@ -646,10 +647,10 @@ typedef struct {
 } mepa_macsec_secy_counters_t;
 
 /* Possible values for the mepa_macsec_secy_cap_t:ciphersuite_cap */
-#define MEPA_MACSEC_CAP_GCM_AES_128       0x0001              /**< GCM-AES-128 cipher suite capability */ 
-#define MEPA_MACSEC_CAP_GCM_AES_256       0x0002              /**< GCM-AES-256 cipher suite capability */ 
-#define MEPA_MACSEC_CAP_GCM_AES_XPN_128   0x0004              /**< GCM-AES-XPN-128 cipher suite capability (extended PN) */
-#define MEPA_MACSEC_CAP_GCM_AES_XPN_256   0x0008              /**< GCM-AES-XPN-256 cipher suite capability (extended PN) */
+#define MEPA_MACSEC_CAP_GCM_AES_128       0x0001U              /**< GCM-AES-128 cipher suite capability */ 
+#define MEPA_MACSEC_CAP_GCM_AES_256       0x0002U              /**< GCM-AES-256 cipher suite capability */ 
+#define MEPA_MACSEC_CAP_GCM_AES_XPN_128   0x0004U              /**< GCM-AES-XPN-128 cipher suite capability (extended PN) */
+#define MEPA_MACSEC_CAP_GCM_AES_XPN_256   0x0008U              /**< GCM-AES-XPN-256 cipher suite capability (extended PN) */
 
 /** \brief Capabilities as defined by 802.1AE */
 typedef struct {
@@ -782,25 +783,25 @@ mepa_rc mepa_macsec_rx_sa_counters_get(struct mepa_device *dev,
 /*--------------------------------------------------------------------*/
 /* VP / Uncontrolled classification                                   */
 /*--------------------------------------------------------------------*/
-#define MEPA_MACSEC_MATCH_DISABLE        0x0001           /**< Disable match  */
-#define MEPA_MACSEC_MATCH_DMAC           0x0002           /**< DMAC match  */
-#define MEPA_MACSEC_MATCH_ETYPE          0x0004           /**< ETYPE match */
-#define MEPA_MACSEC_MATCH_VLAN_ID        0x0008           /**< VLAN match  */
-#define MEPA_MACSEC_MATCH_VLAN_ID_INNER  0x0010           /**< Inner VLAN match */
-#define MEPA_MACSEC_MATCH_BYPASS_HDR     0x0020           /**< MPLS header match */
-#define MEPA_MACSEC_MATCH_IS_CONTROL     0x0040           /**< Control frame match e.g. Ethertype 0x888E */
-#define MEPA_MACSEC_MATCH_HAS_VLAN       0x0080           /**< The frame contains a VLAN tag */
-#define MEPA_MACSEC_MATCH_HAS_VLAN_INNER 0x0100           /**< The frame contains an inner VLAN tag */
-#define MEPA_MACSEC_MATCH_SMAC           0x0200           /**< Source MAC address  */
-#define MEPA_MACSEC_MATCH_BPDU           0x0400           /**< For control frames: Match 01-80-c2-00-00-0x */
-#define MEPA_MACSEC_MATCH_CDP_UDLD       0x0800           /**< For control frames: Match 01-00-0c-cc-cc-cc */
-#define MEPA_MACSEC_MATCH_SCI            0x1000           /**< Require SCI in SecTAG. For ingress frames directed to controlled port, only */
+#define MEPA_MACSEC_MATCH_DISABLE        0x0001U           /**< Disable match  */
+#define MEPA_MACSEC_MATCH_DMAC           0x0002U           /**< DMAC match  */
+#define MEPA_MACSEC_MATCH_ETYPE          0x0004U           /**< ETYPE match */
+#define MEPA_MACSEC_MATCH_VLAN_ID        0x0008U           /**< VLAN match  */
+#define MEPA_MACSEC_MATCH_VLAN_ID_INNER  0x0010U           /**< Inner VLAN match */
+#define MEPA_MACSEC_MATCH_BYPASS_HDR     0x0020U           /**< MPLS header match */
+#define MEPA_MACSEC_MATCH_IS_CONTROL     0x0040U           /**< Control frame match e.g. Ethertype 0x888E */
+#define MEPA_MACSEC_MATCH_HAS_VLAN       0x0080U           /**< The frame contains a VLAN tag */
+#define MEPA_MACSEC_MATCH_HAS_VLAN_INNER 0x0100U           /**< The frame contains an inner VLAN tag */
+#define MEPA_MACSEC_MATCH_SMAC           0x0200U           /**< Source MAC address  */
+#define MEPA_MACSEC_MATCH_BPDU           0x0400U           /**< For control frames: Match 01-80-c2-00-00-0x */
+#define MEPA_MACSEC_MATCH_CDP_UDLD       0x0800U           /**< For control frames: Match 01-00-0c-cc-cc-cc */
+#define MEPA_MACSEC_MATCH_SCI            0x1000U           /**< Require SCI in SecTAG. For ingress frames directed to controlled port, only */
 
-#define MEPA_MACSEC_MATCH_PRIORITY_LOWEST 15              /**< Lowest possible matching priority */
-#define MEPA_MACSEC_MATCH_PRIORITY_LOW    12              /**< Low matching priority */
-#define MEPA_MACSEC_MATCH_PRIORITY_MID     8              /**< Medium matching priority */
-#define MEPA_MACSEC_MATCH_PRIORITY_HIGH    4              /**< High matching priority */
-#define MEPA_MACSEC_MATCH_PRIORITY_HIGHEST 0              /**< Hihhest possible matching priority */
+#define MEPA_MACSEC_MATCH_PRIORITY_LOWEST 15U              /**< Lowest possible matching priority */
+#define MEPA_MACSEC_MATCH_PRIORITY_LOW    12U              /**< Low matching priority */
+#define MEPA_MACSEC_MATCH_PRIORITY_MID     8U              /**< Medium matching priority */
+#define MEPA_MACSEC_MATCH_PRIORITY_HIGH    4U              /**< High matching priority */
+#define MEPA_MACSEC_MATCH_PRIORITY_HIGHEST 0U              /**< Hihhest possible matching priority */
 
 /** \brief MACsec control frame matching */
 typedef struct {
@@ -978,29 +979,29 @@ typedef struct {
 /** \brief Pattern matching actions */
 typedef enum {
     /** Drop the packet */
-    MEPA_MACSEC_MATCH_ACTION_DROP=0,
+    MEPA_MACSEC_MATCH_ACTION_DROP=0U,
 
    /** Forward the packet to the controlled port */
-    MEPA_MACSEC_MATCH_ACTION_CONTROLLED_PORT=1,
+    MEPA_MACSEC_MATCH_ACTION_CONTROLLED_PORT=1U,
 
     /** Forward the packet to the uncontrolled port */
-    MEPA_MACSEC_MATCH_ACTION_UNCONTROLLED_PORT=2,
+    MEPA_MACSEC_MATCH_ACTION_UNCONTROLLED_PORT=2U,
 
     /** Number of actions - always add new actions above this line */
-    MEPA_MACSEC_MATCH_ACTION_CNT = 3,
+    MEPA_MACSEC_MATCH_ACTION_CNT = 3U,
 } mepa_macsec_match_action_t;
 
 
 /** \brief Type used to state direction  */
 typedef enum {
     /** Ingress. Traffic which is received by the port. */
-    MEPA_MACSEC_DIRECTION_INGRESS=0,
+    MEPA_MACSEC_DIRECTION_INGRESS=0U,
 
     /** Egress. Traffic which is transmitted on the port. */
-    MEPA_MACSEC_DIRECTION_EGRESS=1,
+    MEPA_MACSEC_DIRECTION_EGRESS=1U,
 
     /** Number of directions - will always be 2 */
-    MEPA_MACSEC_DIRECTION_CNT = 2,
+    MEPA_MACSEC_DIRECTION_CNT = 2U,
 
 } mepa_macsec_direction_t;
 
@@ -1033,8 +1034,8 @@ mepa_rc mepa_macsec_pattern_get(struct mepa_device *dev,
 
 /** \brief Default matching actions */
 typedef enum {
-    MEPA_MACSEC_DEFAULT_ACTION_DROP   = 0,  /**< Drop frame */
-    MEPA_MACSEC_DEFAULT_ACTION_BYPASS = 1,  /**< Bypass frame */
+    MEPA_MACSEC_DEFAULT_ACTION_DROP   = 0U,  /**< Drop frame */
+    MEPA_MACSEC_DEFAULT_ACTION_BYPASS = 1U,  /**< Bypass frame */
 } mepa_macsec_default_action_t;
 
 /** \brief Default policy.
@@ -1132,7 +1133,7 @@ mepa_rc mepa_macsec_bypass_tag_get(struct mepa_device *dev,
 /* Others                                                             */
 /*--------------------------------------------------------------------*/
 
-#define MEPA_MACSEC_FRAME_CAPTURE_SIZE_MAX 504 /**< The maximum frame size supported for MACSEC capturing */
+#define MEPA_MACSEC_FRAME_CAPTURE_SIZE_MAX 504U /**< The maximum frame size supported for MACSEC capturing */
 
 /** \brief Enum for frame capturing  */
 typedef enum {
@@ -1174,10 +1175,10 @@ mepa_rc mepa_macsec_frame_get(struct mepa_device *dev,
 
 /** \brief Enum for events  */
 typedef enum {
-    MEPA_MACSEC_SEQ_NONE  = 0x0,
-    MEPA_MACSEC_SEQ_THRESHOLD_EVENT = 0x1,
-    MEPA_MACSEC_SEQ_ROLLOVER_EVENT  = 0x2,
-    MEPA_MACSEC_SEQ_ALL   = 0x3
+    MEPA_MACSEC_SEQ_NONE  = 0x0U,
+    MEPA_MACSEC_SEQ_THRESHOLD_EVENT = 0x1U,
+    MEPA_MACSEC_SEQ_ROLLOVER_EVENT  = 0x2U,
+    MEPA_MACSEC_SEQ_ALL   = 0x3U
 } mepa_macsec_event_t;
 
 
@@ -1259,6 +1260,7 @@ mepa_rc mepa_macsec_csr_write(struct mepa_device *dev,
                               const uint32_t addr,
                               const uint32_t value);
 
+#ifndef MEPA_OPT_AUTOMOTIVE
 /** \brief Debug counters for counting the number error return codes.  */
 typedef struct {
     uint32_t invalid_sci_macaddr;     /**< Number of errors happen with error code MEPA_RC_ERR_MACSEC_INVALID_SCI_MACADDR*/
@@ -1323,6 +1325,7 @@ mepa_rc mepa_macsec_dbg_counter_get(struct mepa_device *dev,
 
 
 #define deb_counter_get mepa_macsec_dbg_counter_get /**< Backward compatibility */
+#endif //MEPA_OPT_AUTOMOTIVE
 
 /*--------------------------------------------------------------------*/
 /* Line MAC / Host MAC / FC                                           */
@@ -1533,6 +1536,7 @@ mepa_rc mepa_macsec_fcbuf_frame_gap_comp_set(struct mepa_device *dev,
                                              const mepa_port_no_t port_no,
                                              const uint8_t frm_gap);
 
+#ifndef MEPA_OPT_AUTOMOTIVE
 /** Flow Control buffer Block Reg Dump. */
 mepa_rc mepa_macsec_dbg_fcb_block_reg_dump(struct mepa_device *dev,
                                            const mepa_port_no_t port_no,
@@ -1562,6 +1566,7 @@ mepa_rc mepa_macsec_dbg_update_seq_set(struct mepa_device *dev,
                                        uint16_t an,
                                        mepa_bool_t egr,
                                        const mepa_bool_t disable);
+#endif //MEPA_OPT_AUTOMOTIVE
 
 
 // ***************************************************************************
@@ -1573,3 +1578,4 @@ mepa_rc mepa_macsec_dbg_update_seq_set(struct mepa_device *dev,
 
 #include <microchip/ethernet/hdr_end.h>
 #endif /**< _MEPA_MACSEC_API_H_ */
+#endif //MEPA_OPT_MACSEC

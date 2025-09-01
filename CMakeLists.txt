@@ -18,6 +18,10 @@ option(BUILD_MEPA_DEMO   "Build the MEPA demo" ON)
 option(MESA_OPSYS_LINUX  "Build the MESA for Linux" ON)
 option(MESA_OPSYS_VELOCITYSP "Build the MESA for VelocitySP" OFF)
 option(MESA_WRAP         "Generate and build the MESA Wrapper" ON)
+option(BUILD_AUTOMOTIVE "Build MESA for Automotive" OFF)
+option(BUILD_TC10       "Build MESA with TC10 for Automotive" ON)
+option(BUILD_MACSEC     "Build MESA with MACSec for no-Automotive" ON)
+option(BUILD_TS         "Build MESA with Timestamping" ON)
 option(MESA_USE_INLINE_UTILS "Create an object library instead of static/shared library" ON)
 
 if (NOT MESA_USE_INLINE_UTILS)
@@ -25,8 +29,25 @@ if (NOT MESA_USE_INLINE_UTILS)
 endif ()
 
 mark_as_advanced(BUILD_MEPA_DEMO MESA_PRE_AG BUILD_DOXYGEN)
+mark_as_advanced(BUILD_AUTOMOTIVE BUILD_TC10 BUILD_MACSEC BUILD_TS)
 
 include(.cmake/doxygen.cmake)
+
+if (${BUILD_AUTOMOTIVE})
+    add_definitions(-DMEPA_OPT_AUTOMOTIVE)
+endif()
+
+if (${BUILD_MACSEC})
+    add_definitions(-DMEPA_OPT_MACSEC)
+endif()
+
+if (${BUILD_TS})
+    add_definitions(-DMEPA_OPT_TS)
+endif()
+
+if (${BUILD_TC10})
+    add_definitions(-DMEPA_OPT_TC10)
+endif()
 
 add_subdirectory(mepa)
 

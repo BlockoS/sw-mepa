@@ -39,6 +39,7 @@ typedef enum {
     MEPA_TS_CLOCK_FREQ_250M,   /**< 250 MHz */
     MEPA_TS_CLOCK_FREQ_500M,   /**< 500 MHz */
     MEPA_TS_CLOCK_FREQ_MAX,    /**< MAX Freq */
+    MEPA_TS_CLOCK_FREQ_NONE,   /**< Not supported, used for get */
 } mepa_ts_clock_freq_t;
 
 /** \brief Rx Timestamp position inside PTP frame */
@@ -117,7 +118,6 @@ typedef enum {
     MEPA_TS_CMD_SAVE,
     MEPA_TS_ADJ_CMD_CLEAR,
     MEPA_TS_CMD_DELTA,
-    MEPA_TS_CMD_WAVEFORM,
     MEPA_TS_CMD_TOD,
 } mepa_ts_ls_type_t;
 
@@ -138,6 +138,7 @@ typedef enum {
     MEPA_TS_CLOCK_SRC_FROM_RX_PORT1,
     MEPA_TS_CLOCK_SRC_FROM_RX_PORT2,
     MEPA_TS_CLOCK_SRC_FROM_RX_PORT3,
+    MEPA_TS_CLOCK_SRC_NONE,
 } mepa_ts_clock_src_t;
 
 /** \brief Correction Field update method */
@@ -343,17 +344,29 @@ typedef struct {
     uint8_t     match_mode;/*Label match mode for the label */
 } mepa_ts_mpls_lvl_rng_t;
 
+
+typedef enum {
+    MEPA_PTP_MPLS_PARSE_TOP_TO_BOTTOM = 0,
+    MEPA_PTP_MPLS_PARSE_BOTTOM_TO_TOP = 1,
+} mepa_ts_mpls_parse_t;
+   
+
+#define MEPA_PTP_MPLS_ALLOW_1LABEL  (0x1)
+#define MEPA_PTP_MPLS_ALLOW_2LABEL  (0x2)
+#define MEPA_PTP_MPLS_ALLOW_3LABEL  (0x4)
+#define MEPA_PTP_MPLS_ALLOW_4LABEL  (0x8)
+
 /** \brief MPLS header classifier */
 typedef struct {
-    mepa_bool_t       cw_en;  /**< control word enable/disable */
-    mepa_bool_t       flow_en;  /**< flow enable/disable */
-    uint8_t           stack_depth; /**< depth of MPLS level; multiple depth match can be possible using OR */
-    uint8_t           stack_ref_point; /**< Search direction for label matching: top to bottom or bottom to top */
+    mepa_bool_t                    cw_en;               /**< control word enable/disable */
+    mepa_bool_t                    flow_en;             /**< flow enable/disable */
+    uint8_t                        stack_depth;         /**< depth of MPLS level; multiple depth match can be possible by OR "MEPA_PTP_MPLS_ALLOW_XLABEL" MACROs */
+    mepa_ts_mpls_parse_t           stack_ref_point;     /**< Search direction for label matching: top to bottom or bottom to top */
     struct {
-        mepa_ts_mpls_lvl_rng_t  first_lvl; /**< First label */
-        mepa_ts_mpls_lvl_rng_t  second_lvl; /**< Second label */
-        mepa_ts_mpls_lvl_rng_t  third_lvl; /**< Third label */
-        mepa_ts_mpls_lvl_rng_t  fourth_lvl; /**< Fourth label */
+        mepa_ts_mpls_lvl_rng_t     first_lvl; /**< First label */
+        mepa_ts_mpls_lvl_rng_t     second_lvl; /**< Second label */
+        mepa_ts_mpls_lvl_rng_t     third_lvl; /**< Third label */
+        mepa_ts_mpls_lvl_rng_t     fourth_lvl; /**< Fourth label */
     } stack_level; /**< 4 level values; top_down or bottom_up depends on stack_ref_point */
 } mepa_ts_classifier_mpls_t;
 

@@ -164,8 +164,18 @@ $methods_blacklist = [
     "lan80xx_ts_rx_clock_conf_get_priv",
     "lan80xx_ts_egress_engine_conf_get",
     "lan80xx_ts_ingress_engine_conf_get",
-    "lan80xx_phy_rx_classifier_conf_get",
-    "lan80xx_phy_tx_classifier_conf_get",
+    "lan80xx_tx_classifier_conf_get_priv",
+    "lan80xx_rx_classifier_conf_get_priv",
+    "lan80xx_ts_rx_clock_conf_set_priv",
+    "lan80xx_ts_tx_clock_conf_set_priv",
+    "lan80xx_ts_rx_classifier_conf_set_priv",
+    "lan80xx_ts_tx_classifier_conf_set_priv",
+    "lan80xx_tx_classifier_conf_get_priv",
+    "mepa_to_lan80xx_encap",
+    "lan80xx_to_mepa_encap",
+    "lan80xx_get_vs_ntw_type",
+    "lan80xx_get_vs_addr_type",
+    "lan80xx_get_vs_mac_type",
     "lan80xx_phy_ts_path_delay_set",
     "lan80xx_phy_ts_delay_asymmetry_get",
     "lan80xx_phy_ts_delay_asymmetry_set",
@@ -1159,7 +1169,16 @@ $methods.each do |m, o|
         aa = analyze_args o[:args]
         aa.each do |a|
             next if skip_inst(a)
-            t = (cap ? "mesa_cap_t" : a[:type_resolved][:type_resolved][:type])
+            t = if cap
+                "mesa_cap_t"
+            else
+                a&.dig(:type_resolved, :type_resolved, :type)
+            end
+
+            if t.nil?
+                puts "WARNING: Could not resolve type for method #{m}"
+                next
+            end
             $tl << t
         end
         $tl << "phy25g_phy_state_t"

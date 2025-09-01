@@ -274,11 +274,6 @@ mepa_rc lan80xx_phy_ts_pps_input_confset(mepa_device_t *dev, const mepa_port_no_
     return MEPA_RC_NOT_IMPLEMENTED;
 }
 
-mepa_rc lan80xx_phy_ts_load_store_contoller_set(mepa_device_t *dev, const mepa_port_no_t  port_no, uint8_t  ls_controller_sel)
-{
-    return MEPA_RC_NOT_IMPLEMENTED;
-}
-
 mepa_rc lan80xx_phy_ts_pps_ouput_conf_set(mepa_device_t *dev, const mepa_port_no_t  port_no, const phy25g_pps_output_conf_t *const pps_out_conf)
 {
     return MEPA_RC_NOT_IMPLEMENTED;

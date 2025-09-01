@@ -195,7 +195,7 @@ typedef struct phy25g_state_s {
     mepa_bool_t                     sync_calling_private; /* Used by PHY APIs */
     uint8_t                         packet_idx;
     uint8_t                         channel_id;
-    uint8_t                         lsc_select;
+    uint8_t                         lsc_select;          /* LOAD or STORE LSC Pin */
     phy25g_aneg_status              host_aneg_status;
     phy25g_aneg_status              line_aneg_status;
     mepa_port_no_t                  port_no;

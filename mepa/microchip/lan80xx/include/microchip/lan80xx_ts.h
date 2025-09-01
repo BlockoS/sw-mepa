@@ -96,11 +96,11 @@ typedef struct {
 
 /** \brief MPLS per flow configuration */
 typedef struct {
-    BOOL       flow_en;  /**< flow enable/disable */
+    BOOL                         flow_en;  /**< flow enable/disable */
 
-    u8         stack_depth; /**< depth of MPLS level; multiple depth match can be possible using OR */
+    u8                           stack_depth; /**< depth of MPLS level; multiple depth match can be possible using OR */
 
-    u8         stack_ref_point; /**< Search direction for label matching: top to bottom or bottom to top */
+    mepa_ts_mpls_parse_t         stack_ref_point; /**< Search direction for label matching: top to bottom or bottom to top */
     union {
         struct {
             phy25g_ts_mpls_lvl_rng_t  top; /**< Top level */
@@ -124,22 +124,61 @@ typedef struct {
 } phy25g_ts_pps_conf_t;
 #endif
 
-typedef struct {
-    uint8_t      clk_select;
-    uint8_t      pin_select;
-    mepa_bool_t  pin_inv_pol;
-    uint8_t      pin_sync_mode;//00:Load immediate 01:excute on active edge on pin 11:action repeate at next active edge.
-    uint8_t      lsc_select;//LCS select.
-} phy25g_pps_input_conf_t;
+typedef enum {
+    LAN80XX_PTP_SYNC_CLOCK_SELECT_LSC0,
+    LAN80XX_PTP_SYNC_CLOCK_SELECT_LSC1,
+    LAN80XX_PTP_SYNC_CLOCK_SELECT_LSC2,
+    LAN80XX_PTP_SYNC_CLOCK_SELECT_LSC3,
+    LAN80XX_PTP_ASYNC_NO_CLOCK,
+    LAN80XX_PTP_SYNC_L_S_REF_CLOCK,
+    LAN80XX_PTP_SYNC_L_S_REF_CLOCK_DIV_2,
+    LAN80XX_PTP_SYNC_L_S_REF_CLOCK_DIV_4,
+    LAN80XX_PTP_SYNC_L_S_REF_CLOCK_DIV_5,
+    LAN80XX_PTP_SYNC_L_S_REF_CLOCK_DIV_8,
+} phy25g_ptp_lsc_sync_clock_t;
+
+
+typedef enum {
+    LAN80XX_PTP_LSC_ACTIVE_HIGH,
+    LAN80XX_PTP_LSC_ACTIVE_LOW,
+} phy25g_lsc_pin_polarity_t;
+
+
+typedef enum {
+    LAN80XX_PTP_ACTION_IMMEDIATE,
+    LAN80XX_PTP_ACTION_ONE_SHOT_ON_ACTIVE_EDGE,
+    LAN80XX_PTP_ACTION_RESERVED,
+    LAN80XX_PTP_ACTION_CONTINUOUS,
+} phy25g_pps_action_t;
+
+typedef enum {
+    LAN80XX_PTP_LSC_PIN_0,
+    LAN80XX_PTP_LSC_PIN_1,
+    LAN80XX_PTP_LSC_PIN_2,
+    LAN80XX_PTP_LSC_PIN_3,
+} phy25g_lsc_pin_sel_t;
 
 typedef struct {
-    uint8_t      clk_select;
-    uint8_t      pin_select;
-    mepa_bool_t  pin_inv_pol;
-    uint8_t      pin_sync_mode;//immediate, one short, continuous.
-    mepa_bool_t  nanosec_bitout_enable;
-    uint32_t   pps_pulse_width ;    /**< The value of nano second counter upto which 1PPS is held high*/
-    uint32_t   pps_pulse_interval;
+    phy25g_ptp_lsc_sync_clock_t      clk_select;
+    phy25g_lsc_pin_polarity_t        pin_inv_pol;
+    phy25g_pps_action_t              pin_sync_mode;//00:Load immediate 01:excute on active edge on pin 11:action repeate at next active edge.
+    phy25g_lsc_pin_sel_t             lsc_select;   //LSC Pin select.
+} phy25g_pps_input_conf_t;
+
+
+typedef enum {
+    LAN80XX_PTP_LSC_SQUARE_WAVEFORM,
+    LAN80XX_PTP_LSC_1PPS,
+    LAN80XX_PTP_NSEC_BIT_OUT,
+} phy25g_lsc_output_sync_t;
+
+typedef struct {
+    phy25g_ptp_lsc_sync_clock_t   clk_select;         /**< Sync or Async */
+    phy25g_lsc_pin_polarity_t     pin_inv_pol;
+    phy25g_lsc_output_sync_t      pin_sync_mode;      /**< Waveform or 1PPS */
+    uint32_t                      pps_pulse_high ;    /**< Pulse or waveform high width in NSEC*/
+    uint32_t                      pps_pulse_low;      /**< Waveform low width or 1PPS Pulse start boundary in NSEC */
+    phy25g_lsc_pin_sel_t          lsc_select;         /**< LSC Pin select */
 } phy25g_pps_output_conf_t;
 
 
@@ -299,14 +338,6 @@ mepa_rc lan80xx_phy_ts_pps_input_confset(mepa_device_t *dev, const mepa_port_no_
  * \param phy25g_ts_sertod_conf_t serial tod input parameter config.
 */
 mepa_rc lan80xx_phy_ts_sertod_input_confset(mepa_device_t *dev, const mepa_port_no_t    port_no, const  phy25g_ts_sertod_input_conf_t *const sertod_conf);
-
-/**
- * \brief configure LS controller unit.
- * * \param dev [IN]            mepa driver
- * \param port_no               port number
- * \param ls_controller_sel  LSC unit number.
-*/
-mepa_rc lan80xx_phy_ts_load_store_contoller_set(mepa_device_t *dev, const mepa_port_no_t  port_no, uint8_t  ls_controller_sel);
 
 
 /**

@@ -2313,52 +2313,50 @@ static mepa_rc lan887x_isolate_mode_set(struct mepa_device *dev, mepa_bool_t con
 
 mepa_drivers_t mepa_lan887x_driver_init(void)
 {
+    static const int nr_lan887x_drivers = 1;
+    static mepa_driver_t lan887x_drivers[] = {
+        {
+            //Device ID & Mask
+            .id = LAN8870_PHY_ID,
+            .mask = LAN887X_PHY_ID_MASK,
+            //.mask = LAN887X_PHY_ID_PRTO_MSK,
+            /* LAN887X Driver APIs */
+            .mepa_driver_delete             = lan887x_delete,
+            .mepa_driver_reset              = lan887x_reset,
+            .mepa_driver_poll               = lan887x_poll,
+            .mepa_driver_probe              = lan887x_probe,
+            .mepa_driver_aneg_status_get    = lan887x_aneg_status_get,
+            .mepa_driver_conf_set           = lan887x_conf_set,
+            .mepa_driver_conf_get           = lan887x_conf_get,
+            .mepa_driver_if_set             = lan887x_if_set,
+            .mepa_driver_if_get             = lan887x_if_get,
+            .mepa_driver_media_set          = lan887x_media_set,
+            .mepa_driver_media_get          = lan887x_media_get,
+            .mepa_driver_event_enable_set   = lan887x_event_enable_set,
+            .mepa_driver_event_enable_get   = lan887x_event_enable_get,
+            .mepa_driver_event_poll         = lan887x_event_status_poll,
+            .mepa_driver_gpio_mode_set      = lan887x_gpio_mode_set,
+            .mepa_driver_gpio_out_set       = lan887x_gpio_out_set,
+            .mepa_driver_gpio_in_get        = lan887x_gpio_in_get,
+            .mepa_driver_loopback_set       = lan887x_loopback_set,
+            .mepa_driver_loopback_get       = lan887x_loopback_get,
+            .mepa_driver_phy_info_get       = lan887x_info_get,
+            .mepa_debug_info_dump           = lan887x_debug_info,
+            .mepa_driver_clause22_read      = lan887x_reg_read,
+            .mepa_driver_clause22_write     = lan887x_reg_write,
+            .mepa_driver_clause45_read      = lan887x_mmd_reg_read,
+            .mepa_driver_clause45_write     = lan887x_mmd_reg_write,
+            .mepa_driver_sqi_read           = lan887x_sqi_read,
+            .mepa_driver_isolate_mode_conf  = lan887x_isolate_mode_set,
+            .mepa_driver_cable_diag_start   = lan887x_cable_diag_start,
+            .mepa_driver_cable_diag_get     = lan887x_cable_diag_get,
+            .mepa_tc10                      = &lan887x_tc10_drivers,
+        },
+    };
     mepa_drivers_t result;
-    static mepa_driver_t lan887x_driver[LAN887X_PHY_MAX];
-    uint8_t idx = 0;
 
-    for (idx = 0; idx < LAN887X_PHY_MAX; idx++) {
-        mepa_driver_t *lan887x_drv = &lan887x_driver[idx];
-
-        //Device ID & Mask
-        lan887x_drv->id = LAN8870_PHY_ID;
-        lan887x_drv->mask = LAN887X_PHY_ID_MASK;
-        //lan887x_drv->mask = LAN887X_PHY_ID_PRTO_MSK;
-        /* LAN887X Driver APIs */
-        lan887x_drv->mepa_driver_delete             = lan887x_delete;
-        lan887x_drv->mepa_driver_reset              = lan887x_reset;
-        lan887x_drv->mepa_driver_poll               = lan887x_poll;
-        lan887x_drv->mepa_driver_probe              = lan887x_probe;
-        lan887x_drv->mepa_driver_aneg_status_get    = lan887x_aneg_status_get;
-        lan887x_drv->mepa_driver_conf_set           = lan887x_conf_set;
-        lan887x_drv->mepa_driver_conf_get           = lan887x_conf_get;
-        lan887x_drv->mepa_driver_if_set             = lan887x_if_set;
-        lan887x_drv->mepa_driver_if_get             = lan887x_if_get;
-        lan887x_drv->mepa_driver_media_set          = lan887x_media_set;
-        lan887x_drv->mepa_driver_media_get          = lan887x_media_get;
-        lan887x_drv->mepa_driver_event_enable_set   = lan887x_event_enable_set;
-        lan887x_drv->mepa_driver_event_enable_get   = lan887x_event_enable_get;
-        lan887x_drv->mepa_driver_event_poll         = lan887x_event_status_poll;
-        lan887x_drv->mepa_driver_gpio_mode_set      = lan887x_gpio_mode_set;
-        lan887x_drv->mepa_driver_gpio_out_set       = lan887x_gpio_out_set;
-        lan887x_drv->mepa_driver_gpio_in_get        = lan887x_gpio_in_get;
-        lan887x_drv->mepa_driver_loopback_set       = lan887x_loopback_set;
-        lan887x_drv->mepa_driver_loopback_get       = lan887x_loopback_get;
-        lan887x_drv->mepa_driver_phy_info_get       = lan887x_info_get;
-        lan887x_drv->mepa_debug_info_dump           = lan887x_debug_info;
-        lan887x_drv->mepa_driver_clause22_read      = lan887x_reg_read;
-        lan887x_drv->mepa_driver_clause22_write     = lan887x_reg_write;
-        lan887x_drv->mepa_driver_clause45_read      = lan887x_mmd_reg_read;
-        lan887x_drv->mepa_driver_clause45_write     = lan887x_mmd_reg_write;
-        lan887x_drv->mepa_driver_sqi_read           = lan887x_sqi_read;
-        lan887x_drv->mepa_driver_isolate_mode_conf  = lan887x_isolate_mode_set;
-        lan887x_drv->mepa_driver_cable_diag_start   = lan887x_cable_diag_start;
-        lan887x_drv->mepa_driver_cable_diag_get     = lan887x_cable_diag_get;
-        lan887x_drv->mepa_tc10                      = &lan887x_tc10_drivers;
-    }
-
-    result.phy_drv = &lan887x_driver[0];
-    result.count = LAN887X_PHY_MAX;
+    result.phy_drv = lan887x_drivers;
+    result.count = nr_lan887x_drivers;
 
     return result;
 }

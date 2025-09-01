@@ -4,6 +4,7 @@
 #ifndef LAN887X_PRIVATE_H
 #define LAN887X_PRIVATE_H
 
+#include <phy_lib.h>
 #include "lan887x_registers.h"
 
 #define LAN887X_NSLEEP(ns)           MEPA_NSLEEP((ns))
@@ -16,14 +17,8 @@
 //NOTE: It might flood the console!
 //#ifdef MEPA_OPSYS_LMSTAX
 //#define T_D(grp, format, ...) LM_OS_PR(format, ##__VA_ARGS__);
-//#else
-#define T_D(grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_DEBUG, __FUNCTION__, __LINE__, __FILE__, format, ##__VA_ARGS__);
 //#endif
 // END:: LMSTAX OS PRINTS
-
-#define T_I(grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_INFO, __FUNCTION__, __LINE__, __FILE__, format, ##__VA_ARGS__);
-#define T_W(grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_WARNING, __FUNCTION__, __LINE__, __FILE__, format, ##__VA_ARGS__);
-#define T_E(grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_ERROR, __FUNCTION__, __LINE__, __FILE__, format, ##__VA_ARGS__);
 
 // Locking Macros
 // The variable 'dev' is passed as macro argument to obtain callback pointers and call actual lock functions. It does not indicate locks per port.
@@ -48,10 +43,18 @@
 }
 
 #ifdef MEPA_lan887x_static_mem
+#ifdef MAX_LAN887X_PHY
+#define LAN887X_PHY_MAX                        MAX_LAN887X_PHY
+#else
 #define LAN887X_PHY_MAX                        (MEPA_lan887x_phy_max)
+#endif
+#else // MEPA_lan887x_static_mem
+#ifdef MAX_LAN887X_PHY
+#define LAN887X_PHY_MAX                        MAX_LAN887X_PHY
 #else
 #define LAN887X_PHY_MAX                        (1U)
 #endif
+#endif //MEPA_lan887x_static_mem
 #define LAN887X_PHY_ID_MAX      (LAN887X_PHY_MAX)
 
 #define LAN8870_PHY_ID          (0x7C1F2U)
@@ -63,19 +66,7 @@
 
 #define IS_LAN887X_B0_PROTOS(id) (((id) & LAN887X_PHY_ID_EXACT) == LAN887X_PHY_ID_PRTO)
 
-#define PHY_LINKUP          (PHY_TRUE)
-#define PHY_LINKDOWN        (PHY_FALSE)
-
 #define INTR_BIT_LEN    (16U)
-
-#define ARRAY_SIZE(x)                       (sizeof(x) / sizeof((x)[0]))
-
-#define BIT(x)                              ((ONE) << (x))
-#define CLEAR_BIT(x, n)                     ((x) & ~(BIT(n)))
-#define BIT_MASK(x)                         (((ONE) << (x)) - (ONE))
-
-#define EXTRACT_BITS(val, offset, width)    (((val) >> (offset)) & BIT_MASK(width))
-#define GENMASK(offset, width)           (BIT_MASK(width) << (offset))
 
 //Retrieve PHY_ID
 #define GET_PHY_ID1(x)      (((x) << 2U) & 0x03FFFCU)
@@ -153,25 +144,4 @@ typedef enum {
 
 extern mepa_tc10_driver_t lan887x_tc10_drivers;
 mepa_rc lan887x_phy_tc10_set_config(struct mepa_device *dev, lan887x_tc10_data_t *cfg);
-
-mepa_rc phy_reg_rd(mepa_device_t *const phydev, uint32_t const offset, uint16_t *const value);
-
-mepa_rc phy_reg_wr(mepa_device_t *const phydev, uint32_t const offset, uint16_t const value);
-
-mepa_rc phy_reg_modify(mepa_device_t *const phydev, uint32_t const offset, uint16_t const mask, uint16_t const value);
-
-mepa_rc phy_reg_set_bits(mepa_device_t *const phydev, uint32_t const offset, uint16_t const value);
-
-mepa_rc phy_reg_clear_bits(mepa_device_t *const phydev, uint32_t const offset, uint16_t const value);
-
-mepa_rc phy_mmd_reg_rd(mepa_device_t *const phydev, uint32_t const dev, uint32_t const offset, uint16_t *const value);
-
-mepa_rc phy_mmd_reg_wr(mepa_device_t *const phydev, uint32_t const dev, uint32_t const offset, uint16_t const value);
-
-mepa_rc phy_mmd_reg_modify(mepa_device_t *const phydev, uint32_t const dev, uint32_t const offset, uint16_t const mask, uint16_t const value);
-
-mepa_rc phy_mmd_reg_clear_bits(mepa_device_t *const phydev, uint32_t const dev, uint32_t const offset, uint16_t const value);
-
-mepa_rc phy_mmd_reg_set_bits(mepa_device_t *const phydev, uint32_t const dev, uint32_t const offset, uint16_t const value);
-
 #endif //LAN887X_PRIVATE_H

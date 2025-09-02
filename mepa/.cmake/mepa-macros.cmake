@@ -16,7 +16,6 @@ macro(MEPA_DRV)
     if (${MEPA_OPSYS_VELOCITYSP})
         list(APPEND A_DEFS -DMEPA_OPSYS_VELOCITYSP=1)
     endif()
-
     target_compile_definitions(${A_LIB_NAME} PUBLIC ${A_DEFS})
 
     if (${BUILD_ALL})

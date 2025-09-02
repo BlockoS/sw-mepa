@@ -624,4 +624,13 @@ mepa_rc lan80xx_post1_init(mepa_device_t   *dev, mepa_port_no_t port_no);
 mepa_bool_t lan80xx_driver_check(const mepa_device_t   *dev);
 
 mepa_rc lan80xx_xconnect_conf_get_priv(mepa_device_t  *dev, mepa_port_no_t port_no, phy25g_xconnect_get_conf_t  *const conf);
+
+mepa_rc lan80xx_fw_update_priv(mepa_device_t *dev);
+
+mepa_rc lan80xx_mcu_reset_priv(const mepa_device_t *dev);
+
+typedef struct DeviceInfo DEVICE_INFO;
+
+mepa_rc lan80xx_get_fw_info_priv(const mepa_device_t *dev, DEVICE_INFO *psDevInfo);
+
 #endif //_MEPA_LAN80XX_PRIVATE_H_

@@ -2748,7 +2748,7 @@ mepa_rc lan80xx_reset_point(mepa_device_t *dev, const mepa_reset_param_t *rst_co
         /* Read Strap */
         LAN80XX_CSR_RD(dev, data->port_no, LAN80XX_IOREG(MMD_ID_MCU_MAILBOX, 1, STRAP_OVERRIDE_REG), &val);
         if ((base_data->port_cnt == base_data->max_port_cnt) && (val & DFU_STRAP)) {
-            if (lan80xx_fw_update(dev) != MEPA_RC_OK) {
+            if (lan80xx_fw_update_priv(dev) != MEPA_RC_OK) {
                 T_E(MEPA_TRACE_GRP_GEN, "Firware Update Failed on Port %d \n", base_data->port_no);
                 return MEPA_RC_ERROR;
             }

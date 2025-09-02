@@ -655,7 +655,7 @@ mepa_rc lan80xx_MB_ReadResponse(const mepa_device_t *dev, uint8_t *u8ResponsePkt
     return rc;
 }
 
-mepa_rc lan80xx_get_fw_info(const mepa_device_t *dev, DEVICE_INFO *psDevInfo)
+mepa_rc lan80xx_get_fw_info_priv(const mepa_device_t *dev, DEVICE_INFO *psDevInfo)
 {
     mepa_rc rc = MEPA_RC_OK;
     uint8_t au8CmdBuffer[32] = { 0 };
@@ -875,7 +875,7 @@ mepa_rc lan80xx_memory_write(const mepa_device_t *dev, uint32_t u32Addres, uint8
     return rc;
 }
 
-mepa_rc lan80xx_mcu_reset(const mepa_device_t *dev)
+mepa_rc lan80xx_mcu_reset_priv(const mepa_device_t *dev)
 {
     mepa_rc rc = MEPA_RC_OK;
     uint8_t au8CmdBuffer[32] = { 0 };
@@ -926,7 +926,7 @@ static mepa_rc authenticate_fw_image()
     return rc;
 }
 
-mepa_rc lan80xx_fw_update(mepa_device_t *dev)
+mepa_rc lan80xx_fw_update_priv(mepa_device_t *dev)
 {
     mepa_rc rc = MEPA_RC_OK;
     phy25g_phy_state_t *data = NULL;
@@ -2485,5 +2485,40 @@ mepa_rc lan80xx_KRLog_Reset(const mepa_device_t *dev, uint32_t u32KRLogOffset, u
         packet_dump(&gau8RespBuffer[0]);
     }
     MEPA_EXIT(dev);
+    return rc;
+}
+
+//////////////////////////// PUBLIC APIs //////////////////////
+
+mepa_rc lan80xx_fw_update(mepa_device_t *dev)
+{
+    mepa_rc rc = MEPA_RC_ERROR;
+
+    MEPA_ENTER(dev);
+    rc = lan80xx_fw_update_priv(dev);
+    MEPA_EXIT(dev);
+
+    return rc;
+}
+
+mepa_rc lan80xx_get_fw_info(const mepa_device_t *dev, DEVICE_INFO *psDevInfo)
+{
+    mepa_rc rc = MEPA_RC_ERROR;
+
+    MEPA_ENTER(dev);
+    rc = lan80xx_get_fw_info_priv(dev, psDevInfo);
+    MEPA_EXIT(dev);
+
+    return rc;
+}
+
+mepa_rc lan80xx_mcu_reset(const mepa_device_t *dev)
+{
+    mepa_rc rc = MEPA_RC_ERROR;
+
+    MEPA_ENTER(dev);
+    rc = lan80xx_mcu_reset_priv(dev);
+    MEPA_EXIT(dev);
+
     return rc;
 }

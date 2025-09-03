@@ -13,6 +13,7 @@ static mepa_device_t lan8x8x_device[LAN8X8X_PHY_MAX];
 static phy_data_t lan8x8x_data[LAN8X8X_PHY_MAX];
 #endif
 
+mepa_drivers_t mepa_lan8x8x_driver_init(void);
 static mepa_rc lan8x8x_phy_init(mepa_device_t *const dev);
 /**********************************
  * Internal APIs
@@ -333,21 +334,13 @@ static mepa_rc lan8x8x_config_set(mepa_device_t *dev, const mepa_conf_t *config)
          (config->speed != MESA_SPEED_1G) &&
          (config->speed != MESA_SPEED_AUTO))) {
         rc = MEPA_RC_ERR_PARM;
+    } else if (config->mac_if_aneg_ena == PHY_TRUE) {
+        rc = MEPA_RC_NOT_IMPLEMENTED;
     } else {
-        //AUTO is always 1G
         mesa_port_speed_t speed = config->speed;
 
         data->conf.fdx = PHY_TRUE;
         data->conf.flow_control = config->flow_control;
-        data->conf.aneg.speed_100m_fdx = config->aneg.speed_100m_fdx;
-        data->conf.aneg.speed_1g_fdx = config->aneg.speed_1g_fdx;
-
-        // Setup MAC ANEG
-        if (data->conf.mac_if_aneg_ena != config->mac_if_aneg_ena) {
-            re_config = PHY_TRUE;
-            data->conf.mac_if_aneg_ena = config->mac_if_aneg_ena;
-            type = LAN8X8X_RST_SOFT_MAC;
-        }
 
         // Setup Speed
         if (data->conf.speed != speed) {
@@ -408,7 +401,7 @@ static void lan8x8x_fill_probe_data(mepa_driver_t *drv,
     data->conf.admin.enable = PHY_TRUE;
     data->conf.fdx = PHY_TRUE;
     //mac-if aneg must be enabled always
-    data->conf.mac_if_aneg_ena = PHY_TRUE;
+    data->conf.mac_if_aneg_ena = PHY_FALSE;
     //phy aneg
     data->conf.speed = MESA_SPEED_1G;
     data->conf.aneg.speed_100m_fdx = PHY_FALSE;
@@ -937,18 +930,20 @@ static mepa_rc lan8x8x_poll_int(mepa_device_t *dev, mepa_status_t *status)
     phy_data_t *const data = (phy_data_t *const)dev->data;
     mepa_rc rc = MEPA_RC_ERROR;
 
-    //Current link status
-    data->link_status = PHY_FALSE;
+    if (data->conf.mac_if_aneg_ena != PHY_TRUE) {
+        //Current link status
+        data->link_status = PHY_FALSE;
 
-    status->master = ((data->conf.man_neg == MEPA_MANUAL_NEG_REF) ?
-                       PHY_TRUE : PHY_FALSE);
-    status->speed = data->conf.speed;
+        status->master = ((data->conf.man_neg == MEPA_MANUAL_NEG_REF) ?
+                          PHY_TRUE : PHY_FALSE);
+        status->speed = data->conf.speed;
 
-    //T1 PHY supports only Full Duplex
-    status->fdx = PHY_TRUE;
-    data->dev.is_master = status->master;
+        //T1 PHY supports only Full Duplex
+        status->fdx = PHY_TRUE;
+        data->dev.is_master = status->master;
 
-    MEPA_RC_GOTO(rc, phy_c45_get_link_status(dev, status));
+        MEPA_RC_GOTO(rc, phy_c45_get_link_status(dev, status));
+    }
 
     return rc;
 }

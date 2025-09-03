@@ -23,6 +23,8 @@
 #define TXT_NOT_TRIG 4
 #define TXT_TRIG     5
 
+static uint8_t packet_count = 0;
+
 
 meba_inst_t meba_ts_instance;
 ts_keyword_parsed ts_keyword;
@@ -466,15 +468,23 @@ const char *cli_ts_state_txt(int status)
     return 0;
 }
 
+static void test_ts_phy_fifo_read( const mepa_port_no_t           port_no,
+                                   const mepa_timestamp_t     *const fifo_ts,
+                                   const mepa_ts_fifo_sig_t   *const sig,
+                                   const mepa_ts_fifo_status_t status)
+{
+    packet_count = packet_count + 1;
+    cli_printf("\n");
+    cli_printf("PHY Fifo read: Packet : %d -> port_no %u, msg_type: %d, domain %d, seq %d\n", packet_count, (port_no + 1), sig->msg_type, sig->domain_num, sig->sequence_id);
+    cli_printf("PHY Fifo read: Packet : %d -> tx time:  Sec_Hi:%d, Sec_Low:%u, Nsec: %u, sub-Nsec %u\n", packet_count, fifo_ts->seconds.high, fifo_ts->seconds.low, fifo_ts->nanoseconds, fifo_ts->picoseconds);
+}
+
 static void cli_cmd_ts_port_state(cli_req_t *req)
 {
     mepa_rc rc;
-    //mepa_bool_t capable = 0;
     mepa_bool_t state;
     int status = 0;
     printf("\n");
-    // cli_printf("Port    TS Capable    Status");
-    // cli_printf("\n-----------------------------------\n");
     cli_printf("Port    Status");
     cli_printf("\n----------------------\n");
     printf("\n");
@@ -568,6 +578,18 @@ static void cli_cmd_ts_conf_init(cli_req_t *req)
         } else {
             cli_printf("\n ...... TS Block Configuration Failed on Port : %d......\n", (iport + 1));
         }
+
+        /* Register callback to read TS FIFO */
+        mepa_ts_fifo_read_t rd_cb = &test_ts_phy_fifo_read; 
+        if (mepa_ts_fifo_read_install(meba_ts_instance->phy_devices[iport], rd_cb) != MEPA_RC_OK) {
+            cli_printf("\n Failed to register callback to read FIFO \n");
+		}
+
+        /* Enable TS FIFO Event for FIFO capture  in case of BC-2step mode */
+        mepa_ts_event_t  event_mask;
+        event_mask = MEPA_TS_EGR_TIMESTAMP_CAPTURED | MEPA_TS_EGR_FIFO_OVERFLOW;
+        mepa_ts_event_set(meba_ts_instance->phy_devices[iport], TRUE, event_mask);
+
     }
     return;
 }
@@ -1603,9 +1625,12 @@ static void update_ptp_clock_conf(mepa_ts_ptp_clock_conf_t *ptp_clock_conf)
     ptp_clock_conf->ptp_class_conf.minor_version.lower = 0;
 
     // Update domain
-    ptp_clock_conf->ptp_class_conf.domain.mode = MEPA_TS_MATCH_MODE_VALUE;
+	// PTP Domain field match value, it matches from (0 to 255)
+    ptp_clock_conf->ptp_class_conf.domain.mode = MEPA_TS_MATCH_MODE_RANGE;
+	ptp_clock_conf->ptp_class_conf.domain.match.range.lower = 0;
+    ptp_clock_conf->ptp_class_conf.domain.match.range.upper = 255;
     ptp_clock_conf->ptp_class_conf.domain.match.value.val = 0;
-    ptp_clock_conf->ptp_class_conf.domain.match.value.mask = 15;
+    ptp_clock_conf->ptp_class_conf.domain.match.value.mask = 0;
 
     // Update sdoid
     ptp_clock_conf->ptp_class_conf.sdoid.mode = MEPA_TS_MATCH_MODE_VALUE;
@@ -1650,18 +1675,14 @@ static void cli_cmd_ts_tx_clock_conf(cli_req_t *req)
         ts_clock.clk_mode = mreq->clk_mode;
         ts_clock.delaym_type = mreq->delay_type;
 
+		ts_clock.ptp_class_conf.domain.match.range.upper = 255;
+
         if (MEPA_RC_OK == mepa_ts_tx_clock_conf_set(meba_ts_instance->phy_devices[iport], clk_id, &ts_clock)) {
             cli_printf("\n ...... TS Tx Clock Configuration on Port : %d......\n", (iport + 1));
         } else {
             cli_printf("\n ...... TS Tx Clock Configuration Failed on Port : %d......\n", (iport + 1));
             return;
         }
-        /*
-         * MEPA-1155
-         * TS event must be enabled for all ports irrespective of the clock mode
-         */
-        mepa_ts_fifo_read_install(meba_ts_instance->phy_devices[iport], NULL);
-        mepa_ts_event_set(meba_ts_instance->phy_devices[iport], 1, 0xFFFF);
     }
     return;
 }
@@ -2158,10 +2179,7 @@ static void cli_cmd_ts_ltc_set(cli_req_t *req)
 
 static void cli_cmd_ts_fifo_get(cli_req_t *req)
 {
-    ts_configuration *mreq = req->module_req;
     mepa_ts_event_t status = 0;
-    mepa_fifo_ts_entry_t ts_list[20];
-    uint32_t num_entries;
     mepa_rc rc = MEPA_RC_ERROR;
 
     rc = mepa_ts_event_poll(meba_ts_instance->phy_devices[req->port_no], &status);
@@ -2171,37 +2189,16 @@ static void cli_cmd_ts_fifo_get(cli_req_t *req)
     }
 
     if (status) {
-        cli_printf("TS fifo sig mask (0x%x) set...\n", mreq->sig_mask);
-        rc = lan80xx_phy_ts_fifo_sig_set(meba_ts_instance->phy_devices[req->port_no], req->port_no, mreq->sig_mask);
+        packet_count = 0;
+        /* 
+         * This API "mepa_ts_fifo_empty" will read the FIFO for timestamp and PTP signature, and provide it to
+         * callback function register through "mepa_ts_fifo_install()" API, in this Application function
+         * "test_ts_phy_fifo_read" is registered as callback function which will print the Timestamp and signature
+         */ 
+        rc = mepa_ts_fifo_empty(meba_ts_instance->phy_devices[req->port_no]);
         if (rc != MEPA_RC_OK) {
-            cli_printf ("sign mask set failed\n");
+            cli_printf ("\n Failed to Clear FIFO\n");
             return;
-        }
-        if (MEPA_RC_OK == mepa_ts_fifo_get(meba_ts_instance->phy_devices[req->port_no], ts_list, 16, &num_entries)) {
-            cli_printf("Number of entries: %u\n", num_entries);
-            for (uint32_t i = 0; i < num_entries; ++i) {
-                cli_printf("Entry %u:\n", i);
-                cli_printf("  Signal:\n");
-                cli_printf("    Message Type: %u\n", ts_list[i].sig.msg_type);
-                cli_printf("    Domain Number: %u\n", ts_list[i].sig.domain_num);
-                cli_printf("    Source Port Identity: ");
-                for (int j = 0; j < 10; ++j) {
-                    cli_printf("%02X", ts_list[i].sig.src_port_identity[j]);
-                    if (j < 9) {
-                        cli_printf(":");
-                    }
-                }
-                cli_printf("\n");
-                cli_printf("    Sequence ID: %u\n", ts_list[i].sig.sequence_id);
-                cli_printf("    CRC Source Port: %u\n", ts_list[i].sig.crc_src_port);
-                cli_printf("    Has CRC Source: %s\n", ts_list[i].sig.has_crc_src ? "True" : "False");
-
-                cli_printf("  Timestamp:\n");
-                cli_printf("    Seconds: %u%u\n", ts_list[i].ts.seconds.high, ts_list[i].ts.seconds.low);
-                cli_printf("    Nanoseconds: %u\n", ts_list[i].ts.nanoseconds);
-                cli_printf("    Picoseconds: %u\n", ts_list[i].ts.picoseconds);
-            }
-            cli_printf("\n ...... TS FIFO Get on Port : %d......\n", (req->port_no + 1));
         }
 
     } else {
@@ -2441,7 +2438,7 @@ static void cli_cmd_ts_cmds()
     cli_printf("\n %-20s| %-80s| %s", "", " ls_ctrl_sel <ls_ctrl_sel> det_cfg <det_cfg>", "");
     cli_printf("\n %-20s| %-80s| %s", "ts_ltc_ls", " <port_no> pin_action <pin_action>", "Select LTC Operation mode");
     cli_printf("\n %-20s| %-80s| %s", "ts_lsc_sel", " <port_no> ls_ctrl_sel <ls_ctrl_sel>", "LSC Unit Select");
-    cli_printf("\n %-20s| %-80s| %s", "ts_fifo_get", " <port_no> sig_mask <sig_mask>", "Get FIFO TS Entry");
+    cli_printf("\n %-20s| %-80s| %s", "ts_fifo_get_empty", " <port_no>", "Get and clear FIFO TS Entry");
     cli_printf("\n %-20s| %-80s| %s", "ts_delay_set", " <port_no> timing_mode <timing_mode> delay <delay>", "Set Time Interval/latency in ns");
     cli_printf("\n %-20s| %-80s| %s", "ts_delay_get", " <port_no> timing_mode <timing_mode>", "Get Time Interval/latency in ns");
     //cli_printf("\n %-20s| %-80s| %s", "ts_clk_rateadj_set", " <port_no> rateadj <rateadj>", "Set Clock frequency ratio scaled PartsPerBillion");
@@ -2588,7 +2585,7 @@ static cli_cmd_t cli_cmd_ts_table[] = {
     },
 
     {
-        "ts_fifo_get <port_no> sig_mask <sig_mask>",
+        "ts_fifo_get_empty <port_no>",
         "Get FIFO entries",
         cli_cmd_ts_fifo_get,
     },

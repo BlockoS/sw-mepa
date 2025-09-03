@@ -149,6 +149,7 @@ $methods_blacklist = [
     "lan80xx_phy_ts_init",
     "lan80xx_ts_get_1588_version",
     "lan80xx_ts_csr_ptptime_get_priv",
+    "lan80xx_phy_ts_fifo_sig_set",
     "lan80xx_ts_csr_ptptime_set_priv",
     "lan80xx_get_eng_flow_info",
     "lan80xx_ts_egress_engine_conf_set",
@@ -158,10 +159,9 @@ $methods_blacklist = [
     "lan80xx_ts_ingress_engine_action_set",
     "lan80xx_phy_ts_fifo_empty_priv",
     "lan80xx_phy_ts_fifo_empty",
-    "lan80xx_phy_ts_fifo_get",
-    "lan80xx_phy_ts_fifo_read_install",
     "lan80xx_ts_tx_clock_conf_get_priv",
     "lan80xx_ts_rx_clock_conf_get_priv",
+    "lan80xx_phy_ts_fifo_get",
     "lan80xx_ts_egress_engine_conf_get",
     "lan80xx_ts_ingress_engine_conf_get",
     "lan80xx_tx_classifier_conf_get_priv",
@@ -180,13 +180,11 @@ $methods_blacklist = [
     "lan80xx_phy_ts_delay_asymmetry_get",
     "lan80xx_phy_ts_delay_asymmetry_set",
     "lan80xx_phy_ts_path_delay_get",
-    "lan80xx_phy_ts_fifo_read_install_priv",
     "lan80xx_phy_ts_pps_conf_set",
     "lan80xx_phy_ts_clock_rateadj_get",
     "lan80xx_phy_ts_clock_rateadj_set",
     "lan80xx_ts_mode_set_priv",
     "lan80xx_ts_mode_get_priv",
-    "lan80xx_phy_ts_pps_conf_get",
     "lan80xx_phy_ts_stats_get",
     "lan80xx_phy_ts_event_enable_set",
     "lan80xx_phy_ts_event_enable_get",
@@ -197,7 +195,6 @@ $methods_blacklist = [
     "lan80xx_phy_ts_ingress_latency_set",
     "lan80xx_ptp_reg_dump",
     "lan80xx_linkup_delay",
-    "lan80xx_phy_ts_fifo_sig_set",
     "lan80xx_phy_ts_ltc_ls_action_set",
     "lan80xx_phy_is_macsec_capable",
     "lan80xx_macsec_init_set_priv",
@@ -1204,7 +1201,7 @@ while $tl.size > 0
         $sl << t
         
         tt[:members].delete_if do |m|
-            if m[:member_type] == 'lan80xx_phy_ts_fifo_read'
+            if m[:member_type] == 'mepa_ts_fifo_read_t'
                 #puts "Removed member: #{m[:member_name]} #{m[:member_type]}/#{m[:type_resolved][:type]}"
                 true  # This removes the member from the array
             else

@@ -17,6 +17,10 @@ Timestamp(TS) Demo Application is used to configure the TS Block of PHYs.
 
     * The PTP Demo application is currenlty supported only for Malibu25G(LAN80XX) PHYs.
 
+== Pre-Requsites
+
+    * Need 1PPS Signal from the HOST to update TOD counters which can be read through `mepa_ts_ltc_get()`
+
 == Procedure to Start/Exit TS Demo Application
 
 To Run TS Demo Application the 'mepa-demo' application needs to be running.
@@ -24,10 +28,10 @@ Refer Section link:#mepa_demo/docs/getting-started[Getting-Started] to know abou
 to run 'mepa-demo' Application.
 
 Once 'mepa-demo' application is started the TS Demo Application can be started with the command
-'mepa-cmd ts demo'.
+'mepa-cmd ts'.
 
 ----
-#mepa-cmd ts demo
+#mepa-cmd ts
 ----
 
 The above is used to start the TS Demo Application once it is started it will list the available commands in 
@@ -48,7 +52,7 @@ To List the all available Commands in the TS Demo Application run the below ment
 ----
 ----
 #mepa-cmd ?
- Commands           Arguments                                                                        Description
+  Commands           Arguments                                                                        Description
 ==================================================================================================================================
 
  exit_ts             |                                                                                 | Exit from Time Stamping Application
@@ -62,10 +66,10 @@ To List the all available Commands in the TS Demo Application run the below ment
  ts_disable          |  <port_list>                                                                    | Disables TS Block
  ts_ltc_get          |  <port_no>                                                                      | Get Local Time Counter
  ts_ltc_set          |  <port_no> time <sh:sl:ns:ps>                                                   | Set Local Time Counter
- ts_pps_incfg        |  <port_no> clk_sel <clk_sel> pin_sel <pin_sel>                                  | Configure LS controller Input pps mode
-                     |  pol <pol> sync_mode <sync_mode> ls_ctrl_sel <ls_ctrl_sel>                      |
- ts_pps_outcfg       |  <port_no> clk_sel <clk_sel> pin_sel <pin_sel>                                  | Configure LS controller Output pps mode
-                     |  pol <pol> sync_mode <sync_mode> ns_en <ns_en> pps_wid <pps_wid> pps_in <pps_in>|
+ ts_pps_incfg        |  <port_no> clk_sel <clk_sel> sync_mode <sync_mode>                              | Configure LS controller Input pps mode
+                     | ls_ctrl_sel <ls_ctrl_sel>                                                       |
+ ts_pps_outcfg       |  <port_no> clk_sel <clk_sel> sync_mode <sync_mode>                              | Configure LS controller Output pps mode
+                     | pps_wid <pps_wid> pps_in <pps_in> ls_ctrl_sel <ls_ctrl_sel>                     |
  ts_sertod_incfg     |  <port_no> pin_sel <pin_sel> pol <pol>                                          | Configure LS controller Input Serial ToD
                      |  sync_mode <sync_mode> ls_ctrl_sel <ls_ctrl_sel> [load|save]                    |
  ts_sertod_outcfg    |  <port_no> pin_sel <pin_sel> pol <pol>                                          | Configure LS controller output Serial ToD
@@ -75,12 +79,13 @@ To List the all available Commands in the TS Demo Application run the below ment
                      |  ls_ctrl_sel <ls_ctrl_sel> det_cfg <det_cfg>                                    |
  ts_ltc_ls           |  <port_no> pin_action <pin_action>                                              | Select LTC Operation mode
  ts_lsc_sel          |  <port_no> ls_ctrl_sel <ls_ctrl_sel>                                            | LSC Unit Select
- ts_fifo_get         |  <port_no> sig_mask <sig_mask>                                                  | Get FIFO TS Entry
+ ts_fifo_get_empty   |  <port_no>                                                                      | Get and clear FIFO TS Entry
  ts_delay_set        |  <port_no> timing_mode <timing_mode> delay <delay>                              | Set Time Interval/latency in ns
  ts_delay_get        |  <port_no> timing_mode <timing_mode>                                            | Get Time Interval/latency in ns
  ts_port_state       |                                                                                 | Provides TS State of all Ports
  ts_conf_get         |  <port_no> conf_sel <conf_sel>                                                  | Get TS Configurations
  ts_port_stati       |  <port_no>                                                                      | Get TS Port Statistics
+ ts_1pps_out_en      |  <port_no> ls_ctrl_sel <ls_ctrl_sel>                                            | Enable 1PPS output signal
 ----
 
 === TS Block Initialization
@@ -132,28 +137,23 @@ Based on Encapsulation type selected, Ethernet/IP Header classification paramete
 User
 
 ----
-#mepa-cmd tx_class_conf 2 flow_idx 0 entype 3
+#mepa-cmd tx_class_conf 2 flow_idx 0 entype 1
 
- ------------------------------------------
+------------------------------------------
 
  First Layer Ethernet Header Configuration
 
  ------------------------------------------
 
- Match PTP Packet MAC types [0 : Any, 1 : 48 Bit, 2: Any Unicast, 3: Any Multicast]: 2
+ Match PTP Packet MAC types [0 : Any, 1 : 48 Bit, 2: Any Unicast, 3: Any Multicast]: 0
 
- Enter MAC address (Format- xx:xx:xx:xx:xx:xx): 0:0:0:0:0:1
+ VLAN Check [0 : parse VLAN if any, 1: verify configured VLAN tag configuration]: 0
 
- VLAN Check [0 : parse VLAN tag if any, 1: verify configured VLAN tag configuration]: 0
+ Number of Tags: 0
 
- IP Version [0 : ip4v, 1: ip6v]: 1
-
- Enter First Layer IPv6 address (format - x:x:x:x:x:x:x:x): 2000:0:0:0:0:0:0:2
-
- Enter Second Layer IPv6 address (format - x:x:x:x:x:x:x:x): 2000:0:0:0:0:0:0:3
-
- ...... TS Tx classifier Configuration on Port : 1......
+ ...... TS Tx classifier Configuration on Port : 2......
 ----
+
 ==== Egress Port Clock Configuration
 The command below are used to configure Egress port Clock.
 
@@ -197,17 +197,11 @@ User
 
  ------------------------------------------
 
- Match PTP Packet MAC types [0 : Any, 1 : 48 Bit, 2: Any Unicast, 3: Any Multicast]: 2
+ Match PTP Packet MAC types [0 : Any, 1 : 48 Bit, 2: Any Unicast, 3: Any Multicast]: 0
 
- Enter MAC address (Format- xx:xx:xx:xx:xx:xx): 0:0:0:0:0:1
+ VLAN Check [0 : parse VLAN if any, 1: verify configured VLAN tag configuration]: 0
 
- VLAN Check [0 : parse VLAN tag if any, 1: verify configured VLAN tag configuration]: 0
-
- IP Version [0 : ip4v, 1: ip6v]: 1
-
- Enter First Layer IPv6 address (format - x:x:x:x:x:x:x:x): 2000:0:0:0:0:0:0:2
-
- Enter Second Layer IPv6 address (format - x:x:x:x:x:x:x:x): 2000:0:0:0:0:0:0:3
+ Number of Tags: 0
 
  ...... TS Rx classifier Configuration on Port : 1......
 ----
@@ -227,6 +221,7 @@ The command below are used to configure Ingress port Clock.
 
 ----
  # mepa-cmd rx_clock_conf 1 clk_id 0 clk_mode 1 dly_type 1
+
  ...... TS Rx Clock Configuration on Port : 0.....
 ----
 
@@ -244,95 +239,234 @@ Following command is used to Enable/Disable TS block.
  ...... TS Block Enabled on Port : 1......
 ----
 
+=== Sample Config
+
+Following sample application log demonstrates the configuration of PTP engine on Port 1 in BC 1-Step for Eth-IP-PTP Encapsulation
+
+----
+#
+# mepa-cmd deb phy id
+Port       part-id(hex)     Rev    Max speed      Host IF
+ ----------------------------------------------------------
+1           32836(0x8044)   0xa1       25G        SFI
+2           32836(0x8044)   0xa1       25G        SFI
+3           32836(0x8044)   0xa1       25G        SFI
+4           32836(0x8044)   0xa1       25G        SFI
+5           33368(0x8258)   0x1        10G        SFI
+6           33368(0x8258)   0x1        10G        SFI
+7           33368(0x8258)   0x1        10G        SFI
+8           33368(0x8258)   0x1        10G        SFI
+9            8221(0x201d)   0x1        1G         SGMII
+#
+#
+# mepa-cmd ts
+/* List of Commands in TS-DEMO */
+#
+#
+#
+# mepa-cmd ts_init_conf  1 clk_src 0 tx_fifo 0 tc_op 0 dly_10b 0 tx_af 0 mch 0
+
+ ...... TS Block Configured on Port : 1......
+#
+#
+# mepa-cmd ts_enable 1
+
+ ...... TS Block Enabled on Port : 1......
+#
+#
+# mepa-cmd tx_class_conf 1 flow_idx 0 entype 2
+
+ ------------------------------------------
+
+ First Layer Ethernet Header Configuration
+
+ ------------------------------------------
+
+ Match PTP Packet MAC types [0 : Any, 1 : 48 Bit, 2: Any Unicast, 3: Any Multicast]: 0
+
+ VLAN Check [0 : parse VLAN if any, 1: verify configured VLAN tag configuration]: 0
+
+ Number of Tags: 0
+
+ IP Version [0 : ip4v, 1: ip6v]: 0
+
+ IP Address Match [0 : Disable match, 1: Desti. IP match, 2: Source IP match]: 0
+
+ ...... TS Tx classifier Configuration on Port : 1......
+#
+#
+#
+#
+#
+# mepa-cmd tx_clock_conf 1 clk_id 0 clk_mode 1 dly_type 0
+
+ ...... TS Tx Clock Configuration on Port : 0......
+#
+#
+#
+----
+
+The above configuration will update Origin Timestamp field of the Eth-Ipv4-PTP packet sent in Egress Direction
+
+
 === TS Block Local Time Counter
+
 The local time counter keeps the local time for the device and the time is monitored and synchronized to
 an external reference by the CPU.
 
-==== Load Save Controller Unit Select
-The LTC module supports four LSC (Load Save Controller) Units and this needs to selected before configuring action 
-(load/save/delta/ToD get/set).
-Following command is used to select LSC Unit.
+==== LTC Load/Save operation
 
-* mepa-cmd ts_lsc_sel <port_no> ls_ctrl_sel <ls_ctrl_sel>
+This operation involves storing or loading the LTC counter values, and the presence of a 1PPS signal is essential for
+the Load/Store process to occur.The user must supply a 1PPS signal from the HOST to one of the PHY's LSC pins.
+The corresponding LSC pin should be configured as an input and set to operate either in one-shot or continuous mode.
 
-----
-# mepa-cmd ts_lsc_sel 2 ls_ctrl_sel 0
+The configuration of the LSC pin as an input can be performed using the `ts_pps_incfg` command.
 
- ...... TS LSC Unit 0 Selected on Port : 1......
-----
-
-==== Pulse Per Second (PPS)
-PPS is used to provide a precise timing reference by generating pulse at the start of 
-each second, which can be used to align clocks in different systems. 
-
-===== PPS Input
-The command below is used to configure LSC pin as Input PPS Mode.
+* mepa-cmd ts_pps_incfg <port_no> clk_sel <clk_sel> sync_mode <sync_mode> ls_ctrl_sel <ls_ctrl_sel>
 
 ----
- #mepa-cmd ts_pps_incfg <port_no> clk_sel <clk_sel> pin_sel <pin_sel> pol <pol> sync_mode <sync_mode> ls_ctrl_sel <ls_ctrl_sel>
+mepa-cmd ts_pps_incfg <port_no> clk_sel <clk_sel> sync_mode <sync_mode> ls_ctrl_sel <ls_ctrl_sel>
+
+Description:
+ -----------
+    Configure LSC pin for LS controller Input.
+
+Syntax:
+ -------
+    ts_pps_incfg <port_no> clk_sel <clk_sel> sync_mode <sync_mode> ls_ctrl_sel <ls_ctrl_sel>
+
+Parameters:
+
+    <port_no>    : Port number or zero
+
+    <clk_sel>    : 0 - PTP_LSC_PIN[0], 1 - PTP_LSC_PIN[1], 2 - PTP_LSC_PIN[2], 3 - PTP_LSC_PIN[3],
+         4 - No Clock(Asyncronous mode), 5 - L/S reference clock, 6 - L/S reference clock div2, 7 - L/S reference clock div4
+         8 - L/R reference clock div5, 9 - L/R reference clock div8
+
+    <sync_mode>  : 0 - Immediate, 1 - One Shot, 2 - Continuous
+
+    <ls_ctrl_sel>: 0 - LS0, 1 - LS1, 2 - LS2, 3 - LS3
 ----
 
-* clk_sel <clk_sel> - Selects which PTP1588_LSC pin to use for synchronization
-0-3: PTP1588_LSC_PIN[x]
-4: No clock is used in operation (Asynchronous PPS)
-5: L/S reference clock
-6: L/S reference clock div2
-7: L/S reference clock div4
-8: L/R reference clock div5
-9: L/R reference clock div8
-* pin_sel <pin_sel> - Selects which PTP1588_LSC pin to use as input pps
-    0: PTP1588_LSC[0]
-    1: PTP1588_LSC[1]
-    2: PTP1588_LSC[2]
-    3: PTP1588_LSC_3_P/N - Only Input Supported.
-* pol <pol> - Polarity of the PTP pins.
-    0: Active high
-    1: Active low
-* sync_mode <sync_mode> - Sync Mode
-    0 - Immediate, 1 - One Shot, 2 - Continuous
-* ls_ctrl_sel <ls_ctrl_sel>
-    0 - LS0, 1 - LS1, 2 - LS2, 3 - LS3
+Once the LSC pin is configured as an input and the 1PPS signal is connected to the corresponding LSC pin,
+the LTC load and store operations can be performed using the following commands:
+
+. `LTC Save`
+    * mepa-cmd ts_ltc_ls_en <port_no> pin_action <pin_action> - with `pin_action` is set to 1 for LTC Save
+	* mepa-cmd ts_ltc_get <port_no> -- to retrieve Current LTC value
+ 
+. `LTC Load`
+    * mepa-cmd ts_ltc_set <port_no> time <sh:sl:ns:ps> -- New LTC value to be loaded
+	* mepa-cmd ts_ltc_ls_en <port_no> pin_action <pin_action> - with `pin_action` is set to 0 for LTC Load
+
+
+The following sample application log demonstrates configuring LSC Pin 0 as a 1PPS input pin and performing continuous LTC save operation on port 1.
+
 ----
- # mepa-cmd ts_pps_incfg 2 clk_sel 4 pin_sel 0 pol 0 sync_mode 0 ls_ctrl_sel 0
+#
+# mepa-cmd ts_init_conf  1 clk_src 0 tx_fifo 0 tc_op 0 dly_10b 0 tx_af 0 mch 0
+
+ ...... TS Block Configured on Port : 1......
+#
+#
+#
+# mepa-cmd ts_pps_incfg 1 clk_sel 4 sync_mode 2 ls_ctrl_sel 0
 
  ...... TS PPS Input Configured for Port : 1......
-----
-Note: LSC Pin should be uniquely configured for clk_sel and pin_sel and between external interface load/store
-Input/Output modes.
+#
+#
+# mepa-cmd ts_enable 1
 
-===== PPS Output
-The command below is used to configure LSC pin as Output.
+ ...... TS Block Enabled on Port : 1......
+#
+# mepa-cmd ts_ltc_ls_en 1 pin_action 1
+
+ ...... TS LTC Action Save performed on Port : 1......
+#
+# mepa-cmd ts_ltc_get 1
+
+ ...... TS Local Time Counter on Port : 1......
+seconds.high: 0
+seconds.low: 11
+nanoseconds: 12
+picoseconds: 146
+
+#
+# mepa-cmd ts_ltc_get 1
+
+ ...... TS Local Time Counter on Port : 1......
+seconds.high: 0
+seconds.low: 13
+nanoseconds: 11
+picoseconds: 0
+
+#
 ----
- #mepa-cmd ts_pps_outcfg <port_no> clk_sel <clk_sel> pin_sel <pin_sel> pol <pol> sync_mode <sync_mode> ns_en <ns_en> pps_wid <pps_wid> pps_in <pps_in>
-----
-* clk_sel <clk_sel> - Selects which PTP1588_LSC pin to use for synchronization
-0-3: PTP1588_LSC_PIN[x]
-4: No clock is used in operation (Asynchronous PPS)
-5: L/S reference clock
-6: L/S reference clock div2
-7: L/S reference clock div4
-8: L/R reference clock div5
-9: L/R reference clock div8
-* pin_sel <pin_sel> - Selects which PTP1588_LSC pin to use as input pps
-    0: PTP1588_LSC[0]
-    1: PTP1588_LSC[1]
-    2: PTP1588_LSC[2]
-    3: PTP1588_LSC_3_P/N - Only Input Supported.
-* pol <pol> - Polarity of the PTP pins.
-    0: Active high
-    1: Active low
-* sync_mode <sync_mode> - Sync Mode
-    0 - Immediate, 1 - One Shot, 2 - Continuous
-* ns_en <ns_en> - Nanoseconds bit enable
-* pps_wid <pps_wid> - PPS Pulse Width in ns
-* pps_in <pps_in> - PPS Pulse Interval in ns
+
+The following sample application log demonstrates configuring LSC Pin 0 as a 1PPS input pin and perform LTC load operation on port 1.
 
 ----
- # mepa-cmd ts_pps_outcfg 2 clk_sel 4 pin_sel 1 pol 1 sync_mode 1 ns_en 1 pps_wid
- 2 pps_in 1
 
- ...... TS PPS Output Configured for Port : 1......
+#
+# mepa-cmd ts_init_conf  1 clk_src 0 tx_fifo 0 tc_op 0 dly_10b 0 tx_af 0 mch 0
+
+ ...... TS Block Configured on Port : 1......
+#
+# mepa-cmd ts_pps_incfg 1 clk_sel 4 sync_mode 2 ls_ctrl_sel 0
+
+ ...... TS PPS Input Configured for Port : 1......
+#
+#
+# mepa-cmd ts_enable 1
+
+ ...... TS Block Enabled on Port : 1......
+#
+# 
+# mepa-cmd ts_ltc_set 1 time 0:1000:23:42
+
+ ...... TS LTC Set on Port : 1......
+#
+# mepa-cmd ts_ltc_ls_en 1 pin_action 0
+
+ ...... TS LTC Action Load performed on Port : 1......
+#
+#
+
 ----
+
+==== PPS Output
+
+LSC Pins of the PHY can be configured as Output pin to generate either 1PPS signal or to generate a square wave of configurable frequency
+
+    * mepa-cmd ts_pps_outcfg <port_no> clk_sel <clk_sel> out_mode <out_mode_sel> pps_wid <pps_wid> pps_in <pps_in> ls_ctrl_sel <ls_ctrl_sel>
+
+----
+Description:
+    Configure LSC pin for LS controller Output.
+
+Syntax:
+    ts_pps_outcfg <port_no> clk_sel <clk_sel> out_mode <out_mode_sel> pps_wid <pps_wid> pps_in <pps_in> ls_ctrl_sel <ls_ctrl_sel>
+
+Parameters:
+    <port_no>     : Port number or zero
+
+    <clk_sel>     : 0 - PTP_LSC_PIN[0], 1 - PTP_LSC_PIN[1], 2 - PTP_LSC_PIN[2], 3 - PTP_LSC_PIN[3],
+         4 - No Clock(Asyncronous mode), 5 - L/S reference clock, 6 - L/S reference clock div2, 7 - L/S reference clock div4
+         8 - L/R reference clock div5, 9 - L/R reference clock div8
+
+    <out_mode_sel>: 0 - Square Wave,  1 - 1PPS, 2 - NSEC Bit Out
+
+    <pps_wid>     : PPS Pulse High Width
+
+    <pps_in>      : Waveform low width or 1PPS Pulse start boundary in NSEC
+
+    <ls_ctrl_sel> : 0 - LS0, 1 - LS1, 2 - LS2, 3 - LS3
+----
+
+To generate 1PPS Asyncronous Output Pulse, user can also use the following command to generate 1PPS pulse from selected LSC Pin
+
+    * mepa-cmd ts_1pps_out_en <port_no> ls_ctrl_sel <ls_ctrl_sel>
+
 
 ==== Serial ToD
 Serial ToD refers to the transmission of Time of Day (ToD) information over a serial interface.
@@ -383,6 +517,7 @@ The command below is used to configure Serial ToD as Output.
 
  ...... TS Serial ToD Output Configured for Port : 1......
 ----
+
 ==== Delta Adjustment
 Delta adjutemnt is used to fine-tune the ToD in ns/sns granularity and
 this adjustment can be done using following command
@@ -425,48 +560,6 @@ The configuration for ePPS (Embedded Pulse Per Second) can be accomplished using
  ...... TS EPPS Configured for Port : 1......
 ----
 
-==== LTC ToD Set
-By Default LTC will increment from default ToD zero. The following command is used to set LTC ToD and 
-counter will start from this reference.
-
-    * mepa-cmd ts_ltc_set <port_no> time <sh:sl:ns:ps>
-
-----
-    # mepa-cmd ts_ltc_set 2 time 0:1:337078563:169
-
-    ...... TS LTC Set on Port : 1......
-----
- 
-==== LTC Operation
-The command "ts_ltc_ls" will trigger the start of selected operation. All other setups have to be 
-completed before executing this command.
-----
-#mepa-cmd ts_ltc_ls <port_no> pin_action <pin_action>
-----
-* pin_action <pin_action> 
-    0 - Load, 1 - Save, 2 - Delta, 3 - Waveform, 4 - Time of Day
-
-----
- #mepa-cmd ts_ltc_ls 2 pin_action 0 
-
- ...... TS LTC Action Load performed on Port : 1......
-----
-
-==== LTC ToD Get
-The following command is used to get LTC current ToD.
-
-    * mepa-cmd ts_ltc_get <port_no>
-
-----
-    # mepa-cmd ts_ltc_get 2
-
-    ...... TS Local Time Clock on Port : 1......
-    seconds.high: 0
-    seconds.low: 65
-    nanoseconds: 656032937
-    picoseconds: 76
-----
-
 === TS Time Interval/latency
 The following command is used to set Time Interval/latency in ns/sns.
 ----
@@ -497,72 +590,45 @@ The following command is used to get Time Interval/latency.
 ----
 
 === TS FIFO
-The command 'ts_fifo_get' is used to obtain timestamp entries for modes such as BC2STEP and TC2STEP for Egress Path.
-----
- #mepa-cmd ts_fifo_get <port_no> sig_mask <sig_mask>
-----
-    * sig_mask <sig_mask> - Frame signature Mask
-    - 0x01 - Source IP
-    - 0x02 - Destination IP
-    - 0x04 - Message IP
-    - 0x08 - Domain Number
-    - 0x10 - Source Port Identity
-    - 0x20 - PTP frame Sequence ID
-    - 0x40 - Destination MAC address
+
+The command 'ts_fifo_get_empty' is used to obtain timestamp entries for modes such as BC2STEP and TC2STEP for Egress Path.
+
+    * mepa-cmd ts_fifo_get_empty <port_no>
 
 ----
-#mepa-cmd ts_fifo_get 2 sig_mask 0x7C
-Number of entries: 4
-Entry 0:
-  Signal:
-    Message Type: 0
-    Domain Number: 0
-    Source Port Identity: 00:00:00:00:00:00:00:00:00:00
-    Sequence ID: 0
-    CRC Source Port: 0
-    Has CRC Source: False
-  Timestamp:
-    Seconds: 092
-    Nanoseconds: 660411039
-    Picoseconds: 0
-Entry 1:
-  Signal:
-    Message Type: 0
-    Domain Number: 0
-    Source Port Identity: 00:00:00:00:00:00:00:00:00:00
-    Sequence ID: 0
-    CRC Source Port: 0
-    Has CRC Source: False
-  Timestamp:
-    Seconds: 092
-    Nanoseconds: 661391456
-    Picoseconds: 0
-Entry 2:
-  Signal:
-    Message Type: 0
-    Domain Number: 0
-    Source Port Identity: 00:00:00:00:00:00:00:00:00:00
-    Sequence ID: 0
-    CRC Source Port: 0
-    Has CRC Source: False
-  Timestamp:
-    Seconds: 092
-    Nanoseconds: 662371875
-    Picoseconds: 36
-Entry 3:
-  Signal:
-    Message Type: 0
-    Domain Number: 0
-    Source Port Identity: 00:00:00:00:00:00:00:00:00:00
-    Sequence ID: 0
-    CRC Source Port: 0
-    Has CRC Source: False
-  Timestamp:
-    Seconds: 092
-    Nanoseconds: 663352262
-    Picoseconds: 0
+# mepa-cmd ts_fifo_get_empty 1
 
- ...... TS FIFO Get on Port : 1......
+PHY Fifo read: Packet : 1 -> port_no 1, msg_type: 0, domain 1, seq 30
+PHY Fifo read: Packet : 1 -> tx time:  Sec_Hi:0, Sec_Low:35, Nsec: 166790065, sub-Nsec 213
+
+PHY Fifo read: Packet : 2 -> port_no 1, msg_type: 0, domain 1, seq 30
+PHY Fifo read: Packet : 2 -> tx time:  Sec_Hi:0, Sec_Low:35, Nsec: 166790548, sub-Nsec 91
+
+PHY Fifo read: Packet : 3 -> port_no 1, msg_type: 0, domain 1, seq 30
+PHY Fifo read: Packet : 3 -> tx time:  Sec_Hi:0, Sec_Low:35, Nsec: 166791005, sub-Nsec 80
+
+PHY Fifo read: Packet : 4 -> port_no 1, msg_type: 0, domain 1, seq 30
+PHY Fifo read: Packet : 4 -> tx time:  Sec_Hi:0, Sec_Low:35, Nsec: 166791485, sub-Nsec 71
+
+PHY Fifo read: Packet : 5 -> port_no 1, msg_type: 0, domain 1, seq 30
+PHY Fifo read: Packet : 5 -> tx time:  Sec_Hi:0, Sec_Low:35, Nsec: 166791970, sub-Nsec 122
+
+PHY Fifo read: Packet : 6 -> port_no 1, msg_type: 0, domain 1, seq 30
+PHY Fifo read: Packet : 6 -> tx time:  Sec_Hi:0, Sec_Low:35, Nsec: 166792450, sub-Nsec 108
+
+PHY Fifo read: Packet : 7 -> port_no 1, msg_type: 0, domain 1, seq 30
+PHY Fifo read: Packet : 7 -> tx time:  Sec_Hi:0, Sec_Low:35, Nsec: 166792909, sub-Nsec 253
+
+PHY Fifo read: Packet : 8 -> port_no 1, msg_type: 0, domain 1, seq 30
+PHY Fifo read: Packet : 8 -> tx time:  Sec_Hi:0, Sec_Low:35, Nsec: 166793387, sub-Nsec 100
+
+PHY Fifo read: Packet : 9 -> port_no 1, msg_type: 0, domain 1, seq 30
+PHY Fifo read: Packet : 9 -> tx time:  Sec_Hi:0, Sec_Low:35, Nsec: 166793869, sub-Nsec 229
+
+PHY Fifo read: Packet : 10 -> port_no 1, msg_type: 0, domain 1, seq 30
+PHY Fifo read: Packet : 10 -> tx time:  Sec_Hi:0, Sec_Low:35, Nsec: 166794326, sub-Nsec 228
+#
+#
 ----
 
 
@@ -597,6 +663,7 @@ To Check whether the TS is enabled or disabled on the Port the command 'ts_port_
 ----
 
 === TS Block Configuration Get
+
 To Check TS block configurations 'ts_conf_get' is used.
 ----
  #mepa-cmd ts_conf_get <port_no> conf_sel <conf_sel>
@@ -637,6 +704,7 @@ To Check TS block configurations 'ts_conf_get' is used.
 ONS, ts_len_egr: MEPA_MCH_TS_32NS_ONS }
 ----
 === TS Statistics
+
 The following command is used get TS Statistics for selected port.
 
     * mepa-cmd ts_port_stati <port_no>
@@ -653,135 +721,4 @@ The following command is used get TS Statistics for selected port.
  Egress Frame Modification Count: 0
  Timestamp FIFO Transmit Count: 0
  Timestamp FIFO Drop Count: 0
-----
-
-=== TS init/classifier/clock configuration through cfg File
-TS demo has the support to read the required configuration parameters from the config file
-instead of user input.
-The following commands added to configure
-
-    * mepa-cmd ts init <port_no>
-    * mepa-cmd ts tx_class <port_no>
-    * mepa-cmd ts tx_clock <port_no>
-    * mepa-cmd ts rx_class <port_no>
-    * mepa-cmd ts rx_clock <port_no>
-
-The config files are placed under "/root/mepa_scripts/" and the file names are listed below
-
-    * ts_init_conf.cfg
-    * ts_tx_class.cfg
-    * ts_tx_clock.cfg
-    * ts_rx_class.cfg
-    * ts_rx_class.cfg
-
-Each cfg file can be edited based on the test need and use the commands listed above.
-the commands (added above) reads the config file and fills local structure and then calls API.
-
-----
-
-The enum names for parameter values are given below
-
-const char *match_mode_names[] = {
-    "MEPA_TS_MATCH_MODE_RANGE",
-    "MEPA_TS_MATCH_MODE_VALUE"
-};
-
-const char *clk_mode_names[] = {
-    "MEPA_TS_PTP_CLOCK_MODE_NONE",
-    "MEPA_TS_PTP_CLOCK_MODE_BC1STEP",
-    "MEPA_TS_PTP_CLOCK_MODE_BC2STEP",
-    "MEPA_TS_PTP_CLOCK_MODE_TC1STEP",
-    "MEPA_TS_PTP_CLOCK_MODE_TC2STEP"
-};
-const char *delaym_type_names[] = {
-    "MEPA_TS_PTP_DELAYM_P2P",
-    "MEPA_TS_PTP_DELAYM_E2E"
-};
-const char *pkt_encap_names[] = {
-    "MEPA_TS_ENCAP_NONE",
-    "MEPA_TS_ENCAP_ETH_PTP",
-    "MEPA_TS_ENCAP_ETH_IP_PTP",
-    "MEPA_TS_ENCAP_ETH_HSR_PTP",
-    "MEPA_TS_ENCAP_ETH_IP_IP_PTP",
-    "MEPA_TS_ENCAP_ETH_ETH_PTP",
-    "MEPA_TS_ENCAP_ETH_ETH_IP_PTP",
-    "MEPA_TS_ENCAP_ETH_MPLS_IP_PTP",
-    "MEPA_TS_ENCAP_ETH_MPLS_ETH_PTP",
-    "MEPA_TS_ENCAP_ETH_MPLS_ETH_IP_PTP"
-};
-const char *mac_match_mode_names[] = {
-    "MEPA_TS_ETH_ADDR_MATCH_ANY",
-    "MEPA_TS_ETH_ADDR_MATCH_48BIT",
-    "MEPA_TS_ETH_ADDR_MATCH_ANY_UNICAST",
-    "MEPA_TS_ETH_ADDR_MATCH_ANY_MULTICAST"
-};
-const char *mac_match_select_names[] = {
-    "MEPA_TS_ETH_MATCH_NONE",
-    "MEPA_TS_ETH_MATCH_DEST_ADDR",
-    "MEPA_TS_ETH_MATCH_SRC_ADDR",
-    "MEPA_TS_ETH_MATCH_SRC_OR_DEST"
-};
-const char *ip_ver_names[] = {
-    "MEPA_TS_IP_VER_4",
-    "MEPA_TS_IP_VER_6"
-};
-const char *ip_match_mode_names[] = {
-    "MEPA_TS_IP_MATCH_NONE",
-    "MEPA_TS_IP_MATCH_DEST",
-    "MEPA_TS_IP_MATCH_SRC",
-    "MEPA_TS_IP_MATCH_SRC_OR_DEST"
-};
-
-// Enum string tables
-const char *clk_freq_names[] = {
-    "MEPA_TS_CLOCK_FREQ_25M",
-    "MEPA_TS_CLOCK_FREQ_125M",
-    "MEPA_TS_CLOCK_FREQ_15625M",
-    "MEPA_TS_CLOCK_FREQ_200M",
-    "MEPA_TS_CLOCK_FREQ_250M",
-    "MEPA_TS_CLOCK_FREQ_500M",
-    "MEPA_TS_CLOCK_FREQ_MAX"
-};
-const char *clk_src_names[] = {
-    "MEPA_TS_CLOCK_SRC_EXTERNAL",
-    "MEPA_TS_CLOCK_SRC_CLIENT_RX",
-    "MEPA_TS_CLOCK_SRC_CLIENT_TX",
-    "MEPA_TS_CLOCK_SRC_INTERNAL",
-    "MEPA_TS_CLOCK_SRC_125MHZ_INTERNAL_SYS_PLL",
-    "MEPA_TS_CLOCK_SRC_125MHZ_QSGMII_REC_CLOCK",
-    "MEPA_TS_CLOCK_SRC_EXT_1588_REF_CLOCK",
-    "MEPA_TS_CLOCK_SRC_RESERVED",
-    "MEPA_TS_CLOCK_SRC_FROM_RX_PORT0",
-    "MEPA_TS_CLOCK_SRC_FROM_RX_PORT1",
-    "MEPA_TS_CLOCK_SRC_FROM_RX_PORT2",
-    "MEPA_TS_CLOCK_SRC_FROM_RX_PORT3"
-};
-const char *rx_ts_pos_names[] = {
-    "MEPA_TS_RX_TIMESTAMP_POS_IN_PTP",
-    "MEPA_TS_RX_TIMESTAMP_POS_AT_END"
-};
-const char *rx_ts_len_names[] = {
-    "MEPA_TS_RX_TIMESTAMP_LEN_30BIT",
-    "MEPA_TS_RX_TIMESTAMP_LEN_32BIT"
-};
-const char *tx_fifo_mode_names[] = {
-    "MEPA_TS_FIFO_MODE_NORMAL",
-    "MEPA_TS_FIFO_MODE_SPI"
-};
-const char *tx_ts_len_names[] = {
-    "MEPA_TS_FIFO_TIMESTAMP_LEN_4BYTE",
-    "MEPA_TS_FIFO_TIMESTAMP_LEN_10BYTE"
-};
-const char *tc_op_mode_names[] = {
-    "MEPA_TS_TC_OP_MODE_A",
-    "MEPA_TS_TC_OP_MODE_B",
-    "MEPA_TS_TC_OP_MODE_C"
-};
-const char *ts_len_names[] = {
-    "MEPA_MCH_TS_32NS_ONS",
-    "MEPA_MCH_TS_28NS_4SNS",
-    "MEPA_MCH_TS_24NS_8SNS",
-    "MEPA_MCH_TS_16NS_16SNS"
-};
-
 ----

@@ -3199,30 +3199,30 @@ mepa_rc mepa_phy_qsgmii_sync(struct mepa_device *dev)
 
 }
 
-mepa_rc mepa_t1s_set_plca_config (struct mepa_device *dev,
+mepa_rc mepa_t1s_set_plca_config(struct mepa_device *dev,
                                   const mepa_t1s_plca_cfg_t cfg)
 {
     if (!dev->drv->mepa_t1s) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
 
-    if (!dev->drv->mepa_t1s->mepa_t1s_set_plca_config) {
+    if (!dev->drv->mepa_t1s->mepa_driver_t1s_set_plca_config) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
 
-    return dev->drv->mepa_t1s->mepa_t1s_set_plca_config(dev, cfg);
+    return dev->drv->mepa_t1s->mepa_driver_t1s_set_plca_config(dev, cfg);
 }
 
-mepa_rc mepa_t1s_get_plca_config (struct mepa_device *dev,
+mepa_rc mepa_t1s_get_plca_config(struct mepa_device *dev,
                                   mepa_t1s_plca_cfg_t *const cfg)
 {
     if (!dev->drv->mepa_t1s) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
 
-    if (!dev->drv->mepa_t1s->mepa_t1s_get_plca_config) {
+    if (!dev->drv->mepa_t1s->mepa_driver_t1s_get_plca_config) {
         return MESA_RC_NOT_IMPLEMENTED;
     }
 
-    return dev->drv->mepa_t1s->mepa_t1s_get_plca_config(dev, cfg);
+    return dev->drv->mepa_t1s->mepa_driver_t1s_get_plca_config(dev, cfg);
 }

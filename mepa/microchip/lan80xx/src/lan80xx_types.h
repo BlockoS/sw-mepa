@@ -182,7 +182,7 @@ typedef struct {
 } phy25g_features_t;
 
 
-typedef uint8_t(*phy25g_gpio_read_t)();
+typedef uint8_t(*phy25g_gpio_read_t)(const mepa_device_t *dev);
 //
 // This structure is accessed from mepa_device->data member
 // which is info about malibu15g a.k.a private data

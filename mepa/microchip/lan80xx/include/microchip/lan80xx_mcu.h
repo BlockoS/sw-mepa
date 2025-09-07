@@ -404,7 +404,7 @@ typedef struct SERDES_CONFIG {
 
 } __SERDES_CONFIG_T;
 
-typedef uint8_t (*gpio_callback_t) (void);
+typedef uint8_t (*gpio_callback_t) (const mepa_device_t *dev);
 
 mepa_rc lan80xx_MB_INTR_register_callback(const mepa_device_t *dev, gpio_callback_t gpio_cb);
 

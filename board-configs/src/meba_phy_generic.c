@@ -113,7 +113,7 @@ void mem_free(struct mepa_callout_ctx *ctx, void *ptr)
     free(ptr);
 }
 
-uint8_t gpio_callback(void)
+uint8_t gpio_callback(const mepa_device_t *dev)
 {
     uint8_t val;
 

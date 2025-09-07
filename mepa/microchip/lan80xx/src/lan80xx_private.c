@@ -4569,7 +4569,7 @@ mepa_rc lan80xx_temp_sensor_get_priv(mepa_device_t          *dev,
         return MEPA_RC_ERROR;
     }
     /* The constant values are from the silicon DOS */
-    *value = ((LAN80XX_X_GLOBAL_TEMP_SENSOR_STAT_TEMP(val) * LAN80XX_PVT_CONST_Y) / LAN80XX_PVT_RESOL) - LAN80XX_PVT_CONST_K;
+    *value = (i16) (((LAN80XX_X_GLOBAL_TEMP_SENSOR_STAT_TEMP(val) * LAN80XX_PVT_CONST_Y) / LAN80XX_PVT_RESOL) - LAN80XX_PVT_CONST_K);
     T_I(MEPA_TRACE_GRP_GEN, "Port No : %d Temperature : %d", port_no, *value);
     return MEPA_RC_OK;
 }

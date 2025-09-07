@@ -503,7 +503,7 @@ mepa_rc lan80xx_MB_SendRequest(const mepa_device_t *dev, uint8_t *au8CmdPkt, uin
         return rc;
 
     }
-    u8McuInterrupt = base_data->ft_gpio_read();
+    u8McuInterrupt = base_data->ft_gpio_read(dev);
     uint32_t u32Val = 0;
     if (1 == u8McuInterrupt) {
         /*
@@ -565,7 +565,7 @@ mepa_rc lan80xx_MB_ReadResponse(const mepa_device_t *dev, uint8_t *u8ResponsePkt
 
     T_D (MEPA_TRACE_GRP_GEN, "Waiting for HOST interrupt...");
     while (1) {
-        u8McuInterrupt = base_data->ft_gpio_read();
+        u8McuInterrupt = base_data->ft_gpio_read(dev);
         /*
          * If interrupt is set, then make sure HOST interrupt is set before reading response
          */
@@ -1016,7 +1016,7 @@ mepa_rc lan80xx_fw_update_priv(mepa_device_t *dev)
     // Wait for DFU first packet Interrupt
     u16Timeout = 0;
     while (1) {
-        u8McuInterrupt = base_data->ft_gpio_read();
+        u8McuInterrupt = base_data->ft_gpio_read(dev);
         if (u8McuInterrupt) {
             LAN80XX_CSR_RD(dev, port_no, LAN80XX_IOREG(MMD_ID_MCU_MAILBOX, 1, MAILBOX_FLAG_REGISTER), &u32Val);
             if (u32Val & MAILBOX_DFU_FIRST_PKT) {

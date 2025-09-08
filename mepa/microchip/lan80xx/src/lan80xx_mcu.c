@@ -25,12 +25,12 @@ mepa_rc lan80xx_MB_INTR_register_callback(const mepa_device_t *dev, gpio_callbac
 {
     mepa_rc rc = MEPA_RC_OK;
 
-    MEPA_ENTER(dev);
     if (!dev) {
         T_E(MEPA_TRACE_GRP_GEN, "Device not created!\n");
         rc = MEPA_RC_ERR_PARM;
         return rc;
     }
+    MEPA_ENTER(dev);
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;;
     mepa_device_t *base_dev;
     phy25g_phy_state_t *base_data;

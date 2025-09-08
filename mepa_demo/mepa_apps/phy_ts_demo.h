@@ -58,7 +58,7 @@ typedef struct {
     mepa_bool_t     dly_req_10b_parsed;     /* ts_init_conf - Delay request 10B parsed */
     mepa_bool_t     tx_auto_f_parsed;       /* ts_init_conf - Tx auto follow up parsed */
     mepa_bool_t     mch_en_parsed;          /* ts_init_conf - MCH parsed */
-    mepa_bool_t     flow_idx_parsed;        /* tx_class_conf - Flow Index Parsed */
+    mepa_bool_t     eng_idx_parsed;        /* tx_class_conf - Flow Index Parsed */
     mepa_bool_t     encap_type_parsed;      /* tx_class_conf - encapsulation type parsed */
     mepa_bool_t     clk_id_parsed;          /* tx_clock_conf - Clock Id parsed */
     mepa_bool_t     clk_mode_parsed;        /* tx_clock_conf - Clock Mode parsed */
@@ -93,7 +93,7 @@ typedef struct {
     mepa_bool_t dly_req_10b;
     mepa_bool_t tx_auto_f;
     mepa_bool_t mch_en;
-    uint16_t    flow_index;
+    uint16_t    eng_id;
     uint16_t    clk_id;
     uint8_t     clk_mode;
     uint8_t     delay_type;

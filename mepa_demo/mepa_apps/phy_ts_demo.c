@@ -300,7 +300,11 @@ static int cli_cmd_parse_keyword(cli_req_t *req)
         ts_keyword.sig_mask_parsed = 1;
     } else if (!strncasecmp(req->cmd, "out_mode", strlen(req->cmd))) {
         ts_keyword.output_mode_parsed = 1;
-    }
+    } else if (!strncasecmp(req->cmd, "eng_id", strlen(req->cmd))) {
+        ts_keyword.eng_idx_parsed = 1;
+    } else {
+        return -1;
+	}
 
     return 0;
 }
@@ -353,6 +357,8 @@ static int cli_cmd_parse_u8_param(cli_req_t *req)
         cli_parm_u8(req, &value, 0, MASK_8BIT);
         mreq->output_mode = value;
         ts_keyword.output_mode_parsed = 0;
+    } else {
+        return -1;
     }
 
     return 0;
@@ -362,10 +368,10 @@ static int cli_cmd_parse_u16_param(cli_req_t *req)
     uint16_t value;
     ts_configuration *mreq = req->module_req;
 
-    if (ts_keyword.flow_idx_parsed == 1) {
+    if (ts_keyword.eng_idx_parsed == 1) {
         cli_parm_u16(req, &value, 0, MASK_16BIT);
-        mreq->flow_index = value;
-        ts_keyword.flow_idx_parsed = 0;
+        mreq->eng_id = value;
+        ts_keyword.eng_idx_parsed = 0;
     } else if (ts_keyword.clk_id_parsed == 1) {
         cli_parm_u16(req, &value, 0, MASK_16BIT);
         mreq->clk_id = value;
@@ -374,6 +380,8 @@ static int cli_cmd_parse_u16_param(cli_req_t *req)
         cli_parm_u16(req, &value, 0, MASK_16BIT);
         mreq->sig_mask = value;
         ts_keyword.sig_mask_parsed = 0;
+    } else {
+        return -1;
     }
 
     return 0;
@@ -399,6 +407,8 @@ static int cli_cmd_parse_u32_param(cli_req_t *req)
         cli_parm_u32(req, &value, 0, MASK_32BIT);
         mreq->wfl_period = value;
         ts_keyword.wfl_parsed = 0;
+    } else {
+        return -1;
     }
     return 0;
 }
@@ -1269,11 +1279,13 @@ static int update_ts_mpls_flow(mepa_ts_classifier_mpls_t *mpls_conf)
 }
 static void cli_cmd_ts_tx_class_conf(cli_req_t *req)
 {
+    mepa_rc rc;
     mepa_port_no_t  port_no;
     mepa_ts_classifier_t ts_classifier;
     ts_configuration *mreq = req->module_req;
     uint16_t flow_index = 0;
     int error = 0;
+    demo_phy_info_t phy_family;
 
     // Initialize the structure
     memset(&ts_classifier, 0, sizeof(ts_classifier));
@@ -1304,7 +1316,18 @@ static void cli_cmd_ts_tx_class_conf(cli_req_t *req)
             cli_printf(" Dev is Not Created for the port : %d\n", (iport + 1));
             return;
         }
-        flow_index = mreq->flow_index;
+
+        if ((rc = phy_family_detect(meba_ts_instance, iport, &phy_family)) != MEPA_RC_OK) {
+            T_E("\n Error in Detecting PHY Family on Port %d\n", (iport + 1));
+            return;
+        }
+        flow_index = mreq->eng_id;
+        if (phy_family.family == PHY_FAMILY_MALIBU_25G) {
+            /* Malibu25G has 3 Engines where each engine has 8 Flow IDs */
+            if (mreq->eng_id != 0) {
+                flow_index = (mreq->eng_id * 8);
+            }
+        }
         ts_classifier.pkt_encap_type = mreq->encap_type;
 
         if (MEPA_RC_OK == mepa_ts_tx_classifier_conf_set(meba_ts_instance->phy_devices[iport], flow_index, &ts_classifier)) {
@@ -1663,7 +1686,7 @@ static void cli_cmd_ts_tx_clock_conf(cli_req_t *req)
             return;
         }
 
-        clk_id = mreq->clk_id;
+        clk_id = mreq->eng_id;
 
         if (mepa_ts_tx_clock_conf_get(meba_ts_instance->phy_devices[iport], clk_id, &ts_clock) != MEPA_RC_OK) {
             cli_printf("\n ...... Failed to get TS Tx Clock Configuration on Port : %d......\n", (iport + 1));
@@ -1859,6 +1882,7 @@ static void cli_cmd_ts_rx_clock_f(cli_req_t *req)
 
 static void cli_cmd_ts_rx_class_conf(cli_req_t *req)
 {
+    mepa_rc rc;
     mepa_port_no_t  port_no;
     mepa_ts_classifier_t ts_classifier;
     ts_configuration *mreq = req->module_req;
@@ -1866,6 +1890,7 @@ static void cli_cmd_ts_rx_class_conf(cli_req_t *req)
     int error = 0;
     // Initialize the structure
     memset(&ts_classifier, 0, sizeof(ts_classifier));
+    demo_phy_info_t phy_family;
 
     if (mreq->encap_type) {
         error = update_ts_classifier_encap(&ts_classifier, mreq->encap_type);
@@ -1892,7 +1917,19 @@ static void cli_cmd_ts_rx_class_conf(cli_req_t *req)
             return;
         }
 
-        flow_index = mreq->flow_index;
+        if ((rc = phy_family_detect(meba_ts_instance, iport, &phy_family)) != MEPA_RC_OK) {
+            T_E("\n Error in Detecting PHY Family on Port %d\n", (iport + 1));
+            return;
+        }
+
+        flow_index = mreq->eng_id;
+
+        if (phy_family.family == PHY_FAMILY_MALIBU_25G) {
+            /* Malibu25G has 3 Engines where each engine has 8 Flow IDs */
+            if (mreq->eng_id != 0) {
+                flow_index = (mreq->eng_id * 8);
+            }
+        }
         ts_classifier.pkt_encap_type = mreq->encap_type;
 
         if (MEPA_RC_OK == mepa_ts_rx_classifier_conf_set(meba_ts_instance->phy_devices[iport], flow_index, &ts_classifier)) {
@@ -1922,7 +1959,7 @@ static void cli_cmd_ts_rx_clock_conf(cli_req_t *req)
             cli_printf(" Dev is Not Created for the port : %d\n", (iport + 1));
             return;
         }
-        clk_id = mreq->clk_id;
+        clk_id = mreq->eng_id;
 
         if (mepa_ts_rx_clock_conf_get(meba_ts_instance->phy_devices[iport], clk_id, &ts_clock) != MEPA_RC_OK) {
             cli_printf("\n ...... Failed to get TS Rx Clock Configuration on Port : %d......\n", (iport + 1));
@@ -2417,10 +2454,10 @@ static void cli_cmd_ts_cmds()
     cli_printf("\n %-20s| %-80s| %s", "exit_ts", "", "Exit from Time Stamping Application");
     cli_printf("\n %-20s| %-80s| %s", "ts_init_conf", " <port_list> clk_src <clk_src> tx_fifo <tx_fifo> tc_op <tc_op>", "Initialize TS Block");
     cli_printf("\n %-20s| %-80s| %s", "", " dly_10b <dly_10b> tx_af <tx_af> mch <mch>", "");
-    cli_printf("\n %-20s| %-80s| %s", "tx_class_conf", " <port_list> flow_idx <flow_idx> entype <entype>", "Configures Egress Port Classifier" );
-    cli_printf("\n %-20s| %-80s| %s", "tx_clock_conf", " <port_list> clk_id <clk_id> clk_mode <clk_mode> dly_type <dly_type>", "Configures Egress Port Clock" );
-    cli_printf("\n %-20s| %-80s| %s", "rx_class_conf", " <port_list> flow_idx <flow_idx> entype <entype>", "Configures Ingress Port Classifier" );
-    cli_printf("\n %-20s| %-80s| %s", "rx_clock_conf", " <port_list> clk_id <clk_id> clk_mode <clk_mode> dly_type <dly_type>", "Configures Ingress Port Clock" );
+    cli_printf("\n %-20s| %-80s| %s", "tx_class_conf", " <port_list> eng_id <eng_idx> entype <entype>", "Configures Egress Port Classifier" );
+    cli_printf("\n %-20s| %-80s| %s", "tx_clock_conf", " <port_list> eng_id <eng_idx> clk_mode <clk_mode> dly_type <dly_type>", "Configures Egress Port Clock" );
+    cli_printf("\n %-20s| %-80s| %s", "rx_class_conf", " <port_list> eng_id <eng_idx> entype <entype>", "Configures Ingress Port Classifier" );
+    cli_printf("\n %-20s| %-80s| %s", "rx_clock_conf", " <port_list> eng_id <eng_idx> clk_mode <clk_mode> dly_type <dly_type>", "Configures Ingress Port Clock" );
     cli_printf("\n %-20s| %-80s| %s", "ts_enable", " <port_list>", "Enables TS Block");
     cli_printf("\n %-20s| %-80s| %s", "ts_disable", " <port_list>", "Disables TS Block");
     cli_printf("\n %-20s| %-80s| %s", "ts_ltc_get", " <port_no>", "Get Local Time Counter");
@@ -2501,25 +2538,25 @@ static cli_cmd_t cli_cmd_ts_table[] = {
     },
 
     {
-        "tx_class_conf <port_list> flow_idx <flow_idx> entype <entype>",
+        "tx_class_conf <port_list> eng_id <eng_idx> entype <entype>",
         "Configures Tx classifier",
         cli_cmd_ts_tx_class_conf,
     },
 
     {
-        "tx_clock_conf <port_list> clk_id <clk_id> clk_mode <clk_mode> dly_type <dly_type>",
+        "tx_clock_conf <port_list> eng_id <eng_idx> clk_mode <clk_mode> dly_type <dly_type>",
         "Configures Tx clock",
         cli_cmd_ts_tx_clock_conf,
     },
 
     {
-        "rx_class_conf <port_list> flow_idx <flow_idx> entype <entype>",
+        "rx_class_conf <port_list> eng_id <eng_idx> entype <entype>",
         "Configures Rx classifier",
         cli_cmd_ts_rx_class_conf,
     },
 
     {
-        "rx_clock_conf <port_list> clk_id <clk_id> clk_mode <clk_mode> dly_type <dly_type>",
+        "rx_clock_conf <port_list> eng_id <eng_idx> clk_mode <clk_mode> dly_type <dly_type>",
         "Configures Rx clock",
         cli_cmd_ts_rx_clock_conf,
     },
@@ -2761,14 +2798,14 @@ static cli_parm_t cli_parm_table[] = {
         cli_cmd_parse_boolean,
     },
     {
-        "flow_idx",
+        "eng_id",
         "",
         CLI_PARM_FLAG_NO_TXT,
         cli_cmd_parse_keyword,
     },
     {
-        "<flow_idx>",
-        "Flow Index",
+        "<eng_idx>",
+        "PTP Engine Number (Engine 0 or 1 or 2)",
         CLI_PARM_FLAG_NONE,
         cli_cmd_parse_u16_param,
     },
@@ -2784,18 +2821,6 @@ static cli_parm_t cli_parm_table[] = {
         6 : Eth MPLS IP PTP, 7 : Eth MPLS Eth PTP, 8 : Eth MPLS Eth IP PTP",
         CLI_PARM_FLAG_SET,
         cli_cmd_parse_encap,
-    },
-    {
-        "clk_id",
-        "",
-        CLI_PARM_FLAG_NO_TXT,
-        cli_cmd_parse_keyword,
-    },
-    {
-        "<clk_id>",
-        "Clock ID",
-        CLI_PARM_FLAG_NONE,
-        cli_cmd_parse_u16_param,
     },
     {
         "clk_mode",

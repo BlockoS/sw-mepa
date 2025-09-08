@@ -111,16 +111,6 @@ typedef u32 phy25g_ts_fifo_sig_mask_t;
 #define LAN80XX_PHY_TS_FIFO_SIG_SEQ_ID            (0x20U)  /**< PTP frame Sequence ID */
 #define LAN80XX_PHY_TS_FIFO_SIG_DEST_MAC          (0x40U)  /**< Dest MAC address */
 
-/**
- *brief configure TS FIFO frame signature mask.
- * \param dev[IN]                   mepa driver
- * \param port_no [IN]              port number
- * \phy25g_ts_fifo_sig_mask_t[IN]   mask for the frame signature field.
-*/
-mepa_rc lan80xx_phy_ts_fifo_sig_set(mepa_device_t                    *dev,
-                                    const mepa_port_no_t             port_no,
-                                    const phy25g_ts_fifo_sig_mask_t  sig_mask);
-
 
 /**
  * \brief Time interval in ns * 1<<16
@@ -794,6 +784,18 @@ typedef struct {
     uint32_t        nanoseconds; /**< 4 bytes nano-sec part of Timestamp */
     uint8_t         subnanoseconds; /**< 1 bytes sub-nano-sec part of Timestamp */
 } phy25g_phy_timestamp_t;
+
+
+/**
+ *brief configure TS FIFO frame signature mask.
+ * \param dev[IN]                   mepa driver
+ * \param port_no [IN]              port number
+ * \phy25g_ts_fifo_sig_mask_t[IN]   mask for the frame signature field.
+*/
+mepa_rc lan80xx_phy_ts_fifo_sig_set(mepa_device_t                    *dev,
+                                    const mepa_port_no_t             port_no,
+                                    phy25g_ts_engine_t               eng_id,
+                                    const phy25g_ts_fifo_sig_mask_t  sig_mask);
 
 
 phy25g_phy_ts_tc_op_mode_t mepa_to_lan80xx_tc_opmode(mepa_ts_tc_op_mode_t tc_opmode);

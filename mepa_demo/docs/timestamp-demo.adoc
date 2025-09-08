@@ -58,10 +58,10 @@ To List the all available Commands in the TS Demo Application run the below ment
  exit_ts             |                                                                                 | Exit from Time Stamping Application
  ts_init_conf        |  <port_list> clk_src <clk_src> tx_fifo <tx_fifo> tc_op <tc_op>                  | Initialize TS Block
                      |  dly_10b <dly_10b> tx_af <tx_af> mch <mch>                                      |
- tx_class_conf       |  <port_list> flow_idx <flow_idx> entype <entype>                                | Configures Egress Port Classifier
- tx_clock_conf       |  <port_list> clk_id <clk_id> clk_mode <clk_mode> dly_type <dly_type>            | Configures Egress Port Clock
- rx_class_conf       |  <port_list> flow_idx <flow_idx> entype <entype>                                | Configures Ingress Port Classifier
- rx_clock_conf       |  <port_list> clk_id <clk_id> clk_mode <clk_mode> dly_type <dly_type>            | Configures Ingress Port Clock
+ tx_class_conf       |  <port_list> eng_id <eng_idx> entype <entype>                                   | Configures Egress Port Classifier
+ tx_clock_conf       |  <port_list> eng_id <eng_idx> clk_mode <clk_mode> dly_type <dly_type>           | Configures Egress Port Clock
+ rx_class_conf       |  <port_list> eng_id <eng_idx> entype <entype>                                   | Configures Ingress Port Classifier
+ rx_clock_conf       |  <port_list> eng_id <eng_idx> clk_mode <clk_mode> dly_type <dly_type>           | Configures Ingress Port Clock
  ts_enable           |  <port_list>                                                                    | Enables TS Block
  ts_disable          |  <port_list>                                                                    | Disables TS Block
  ts_ltc_get          |  <port_no>                                                                      | Get Local Time Counter
@@ -125,10 +125,10 @@ Note: Base port needs to be initialized before using the other ports.
 ==== Egress Port Classifier Configuration
 The command below are used to configure Egress port Classifier.
 ----
-#mepa-cmd tx_class_conf <port_list> flow_idx <flow_idx> entype <entype>
+#mepa-cmd tx_class_conf <port_list> eng_id <eng_idx> entype <entype>
 ----
 
-* flow_idx <flow_idx> - Flow index
+* eng_id <eng_idx> - PTP Engine Select (0 or 1 or 2)
 * entype <entype> - Encapsulation type
     - 0 - None, 1 - Eth PTP, 2 - Eth IP PTP, 3 - Eth IP IP PTP, 4 - Eth Eth PTP, 5 - Eth Eth IP PTP,
     - 6 - Eth MPLS IP PTP, 7 - Eth MPLS Eth PTP, 8 - Eth MPLS Eth IP PTP
@@ -137,7 +137,7 @@ Based on Encapsulation type selected, Ethernet/IP Header classification paramete
 User
 
 ----
-#mepa-cmd tx_class_conf 2 flow_idx 0 entype 1
+#mepa-cmd tx_class_conf 2 eng_id 0 entype 1
 
 ------------------------------------------
 
@@ -158,10 +158,10 @@ User
 The command below are used to configure Egress port Clock.
 
 ----
- #mepa-cmd tx_clock_conf <port_list> clk_id <clk_id> clk_mode <clk_mode> dly_type <dly_type>
+ #mepa-cmd tx_clock_conf <port_list> eng_id <eng_idx> clk_mode <clk_mode> dly_type <dly_type>
 ----
 
-* clk_id <clk_id> - Clock ID
+* eng_id <eng_idx> - PTP Engine Select (0 or 1 or 2)
 * clk_mode <clk_mode> - PTP Clock Operational Mode
     - 0 - None, 1 - BC1STEP, 2 - BC2STEP, 3 - TC1STEP, 4 - TC2STEP
 * dly <dly_type> - PTP delay measurement method
@@ -169,7 +169,7 @@ The command below are used to configure Egress port Clock.
     - 1 - End-to-End delay measurement method
 
 ----
- # mepa-cmd tx_clock_conf 2 clk_id 0 clk_mode 1 dly_type 1
+ # mepa-cmd tx_clock_conf 2 eng_id 0 clk_mode 1 dly_type 1
  ...... TS Tx Clock Configuration on Port : 1.....
 ----
 
@@ -177,10 +177,10 @@ The command below are used to configure Egress port Clock.
 ==== Ingress Port Classifier Configuration
 The command below are used to configure Ingress port Classifier.
 ----
-#mepa-cmd rx_class_conf <port_list> flow_idx <flow_idx> entype <entype>
+#mepa-cmd rx_class_conf <port_list> eng_id <eng_idx> entype <entype>
 ----
 
-* flow_idx <flow_idx> - Flow index
+* eng_id <eng_idx> - PTP Engine Select (0 or 1 or 2)
 * entype <entype> - Encapsulation type
     - 0 - None, 1 - Eth PTP, 2 - Eth IP PTP, 3 - Eth IP IP PTP, 4 - Eth Eth PTP, 5 - Eth Eth IP PTP,
     - 6 - Eth MPLS IP PTP, 7 - Eth MPLS Eth PTP, 8 - Eth MPLS Eth IP PTP
@@ -189,7 +189,7 @@ Based on Encapsulation type selected, Ethernet/IP Header classification paramete
 User
 
 ----
- #mepa-cmd rx_class_conf 2 flow_idx 0 entype 3
+ #mepa-cmd rx_class_conf 2 eng_id 0 entype 3
 
  ------------------------------------------
 
@@ -209,10 +209,10 @@ User
 The command below are used to configure Ingress port Clock.
 
 ----
- #mepa-cmd rx_clock_conf <port_list> clk_id <clk_id> clk_mode <clk_mode> dly_type <dly_type>
+ #mepa-cmd rx_clock_conf <port_list> eng_id <eng_idx> clk_mode <clk_mode> dly_type <dly_type>
 ----
 
-* clk_id <clk_id> - Clock ID
+* eng_id <eng_idx> - PTP Engine Select (0 or 1 or 2)
 * clk_mode <clk_mode> - PTP Clock Operational Mode
     - 0 - None, 1 - BC1STEP, 2 - BC2STEP, 3 - TC1STEP, 4 - TC2STEP
 * dly <dly_type> - PTP delay measurement method
@@ -220,7 +220,7 @@ The command below are used to configure Ingress port Clock.
     - 1 - End-to-End delay measurement method
 
 ----
- # mepa-cmd rx_clock_conf 1 clk_id 0 clk_mode 1 dly_type 1
+ # mepa-cmd rx_clock_conf 1 eng_id 0 clk_mode 1 dly_type 1
 
  ...... TS Rx Clock Configuration on Port : 0.....
 ----

@@ -113,10 +113,15 @@ void mem_free(struct mepa_callout_ctx *ctx, void *ptr)
     free(ptr);
 }
 
+/* MEPA-1226: mepa dev must be passed to callback function */
 uint8_t gpio_callback(const mepa_device_t *dev)
 {
     uint8_t val;
 
+    /* We don't use dev as part of EDSx platform mepa-demo,
+     * but customer(s) may need to access dev.
+     * Refer MEPA-1226 for more details.
+     */
     mesa_gpio_read(NULL, 0, HOST_INTR_B, &val);
 
     return val;

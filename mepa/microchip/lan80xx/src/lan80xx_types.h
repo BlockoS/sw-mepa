@@ -181,7 +181,7 @@ typedef struct {
     mepa_bool_t      mpls_disable;
 } phy25g_features_t;
 
-
+/* MEPA-1226: mepa dev must be passed to callback function */
 typedef uint8_t(*phy25g_gpio_read_t)(const mepa_device_t *dev);
 //
 // This structure is accessed from mepa_device->data member

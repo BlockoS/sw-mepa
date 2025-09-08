@@ -13,7 +13,6 @@ static mepa_device_t lan8x8x_device[LAN8X8X_PHY_MAX];
 static phy_data_t lan8x8x_data[LAN8X8X_PHY_MAX];
 #endif
 
-mepa_drivers_t mepa_lan8x8x_driver_init(void);
 static mepa_rc lan8x8x_phy_init(mepa_device_t *const dev);
 /**********************************
  * Internal APIs

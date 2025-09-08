@@ -961,6 +961,9 @@ mepa_drivers_t mepa_lan884x_driver_init();
 /** \brief Returns drivers for lan887x PHY */
 mepa_drivers_t mepa_lan887x_driver_init(void);
 
+/** \brief Returns drivers for lan887x PHY */
+mepa_drivers_t mepa_lan8x8x_driver_init(void);
+
 /** \brief Returns drivers for lan867x PHY */
 mepa_drivers_t mepa_lan867x_driver_init(void);
 

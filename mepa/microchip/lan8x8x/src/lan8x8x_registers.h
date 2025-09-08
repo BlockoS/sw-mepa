@@ -72,7 +72,7 @@
 #define LAN8X8X_LED_FORCED_LED_OFF      (0xEU)
 #define LAN8X8X_LED_FORCED_LED_ON       (0xFU)
 
-#define LAN8X8X_CLK_RST_REG             0xF070
+#define LAN8X8X_CLK_RST_REG             (0xF070U)
 #define LAN8X8X_RGMII_RX_DLL_CFG        (LAN8X8X_CLK_RST_REG + 0xA)
 #define LAN8X8X_RGMII_TX_DLL_CFG        (LAN8X8X_CLK_RST_REG + 0xB)
 
@@ -80,9 +80,14 @@
 #define LAN8X8X_RGMII_DLL_EN            BIT(0)
 #define LAN8X8X_RGMII_DLL_CONF  (LAN8X8X_RGMII_DELAY_EN |\
                                  LAN8X8X_RGMII_DLL_EN)
+#define LAN8X8X_RGMII_DELAY_ADJ_SEL     0x7EFC
+
+#define LAN8X8X_XGMII_GMII_BYPASS       (0xf0D8U)
+#define LAN8X8X_XGMII_BYPASS_SEL        BIT(0)
 
 /* SQI Registers */
-#define LAN8X8X_SQI_REG         (0x8218U)
+#define LAN8X8X_SQI_1000_REG         (0x8820U)
+#define LAN8X8X_SQI_100_REG          (0x8218U)
 #define T1_DCQ_SQI_MSK          GENMASK(3, 1)
 #define LAN8X8X_SQI_GET(v)  (((v) & T1_DCQ_SQI_MSK) >> ONE)
 
@@ -99,6 +104,31 @@
 
 #define LAN8X8X_CD_STS(v)   (((v) & TC12_HDD_TDR_STS) >> 4U)
 #define LAN8X8X_CD_LOC(v)   (((v) & TC12_HDD_TDR_LOC) >> 8U)
+
+/*CONFIG DONE */
+#define T1_1G_TOP_CTRL                          0x8900
+#define T1_1G_TOP_CTRL_CONFIG                   (T1_1G_TOP_CTRL + 0x2)
+#define T1_1G_TOP_CTRL_CONFIG_DONE              BIT(3)
+#define T1_1G_TOP_CTRL_CONFIG_LINK_CTRL         BIT(0)
+#define T1_1G_TOP_CTRL_CONFIG_SET               (T1_1G_TOP_CTRL_CONFIG_DONE | \
+                                                 T1_1G_TOP_CTRL_CONFIG_LINK_CTRL)
+
+#define T1_1G_E1000T1_PCS                       0x8300
+#define T1_1G_E1000T1_PCS_EN                    (T1_1G_E1000T1_PCS)
+#define T1_1G_E1000T1_PCS_EN_SHORTER_TMR        BIT(4)
+#define T1_1G_E1000T1_PCS_EN_LINK_SYNC_SW       BIT(2)
+#define T1_1G_E1000T1_PCS_EN_RXPCS_DEFRAMER     BIT(1)
+#define T1_1G_E1000T1_PCS_EN_TXPCS_FRAMER       BIT(0)
+#define T1_1G_E1000T1_PCS_EN_                   (T1_1G_E1000T1_PCS_EN_SHORTER_TMR | \
+                                                 T1_1G_E1000T1_PCS_EN_LINK_SYNC_SW | \
+                                                 T1_1G_E1000T1_PCS_EN_RXPCS_DEFRAMER | \
+                                                 T1_1G_E1000T1_PCS_EN_TXPCS_FRAMER)
+
+#define T1_1G_E100T1_PMA        0x8200
+#define T1_1G_E1000T1_PMA       0x8800
+#define T1_PMA_TR_LOCKED        BIT(1)
+#define T1_PMA_ADFE_LOCKED      BIT(0)
+#define T1_PMA_LINK_STATUS      (T1_PMA_TR_LOCKED | T1_PMA_ADFE_LOCKED)
 
 /* Loopback Registers */
 #define T1_1G_E100T1_PCS_REMOTE_LPBK    (32768U)

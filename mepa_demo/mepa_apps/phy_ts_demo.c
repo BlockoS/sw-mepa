@@ -304,7 +304,7 @@ static int cli_cmd_parse_keyword(cli_req_t *req)
         ts_keyword.eng_idx_parsed = 1;
     } else {
         return -1;
-	}
+    }
 
     return 0;
 }
@@ -590,10 +590,10 @@ static void cli_cmd_ts_conf_init(cli_req_t *req)
         }
 
         /* Register callback to read TS FIFO */
-        mepa_ts_fifo_read_t rd_cb = &test_ts_phy_fifo_read; 
+        mepa_ts_fifo_read_t rd_cb = &test_ts_phy_fifo_read;
         if (mepa_ts_fifo_read_install(meba_ts_instance->phy_devices[iport], rd_cb) != MEPA_RC_OK) {
             cli_printf("\n Failed to register callback to read FIFO \n");
-		}
+        }
 
         /* Enable TS FIFO Event for FIFO capture  in case of BC-2step mode */
         mepa_ts_event_t  event_mask;
@@ -1133,7 +1133,7 @@ static int update_ts_classifier_encap(mepa_ts_classifier_t *ts_classifier, uint1
                 ts_classifier->ip2_class_conf.ip_match_mode = MEPA_TS_IP_MATCH_DEST;
                 ts_classifier->ip2_class_conf.ip_addr.ipv4.mask = 0xFFFFFFFF;  /* Match complete 32-bits of IP Address */
                 memcpy(&ts_classifier->ip2_class_conf.ip_addr.ipv6.mask, ipv6_mask, sizeof(ipv6_mask));
-	        }
+            }
         } else if (ip_match == 2) {
             ts_classifier->ip_class_conf.ip_match_mode = MEPA_TS_IP_MATCH_SRC;
             ts_classifier->ip_class_conf.ip_addr.ipv4.mask = 0xFFFFFFFF;   /* Match complete 32-bits of IP Address */
@@ -1648,9 +1648,9 @@ static void update_ptp_clock_conf(mepa_ts_ptp_clock_conf_t *ptp_clock_conf)
     ptp_clock_conf->ptp_class_conf.minor_version.lower = 0;
 
     // Update domain
-	// PTP Domain field match value, it matches from (0 to 255)
+    // PTP Domain field match value, it matches from (0 to 255)
     ptp_clock_conf->ptp_class_conf.domain.mode = MEPA_TS_MATCH_MODE_RANGE;
-	ptp_clock_conf->ptp_class_conf.domain.match.range.lower = 0;
+    ptp_clock_conf->ptp_class_conf.domain.match.range.lower = 0;
     ptp_clock_conf->ptp_class_conf.domain.match.range.upper = 255;
     ptp_clock_conf->ptp_class_conf.domain.match.value.val = 0;
     ptp_clock_conf->ptp_class_conf.domain.match.value.mask = 0;
@@ -1698,7 +1698,7 @@ static void cli_cmd_ts_tx_clock_conf(cli_req_t *req)
         ts_clock.clk_mode = mreq->clk_mode;
         ts_clock.delaym_type = mreq->delay_type;
 
-		ts_clock.ptp_class_conf.domain.match.range.upper = 255;
+        ts_clock.ptp_class_conf.domain.match.range.upper = 255;
 
         if (MEPA_RC_OK == mepa_ts_tx_clock_conf_set(meba_ts_instance->phy_devices[iport], clk_id, &ts_clock)) {
             cli_printf("\n ...... TS Tx Clock Configuration on Port : %d......\n", (iport + 1));
@@ -1894,7 +1894,7 @@ static void cli_cmd_ts_rx_class_conf(cli_req_t *req)
 
     if (mreq->encap_type) {
         error = update_ts_classifier_encap(&ts_classifier, mreq->encap_type);
-		if (error != 1) {
+        if (error != 1) {
             return;
         }
 
@@ -2227,11 +2227,11 @@ static void cli_cmd_ts_fifo_get(cli_req_t *req)
 
     if (status) {
         packet_count = 0;
-        /* 
+        /*
          * This API "mepa_ts_fifo_empty" will read the FIFO for timestamp and PTP signature, and provide it to
          * callback function register through "mepa_ts_fifo_install()" API, in this Application function
          * "test_ts_phy_fifo_read" is registered as callback function which will print the Timestamp and signature
-         */ 
+         */
         rc = mepa_ts_fifo_empty(meba_ts_instance->phy_devices[req->port_no]);
         if (rc != MEPA_RC_OK) {
             cli_printf ("\n Failed to Clear FIFO\n");

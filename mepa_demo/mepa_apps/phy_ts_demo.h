@@ -82,7 +82,7 @@ typedef struct {
     mepa_bool_t     wfl_parsed;
     mepa_bool_t     delta_adj_parsed;
     mepa_bool_t     epps_det_cfg_parsed;
-	mepa_bool_t     output_mode_parsed;
+    mepa_bool_t     output_mode_parsed;
 } ts_keyword_parsed;
 
 
@@ -122,6 +122,6 @@ typedef struct {
     uint32_t    wfh_period;
     uint32_t    wfl_period;
     uint8_t     epps_det_cfg;
-	uint8_t     output_mode;
+    uint8_t     output_mode;
 } ts_configuration;
 

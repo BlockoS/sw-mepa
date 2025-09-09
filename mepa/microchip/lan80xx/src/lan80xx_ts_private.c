@@ -496,7 +496,7 @@ static mepa_rc lan80xx_phy_ts_write_csr(const mepa_device_t *dev,
     lan80xx_phy_ts_biu_addr_map_t *biu_addr_map_ptr = &phy25g_ts_biu_addr_map[0];
 
     T_D(MEPA_TRACE_GRP_TS, "lan80xx_phy_ts_csr_wr addr =%x value=%x\n", biu_addr_map_ptr->mdio_address[blk_id] | csr_address, *value);
-    LAN80XX_CSR_WR(dev, data->port_no,LAN80XX_IOREG(MMD_ID_PTP_BLOCK, 1, (biu_addr_map_ptr->mdio_address[blk_id] | csr_address)), *value);
+    LAN80XX_CSR_WR(dev, data->port_no, LAN80XX_IOREG(MMD_ID_PTP_BLOCK, 1, (biu_addr_map_ptr->mdio_address[blk_id] | csr_address)), *value);
 
     return MEPA_RC_OK;
 }
@@ -1015,10 +1015,10 @@ mepa_rc lan80xx_ts_reset_priv(mepa_device_t *dev, const mepa_ts_reset_conf_t *co
 
     if (ts_rst_type->tsu_hard_reset == TRUE) {
 
-       rc = lan80xx_ts_base_port_get_priv(dev, &base_port, &base_data);
-       if (rc != MEPA_RC_OK) {
-           T_E(MEPA_TRACE_GRP_TS, "\n Failed to get ts base port for the PHY in port : %d\n", data->port_no);
-           return rc;
+        rc = lan80xx_ts_base_port_get_priv(dev, &base_port, &base_data);
+        if (rc != MEPA_RC_OK) {
+            T_E(MEPA_TRACE_GRP_TS, "\n Failed to get ts base port for the PHY in port : %d\n", data->port_no);
+            return rc;
         }
         /* MEPA-1149
         * Added the 1588 reset logic for the given port
@@ -1427,7 +1427,7 @@ static mepa_rc lan80xx_ts_mpls_flow_conf(mepa_device_t *dev,
     phy25g_ts_eng_conf_t *eng_conf;
 
     u16 csr_address_offset = 0;
-	u16 flow_cfg_offset = 0;
+    u16 flow_cfg_offset = 0;
 
     if (eng_id == LAN80XX_PHY_TS_OAM_ENGINE_ID_2A || eng_id == LAN80XX_PHY_TS_OAM_ENGINE_ID_2B) {
         csr_address_offset = 0x20;
@@ -1519,7 +1519,7 @@ static mepa_rc lan80xx_ts_mpls_flow_conf(mepa_device_t *dev,
         if (mpls_conf->flow_opt[flow_index].stack_level.top_down.top.match_mode == 0) {
             value = LAN80XX_MPLS_MAX_LABEL_VALUE;
         }
-       
+
         MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_MPLS_FLOW_CFG_MPLS_LABEL_RANGE_UPPER_0(flow_index) + csr_address_offset + flow_cfg_offset), &value));
 
         /* 1st after top */
@@ -1538,7 +1538,7 @@ static mepa_rc lan80xx_ts_mpls_flow_conf(mepa_device_t *dev,
         }
 
         MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_MPLS_FLOW_CFG_MPLS_LABEL_RANGE_UPPER_1(flow_index) + csr_address_offset + flow_cfg_offset),  &value));
-        
+
         /* 2nd after top */
         temp = (stack_ref_point == LAN80XX_PHY_TS_MPLS_STACK_REF_POINT_TOP) ?
                mpls_conf->flow_opt[flow_index].stack_level.top_down.snd_lvl_after_top.lower :
@@ -1883,8 +1883,8 @@ static mepa_rc lan80xx_ts_eth1_flow_conf(mepa_device_t                 *dev,
         /* TAG2_I_TAG */
         value = LAN80XX_F_ANA_ETH1_FLOW_CFG_ETH1_VLAN_TAG2_I_TAG_ETH1_VLAN_TAG2_MATCH(tag2_i_tag_lower);
         value |= LAN80XX_F_ANA_ETH1_FLOW_CFG_ETH1_VLAN_TAG2_I_TAG_ETH1_VLAN_TAG2_MASK(tag2_i_tag_upper);
-        
-        csr_address = (ptp_engine_2 ?  (LAN80XX_ANA_ETH1_FLOW_CFG_ETH1_VLAN_TAG2_I_TAG(flow_index)+ 0x10) : LAN80XX_ANA_ETH1_FLOW_CFG_ETH1_VLAN_TAG2_I_TAG(flow_index));
+
+        csr_address = (ptp_engine_2 ?  (LAN80XX_ANA_ETH1_FLOW_CFG_ETH1_VLAN_TAG2_I_TAG(flow_index) + 0x10) : LAN80XX_ANA_ETH1_FLOW_CFG_ETH1_VLAN_TAG2_I_TAG(flow_index));
         MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(data->port_no, blk_id, LAN80XX_ANA_ETH1_FLOW_CFG_ETH1_VLAN_TAG2_I_TAG(flow_index), &value));
 
     }
@@ -1927,12 +1927,12 @@ static  mepa_rc lan80xx_ts_eth2_flow_conf(mepa_device_t *dev,
         if (old_eth_conf->comm_opt.tpid != eth_conf->comm_opt.tpid) {
             value = eth_conf->comm_opt.tpid;
             value = LAN80XX_F_ANA_ETH2_NXT_PROTOCOL_ETH2_VLAN_TPID_CFG_ETH2_VLAN_TPID_CFG(value);
-			csr_address = (ptp_engine_2 ? (LAN80XX_ANA_ETH2_NXT_PROTOCOL_ETH2_VLAN_TPID_CFG + 0x10) : LAN80XX_ANA_ETH2_NXT_PROTOCOL_ETH2_VLAN_TPID_CFG);
+            csr_address = (ptp_engine_2 ? (LAN80XX_ANA_ETH2_NXT_PROTOCOL_ETH2_VLAN_TPID_CFG + 0x10) : LAN80XX_ANA_ETH2_NXT_PROTOCOL_ETH2_VLAN_TPID_CFG);
             MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, csr_address, &value));
         }
 
         csr_address = (ptp_engine_2 ? (LAN80XX_ANA_ETH2_NXT_PROTOCOL_ETH2_NXT_PROTOCOL + 0x10) : LAN80XX_ANA_ETH2_NXT_PROTOCOL_ETH2_NXT_PROTOCOL);
-        
+
         MEPA_RC(LAN80XX_PHY_TS_READ_CSR(port_no, blk_id, csr_address, &value));
         temp = LAN80XX_F_ANA_ETH2_NXT_PROTOCOL_ETH2_NXT_PROTOCOL_ETH2_NXT_COMPARATOR(next_comp);
         value = LAN80XX_PHY_TS_CLR_BITS(value, LAN80XX_M_ANA_ETH2_NXT_PROTOCOL_ETH2_NXT_PROTOCOL_ETH2_NXT_COMPARATOR) | temp;
@@ -1946,7 +1946,7 @@ static  mepa_rc lan80xx_ts_eth2_flow_conf(mepa_device_t *dev,
                      LAN80XX_F_ANA_ETH2_NXT_PROTOCOL_ETH2_ETYPE_MATCH_ETH2_ETYPE_MATCH(eth_conf->comm_opt.etype));
 
             csr_address = (ptp_engine_2 ? (LAN80XX_ANA_ETH2_NXT_PROTOCOL_ETH2_ETYPE_MATCH + 0x10) : LAN80XX_ANA_ETH2_NXT_PROTOCOL_ETH2_ETYPE_MATCH);
-           
+
             MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, csr_address, &value));
         }
 
@@ -2422,9 +2422,9 @@ static mepa_rc lan80xx_ts_ip1_flow_conf(mepa_device_t *dev,
 
 
 static mepa_rc lan80xx_phy_ts_engine_clear_priv(mepa_device_t *dev,
-    const BOOL  ingress,
-    const mepa_port_no_t       port_no,
-    const phy25g_ts_engine_t eng_id)
+                                                const BOOL  ingress,
+                                                const mepa_port_no_t       port_no,
+                                                const phy25g_ts_engine_t eng_id)
 {
     mepa_rc rc = MEPA_RC_OK;
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
@@ -2521,236 +2521,236 @@ static mepa_rc lan80xx_phy_ts_engine_ptp_action_flow_conf_priv(
         ptp_engine2_csr_add_offset = 0xF0;
     }
 
-        /* by default no need to clear any field */
+    /* by default no need to clear any field */
+    value = 0;
+    value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ZERO_FIELD_CTL_PTP_RSVD_CHK_EN;/* Enabling check for the non zero of 4-byte reserved field */
+    MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ZERO_FIELD_CTL(flow_index) - ptp_engine2_csr_add_offset), &value));
+
+    switch (cmd) {
+    case PTP_ACTION_CMD_NOP:
+        value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_TIME_STRG_FIELD_OFFSET(8);
+        value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(cmd); /* NOP */
+        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION(flow_index) - ptp_engine2_csr_add_offset), &value));
         value = 0;
-        value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ZERO_FIELD_CTL_PTP_RSVD_CHK_EN;/* Enabling check for the non zero of 4-byte reserved field */
-        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ZERO_FIELD_CTL(flow_index) - ptp_engine2_csr_add_offset), &value));
-
-        switch (cmd) {
-        case PTP_ACTION_CMD_NOP:
-            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_TIME_STRG_FIELD_OFFSET(8);
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(cmd); /* NOP */
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION(flow_index) - ptp_engine2_csr_add_offset), &value));
-            value = 0;
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION_2(flow_index) - ptp_engine2_csr_add_offset), &value));
-            break;
-        case PTP_ACTION_CMD_SUB:
-            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_TIME_STRG_FIELD_OFFSET(8);
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(cmd); /* SUB */
-            if (asym == PTP_ACTION_ASYM_ADD) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_ADD_DELAY_ASYM_ENA;
-            } else if (asym == PTP_ACTION_ASYM_SUB) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_SUB_DELAY_ASYM_ENA;
-            }
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_CORR_FIELD_OFFSET(8);
-            if (data->phy_ts_port_conf.chk_ing_modified) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_MOD_FRAME_STAT_UPDATE;
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_MOD_FRAME_BYTE_OFFSET(6);
-            }
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION(flow_index) - ptp_engine2_csr_add_offset), &value));
-            /* action_2 setting */
-            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_OFFSET(8); /*  nothing to write */
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_BYTES(8); /* CF bytes length */
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION_2(flow_index) - ptp_engine2_csr_add_offset), &value));
-            break;
-        case PTP_ACTION_CMD_ADD:
-            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_TIME_STRG_FIELD_OFFSET(8);
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(cmd);
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_CORR_FIELD_OFFSET(8);
-            if (asym == PTP_ACTION_ASYM_ADD) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_ADD_DELAY_ASYM_ENA;
-            } else if (asym == PTP_ACTION_ASYM_SUB) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_SUB_DELAY_ASYM_ENA;
-            }
-            if (data->phy_ts_port_conf.chk_ing_modified) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_MOD_FRAME_STAT_UPDATE;
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_MOD_FRAME_BYTE_OFFSET(6);
-            }
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION(flow_index) - ptp_engine2_csr_add_offset), &value));
-            /* action_2 setting */
-            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_OFFSET(8); /*  nothing to write */
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_BYTES(8); /* for CF */
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION_2(flow_index) - ptp_engine2_csr_add_offset), &value));
-            /* clear frame bytes */
-            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ZERO_FIELD_CTL_PTP_ZERO_FIELD_BYTE_CNT(0); /* nothing to clear in Mode A */
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ZERO_FIELD_CTL(flow_index) - ptp_engine2_csr_add_offset), &value));
-            break;
-        case PTP_ACTION_CMD_SUB_ADD:
-            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_TIME_STRG_FIELD_OFFSET(rx_ts_pos); /* Ingress stored timestamp location */
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(cmd); /* sub_add */
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_CORR_FIELD_OFFSET(8);
-            if (asym == PTP_ACTION_ASYM_ADD) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_ADD_DELAY_ASYM_ENA;
-            } else if (asym == PTP_ACTION_ASYM_SUB) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_SUB_DELAY_ASYM_ENA;
-            }
-            if (data->phy_ts_port_conf.chk_ing_modified) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_MOD_FRAME_STAT_UPDATE;
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_MOD_FRAME_BYTE_OFFSET(6);
-            }
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION(flow_index) - ptp_engine2_csr_add_offset), &value));
-            /* action_2 setting */
-            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_OFFSET(8); /* nothing to write */
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_BYTES(8); /* for CF */
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION_2(flow_index) - ptp_engine2_csr_add_offset), &value));
-            /* clear frame bytes */
-            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ZERO_FIELD_CTL_PTP_ZERO_FIELD_OFFSET(rx_ts_pos); /* stored timestamp in reserved btes should be clear */
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ZERO_FIELD_CTL_PTP_ZERO_FIELD_BYTE_CNT(4); /* 4 bytes stored timestamp */
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ZERO_FIELD_CTL(flow_index) - ptp_engine2_csr_add_offset), &value));
-            break;
-        case PTP_ACTION_CMD_WRITE_1588:
-            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_TIME_STRG_FIELD_OFFSET(8);
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(cmd); /* write_1588 */
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_CORR_FIELD_OFFSET(8);
-            if (asym == PTP_ACTION_ASYM_ADD) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_ADD_DELAY_ASYM_ENA;
-            } else if (asym == PTP_ACTION_ASYM_SUB) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_SUB_DELAY_ASYM_ENA;
-            }
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION(flow_index) - ptp_engine2_csr_add_offset), &value));
-            /* action_2 setting */
-            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_OFFSET(34); /* origintimestamp offset */
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_BYTES(10); /* full timestamp */
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION_2(flow_index) - ptp_engine2_csr_add_offset), &value));
-            break;
-        case PTP_ACTION_CMD_WRITE_NS:
-            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_TIME_STRG_FIELD_OFFSET(8);
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(cmd); /* write_ns */
-            if (asym == PTP_ACTION_ASYM_ADD) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_ADD_DELAY_ASYM_ENA;
-            } else if (asym == PTP_ACTION_ASYM_SUB) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_SUB_DELAY_ASYM_ENA;
-            }
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_CORR_FIELD_OFFSET(8);
-            if (data->phy_ts_port_conf.chk_ing_modified) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_MOD_FRAME_STAT_UPDATE;
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_MOD_FRAME_BYTE_OFFSET(6);
-            }
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION(flow_index) - ptp_engine2_csr_add_offset), &value));
-            /* action_2 setting */
-            if (data->phy_ts_port_conf.rx_ts_pos == LAN80XX_PHY_TS_RX_TIMESTAMP_POS_IN_PTP) {
-                value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_OFFSET(rx_ts_pos); /* reserved bytes offset */
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_BYTES(4); /* rsvd bytes length */
-            } else {
-                value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_OFFSET(0); /* no use */
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_BYTES(0xE); /* Append at end */
-            }
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION_2(flow_index) - ptp_engine2_csr_add_offset), &value));
-            break;
-        case PTP_ACTION_CMD_WRITE_NS_P2P:
-            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_TIME_STRG_FIELD_OFFSET(8);
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(cmd); /* write_ns_p2p */
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_CORR_FIELD_OFFSET(8);
-            if (asym == PTP_ACTION_ASYM_ADD) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_ADD_DELAY_ASYM_ENA;
-            } else if (asym == PTP_ACTION_ASYM_SUB) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_SUB_DELAY_ASYM_ENA;
-            }
-            if (data->phy_ts_port_conf.chk_ing_modified) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_MOD_FRAME_STAT_UPDATE;
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_MOD_FRAME_BYTE_OFFSET(6);
-            }
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION(flow_index) - ptp_engine2_csr_add_offset), &value));
-            /* action_2 setting */
-            if (data->phy_ts_port_conf.rx_ts_pos == LAN80XX_PHY_TS_RX_TIMESTAMP_POS_IN_PTP) {
-                value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_OFFSET(rx_ts_pos); /* reserved bytes offset */
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_BYTES(4); /* rsvd bytes length */
-            } else {
-                value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_OFFSET(0); /* no use */
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_BYTES(0xE); /* Append at end */
-            }
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION_2(flow_index) - ptp_engine2_csr_add_offset), &value));
-            break;
-        case PTP_ACTION_CMD_SUB_2:
-            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_TIME_STRG_FIELD_OFFSET(8);
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(cmd); /* SUB */
-            if (asym == PTP_ACTION_ASYM_ADD) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_ADD_DELAY_ASYM_ENA;
-            } else if (asym == PTP_ACTION_ASYM_SUB) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_SUB_DELAY_ASYM_ENA;
-            }
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_CORR_FIELD_OFFSET(8);
-            if (data->phy_ts_port_conf.chk_ing_modified) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_MOD_FRAME_STAT_UPDATE;
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_MOD_FRAME_BYTE_OFFSET(6);
-            }
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION(flow_index) - ptp_engine2_csr_add_offset), &value));
-            /* action_2 setting */
-            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_OFFSET(8); /*  nothing to write */
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_BYTES(8); /* CF bytes length */
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION_2(flow_index) - ptp_engine2_csr_add_offset), &value));
-            break;
-        case PTP_ACTION_CMD_ADD_2:
-            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_TIME_STRG_FIELD_OFFSET(8);
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(cmd);
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_CORR_FIELD_OFFSET(8);
-            if (asym == PTP_ACTION_ASYM_ADD) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_ADD_DELAY_ASYM_ENA;
-            } else if (asym == PTP_ACTION_ASYM_SUB) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_SUB_DELAY_ASYM_ENA;
-            }
-            if (data->phy_ts_port_conf.chk_ing_modified) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_MOD_FRAME_STAT_UPDATE;
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_MOD_FRAME_BYTE_OFFSET(6);
-            }
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION(flow_index) - ptp_engine2_csr_add_offset), &value));
-            /* action_2 setting */
-            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_OFFSET(8); /*  nothing to write */
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_BYTES(8); /* for CF */
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION_2(flow_index) - ptp_engine2_csr_add_offset), &value));
-            /* clear frame bytes */
-            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ZERO_FIELD_CTL_PTP_ZERO_FIELD_BYTE_CNT(0); /* nothing to clear
-                                                                                                  in Mode C */
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ZERO_FIELD_CTL(flow_index) - ptp_engine2_csr_add_offset), &value));
-            break;
-
-        case PTP_ACTION_CMD_SAVE_IN_TS_FIFO:
-
-            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_TIME_STRG_FIELD_OFFSET(8);
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_SAVE_LOCAL_TIME; /* save in FIFO */
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_CORR_FIELD_OFFSET(8);
-
-            if (asym == PTP_ACTION_ASYM_ADD) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_ADD_DELAY_ASYM_ENA;
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(PTP_ACTION_CMD_WRITE_1588); /* To write CF, cmd NOP not work */
-            } else if (asym == PTP_ACTION_ASYM_SUB) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_SUB_DELAY_ASYM_ENA;
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(PTP_ACTION_CMD_WRITE_1588); /* To write CF, cmd NOP not work */
-            } else {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(PTP_ACTION_CMD_NOP); /* need to save in FIFO only, no write */
-            }
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION(flow_index) - ptp_engine2_csr_add_offset), &value));
-            value = 0;
-            /* action_2 setting */
-            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_OFFSET(0); /* no rewrite */
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_BYTES(0); /* no rewrite */
-
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION_2(flow_index) - ptp_engine2_csr_add_offset), &value));
-            break;
-#ifdef LAN80XX_FEATURE_PTP_DELAY_COMP_ENGINE
-        case PTP_ACTION_CMD_DCE:
-            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_TIME_STRG_FIELD_OFFSET(8);
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_CORR_FIELD_OFFSET(8);
-            if (asym == PTP_ACTION_ASYM_ADD) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_ADD_DELAY_ASYM_ENA;
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(PTP_ACTION_CMD_WRITE_1588); /* To write CF, cmd NOP not work */
-            } else if (asym == PTP_ACTION_ASYM_SUB) {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_SUB_DELAY_ASYM_ENA;
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(PTP_ACTION_CMD_WRITE_1588); /* To write CF, cmd NOP not work */
-            } else {
-                value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(PTP_ACTION_CMD_NOP);
-            }
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION(flow_index) - ptp_engine2_csr_add_offset), &value));
-
-            /* action_2 setting */
-            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_OFFSET(0x22); /* no rewrite */
-            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_BYTES(0); /* no rewrite */
-            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION_2(flow_index) - ptp_engine2_csr_add_offset), &value));
-            break;
-#endif /* LAN80XX_FEATURE_PTP_DELAY_COMP_ENGINE */
-        default:
-            break;
+        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION_2(flow_index) - ptp_engine2_csr_add_offset), &value));
+        break;
+    case PTP_ACTION_CMD_SUB:
+        value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_TIME_STRG_FIELD_OFFSET(8);
+        value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(cmd); /* SUB */
+        if (asym == PTP_ACTION_ASYM_ADD) {
+            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_ADD_DELAY_ASYM_ENA;
+        } else if (asym == PTP_ACTION_ASYM_SUB) {
+            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_SUB_DELAY_ASYM_ENA;
         }
+        value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_CORR_FIELD_OFFSET(8);
+        if (data->phy_ts_port_conf.chk_ing_modified) {
+            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_MOD_FRAME_STAT_UPDATE;
+            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_MOD_FRAME_BYTE_OFFSET(6);
+        }
+        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION(flow_index) - ptp_engine2_csr_add_offset), &value));
+        /* action_2 setting */
+        value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_OFFSET(8); /*  nothing to write */
+        value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_BYTES(8); /* CF bytes length */
+        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION_2(flow_index) - ptp_engine2_csr_add_offset), &value));
+        break;
+    case PTP_ACTION_CMD_ADD:
+        value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_TIME_STRG_FIELD_OFFSET(8);
+        value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(cmd);
+        value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_CORR_FIELD_OFFSET(8);
+        if (asym == PTP_ACTION_ASYM_ADD) {
+            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_ADD_DELAY_ASYM_ENA;
+        } else if (asym == PTP_ACTION_ASYM_SUB) {
+            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_SUB_DELAY_ASYM_ENA;
+        }
+        if (data->phy_ts_port_conf.chk_ing_modified) {
+            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_MOD_FRAME_STAT_UPDATE;
+            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_MOD_FRAME_BYTE_OFFSET(6);
+        }
+        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION(flow_index) - ptp_engine2_csr_add_offset), &value));
+        /* action_2 setting */
+        value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_OFFSET(8); /*  nothing to write */
+        value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_BYTES(8); /* for CF */
+        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION_2(flow_index) - ptp_engine2_csr_add_offset), &value));
+        /* clear frame bytes */
+        value = LAN80XX_F_ANA_PTP_FLOW_PTP_ZERO_FIELD_CTL_PTP_ZERO_FIELD_BYTE_CNT(0); /* nothing to clear in Mode A */
+        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ZERO_FIELD_CTL(flow_index) - ptp_engine2_csr_add_offset), &value));
+        break;
+    case PTP_ACTION_CMD_SUB_ADD:
+        value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_TIME_STRG_FIELD_OFFSET(rx_ts_pos); /* Ingress stored timestamp location */
+        value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(cmd); /* sub_add */
+        value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_CORR_FIELD_OFFSET(8);
+        if (asym == PTP_ACTION_ASYM_ADD) {
+            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_ADD_DELAY_ASYM_ENA;
+        } else if (asym == PTP_ACTION_ASYM_SUB) {
+            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_SUB_DELAY_ASYM_ENA;
+        }
+        if (data->phy_ts_port_conf.chk_ing_modified) {
+            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_MOD_FRAME_STAT_UPDATE;
+            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_MOD_FRAME_BYTE_OFFSET(6);
+        }
+        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION(flow_index) - ptp_engine2_csr_add_offset), &value));
+        /* action_2 setting */
+        value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_OFFSET(8); /* nothing to write */
+        value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_BYTES(8); /* for CF */
+        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION_2(flow_index) - ptp_engine2_csr_add_offset), &value));
+        /* clear frame bytes */
+        value = LAN80XX_F_ANA_PTP_FLOW_PTP_ZERO_FIELD_CTL_PTP_ZERO_FIELD_OFFSET(rx_ts_pos); /* stored timestamp in reserved btes should be clear */
+        value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ZERO_FIELD_CTL_PTP_ZERO_FIELD_BYTE_CNT(4); /* 4 bytes stored timestamp */
+        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ZERO_FIELD_CTL(flow_index) - ptp_engine2_csr_add_offset), &value));
+        break;
+    case PTP_ACTION_CMD_WRITE_1588:
+        value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_TIME_STRG_FIELD_OFFSET(8);
+        value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(cmd); /* write_1588 */
+        value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_CORR_FIELD_OFFSET(8);
+        if (asym == PTP_ACTION_ASYM_ADD) {
+            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_ADD_DELAY_ASYM_ENA;
+        } else if (asym == PTP_ACTION_ASYM_SUB) {
+            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_SUB_DELAY_ASYM_ENA;
+        }
+        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION(flow_index) - ptp_engine2_csr_add_offset), &value));
+        /* action_2 setting */
+        value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_OFFSET(34); /* origintimestamp offset */
+        value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_BYTES(10); /* full timestamp */
+        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION_2(flow_index) - ptp_engine2_csr_add_offset), &value));
+        break;
+    case PTP_ACTION_CMD_WRITE_NS:
+        value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_TIME_STRG_FIELD_OFFSET(8);
+        value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(cmd); /* write_ns */
+        if (asym == PTP_ACTION_ASYM_ADD) {
+            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_ADD_DELAY_ASYM_ENA;
+        } else if (asym == PTP_ACTION_ASYM_SUB) {
+            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_SUB_DELAY_ASYM_ENA;
+        }
+        value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_CORR_FIELD_OFFSET(8);
+        if (data->phy_ts_port_conf.chk_ing_modified) {
+            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_MOD_FRAME_STAT_UPDATE;
+            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_MOD_FRAME_BYTE_OFFSET(6);
+        }
+        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION(flow_index) - ptp_engine2_csr_add_offset), &value));
+        /* action_2 setting */
+        if (data->phy_ts_port_conf.rx_ts_pos == LAN80XX_PHY_TS_RX_TIMESTAMP_POS_IN_PTP) {
+            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_OFFSET(rx_ts_pos); /* reserved bytes offset */
+            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_BYTES(4); /* rsvd bytes length */
+        } else {
+            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_OFFSET(0); /* no use */
+            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_BYTES(0xE); /* Append at end */
+        }
+        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION_2(flow_index) - ptp_engine2_csr_add_offset), &value));
+        break;
+    case PTP_ACTION_CMD_WRITE_NS_P2P:
+        value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_TIME_STRG_FIELD_OFFSET(8);
+        value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(cmd); /* write_ns_p2p */
+        value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_CORR_FIELD_OFFSET(8);
+        if (asym == PTP_ACTION_ASYM_ADD) {
+            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_ADD_DELAY_ASYM_ENA;
+        } else if (asym == PTP_ACTION_ASYM_SUB) {
+            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_SUB_DELAY_ASYM_ENA;
+        }
+        if (data->phy_ts_port_conf.chk_ing_modified) {
+            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_MOD_FRAME_STAT_UPDATE;
+            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_MOD_FRAME_BYTE_OFFSET(6);
+        }
+        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION(flow_index) - ptp_engine2_csr_add_offset), &value));
+        /* action_2 setting */
+        if (data->phy_ts_port_conf.rx_ts_pos == LAN80XX_PHY_TS_RX_TIMESTAMP_POS_IN_PTP) {
+            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_OFFSET(rx_ts_pos); /* reserved bytes offset */
+            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_BYTES(4); /* rsvd bytes length */
+        } else {
+            value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_OFFSET(0); /* no use */
+            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_BYTES(0xE); /* Append at end */
+        }
+        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION_2(flow_index) - ptp_engine2_csr_add_offset), &value));
+        break;
+    case PTP_ACTION_CMD_SUB_2:
+        value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_TIME_STRG_FIELD_OFFSET(8);
+        value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(cmd); /* SUB */
+        if (asym == PTP_ACTION_ASYM_ADD) {
+            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_ADD_DELAY_ASYM_ENA;
+        } else if (asym == PTP_ACTION_ASYM_SUB) {
+            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_SUB_DELAY_ASYM_ENA;
+        }
+        value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_CORR_FIELD_OFFSET(8);
+        if (data->phy_ts_port_conf.chk_ing_modified) {
+            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_MOD_FRAME_STAT_UPDATE;
+            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_MOD_FRAME_BYTE_OFFSET(6);
+        }
+        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION(flow_index) - ptp_engine2_csr_add_offset), &value));
+        /* action_2 setting */
+        value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_OFFSET(8); /*  nothing to write */
+        value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_BYTES(8); /* CF bytes length */
+        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION_2(flow_index) - ptp_engine2_csr_add_offset), &value));
+        break;
+    case PTP_ACTION_CMD_ADD_2:
+        value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_TIME_STRG_FIELD_OFFSET(8);
+        value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(cmd);
+        value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_CORR_FIELD_OFFSET(8);
+        if (asym == PTP_ACTION_ASYM_ADD) {
+            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_ADD_DELAY_ASYM_ENA;
+        } else if (asym == PTP_ACTION_ASYM_SUB) {
+            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_SUB_DELAY_ASYM_ENA;
+        }
+        if (data->phy_ts_port_conf.chk_ing_modified) {
+            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_MOD_FRAME_STAT_UPDATE;
+            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_MOD_FRAME_BYTE_OFFSET(6);
+        }
+        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION(flow_index) - ptp_engine2_csr_add_offset), &value));
+        /* action_2 setting */
+        value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_OFFSET(8); /*  nothing to write */
+        value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_BYTES(8); /* for CF */
+        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION_2(flow_index) - ptp_engine2_csr_add_offset), &value));
+        /* clear frame bytes */
+        value = LAN80XX_F_ANA_PTP_FLOW_PTP_ZERO_FIELD_CTL_PTP_ZERO_FIELD_BYTE_CNT(0); /* nothing to clear
+                                                                                                  in Mode C */
+        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ZERO_FIELD_CTL(flow_index) - ptp_engine2_csr_add_offset), &value));
+        break;
+
+    case PTP_ACTION_CMD_SAVE_IN_TS_FIFO:
+
+        value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_TIME_STRG_FIELD_OFFSET(8);
+        value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_SAVE_LOCAL_TIME; /* save in FIFO */
+        value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_CORR_FIELD_OFFSET(8);
+
+        if (asym == PTP_ACTION_ASYM_ADD) {
+            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_ADD_DELAY_ASYM_ENA;
+            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(PTP_ACTION_CMD_WRITE_1588); /* To write CF, cmd NOP not work */
+        } else if (asym == PTP_ACTION_ASYM_SUB) {
+            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_SUB_DELAY_ASYM_ENA;
+            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(PTP_ACTION_CMD_WRITE_1588); /* To write CF, cmd NOP not work */
+        } else {
+            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(PTP_ACTION_CMD_NOP); /* need to save in FIFO only, no write */
+        }
+        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION(flow_index) - ptp_engine2_csr_add_offset), &value));
+        value = 0;
+        /* action_2 setting */
+        value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_OFFSET(0); /* no rewrite */
+        value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_BYTES(0); /* no rewrite */
+
+        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION_2(flow_index) - ptp_engine2_csr_add_offset), &value));
+        break;
+#ifdef LAN80XX_FEATURE_PTP_DELAY_COMP_ENGINE
+    case PTP_ACTION_CMD_DCE:
+        value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_TIME_STRG_FIELD_OFFSET(8);
+        value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_CORR_FIELD_OFFSET(8);
+        if (asym == PTP_ACTION_ASYM_ADD) {
+            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_ADD_DELAY_ASYM_ENA;
+            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(PTP_ACTION_CMD_WRITE_1588); /* To write CF, cmd NOP not work */
+        } else if (asym == PTP_ACTION_ASYM_SUB) {
+            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_SUB_DELAY_ASYM_ENA;
+            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(PTP_ACTION_CMD_WRITE_1588); /* To write CF, cmd NOP not work */
+        } else {
+            value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_PTP_COMMAND(PTP_ACTION_CMD_NOP);
+        }
+        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION(flow_index) - ptp_engine2_csr_add_offset), &value));
+
+        /* action_2 setting */
+        value = LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_OFFSET(0x22); /* no rewrite */
+        value |= LAN80XX_F_ANA_PTP_FLOW_PTP_ACTION_2_PTP_REWRITE_BYTES(0); /* no rewrite */
+        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_ACTION_2(flow_index) - ptp_engine2_csr_add_offset), &value));
+        break;
+#endif /* LAN80XX_FEATURE_PTP_DELAY_COMP_ENGINE */
+    default:
+        break;
+    }
 
     return MEPA_RC_OK;
 }
@@ -2783,7 +2783,7 @@ static mepa_rc lan80xx_ts_engine_ptp_action_flow_add_priv (mepa_device_t *dev,
         value |= LAN80XX_F_ANA_PTP_FLOW_PTP_FLOW_ENA_PTP_CHANNEL_MASK(3);
         if (ptp_engine2_csr_add_offset != 0) {
             value |= LAN80XX_BIT(16);
-        } 
+        }
         MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, (LAN80XX_ANA_PTP_FLOW_PTP_FLOW_ENA(flow_index) - ptp_engine2_csr_add_offset), &value));
 
         /* domain config */
@@ -3727,11 +3727,11 @@ static mepa_rc lan80xx_phy_ts_engine_ptp_action_flow_delete_priv(
 }
 
 static mepa_rc lan80xx_phy_ts_engine_action_set_priv(mepa_device_t                   *dev,
-    BOOL  ingress,
-    mepa_port_no_t                    port_no,
-    phy25g_ts_engine_t              eng_id,
-    phy25g_ts_eng_conf_t            *eng_conf,
-    const phy25g_ts_engine_action_t *const new_action_conf)
+                                                     BOOL  ingress,
+                                                     mepa_port_no_t                    port_no,
+                                                     phy25g_ts_engine_t              eng_id,
+                                                     phy25g_ts_eng_conf_t            *eng_conf,
+                                                     const phy25g_ts_engine_action_t *const new_action_conf)
 {
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
     phy25g_ts_engine_action_t *old_action_conf;
@@ -3855,7 +3855,7 @@ static mepa_rc lan80xx_phy_ts_engine_action_set_priv(mepa_device_t              
 
     }  else if (new_action_conf->action.ptp_conf.clk_mode == MEPA_TS_PTP_CLOCK_MODE_TC2STEP && new_action_conf->action.ptp_conf.delaym_type == MEPA_TS_PTP_DELAYM_P2P) {
 
-       T_D(MEPA_TRACE_GRP_TS, "\n TC 2-step, P2P config on port : %d\n", port_no);
+        T_D(MEPA_TRACE_GRP_TS, "\n TC 2-step, P2P config on port : %d\n", port_no);
         MEPA_RC(LAN80XX_RC_COLD(lan80xx_ts_engine_ptp_action_flow_add_priv(dev, ingress,
                                                                            port_no, eng_id, PTP_MSG_TYPE_SYNC, LAN80XX_PTP_FLOW_INDEX_0, &new_action_conf->action.ptp_conf)));
         eng_conf->action_flow_map[LAN80XX_PTP_FLOW_INDEX_0] = action_index + 1;
@@ -3921,8 +3921,8 @@ mepa_rc lan80xx_ts_egress_engine_clear(mepa_device_t *dev,
 }
 
 mepa_rc lan80xx_ts_ingress_engine_clear(mepa_device_t *dev,
-                                       const mepa_port_no_t port_no,
-                                       const phy25g_ts_engine_t eng_id)
+                                        const mepa_port_no_t port_no,
+                                        const phy25g_ts_engine_t eng_id)
 {
 
     mepa_rc rc;
@@ -3941,7 +3941,7 @@ mepa_rc lan80xx_ts_ingress_engine_clear(mepa_device_t *dev,
         /* clear the engine config */
         memset(flow_conf, 0, sizeof(phy25g_ts_engine_flow_conf_t));
         eng_conf->eng_used = FALSE;
-        } while (0);
+    } while (0);
     return rc;
 }
 
@@ -4381,7 +4381,7 @@ static void lan80xx_get_mpls_class_from_flow(const phy25g_ts_mpls_conf_t  *mpls_
     mpls_conf_get->flow_en = mpls_flow->flow_opt[flow_id].flow_en;
     mpls_conf_get->stack_depth = mpls_flow->flow_opt[flow_id].stack_depth;
     mpls_conf_get->stack_ref_point = mpls_flow->flow_opt[flow_id].stack_ref_point;
-    memcpy(&mpls_conf_get->stack_level ,&mpls_flow->flow_opt[flow_id].stack_level.top_down, sizeof(mpls_conf_get->stack_level));
+    memcpy(&mpls_conf_get->stack_level , &mpls_flow->flow_opt[flow_id].stack_level.top_down, sizeof(mpls_conf_get->stack_level));
     return;
 }
 
@@ -4681,7 +4681,7 @@ mepa_rc lan80xx_phy_ts_fifo_empty_priv(mepa_device_t           *dev,
             ts.seconds.high = (uint16_t)((sig[10] << 8) | sig[9]);
 
             T_D(MEPA_TRACE_GRP_TS, "Time sh: %u ,sl: %u ns: %u fns=%u\n", ts.seconds.high, ts.seconds.low, ts.nanoseconds, ts.picoseconds);
-            //printf("Time sh: %d ,sl: %d ns: %d fns=%d\n", ts.seconds.high, ts.seconds.low, ts.nanoseconds, ts.picoseconds);			
+            //printf("Time sh: %d ,sl: %d ns: %d fns=%d\n", ts.seconds.high, ts.seconds.low, ts.nanoseconds, ts.picoseconds);
 #if 0
             printf("\n");
             printf("\n ============ \n");
@@ -4690,7 +4690,7 @@ mepa_rc lan80xx_phy_ts_fifo_empty_priv(mepa_device_t           *dev,
             }
             printf("Time sh: %d ,sl: %d ns: %d fns=%d\n", ts.seconds.high, ts.seconds.low, ts.nanoseconds, ts.picoseconds);
             printf("\n ========\n");
-			printf("\n");
+            printf("\n");
 #endif
 
             pos += LAN80XX_PHY_TS_SIG_TIME_STAMP_LEN; /* 11 Byte Timestamp length */
@@ -4830,9 +4830,9 @@ static mepa_rc lan80xx_phy_ts_ip1_sig_mask_set_priv(mepa_device_t               
 }
 
 static mepa_rc lan80xx_phy_ts_eth1_sig_mask_set_priv(mepa_device_t *dev,
-    const mepa_port_no_t              port_no,
-    const phy25g_ts_engine_t        engine_id,
-    const phy25g_ts_blk_id_t        blk_id)
+                                                     const mepa_port_no_t              port_no,
+                                                     const phy25g_ts_engine_t        engine_id,
+                                                     const phy25g_ts_blk_id_t        blk_id)
 {
     u32 value;
     phy25g_ts_fifo_sig_mask_t sig_mask;
@@ -4863,7 +4863,7 @@ static mepa_rc lan80xx_phy_ts_eth1_sig_mask_set_priv(mepa_device_t *dev,
 
             MEPA_RC(LAN80XX_PHY_TS_READ_CSR(port_no, blk_id, LAN80XX_ANA_ETH1_NXT_PROTOCOL_ETH1_NXT_PROTOCOL, &value));
 
-            value = LAN80XX_PHY_TS_CLR_BITS(value,LAN80XX_M_ANA_ETH1_NXT_PROTOCOL_ETH1_NXT_PROTOCOL_ETH1_FRAME_SIG_OFFSET);
+            value = LAN80XX_PHY_TS_CLR_BITS(value, LAN80XX_M_ANA_ETH1_NXT_PROTOCOL_ETH1_NXT_PROTOCOL_ETH1_FRAME_SIG_OFFSET);
             value |= LAN80XX_F_ANA_ETH1_NXT_PROTOCOL_ETH1_NXT_PROTOCOL_ETH1_FRAME_SIG_OFFSET(0);
             MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_ETH1_NXT_PROTOCOL_ETH1_NXT_PROTOCOL, &value));
 
@@ -4880,7 +4880,7 @@ static mepa_rc lan80xx_phy_ts_eth1_sig_mask_set_priv(mepa_device_t *dev,
 
 static mepa_rc lan80xx_phy_ts_signature_set_priv(mepa_device_t         *dev,
                                                  const mepa_port_no_t  port_no,
-											     phy25g_ts_engine_t    eng_id)
+                                                 phy25g_ts_engine_t    eng_id)
 {
     u32 value = 0, pos = 0;
     i32 byte_ct = 0;
@@ -5012,18 +5012,18 @@ static mepa_rc lan80xx_phy_ts_signature_set_priv(mepa_device_t         *dev,
         if (data->phy_ts_port_conf.egress_eng_conf[eng_id].eng_used == TRUE) {
 
             if ((encap_type == LAN80XX_PHY_TS_ENCAP_ETH_PTP) || (encap_type == LAN80XX_PHY_TS_ENCAP_ETH_IP_PTP) || (encap_type == LAN80XX_PHY_TS_ENCAP_ETH_IP_IP_PTP) ||
-                 (encap_type == LAN80XX_PHY_TS_ENCAP_ETH_MPLS_IP_PTP)) {
+                (encap_type == LAN80XX_PHY_TS_ENCAP_ETH_MPLS_IP_PTP)) {
 
                 MEPA_RC(lan80xx_phy_ts_eth1_sig_mask_set_priv(dev, port_no, eng_id, blk_id));
             }
 #if 0
-                else if (((encap_type == LAN80XX_PHY_TS_ENCAP_ETH_ETH_PTP)      ||
-                          (encap_type == LAN80XX_PHY_TS_ENCAP_ETH_ETH_IP_PTP)   ||
-                          (encap_type == LAN80XX_PHY_TS_ENCAP_ETH_MPLS_ETH_PTP) ||
-                          (encap_type == LAN80XX_PHY_TS_ENCAP_ETH_MPLS_ETH_IP_PTP)) &&
-                         (engine_id != LAN80XX_PHY_TS_OAM_ENGINE_ID_2B)) {
-                    //MEPA_RC(lan80xx_phy_ts_eth2_sig_mask_set_priv(dev, port_no, engine_id, blk_id));
-                }
+            else if (((encap_type == LAN80XX_PHY_TS_ENCAP_ETH_ETH_PTP)      ||
+                      (encap_type == LAN80XX_PHY_TS_ENCAP_ETH_ETH_IP_PTP)   ||
+                      (encap_type == LAN80XX_PHY_TS_ENCAP_ETH_MPLS_ETH_PTP) ||
+                      (encap_type == LAN80XX_PHY_TS_ENCAP_ETH_MPLS_ETH_IP_PTP)) &&
+                     (engine_id != LAN80XX_PHY_TS_OAM_ENGINE_ID_2B)) {
+                //MEPA_RC(lan80xx_phy_ts_eth2_sig_mask_set_priv(dev, port_no, engine_id, blk_id));
+            }
 #endif
         }
         /* If Destination MAC is selected for signature then use next position storing
@@ -5053,7 +5053,7 @@ static mepa_rc lan80xx_phy_ts_signature_set_priv(mepa_device_t         *dev,
     }
     /* configure the signature selection
      */
-	mepa_bool_t ptp_engine_2 = 0;
+    mepa_bool_t ptp_engine_2 = 0;
     if (eng_id == LAN80XX_PHY_TS_OAM_ENGINE_ID_2A || eng_id == LAN80XX_PHY_TS_OAM_ENGINE_ID_2B) {
         ptp_engine_2 = 1;
     }
@@ -5107,7 +5107,7 @@ static mepa_rc lan80xx_phy_ts_signature_set_priv(mepa_device_t         *dev,
 
 mepa_rc lan80xx_phy_ts_fifo_sig_set(mepa_device_t                     *dev,
                                     const mepa_port_no_t              port_no,
-									phy25g_ts_engine_t                eng_id,
+                                    phy25g_ts_engine_t                eng_id,
                                     const phy25g_ts_fifo_sig_mask_t   sig_mask)
 {
     mepa_rc        rc = MEPA_RC_OK;
@@ -5167,7 +5167,7 @@ mepa_rc lan80xx_phy_ts_fifo_empty (mepa_device_t           *dev,
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
     mepa_rc      rc = MEPA_RC_OK;
 
-   do {
+    do {
         if (data->phy_ts_port_conf.port_ts_init_done == FALSE) {
             T_E(MEPA_TRACE_GRP_TS, "\n TS Port init not done on port %u", port_no);
             rc = MEPA_RC_ERROR;
@@ -5196,13 +5196,13 @@ mepa_rc lan80xx_phy_ts_fifo_get(mepa_device_t           *dev,
     do {
         if (data->phy_ts_port_conf.port_ts_init_done == FALSE) {
             rc = MEPA_RC_ERROR;
-           break;
+            break;
         }
         if (data->phy_ts_port_conf.tx_fifo_mode != LAN80XX_PHY_TS_FIFO_MODE_NORMAL) {
             rc = MEPA_RC_ERROR;
-           break;
+            break;
         }
-       rc = lan80xx_phy_ts_fifo_empty_priv(dev, port_no, ts_list, num, FALSE);
+        rc = lan80xx_phy_ts_fifo_empty_priv(dev, port_no, ts_list, num, FALSE);
     } while (0);
     return rc;
 }
@@ -5797,7 +5797,7 @@ static mepa_rc lan80xx_ts_csr_set_priv(mepa_device_t *dev,
         value = 0;
         mask = LAN80XX_M_PTP_LTC_PHAD_CTRL_PHAD_ENA;
 
-        if(base_data->ptp_lsc_input_config.pps_conf.clk_select == LAN80XX_PTP_ASYNC_NO_CLOCK) {
+        if (base_data->ptp_lsc_input_config.pps_conf.clk_select == LAN80XX_PTP_ASYNC_NO_CLOCK) {
             value = LAN80XX_F_PTP_LTC_PHAD_CTRL_PHAD_ENA(0);
         } else {
             value = LAN80XX_F_PTP_LTC_PHAD_CTRL_PHAD_ENA(1);
@@ -6280,7 +6280,7 @@ mepa_rc lan80xx_ts_rx_classifier_conf_set_priv(struct mepa_device *dev,
 
 mepa_rc lan80xx_ts_tx_classifier_conf_set_priv(struct mepa_device *dev,
                                                uint16_t flow_index,
-										       const mepa_ts_classifier_t *const pkt_class_conf)
+                                               const mepa_ts_classifier_t *const pkt_class_conf)
 {
     mepa_rc rc;
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
@@ -7002,7 +7002,7 @@ mepa_rc lan80xx_phy_ts_pps_ouput_conf_set(mepa_device_t *dev, const mepa_port_no
 
 mepa_rc lan80xx_ts_pps_conf_set_priv(mepa_device_t *dev, const mepa_ts_pps_conf_t *const phy_pps_conf)
 {
-	mepa_rc rc;
+    mepa_rc rc;
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
     phy25g_phy_state_t *base_data = NULL;
     mepa_port_no_t base_port = 0;
@@ -7014,15 +7014,15 @@ mepa_rc lan80xx_ts_pps_conf_set_priv(mepa_device_t *dev, const mepa_ts_pps_conf_
     if (data->phy_ts_port_conf.port_ts_init_done == FALSE) {
         T_E(MEPA_TRACE_GRP_GEN, "Init not done, port %u", data->port_no);
         return MEPA_RC_ERROR;
-    }  
+    }
 
     /*
      * This MEPA API is hardcoded to generate 1PPS signal on LSC1 pin of the PHY,
      * But PHY can generate 1PPS from LSC0 or LSC1 or LSC2, to generate 1PPS from LSC0 or
      * LSC1, use the chip specific API "lan80xx_phy_ts_pps_ouput_conf_set"
      * Also this MEPA API is hard-coded to generate Asyncronous Pulse, whereas the
-	 * chip specific API can configure Syncronous as well as Asyncronous pulse or waveform
-	 */
+     * chip specific API can configure Syncronous as well as Asyncronous pulse or waveform
+     */
 
     base_data->ptp_lsc_output_config.pps_conf.clk_select = LAN80XX_PTP_ASYNC_NO_CLOCK;
     base_data->ptp_lsc_output_config.pps_conf.pin_inv_pol = LAN80XX_PTP_LSC_ACTIVE_HIGH;
@@ -7055,7 +7055,7 @@ mepa_rc lan80xx_ts_pps_conf_get_priv(mepa_device_t *dev, mepa_ts_pps_conf_t *con
 
     if (val == 0x3) {
         phy_pps_conf->pps_output_enable = TRUE;
-    } else{
+    } else {
         phy_pps_conf->pps_output_enable = FALSE;
     }
     phy_pps_conf->pps_width_adj = base_data->ptp_lsc_output_config.pps_conf.pps_pulse_high;

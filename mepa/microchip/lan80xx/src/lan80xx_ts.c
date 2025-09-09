@@ -460,18 +460,18 @@ static void lan80xx_ts_fifo_read_install(mepa_device_t  *dev, mepa_ts_fifo_read_
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
     MEPA_ENTER(dev);
     data->ts_fifo_cb = rd_cb;
-	MEPA_EXIT(dev);
-	return;
+    MEPA_EXIT(dev);
+    return;
 }
 
 static mepa_rc lan80xx_ts_fifo_empty(mepa_device_t  *dev)
 {
-	mepa_rc rc = MEPA_RC_ERROR;
-	MEPA_ENTER(dev);
+    mepa_rc rc = MEPA_RC_ERROR;
+    MEPA_ENTER(dev);
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
     rc = lan80xx_phy_ts_fifo_empty(dev, data->port_no, NULL, NULL, TRUE);
-	MEPA_EXIT(dev);
-	return rc;
+    MEPA_EXIT(dev);
+    return rc;
 }
 
 static mepa_rc lan80xx_ts_fifo_get(mepa_device_t *dev, mepa_fifo_ts_entry_t ts_list[], const size_t size, uint32_t *const num)

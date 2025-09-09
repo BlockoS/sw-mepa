@@ -6302,7 +6302,7 @@ mepa_rc lan80xx_ts_tx_classifier_conf_set_priv(struct mepa_device *dev,
         return MEPA_RC_ERROR;
     }
     if ((rc = mepa_to_lan80xx_encap(pkt_class_conf->pkt_encap_type, &encap) != MEPA_RC_OK)) {
-        T_E(MEPA_TRACE_GRP_TS, "Invalid Encapsulation : %d", pkt_class_conf->pkt_encap_type);
+        T_E(MEPA_TRACE_GRP_TS, "\n Selected Encapsulation not supported by PTP Engine on Port : %d\n", data->port_no);
         return MEPA_RC_ERROR;
     }
 

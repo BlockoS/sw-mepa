@@ -86,10 +86,6 @@ mepa_rc mepa_to_lan80xx_encap(mepa_ts_pkt_encap_t encap, phy25g_ts_encap_t *phy2
         *phy25g_encap = LAN80XX_PHY_TS_ENCAP_ETH_IP_PTP;
         break;
 
-    case MEPA_TS_ENCAP_ETH_IP_IP_PTP:
-        *phy25g_encap = LAN80XX_PHY_TS_ENCAP_ETH_IP_IP_PTP;
-        break;
-
     case MEPA_TS_ENCAP_ETH_ETH_PTP:
         *phy25g_encap = LAN80XX_PHY_TS_ENCAP_ETH_ETH_PTP;
         break;

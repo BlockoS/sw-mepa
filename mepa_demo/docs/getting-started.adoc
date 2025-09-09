@@ -994,75 +994,90 @@ Show all trace levels:
 
 ----
 # mepa-cmd deb tr
- Module   Group       Level
- -------  ----------  -----
- api_ail  afi         error
- api_ail  clock       error
- api_ail  default     error
- api_ail  emul        error
- api_ail  evc         error
- api_ail  fdma        error
- api_ail  fdma_irq    error
- api_ail  hqos        error
- api_ail  hwprot      error
- api_ail  l2          error
- api_ail  l3          error
- api_ail  macsec      error
- api_ail  mpls        error
- api_ail  oam         error
- api_ail  packet      error
- api_ail  phy         error
- api_ail  port        error
- api_ail  qos         error
- api_ail  reg_check   error
- api_ail  security    error
- api_ail  ts          error
- api_ail  vcap        error
- api_cil  afi         error
- api_cil  clock       error
- api_cil  default     error
- api_cil  emul        error
- api_cil  evc         error
- api_cil  fdma        error
- api_cil  fdma_irq    error
- api_cil  hqos        error
- api_cil  hwprot      error
- api_cil  l2          error
- api_cil  l3          error
- api_cil  macsec      error
- api_cil  mpls        error
- api_cil  oam         error
- api_cil  packet      error
- api_cil  phy         error
- api_cil  port        error
- api_cil  qos         error
- api_cil  reg_check   error
- api_cil  security    error
- api_cil  ts          error
- api_cil  vcap        error
- cli      default     error
- debug    default     error
- ip       default     error
- json_rpc default     error
- mac      default     error
- main     default     error
- main     meba        error
- port     default     error
- regio    default     error
- symreg   default     error
- test     default     error
- vlan     default     error
-
+Module   Group       Level
+-------  ----------  -----
+api_ail  afi         error
+api_ail  clock       error
+api_ail  default     error
+api_ail  emul        error
+api_ail  evc         error
+api_ail  fdma        error
+api_ail  fdma_irq    error
+api_ail  hqos        error
+api_ail  hwprot      error
+api_ail  l2          error
+api_ail  l3          error
+api_ail  macsec      error
+api_ail  mpls        error
+api_ail  mrp         error
+api_ail  oam         error
+api_ail  packet      error
+api_ail  phy         error
+api_ail  port        error
+api_ail  qos         error
+api_ail  reg_check   error
+api_ail  security    error
+api_ail  ts          error
+api_ail  vcap        error
+api_cil  afi         error
+api_cil  clock       error
+api_cil  default     error
+api_cil  emul        error
+api_cil  evc         error
+api_cil  fdma        error
+api_cil  fdma_irq    error
+api_cil  hqos        error
+api_cil  hwprot      error
+api_cil  l2          error
+api_cil  l3          error
+api_cil  macsec      error
+api_cil  mpls        error
+api_cil  mrp         error
+api_cil  oam         error
+api_cil  packet      error
+api_cil  phy         error
+api_cil  port        error
+api_cil  qos         error
+api_cil  reg_check   error
+api_cil  security    error
+api_cil  ts          noise
+api_cil  vcap        error
+cli      default     error
+debug    default     error
+example  default     error
+gpio_lp_appdefault     error
+intr     default     error
+ip       default     error
+json_rpc default     error
+kr       default     error
+loopback default     error
+mac      default     error
+main     default     error
+main     meba        error
+mcu_fw   default     error
+packet   default     error
+phy_diagnosticsdefault     error
+phy_kr_anegdefault         error
+phy_port_configdefault     error
+phy_port_xconnectdefault   error
+phy_synce_configdefault    error
+phy_warmstartdefault       error
+port     default     error
+regio    default     error
+spi      default     error
+symreg   default     error
+test     default     error
+vlan     default     error
 ----
 
 Enable debug trace for port API at AIL and show the trace level:
 
 ----
-# mepa-cmd deb tr api_ail port debug
-# mepa-cmd deb tr api_ail port
+# mepa-cmd deb tr api_cil phy debug
+# mepa-cmd deb tr api_cil phy
  Module   Group       Level
  -------  ----------  -----
- api_ail  port        debug
+ api_cil  phy         debug
 ----
 
 Read chip ID in different ways using symbolic register access:

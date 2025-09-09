@@ -740,7 +740,7 @@ mepa_rc lan80xx_csr_rd(const mepa_device_t         *dev,
 
     if (dev->callout->spi_read != NULL) {
         MEPA_RC(dev->callout->spi_read(dev->callout_ctx, port_no, (uint8_t)mmd_dev, (uint16_t)addr, value));
-        T_D(MEPA_TRACE_GRP_GEN, "SPI Read : Port no : %d ,mmd : 0x%x ,addr : 0x%x, value : 0x%x\n", port_no, mmd_dev, addr, *value);
+        T_N(MEPA_TRACE_GRP_GEN, "SPI Read : Port no : %d ,mmd : 0x%x ,addr : 0x%x, value : 0x%x\n", port_no, mmd_dev, addr, *value);
         return MEPA_RC_OK;
     }
     if (dev->callout->mmd_read != NULL && dev->callout->mmd_read_inc != NULL) {
@@ -753,12 +753,12 @@ mepa_rc lan80xx_csr_rd(const mepa_device_t         *dev,
             MEPA_RC(mmd_read_inc_func(dev->callout_ctx, mmd_dev, reg_addr, reg_value, 2));
             *value = reg_value[0] + (((uint32_t)reg_value[1]) << LAN80XX_16_BIT_SHIFT);
 
-            T_D(MEPA_TRACE_GRP_GEN, "MDIO Read 32-bit register : Port no : %d ,mmd : 0x%x ,register_addr : 0x%x, 32-bit_reg_addr ; 0x%x, reg_value : 0x%x\n", port_no, mmd_dev, addr, reg_addr, *value);
+            T_N(MEPA_TRACE_GRP_GEN, "MDIO Read 32-bit register : Port no : %d ,mmd : 0x%x ,register_addr : 0x%x, 32-bit_reg_addr ; 0x%x, reg_value : 0x%x\n", port_no, mmd_dev, addr, reg_addr, *value);
             return MEPA_RC_OK;
         } else {
             MEPA_RC(mmd_read_func(dev->callout_ctx, mmd_dev, addr, &reg_value[0]));
             *value = (u32)reg_value[0];
-            T_D(MEPA_TRACE_GRP_GEN, "MDIO Read 16-bit register : Port no : %d ,mmd : 0x%x ,register_addr : 0x%x, reg_value : 0x%x\n", port_no, mmd_dev, addr, *value);
+            T_N(MEPA_TRACE_GRP_GEN, "MDIO Read 16-bit register : Port no : %d ,mmd : 0x%x ,register_addr : 0x%x, reg_value : 0x%x\n", port_no, mmd_dev, addr, *value);
             return MEPA_RC_OK;
         }
     }
@@ -787,7 +787,7 @@ mepa_rc lan80xx_csr_rd_64(const mepa_device_t         *dev,
 
     if (dev->callout->spi_read_64bit != NULL) {
         MEPA_RC(dev->callout->spi_read_64bit(dev->callout_ctx, port_no, (uint8_t)mmd_dev, (uint16_t)addr, value));
-        T_D(MEPA_TRACE_GRP_GEN, "SPI Read 64-bit : Port no : %d ,mmd : 0x%x ,addr : 0x%x, value : 0x%x\n", port_no, mmd_dev, addr, *value);
+        T_N(MEPA_TRACE_GRP_GEN, "SPI Read 64-bit : Port no : %d ,mmd : 0x%x ,addr : 0x%x, value : 0x%x\n", port_no, mmd_dev, addr, *value);
         return MEPA_RC_OK;
     }
     if (dev->callout->spi_read != NULL) {
@@ -807,7 +807,7 @@ mepa_rc lan80xx_csr_rd_64(const mepa_device_t         *dev,
         *value = value_hi;
         *value = (*value << LAN80XX_32_BIT_SHIFT) + value_low;
 
-        T_D(MEPA_TRACE_GRP_GEN, "MDIO Read two 32-bit register : Port no : %d ,mmd : 0x%x ,register_addr : 0x%x, 32-bit_reg_addr ; 0x%x, reg_value : 0x%x\n",
+        T_N(MEPA_TRACE_GRP_GEN, "MDIO Read two 32-bit register : Port no : %d ,mmd : 0x%x ,register_addr : 0x%x, 32-bit_reg_addr ; 0x%x, reg_value : 0x%x\n",
             port_no, mmd_dev, addr, reg_addr, *value);
         return MEPA_RC_OK;
     }
@@ -830,7 +830,7 @@ mepa_rc lan80xx_csr_wr(const mepa_device_t         *dev,
 
     if (dev->callout->spi_write != NULL) {
         MEPA_RC(dev->callout->spi_write(dev->callout_ctx, port_no, (uint8_t)mmd_dev, (uint16_t)addr, &value));
-        T_D(MEPA_TRACE_GRP_GEN, "SPI Write: Port no : %d ,mmd : 0x%x ,addr : 0x%x, value : 0x%x\n", port_no, mmd_dev, addr, value);
+        T_N(MEPA_TRACE_GRP_GEN, "SPI Write: Port no : %d ,mmd : 0x%x ,addr : 0x%x, value : 0x%x\n", port_no, mmd_dev, addr, value);
         return MEPA_RC_OK;
     }
 
@@ -848,11 +848,11 @@ mepa_rc lan80xx_csr_wr(const mepa_device_t         *dev,
             /* Write the Lower 2 Bytes */
             MEPA_RC(mmd_write_func(dev->callout_ctx, mmd_dev, reg_addr, reg_value_lower));
 
-            T_D(MEPA_TRACE_GRP_GEN, "MDIO write 32-bit register : Port no : %d ,mmd : 0x%x ,register_addr : 0x%x, 32-bit_reg_addr ; 0x%x, reg_value : 0x%x\n", port_no,             mmd_dev, addr, reg_addr, value);
+            T_N(MEPA_TRACE_GRP_GEN, "MDIO write 32-bit register : Port no : %d ,mmd : 0x%x ,register_addr : 0x%x, 32-bit_reg_addr ; 0x%x, reg_value : 0x%x\n", port_no,             mmd_dev, addr, reg_addr, value);
             return MEPA_RC_OK;
         } else {
             MEPA_RC(mmd_write_func(dev->callout_ctx, mmd_dev, addr, reg_value_lower));
-            T_D(MEPA_TRACE_GRP_GEN, "MDIO write 16-bit register : Port no : %d ,mmd : 0x%x ,register_addr : 0x%x, reg_value : 0x%x\n",
+            T_N(MEPA_TRACE_GRP_GEN, "MDIO write 16-bit register : Port no : %d ,mmd : 0x%x ,register_addr : 0x%x, reg_value : 0x%x\n",
                 port_no, mmd_dev, addr, reg_value_lower);
             return MEPA_RC_OK;
         }
@@ -913,9 +913,9 @@ mepa_rc _lan80xx_csr_warm_wrm(const mepa_device_t *dev,
         /* Read the current register value and compare with requested */
         MEPA_RC(lan80xx_csr_rd(dev, port_no, io->mmd, io->is32, io->addr, &curr_val));
         if ((curr_val ^ value) & mask & chk_mask) { /* Change in bit field */
-            T_D(MEPA_TRACE_GRP_GEN, "Warm start synch. field changed: Port:%u MMD:%d Register:0x%X\n", port_no, io->mmd, io->addr);
-            T_D(MEPA_TRACE_GRP_GEN, "Mask:0x%X Chip value:0x%X API value:0x%X\n", mask, curr_val, value);
-            T_D(MEPA_TRACE_GRP_GEN, "Function:%s, Line:%d (chk_mask:0x%X)\n", function, line, chk_mask);
+            T_N(MEPA_TRACE_GRP_GEN, "Warm start synch. field changed: Port:%u MMD:%d Register:0x%X\n", port_no, io->mmd, io->addr);
+            T_N(MEPA_TRACE_GRP_GEN, "Mask:0x%X Chip value:0x%X API value:0x%X\n", mask, curr_val, value);
+            T_N(MEPA_TRACE_GRP_GEN, "Function:%s, Line:%d (chk_mask:0x%X)\n", function, line, chk_mask);
             //data->warm_start_reg_changed = TRUE; // Signaling that a register for this port has changed.
             MEPA_RC(lan80xx_csr_wrm(dev, port_no, io->mmd, io->is32, io->addr, value, mask));
         }
@@ -4329,7 +4329,7 @@ mepa_rc lan80xx_phy_i2c_init_priv(mepa_device_t         *dev,
 {
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
     if (prescalar < LAN80XX_I2C_SCL_PRESCALAR_INVALID) {
-        T_D(MEPA_TRACE_GRP_GEN, "Invalid prescaler value %d", prescalar);
+        T_E(MEPA_TRACE_GRP_GEN, "Invalid prescaler value %d", prescalar);
         return MEPA_RC_ERROR;
     }
     //Default Prescalar 0x0095 = 400 kHz,

@@ -457,7 +457,7 @@ static mepa_rc lan80xx_ts_base_port_get_priv(const mepa_device_t *dev,
 {
     phy25g_phy_state_t *data = (phy25g_phy_state_t *) dev->data;
     if (data->base_dev == NULL) {
-        T_E(MEPA_TRACE_GRP_GEN, "Base port not assigned for port %s: %u", __FUNCTION__, data->port_no);
+        T_E(MEPA_TRACE_GRP_TS, "Base port not assigned for port %s: %u", __FUNCTION__, data->port_no);
         return MEPA_RC_ERROR;
     }
 
@@ -495,7 +495,7 @@ static mepa_rc lan80xx_phy_ts_write_csr(const mepa_device_t *dev,
     phy25g_phy_state_t     *data = (phy25g_phy_state_t *)dev->data;
     lan80xx_phy_ts_biu_addr_map_t *biu_addr_map_ptr = &phy25g_ts_biu_addr_map[0];
 
-    T_D(MEPA_TRACE_GRP_TS, "lan80xx_phy_ts_csr_wr addr =%x value=%x\n", biu_addr_map_ptr->mdio_address[blk_id] | csr_address, *value);
+    T_N(MEPA_TRACE_GRP_TS, "lan80xx_phy_ts_csr_wr addr =%x value=%x\n", biu_addr_map_ptr->mdio_address[blk_id] | csr_address, *value);
     LAN80XX_CSR_WR(dev, data->port_no, LAN80XX_IOREG(MMD_ID_PTP_BLOCK, 1, (biu_addr_map_ptr->mdio_address[blk_id] | csr_address)), *value);
 
     return MEPA_RC_OK;
@@ -514,7 +514,7 @@ static mepa_rc lan80xx_phy_ts_read_csr(const mepa_device_t *dev,
     LAN80XX_CSR_RD(dev, data->port_no,
                    LAN80XX_IOREG(MMD_ID_PTP_BLOCK, 1,
                                  (biu_addr_map_ptr->mdio_address[blk_id] | csr_address)), value);
-    T_D(MEPA_TRACE_GRP_TS, "lan80xx_phy_ts_csr_rd addr =%x value=%x\n", biu_addr_map_ptr->mdio_address[blk_id] | csr_address, *value);
+    T_N(MEPA_TRACE_GRP_TS, "lan80xx_phy_ts_csr_rd addr =%x value=%x\n", biu_addr_map_ptr->mdio_address[blk_id] | csr_address, *value);
 
     return MEPA_RC_OK;
 }
@@ -1240,7 +1240,7 @@ static mepa_rc lan80xx_phy_ts_ana_blk_id_get(phy25g_ts_engine_t eng_id,
     default:
         /* should never reach here */
         *blk_id = LAN80XX_PHY_TS_ANA_BLK_ID_ING(0);
-        T_E(MEPA_TRACE_GRP_GEN, "Invalid engine id (%d), ingress %d", eng_id, ingress);
+        T_E(MEPA_TRACE_GRP_TS, "Invalid engine id (%d), ingress %d", eng_id, ingress);
         rc = MEPA_RC_ERROR;
         break;
     }
@@ -1443,7 +1443,7 @@ static mepa_rc lan80xx_ts_mpls_flow_conf(mepa_device_t *dev,
     old_mpls_conf = &flow_conf->flow_conf.ptp.mpls_opt;
 
     if (mpls_conf->flow_opt[flow_index].stack_depth > (MEPA_PTP_MPLS_ALLOW_1LABEL | MEPA_PTP_MPLS_ALLOW_2LABEL | MEPA_PTP_MPLS_ALLOW_3LABEL | MEPA_PTP_MPLS_ALLOW_4LABEL)) {
-        T_E(MEPA_TRACE_GRP_GEN, "\n Maximum supported MPLS Label on port : %d is 4\n", data->port_no);
+        T_E(MEPA_TRACE_GRP_TS, "\n Maximum supported MPLS Label on port : %d is 4\n", data->port_no);
         return MEPA_RC_ERROR;
     }
 
@@ -5724,7 +5724,7 @@ static mepa_rc lan80xx_ts_csr_set_priv(mepa_device_t *dev,
         mask = 0;
 
         if (data->ptp_lsc_output_config.sertod_conf.pin_select == LAN80XX_PTP_LS_CTRL_3) {
-            T_E(MEPA_TRACE_GRP_GEN, "no o/p support in ls ctrl 3");
+            T_E(MEPA_TRACE_GRP_TS, "no o/p support in ls ctrl 3");
             return MEPA_RC_ERROR;
         }
 
@@ -6661,14 +6661,14 @@ mepa_rc lan80xx_phy_ts_ltc_ls_action_set(mepa_device_t *dev, const mepa_port_no_
 
     do {
         if (data->phy_ts_port_conf.port_ts_init_done == FALSE) {
-            T_E(MEPA_TRACE_GRP_GEN, "\n TS port init not done for port %u", port_no);
+            T_E(MEPA_TRACE_GRP_TS, "\n TS port init not done for port %u", port_no);
             rc = MEPA_RC_ERROR;
             break;
         }
 
         rc = lan80xx_ts_base_port_get_priv(dev, &base_port, &base_data);
         if (rc != MEPA_RC_OK) {
-            T_E(MEPA_TRACE_GRP_GEN, "\n Failed to get TS base port for port : %d %u", port_no);
+            T_E(MEPA_TRACE_GRP_TS, "\n Failed to get TS base port for port : %d %u", port_no);
             break;
         }
 
@@ -6693,14 +6693,14 @@ mepa_rc lan80xx_phy_ts_delay_asymmetry_set(mepa_device_t *dev,
     MEPA_ASSERT(delay_asym == NULL);
     do {
         if (data->phy_ts_port_conf.port_ts_init_done == FALSE) {
-            T_E(MEPA_TRACE_GRP_GEN, "Init not done, port %u", port_no);
+            T_E(MEPA_TRACE_GRP_TS, "Init not done, port %u", port_no);
             rc = MEPA_RC_ERROR;
             break;
         }
         if (*delay_asym <= (32767LL) && *delay_asym >= (-32768LL)) {
             data->phy_ts_port_conf.delay_asym = *delay_asym;
             if ((rc = lan80xx_ts_csr_set_priv(dev, port_no, LAN80XX_PHY_TS_DELAY_ASYM_SET)) != MEPA_RC_OK) {
-                T_E(MEPA_TRACE_GRP_GEN, "Asymmetry set fail, port %u", port_no);
+                T_E(MEPA_TRACE_GRP_TS, "Asymmetry set fail, port %u", port_no);
                 /* don't break, needs to unpause */
             }
         } else {
@@ -6739,14 +6739,14 @@ mepa_rc lan80xx_phy_ts_path_delay_set(mepa_device_t *dev,
     MEPA_ENTER(dev);
     do {
         if (data->phy_ts_port_conf.port_ts_init_done == FALSE) {
-            T_E(MEPA_TRACE_GRP_GEN, "Init not done, port %u", port_no);
+            T_E(MEPA_TRACE_GRP_TS, "Init not done, port %u", port_no);
             rc = MEPA_RC_ERROR;
             break;
         }
         data->phy_ts_port_conf.path_delay = *path_delay;
         ////LAN80XX_PHY_TS_SPI_PAUSE(port_no);
         if (lan80xx_ts_csr_set_priv(dev, port_no, LAN80XX_PHY_TS_PATH_DELAY_SET) != MEPA_RC_OK) {
-            T_E(MEPA_TRACE_GRP_GEN, "Path_delay set fail, port %u", port_no);
+            T_E(MEPA_TRACE_GRP_TS, "Path_delay set fail, port %u", port_no);
             rc = MEPA_RC_ERROR;
             /* don't break, needs to unpause */
         }
@@ -6791,7 +6791,7 @@ mepa_rc lan80xx_phy_ts_clock_rateadj_set(mepa_device_t  *dev,
         data->phy_ts_port_conf.rate_adj = *adj;
         //LAN80XX_PHY_TS_SPI_PAUSE(port_no);
         if ((rc = lan80xx_ts_csr_set_priv(dev, port_no, LAN80XX_PHY_TS_RATE_ADJ_SET)) != MEPA_RC_OK) {
-            T_E(MEPA_TRACE_GRP_GEN, "Rate Adj fail, port %u", port_no);
+            T_E(MEPA_TRACE_GRP_TS, "Rate Adj fail, port %u", port_no);
             /* don't break, needs to unpause */
         }
         //LAN80XX_PHY_TS_SPI_UNPAUSE(port_no);
@@ -6975,7 +6975,7 @@ mepa_rc lan80xx_phy_ts_pps_ouput_conf_set(mepa_device_t *dev, const mepa_port_no
     MEPA_ENTER(dev);
     do {
         if (data->phy_ts_port_conf.port_ts_init_done == FALSE) {
-            T_E(MEPA_TRACE_GRP_GEN, "Init not done, port %u", data->port_no);
+            T_E(MEPA_TRACE_GRP_TS, "Init not done, port %u", data->port_no);
             rc = MEPA_RC_ERROR;
             break;
         }
@@ -6985,14 +6985,14 @@ mepa_rc lan80xx_phy_ts_pps_ouput_conf_set(mepa_device_t *dev, const mepa_port_no
             break;
         }
         if (pps_out_conf->lsc_select == LAN80XX_PTP_LSC_PIN_3) {
-            T_E(MEPA_TRACE_GRP_GEN, "\nno o/p support in ls ctrl 3");
+            T_E(MEPA_TRACE_GRP_TS, "\nno o/p support in ls ctrl 3");
             break;
         }
         base_data->ptp_lsc_output_config.pps_conf = *pps_out_conf;
 
         rc = LAN80XX_RC_COLD(lan80xx_ts_csr_set_priv(dev, data->port_no, LAN80XX_PHY_TS_PPS_OUTPUT_CONF_SET));
         if (rc != MEPA_RC_OK) {
-            T_E(MEPA_TRACE_GRP_GEN, "PPS Configuration set fail, port %u", data->port_no);
+            T_E(MEPA_TRACE_GRP_TS, "PPS Configuration set fail, port %u", data->port_no);
         }
     } while (0);
 
@@ -7012,7 +7012,7 @@ mepa_rc lan80xx_ts_pps_conf_set_priv(mepa_device_t *dev, const mepa_ts_pps_conf_
     }
 
     if (data->phy_ts_port_conf.port_ts_init_done == FALSE) {
-        T_E(MEPA_TRACE_GRP_GEN, "Init not done, port %u", data->port_no);
+        T_E(MEPA_TRACE_GRP_TS, "Init not done, port %u", data->port_no);
         return MEPA_RC_ERROR;
     }
 
@@ -7033,7 +7033,7 @@ mepa_rc lan80xx_ts_pps_conf_set_priv(mepa_device_t *dev, const mepa_ts_pps_conf_
 
     rc = lan80xx_ts_csr_set_priv(dev, data->port_no, LAN80XX_PHY_TS_PPS_OUTPUT_CONF_SET);
     if (rc != MEPA_RC_OK) {
-        T_E(MEPA_TRACE_GRP_GEN, "PPS Configuration set fail, port %u", data->port_no);
+        T_E(MEPA_TRACE_GRP_TS, "PPS Configuration set fail, port %u", data->port_no);
     }
     return rc;
 }

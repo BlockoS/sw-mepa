@@ -6764,10 +6764,10 @@ mepa_rc lan80xx_fw_update_priv(mepa_device_t *dev)
     if (u8McuInterrupt && (u16Timeout < MAILBOX_INTR_TIMEOUT)) {
         /* UNG_MALIBU_25G-2476 Workaround */
         uint8_t byDataBuffer[4] = {0};
-        lan80xx_memory_read(dev, LAN80XX_MCU_CODE_RAM_START_REGION, byDataBuffer, 4);
-        lan80xx_memory_read(dev, LAN80XX_MCU_CODE_RAM_START_REGION + LAN80XX_MEMORY_SLICE_ONE_OFFSET, byDataBuffer, 4);
-        lan80xx_memory_read(dev, LAN80XX_MCU_CODE_RAM_START_REGION + LAN80XX_MEMORY_SLICE_TWO_OFFSET, byDataBuffer, 4);
-        lan80xx_memory_read(dev, LAN80XX_MCU_CODE_RAM_START_REGION + LAN80XX_MEMORY_SLICE_THREE_OFFSET, byDataBuffer, 4);
+        lan80xx_memory_read_priv(dev, LAN80XX_MCU_CODE_RAM_START_REGION, byDataBuffer, 4);
+        lan80xx_memory_read_priv(dev, LAN80XX_MCU_CODE_RAM_START_REGION + LAN80XX_MEMORY_SLICE_ONE_OFFSET, byDataBuffer, 4);
+        lan80xx_memory_read_priv(dev, LAN80XX_MCU_CODE_RAM_START_REGION + LAN80XX_MEMORY_SLICE_TWO_OFFSET, byDataBuffer, 4);
+        lan80xx_memory_read_priv(dev, LAN80XX_MCU_CODE_RAM_START_REGION + LAN80XX_MEMORY_SLICE_THREE_OFFSET, byDataBuffer, 4);
         do {
             u16Count++;
             T_IM("Sending DFU packet %d...\n", u16Count);

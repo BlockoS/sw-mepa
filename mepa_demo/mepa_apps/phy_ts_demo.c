@@ -485,7 +485,10 @@ static void test_ts_phy_fifo_read( const mepa_port_no_t           port_no,
 {
     packet_count = packet_count + 1;
     cli_printf("\n");
-    cli_printf("PHY Fifo read: Packet : %d -> port_no %u, msg_type: %d, domain %d, seq %d\n", packet_count, (port_no + 1), sig->msg_type, sig->domain_num, sig->sequence_id);
+    cli_printf("PHY Fifo read: Packet : %d -> port_no %u, msg_type: %d, domain %d, seq %d, Source portId : 0x %x:%x:%x:%x:%x:%x:%x:%x:%x:%x\n", packet_count, (port_no + 1), sig->msg_type, sig->domain_num,
+               sig->sequence_id, sig->src_port_identity[0], sig->src_port_identity[1], sig->src_port_identity[2], sig->src_port_identity[3], sig->src_port_identity[4], sig->src_port_identity[5], 
+               sig->src_port_identity[6], sig->src_port_identity[7], sig->src_port_identity[8], sig->src_port_identity[9]);
+
     cli_printf("PHY Fifo read: Packet : %d -> tx time:  Sec_Hi:%d, Sec_Low:%u, Nsec: %u, sub-Nsec %u\n", packet_count, fifo_ts->seconds.high, fifo_ts->seconds.low, fifo_ts->nanoseconds, fifo_ts->picoseconds);
 }
 

@@ -4823,7 +4823,7 @@ static mepa_rc lan80xx_phy_ts_ip1_sig_mask_set_priv(mepa_device_t               
     /* select the IP1 comparator */
     MEPA_RC(LAN80XX_PHY_TS_READ_CSR(port_no, blk_id, LAN80XX_ANA_FRAME_SIG_CFG_FSB_CFG, &value));
     value = LAN80XX_PHY_TS_CLR_BITS(value, LAN80XX_M_ANA_FRAME_SIG_CFG_FSB_CFG_FSB_ADR_SEL);
-    value |= LAN80XX_F_ANA_FRAME_SIG_CFG_FSB_CFG_FSB_ADR_SEL(2) ;
+    value |= LAN80XX_F_ANA_FRAME_SIG_CFG_FSB_CFG_FSB_ADR_SEL(2);
     MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_FRAME_SIG_CFG_FSB_CFG, &value));
 
     return MEPA_RC_OK;
@@ -4888,6 +4888,7 @@ static mepa_rc lan80xx_phy_ts_signature_set_priv(mepa_device_t         *dev,
     phy25g_ts_blk_id_t blk_id;
     phy25g_ts_encap_t  encap_type;
     phy25g_ts_fifo_sig_mask_t sig_mask;
+    mepa_bool_t eth_comparator = 0;
 
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
     /* Configure the signature bytes in each of the 3 engines */
@@ -5004,6 +5005,42 @@ static mepa_rc lan80xx_phy_ts_signature_set_priv(mepa_device_t         *dev,
         }
     }
 
+    if (sig_mask & LAN80XX_PHY_TS_FIFO_SIG_IPV6_DEST_IP) {
+
+        MEPA_ASSERT(pos > LAN80XX_PTP_SIGNATURE_LEN);
+        sig_sel[pos++] = 28;
+        MEPA_ASSERT(pos > LAN80XX_PTP_SIGNATURE_LEN);
+        sig_sel[pos++] = 29;
+        MEPA_ASSERT(pos > LAN80XX_PTP_SIGNATURE_LEN);
+        sig_sel[pos++] = 30;
+        MEPA_ASSERT(pos > LAN80XX_PTP_SIGNATURE_LEN);
+        sig_sel[pos++] = 31;
+        MEPA_ASSERT(pos > LAN80XX_PTP_SIGNATURE_LEN);
+        sig_sel[pos++] = 32;
+        MEPA_ASSERT(pos > LAN80XX_PTP_SIGNATURE_LEN);
+        sig_sel[pos++] = 33;
+        MEPA_ASSERT(pos > LAN80XX_PTP_SIGNATURE_LEN);
+        sig_sel[pos++] = 34;
+        MEPA_ASSERT(pos > LAN80XX_PTP_SIGNATURE_LEN);
+        sig_sel[pos++] = 35;
+        MEPA_ASSERT(pos > LAN80XX_PTP_SIGNATURE_LEN);
+        sig_sel[pos++] = 36;
+        MEPA_ASSERT(pos > LAN80XX_PTP_SIGNATURE_LEN);
+        sig_sel[pos++] = 37;
+        MEPA_ASSERT(pos > LAN80XX_PTP_SIGNATURE_LEN);
+        sig_sel[pos++] = 38;
+        MEPA_ASSERT(pos > LAN80XX_PTP_SIGNATURE_LEN);
+        sig_sel[pos++] = 39;
+        MEPA_ASSERT(pos > LAN80XX_PTP_SIGNATURE_LEN);
+        sig_sel[pos++] = 40;
+        MEPA_ASSERT(pos > LAN80XX_PTP_SIGNATURE_LEN);
+        sig_sel[pos++] = 41;
+        MEPA_ASSERT(pos > LAN80XX_PTP_SIGNATURE_LEN);
+        sig_sel[pos++] = 42;
+        MEPA_ASSERT(pos > LAN80XX_PTP_SIGNATURE_LEN);
+        sig_sel[pos++] = 43;
+    }
+
     if (sig_mask & (LAN80XX_PHY_TS_FIFO_SIG_DEST_MAC)) {
         /* configure both the ETH comparators */
 
@@ -5011,10 +5048,9 @@ static mepa_rc lan80xx_phy_ts_signature_set_priv(mepa_device_t         *dev,
         MEPA_RC(lan80xx_phy_ts_ana_blk_id_get(eng_id, FALSE, &blk_id));
         if (data->phy_ts_port_conf.egress_eng_conf[eng_id].eng_used == TRUE) {
 
-            if ((encap_type == LAN80XX_PHY_TS_ENCAP_ETH_PTP) || (encap_type == LAN80XX_PHY_TS_ENCAP_ETH_IP_PTP) || (encap_type == LAN80XX_PHY_TS_ENCAP_ETH_IP_IP_PTP) ||
-                (encap_type == LAN80XX_PHY_TS_ENCAP_ETH_MPLS_IP_PTP)) {
-
+            if (encap_type == LAN80XX_PHY_TS_ENCAP_ETH_PTP) {
                 MEPA_RC(lan80xx_phy_ts_eth1_sig_mask_set_priv(dev, port_no, eng_id, blk_id));
+                eth_comparator = 1;
             }
 #if 0
             else if (((encap_type == LAN80XX_PHY_TS_ENCAP_ETH_ETH_PTP)      ||
@@ -5038,17 +5074,17 @@ static mepa_rc lan80xx_phy_ts_signature_set_priv(mepa_device_t         *dev,
              * use 30,31,32,33,34,35
              */
             MEPA_ASSERT(pos > LAN80XX_PTP_SIGNATURE_LEN);
-            sig_sel[pos++] = 35;
+            sig_sel[pos++] = eth_comparator ? 35 : 45;
             MEPA_ASSERT(pos > LAN80XX_PTP_SIGNATURE_LEN);
-            sig_sel[pos++] = 34;
+            sig_sel[pos++] = eth_comparator ? 34 : 45;
             MEPA_ASSERT(pos > LAN80XX_PTP_SIGNATURE_LEN);
-            sig_sel[pos++] = 33;
+            sig_sel[pos++] = eth_comparator ? 33 : 45;
             MEPA_ASSERT(pos > LAN80XX_PTP_SIGNATURE_LEN);
-            sig_sel[pos++] = 32;
+            sig_sel[pos++] = eth_comparator ? 32 : 45;
             MEPA_ASSERT(pos > LAN80XX_PTP_SIGNATURE_LEN);
-            sig_sel[pos++] = 31;
+            sig_sel[pos++] = eth_comparator ? 31 : 45;
             MEPA_ASSERT(pos > LAN80XX_PTP_SIGNATURE_LEN);
-            sig_sel[pos++] = 30;
+            sig_sel[pos++] = eth_comparator ? 30 : 45;
         }
     }
     /* configure the signature selection
@@ -5096,12 +5132,38 @@ static mepa_rc lan80xx_phy_ts_signature_set_priv(mepa_device_t         *dev,
     }
 
     value = 0;
-    value = (sig_sel[pos++] & 0x3f);
+    for (byte_ct = 4; byte_ct >= 0; byte_ct--) {
+        value = (value << 6) | (sig_sel[pos + byte_ct] & 0x3f);
+    }
+    pos += 5;
     if (ptp_engine_2 == 1) {
         MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_PTP_ANA2_EGR_CFG_EGR2_FSB_MAP_REG_3_OFFSET, &value));
     } else {
         MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_FRAME_SIG_CFG_FSB_MAP_REG_3, &value));
     }
+
+    value = 0;
+    for (byte_ct = 4; byte_ct >= 0; byte_ct--) {
+        value = (value << 6) | (sig_sel[pos + byte_ct] & 0x3f);
+    }
+    pos += 5;
+    if (ptp_engine_2 == 1) {
+        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_PTP_ANA2_EGR_CFG_EGR2_FSB_MAP_REG_4_OFFSET, &value));
+    } else {
+        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_FRAME_SIG_CFG_FSB_MAP_REG_4, &value));
+    }
+
+    value = 0;
+    for (byte_ct = 4; byte_ct >= 0; byte_ct--) {
+        value = (value << 6) | (sig_sel[pos + byte_ct] & 0x3f);
+    }
+    pos += 5;
+    if (ptp_engine_2 == 1) {
+        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_PTP_ANA2_EGR_CFG_EGR2_FSB_MAP_REG_5_OFFSET, &value));
+    } else {
+        MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_FRAME_SIG_CFG_FSB_MAP_REG_5, &value));
+    }
+
     return MEPA_RC_OK;
 }
 
@@ -5136,6 +5198,9 @@ mepa_rc lan80xx_phy_ts_fifo_sig_set(mepa_device_t                     *dev,
     if (sig_mask & LAN80XX_PHY_TS_FIFO_SIG_DEST_MAC) {
         len += LAN80XX_PHY_TS_SIG_DEST_MAC_LEN;    /* Dest MAC = 6 Bytes */
     }
+    if (sig_mask & LAN80XX_PHY_TS_FIFO_SIG_IPV6_DEST_IP) {
+        len += LAN80XX_PHY_TS_SIG_IPV6_LEN;
+    } 
 
     if (len > LAN80XX_PTP_SIGNATURE_LEN) {
         T_E(MEPA_TRACE_GRP_TS, "Invalid FIFO signature length");
@@ -6520,9 +6585,20 @@ mepa_rc lan80xx_ts_tx_classifier_conf_set_priv(struct mepa_device *dev,
         }
 
         /* TS FIFO Signature configuration */
-        /* Signature length is forced to 28-bytes so all the Signature fields are enabled by default */
-        phy25g_ts_fifo_sig_mask_t sig_mask = (LAN80XX_PHY_TS_FIFO_SIG_SRC_IP | LAN80XX_PHY_TS_FIFO_SIG_DEST_IP | LAN80XX_PHY_TS_FIFO_SIG_MSG_TYPE | LAN80XX_PHY_TS_FIFO_SIG_DOMAIN_NUM |
-                                              LAN80XX_PHY_TS_FIFO_SIG_SOURCE_PORT_ID | LAN80XX_PHY_TS_FIFO_SIG_SEQ_ID | LAN80XX_PHY_TS_FIFO_SIG_DEST_MAC);
+        /* Signature length is forced to 28-bytes */
+        phy25g_ts_fifo_sig_mask_t sig_mask = (LAN80XX_PHY_TS_FIFO_SIG_MSG_TYPE | LAN80XX_PHY_TS_FIFO_SIG_DOMAIN_NUM |
+                                              LAN80XX_PHY_TS_FIFO_SIG_SOURCE_PORT_ID | LAN80XX_PHY_TS_FIFO_SIG_SEQ_ID);
+
+        if (eng_conf->encap_type == LAN80XX_PHY_TS_ENCAP_ETH_MPLS_ETH_PTP || eng_conf->encap_type == LAN80XX_PHY_TS_ENCAP_ETH_ETH_PTP || eng_conf->encap_type == LAN80XX_PHY_TS_ENCAP_ETH_PTP) {
+            sig_mask |= LAN80XX_PHY_TS_FIFO_SIG_DEST_MAC;
+        } else {
+            if (pkt_class_conf->ip_class_conf.ip_ver == MEPA_TS_IP_VER_4) {
+                sig_mask |= (LAN80XX_PHY_TS_FIFO_SIG_SRC_IP | LAN80XX_PHY_TS_FIFO_SIG_DEST_IP);
+            } else {
+				/* TO DO for IPv6 */
+                //sig_mask |= LAN80XX_PHY_TS_FIFO_SIG_IPV6_DEST_IP;
+            }
+        }
         if ((rc = lan80xx_phy_ts_fifo_sig_set(dev, data->port_no, eng_id, sig_mask)) != MEPA_RC_OK) {
             T_E(MEPA_TRACE_GRP_TS, "\n Failed to configure TS FIFO Signature Mask on port : %d \n", data->port_no);
             return MEPA_RC_ERROR;

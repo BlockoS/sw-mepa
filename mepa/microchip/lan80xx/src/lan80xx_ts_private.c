@@ -4764,6 +4764,8 @@ mepa_rc lan80xx_phy_ts_fifo_empty_priv(mepa_device_t           *dev,
             memcpy(&mepa_sig.src_port_identity, &signature.src_port_identity, sizeof(signature.src_port_identity));
             mepa_sig.has_crc_src = FALSE;
             mepa_sig.crc_src_port = 0;
+            mepa_sig.dmac_sig_supported = TRUE;
+            memcpy(&mepa_sig.dmac_addr, &signature.dest_mac, sizeof(signature.dest_mac));
 
             if (callback) {
                 status = MEPA_TS_FIFO_SUCCESS;
@@ -5200,7 +5202,7 @@ mepa_rc lan80xx_phy_ts_fifo_sig_set(mepa_device_t                     *dev,
     }
     if (sig_mask & LAN80XX_PHY_TS_FIFO_SIG_IPV6_DEST_IP) {
         len += LAN80XX_PHY_TS_SIG_IPV6_LEN;
-    } 
+    }
 
     if (len > LAN80XX_PTP_SIGNATURE_LEN) {
         T_E(MEPA_TRACE_GRP_TS, "Invalid FIFO signature length");
@@ -6595,7 +6597,7 @@ mepa_rc lan80xx_ts_tx_classifier_conf_set_priv(struct mepa_device *dev,
             if (pkt_class_conf->ip_class_conf.ip_ver == MEPA_TS_IP_VER_4) {
                 sig_mask |= (LAN80XX_PHY_TS_FIFO_SIG_SRC_IP | LAN80XX_PHY_TS_FIFO_SIG_DEST_IP);
             } else {
-				/* TO DO for IPv6 */
+                /* TO DO for IPv6 */
                 //sig_mask |= LAN80XX_PHY_TS_FIFO_SIG_IPV6_DEST_IP;
             }
         }

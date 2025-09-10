@@ -484,14 +484,26 @@ static void test_ts_phy_fifo_read( const mepa_port_no_t           port_no,
                                    const mepa_ts_fifo_status_t status)
 {
     packet_count = packet_count + 1;
+
+    const uint8_t zero_mac[6] = {0};
+    const uint8_t zero_ip[4] = {0};
+
+    mepa_bool_t is_dmac_zero = (memcmp(sig->dmac_addr.addr, zero_mac, sizeof(zero_mac)) == 0);
+
+    mepa_bool_t is_ipv4_zero = (memcmp(sig->dest_ipv4, zero_ip, sizeof(zero_ip)) == 0);
+
     cli_printf("\n");
     cli_printf("PHY Fifo read: Packet : %d -> port_no %u, msg_type: %d, domain %d, seq %d, Source portId : 0x%x:%x:%x:%x:%x:%x:%x:%x:%x:%x\n", packet_count, (port_no + 1), sig->msg_type, sig->domain_num,
                sig->sequence_id, sig->src_port_identity[0], sig->src_port_identity[1], sig->src_port_identity[2], sig->src_port_identity[3], sig->src_port_identity[4], sig->src_port_identity[5],
                sig->src_port_identity[6], sig->src_port_identity[7], sig->src_port_identity[8], sig->src_port_identity[9]);
 
-    if (sig->dmac_sig_supported == TRUE) {
+    if (sig->dmac_sig_supported == TRUE && is_ipv4_zero) {
         cli_printf("PHY Fifo read: Packet : %d -> DMAC : 0x%02x:0x%02x:0x%02x:0x%02x:0x%02x:0x%02x\n", packet_count, sig->dmac_addr.addr[0], sig->dmac_addr.addr[1], sig->dmac_addr.addr[2],
                    sig->dmac_addr.addr[3], sig->dmac_addr.addr[4], sig->dmac_addr.addr[5]);
+    }
+
+    if (sig->ipv4_sig_supported == TRUE && is_dmac_zero) {
+        cli_printf("PHY Fifo read: Packet : %d -> Dest IPv4 : %d.%d.%d.%d\n", packet_count, sig->dest_ipv4[0], sig->dest_ipv4[1], sig->dest_ipv4[2], sig->dest_ipv4[3]);
     }
     cli_printf("PHY Fifo read: Packet : %d -> tx time:  Sec_Hi:%d, Sec_Low:%u, Nsec: %u, sub-Nsec %u\n", packet_count, fifo_ts->seconds.high, fifo_ts->seconds.low, fifo_ts->nanoseconds, fifo_ts->picoseconds);
 }

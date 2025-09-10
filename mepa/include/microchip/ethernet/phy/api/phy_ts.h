@@ -409,6 +409,8 @@ typedef struct {
     mepa_bool_t                 has_crc_src;           /**< true if the phy returns CRC-12 of source port identity in crc_src_port field. False if Source port identity is filled in src_port_identity field. Set to true for Lan8814 and false for VSC phys. */
     mepa_mac_t                  dmac_addr;             /**< Destination MAC Address in case of ETH-PTP */
 	mepa_bool_t                 dmac_sig_supported;    /**< Indicates whether PHY supports DMAC in signature or not */
+    uint8_t                     dest_ipv4[4];          /**< Destination IPv4 Address */
+    mepa_bool_t                 ipv4_sig_supported;    /**<Indicates whether PHY supports Dest IPv4 address in signature or not */
 } mepa_ts_fifo_sig_t;
 
 /** \brief TS FIFO status */

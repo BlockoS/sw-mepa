@@ -4827,6 +4827,57 @@ static mepa_rc lan80xx_phy_ts_ip1_sig_mask_set_priv(mepa_device_t               
     return MEPA_RC_OK;
 }
 
+static mepa_rc lan80xx_phy_ts_eth2_sig_mask_set_priv(mepa_device_t *dev,
+                                                     const mepa_port_no_t              port_no,
+                                                     const phy25g_ts_engine_t        engine_id,
+                                                     const phy25g_ts_blk_id_t        blk_id)
+{
+    u32 value;
+    phy25g_ts_fifo_sig_mask_t sig_mask;
+    phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
+    sig_mask = data->phy_ts_port_conf.sig_mask;
+
+    if (sig_mask & LAN80XX_PHY_TS_FIFO_SIG_DEST_MAC) {
+        if (engine_id < LAN80XX_PHY_TS_OAM_ENGINE_ID_2A) {
+            /* select the offset */
+            MEPA_RC(LAN80XX_PHY_TS_READ_CSR(port_no, blk_id,
+                                            LAN80XX_ANA_ETH2_NXT_PROTOCOL_ETH2_NXT_PROTOCOL, &value));
+
+            value = LAN80XX_PHY_TS_CLR_BITS(value,
+                                            LAN80XX_M_ANA_ETH2_NXT_PROTOCOL_ETH2_NXT_PROTOCOL_ETH2_FRAME_SIG_OFFSET);
+
+            value |= LAN80XX_F_ANA_ETH2_NXT_PROTOCOL_ETH2_NXT_PROTOCOL_ETH2_FRAME_SIG_OFFSET(0);
+
+            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id,
+                                             LAN80XX_ANA_ETH2_NXT_PROTOCOL_ETH2_NXT_PROTOCOL, &value));
+
+            /* select the ETH1 comparator in Frame Signature builder mode config register*/
+            MEPA_RC(LAN80XX_PHY_TS_READ_CSR(port_no, blk_id,
+                                            LAN80XX_ANA_FRAME_SIG_CFG_FSB_CFG, &value));
+
+            value = LAN80XX_PHY_TS_CLR_BITS(value, LAN80XX_M_ANA_FRAME_SIG_CFG_FSB_CFG_FSB_ADR_SEL);
+            value |= LAN80XX_F_ANA_FRAME_SIG_CFG_FSB_CFG_FSB_ADR_SEL(1);
+            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_FRAME_SIG_CFG_FSB_CFG, &value));
+
+        } else if (engine_id == LAN80XX_PHY_TS_OAM_ENGINE_ID_2A || engine_id == LAN80XX_PHY_TS_OAM_ENGINE_ID_2B) {
+
+            MEPA_RC(LAN80XX_PHY_TS_READ_CSR(port_no, blk_id, LAN80XX_ANA_ETH2_NXT_PROTOCOL_ETH2_NXT_PROTOCOL, &value));
+
+            value = LAN80XX_PHY_TS_CLR_BITS(value, LAN80XX_M_ANA_ETH2_NXT_PROTOCOL_ETH2_NXT_PROTOCOL_ETH2_FRAME_SIG_OFFSET);
+            value |= LAN80XX_F_ANA_ETH2_NXT_PROTOCOL_ETH2_NXT_PROTOCOL_ETH2_FRAME_SIG_OFFSET(0);
+            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_ANA_ETH2_NXT_PROTOCOL_ETH2_NXT_PROTOCOL, &value));
+
+            /* select the ETH1 comparator in Frame Signature builder mode config register*/
+            MEPA_RC(LAN80XX_PHY_TS_READ_CSR(port_no, blk_id, LAN80XX_PTP_ANA2_EGR_CFG_EGR2_FSB_CFG_OFFSET, &value));
+            value = LAN80XX_PHY_TS_CLR_BITS(value, LAN80XX_M_ANA_FRAME_SIG_CFG_FSB_CFG_FSB_ADR_SEL);
+            value |= LAN80XX_F_ANA_FRAME_SIG_CFG_FSB_CFG_FSB_ADR_SEL(1);
+            MEPA_RC(LAN80XX_PHY_TS_WRITE_CSR(port_no, blk_id, LAN80XX_PTP_ANA2_EGR_CFG_EGR2_FSB_CFG_OFFSET, &value));
+        }
+    }
+    return MEPA_RC_OK;
+}
+
+
 static mepa_rc lan80xx_phy_ts_eth1_sig_mask_set_priv(mepa_device_t *dev,
                                                      const mepa_port_no_t              port_no,
                                                      const phy25g_ts_engine_t        engine_id,
@@ -5022,15 +5073,9 @@ static mepa_rc lan80xx_phy_ts_signature_set_priv(mepa_device_t         *dev,
             if (encap_type == LAN80XX_PHY_TS_ENCAP_ETH_PTP) {
                 MEPA_RC(lan80xx_phy_ts_eth1_sig_mask_set_priv(dev, port_no, eng_id, blk_id));
             }
-#if 0
-            else if (((encap_type == LAN80XX_PHY_TS_ENCAP_ETH_ETH_PTP)      ||
-                      (encap_type == LAN80XX_PHY_TS_ENCAP_ETH_ETH_IP_PTP)   ||
-                      (encap_type == LAN80XX_PHY_TS_ENCAP_ETH_MPLS_ETH_PTP) ||
-                      (encap_type == LAN80XX_PHY_TS_ENCAP_ETH_MPLS_ETH_IP_PTP)) &&
-                     (engine_id != LAN80XX_PHY_TS_OAM_ENGINE_ID_2B)) {
-                //MEPA_RC(lan80xx_phy_ts_eth2_sig_mask_set_priv(dev, port_no, engine_id, blk_id));
+            else if ((encap_type == LAN80XX_PHY_TS_ENCAP_ETH_ETH_PTP) || (encap_type == LAN80XX_PHY_TS_ENCAP_ETH_MPLS_ETH_PTP)) {
+                MEPA_RC(lan80xx_phy_ts_eth2_sig_mask_set_priv(dev, port_no, eng_id, blk_id));
             }
-#endif
         }
         /* If Destination MAC is selected for signature then use next position storing
          * the MAC address */

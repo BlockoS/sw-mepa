@@ -584,8 +584,8 @@ static mepa_rc lan80xx_ts_block_init(const mepa_device_t  *dev)
                         LAN80XX_M_CLK_CFG_LTCPLL_CMD_REG_LTCPLL_UPDATE);
 
         /* setting the clock value */
-        LAN80XX_CSR_WR(dev, base_port, LAN80XX_PTP_LTC_CLK_PER_CFG(1), 0x1921fabd);
-        LAN80XX_CSR_WR(dev, base_port, LAN80XX_PTP_LTC_CLK_PER_CFG(0), 0x7F2Cf720);
+        LAN80XX_CSR_WR(dev, base_port, LAN80XX_PTP_LTC_CLK_PER_CFG(1), 0x1921fb54);
+        LAN80XX_CSR_WR(dev, base_port, LAN80XX_PTP_LTC_CLK_PER_CFG(0), 0x7f9eae35);
 
         /* Wait for PLL lock */
         LAN80XX_CSR_RD(dev, base_port, LAN80XX_CLK_CFG_LTCPLL_STS_REG, &value);

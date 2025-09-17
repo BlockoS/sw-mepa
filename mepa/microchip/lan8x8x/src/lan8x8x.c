@@ -93,6 +93,9 @@ static mepa_rc lan8x8x_config_mac(mepa_device_t *dev)
         MEPA_RC_GOTO(rc, phy_mmd_reg_set_bits(dev, MDIO_MMD_VEND1,
                                               QSGMII_ANEG_EN_REG,
                                               QSGMII_ANEG_EN));
+        MEPA_RC_GOTO(rc, phy_mmd_reg_set_bits(dev, MDIO_MMD_VEND1,
+                                              QSGMII_PCS1G_ANEG_CONFIG,
+                                              QSGMII_PCS1G_ANEG_ENA));
     } else if ((data->mac_if >= MESA_PORT_INTERFACE_RGMII) &&
                (data->mac_if <= MESA_PORT_INTERFACE_RGMII_TXID)) {
         rc = MEPA_RC_OK;
@@ -530,7 +533,8 @@ static mepa_rc lan8x8x_config_set(mepa_device_t *dev, const mepa_conf_t *config)
             //config change and admin enable
             if (data->conf.admin.enable == PHY_TRUE) {
                 //clear power down bit
-                MEPA_RC_GOTO(rc, phy_reg_clear_bits(dev, MII_BMCR, BMCR_PDOWN));
+                MEPA_RC_GOTO(rc, phy_mmd_reg_clear_bits(dev, MDIO_MMD_PMAPMD,
+                                                        MDIO_CTRL1, BMCR_PDOWN));
                 //Setup PHY
                 MEPA_RC_GOTO(rc, lan8x8x_phy_setup(dev));
             } else {
@@ -633,10 +637,10 @@ static void lan8x8x_fill_probe_data(mepa_driver_t *drv,
     data->conf.aneg.speed_1g_fdx = PHY_FALSE;
     data->media_intf = MESA_PHY_MEDIA_IF_T1_100FX;
 
-    if (IS_LAN878X(dev->drv->id)) {
+    if (IS_LAN888X(dev->drv->id)) {
         data->media_intf = MESA_PHY_MEDIA_IF_T1_1000FX;
         data->conf.aneg.speed_1g_fdx = PHY_TRUE;
-        T_I(  "LAN8X8X_A phy_id=0x%x\n", dev->drv->id);
+        T_I(  "LAN888X_A phy_id=0x%x\n", dev->drv->id);
     }
     data->mac_if = MESA_PORT_INTERFACE_RGMII_TXID;
 
@@ -1130,7 +1134,7 @@ static mepa_rc lan8x8x_reset(mepa_device_t *dev,
 
     if (dev != NULL) {
         MEPA_ENTER(dev);
-        rc = lan8x8x_phy_reset(dev);
+        rc = lan8x8x_phy_setup(dev);
         MEPA_EXIT(dev);
     }
 

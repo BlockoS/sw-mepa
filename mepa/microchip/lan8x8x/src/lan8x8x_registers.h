@@ -88,6 +88,9 @@
 #define QSGMII_PCS1G_CONFIG_REG         (PCS1G_REG + 0x2)
 #define QSGMII_PCS1G_CONFIG_PCS_ENA     BIT(9)
 
+#define QSGMII_PCS1G_ANEG_CONFIG        (PCS1G_REG + 0x3)
+#define QSGMII_PCS1G_ANEG_ENA           BIT(3)
+
 #define QSGMII_ANEG_EN_REG              (PCS1G_REG + 0xB)
 #define QSGMII_ANEG_EN                  BIT(0)
 

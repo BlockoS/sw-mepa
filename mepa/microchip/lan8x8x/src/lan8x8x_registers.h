@@ -135,7 +135,49 @@
 #define T1_1G_E1000T1_PCS_REMOTE_LPBK   (33570U)
 #define T1_1G_PCS_REMOTE_LPBK       BIT(0)
 
-#define LAN8X8X_CHIPTOP         (0xF0C0U)
+#define CHIPTOP         (0xF0C0U)
+
+#define XGMII_GMII_BYPASS       (CHIPTOP + 0x18)
+#define MACSEC_MEGABLK_BYPASS_SEL   BIT(2)
+#define GMII_BYPASS_SEL         BIT(1)
+#define XGMII_BYPASS_SEL        BIT(0)
+#define XGMII_BYPASS_SET_       (XGMII_BYPASS_SEL | \
+                     GMII_BYPASS_SEL | \
+                     MACSEC_MEGABLK_BYPASS_SEL)
+
+#define T1_1G_TOP_CTRL              0x8900
+#define T1_1G_TOP_CTRL_CONFIG           (T1_1G_TOP_CTRL + 0x2)
+#define T1_1G_TOP_CTRL_IEEE_POWERDOWN_PMD   BIT(4)
+#define T1_1G_TOP_CTRL_CONFIG_DONE      BIT(3)
+#define T1_1G_TOP_CTRL_SOFT_RESET       BIT(1)
+#define T1_1G_TOP_CTRL_CONFIG_LINK_CTRL     BIT(0)
+#define T1_1G_TOP_CTRL_CONFIG_SET       (T1_1G_TOP_CTRL_CONFIG_DONE | \
+                         T1_1G_TOP_CTRL_CONFIG_LINK_CTRL)
+
+#define T1_100M_E100T1_PCS          0x8000
+
+#define T1_1G_ECMT1_PMD             0x8000
+#define T1_1G_ECMT1_PMD_LDRV_TMR        (T1_1G_ECMT1_PMD + 0xE)
+
+#define T1_1G_E100T1_PMD            0x8000
+#define T1_1G_E100T1_PMD_ADPLL_CFG_0        (T1_1G_E100T1_PMD + 0x40)
+
+#define T1_1G_E1000T1_PMD           0x8100
+#define T1_1G_E1000T1_PMD_LCPLL_CFG_0       (T1_1G_E1000T1_PMD)
+
+#define T1_1G_E100T1_PMA            0x8200
+#define T1_1G_E100T1_PMA_ADFE_CFG2      (T1_1G_E100T1_PMA + 0x2A)
+#define T1_1G_E100T1_PMA_ADFE_CFG3      (T1_1G_E100T1_PMA + 0x2C)
+
+#define T1_1G_RI_ABB_CTRL_0         0x8300
+
+#define T1_1G_E1000T1_PMA           0x8800
+#define T1_PMA_TR_LOCKED            BIT(1)
+#define T1_PMA_ADFE_LOCKED          BIT(0)
+#define T1_PMA_LINK_STATUS          (T1_PMA_TR_LOCKED | T1_PMA_ADFE_LOCKED)
+
+#define T1_AUTONEG_STATUS           0x8002
+#define T1_AUTONEG_CONFIG_AS_MASTER     BIT(0)
 
 /* Interrupts */
 #define LAN8X8X_INT_STS0_SC     (LAN8X8X_CHIPTOP + 0x20U)

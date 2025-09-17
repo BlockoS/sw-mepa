@@ -13,10 +13,44 @@ static mepa_device_t lan8x8x_device[LAN8X8X_PHY_MAX];
 static phy_data_t lan8x8x_data[LAN8X8X_PHY_MAX];
 #endif
 
+static mepa_rc lan8x8x_aneg_read_status(mepa_device_t *dev, mepa_status_t *status);
 static mepa_rc lan8x8x_phy_init(mepa_device_t *const dev);
 /**********************************
  * Internal APIs
  *********************************/
+static mepa_rc phy_mmd_reg_rd32(mepa_device_t *const dev,
+                                uint32_t const devad, uint32_t const addr,
+                                uint32_t *const value)
+{
+    mepa_rc rc;
+    uint16_t data_l;
+    uint16_t data_h;
+
+    /* Read lsb first */
+    MEPA_RC_GOTO(rc, phy_mmd_reg_rd(dev, devad, addr, &data_l));
+    MEPA_RC_GOTO(rc, phy_mmd_reg_rd(dev, devad, (addr + 1), &data_h));;
+
+    *value = (data_h << 16) | data_l;
+
+    return MEPA_RC_OK;
+}
+
+static mepa_rc phy_mmd_reg_wr32(mepa_device_t *const dev, uint32_t const devad,
+                                uint32_t const addr, uint32_t val)
+{
+    uint16_t data_l = (val & 0xFFFF);
+    uint16_t data_h = (val >> 16);
+    int rc;
+
+    /* Write msb first */
+    rc = phy_mmd_reg_wr(dev, devad, (addr + 1), data_h);
+    if (rc < 0) {
+        return rc;
+    }
+
+    return phy_mmd_reg_wr(dev, devad, addr, data_l);
+}
+
 //Retrieve PHY information
 static mepa_rc phy_get_device_info(mepa_device_t *const dev)
 {
@@ -193,13 +227,13 @@ static mepa_rc lan8x8x_check_media(const mepa_device_t *const dev,
     return rc;
 }
 
-#if 0
 static mepa_rc lan8x8x_phy_reset(mepa_device_t *dev, mepa_bool_t hard_reset)
 {
     mepa_rc rc = MEPA_RC_OK;
     mepa_bool_t done = PHY_FALSE;
     mepa_bool_t timeout = PHY_FALSE;
     mepa_mtimer_t   timer = { 0 };
+    phy_data_t *const data = (phy_data_t *const)dev->data;
 
     if (hard_reset) {
         return MEPA_RC_NOT_IMPLEMENTED;
@@ -217,37 +251,164 @@ static mepa_rc lan8x8x_phy_reset(mepa_device_t *dev, mepa_bool_t hard_reset)
         while ((done == PHY_FALSE) && (timeout == PHY_FALSE)) {
             uint16_t tmp = 0;
 
-            timeout = MEPA_MTIMER_TIMEOUT(&timer);
+            timeout = (MEPA_MTIMER_TIMEOUT(&timer));
             (void) phy_reg_rd(dev, MII_BMCR, &tmp);
             if (!((tmp & BMCR_RESET) == BMCR_RESET)) {
                 done = PHY_TRUE;
             }
         }
         if (done == PHY_FALSE) {
-            T_E("PHY soft-reset timedout! \r\n");
+            T_E(  "PHY soft-reset timedout! \r\n");
+        }
+        /* Clear LINK_CONTROL and PHY_CONFIG_DONE */
+        MEPA_RC_GOTO(rc, phy_mmd_reg_wr(dev, MDIO_MMD_PMAPMD, T1_1G_TOP_CTRL_CONFIG, 0));
+
+        /* Set SYSTEM_CONTROL_SOFT_RESET */
+        MEPA_RC_GOTO(rc, phy_mmd_reg_wr(dev, MDIO_MMD_PMAPMD,
+                                        T1_1G_TOP_CTRL_CONFIG, T1_1G_TOP_CTRL_SOFT_RESET));
+
+        done = PHY_FALSE;
+        timeout = PHY_FALSE;
+        /* Wait for RESET done */
+        while ((done == PHY_FALSE) && (timeout == PHY_FALSE)) {
+            uint16_t tmp = 0;
+
+            timeout = (MEPA_MTIMER_TIMEOUT(&timer));
+            (void) phy_mmd_reg_rd(dev, MDIO_MMD_PMAPMD, T1_1G_TOP_CTRL_CONFIG, &tmp);
+            if (!((tmp & T1_1G_TOP_CTRL_SOFT_RESET) == T1_1G_TOP_CTRL_SOFT_RESET)) {
+                done = PHY_TRUE;
+            }
         }
     }
 
     T_D(  "PHY %s reset done! \r\n", (hard_reset ? "hard" : "soft"));
+    data->init_done = PHY_FALSE;
 
     return MEPA_RC_OK;
 }
-#endif
+
+//one-time configuration to be done after CONFIG_DONE
+static int lan8x8x_onetime_post_config_done(mepa_device_t *const dev)
+{
+    phy_data_t *const data = (phy_data_t *const)dev->data;
+    int rc;
+
+    if (!data->init_done) {
+        mepa_bool_t ms_bypass = PHY_TRUE;
+
+        if (dev->drv->id == PHY_ID_LAN8X8X_B) {
+            MEPA_RC_GOTO(rc, phy_mmd_reg_set_bits(dev, MDIO_MMD_PCS,
+                                                  T1_1G_E1000T1_PCS_EN,
+                                                  T1_1G_E1000T1_PCS_EN_));
+        } else {
+            MEPA_RC_GOTO(rc, phy_mmd_reg_clear_bits(dev, MDIO_MMD_PCS,
+                                                    T1_1G_E1000T1_PCS_EN,
+                                                    T1_1G_E1000T1_PCS_EN_));
+        }
+
+        //setup RGMII after reset
+        MEPA_RC_GOTO(rc, lan8x8x_config_mac(dev));
+
+        if (ms_bypass) {
+            /* Bypass MACsec mega block */
+            MEPA_RC_GOTO(rc, phy_mmd_reg_set_bits(dev, MDIO_MMD_VEND1,
+                                                  XGMII_GMII_BYPASS, XGMII_BYPASS_SET_));
+            T_D("PHY MACsec BYPASS_SELECTION done!\n");
+        }
+
+        data->init_done = PHY_TRUE;
+    }
+
+    return 0;
+}
+
+static int lan8x8x_config_done(mepa_device_t *const dev)
+{
+    int rc;
+
+    /* Enable LINK_CONTROL + CONFIG_DONE */
+    rc = phy_mmd_reg_wr(dev, MDIO_MMD_PMAPMD, T1_1G_TOP_CTRL_CONFIG,
+                        T1_1G_TOP_CTRL_CONFIG_SET);
+    if (rc < 0) {
+        return rc;
+    }
+
+    return lan8x8x_onetime_post_config_done(dev);
+}
+
+static int lan8x8x_speed_config(mepa_device_t *const dev)
+{
+    phy_data_t *const data = (phy_data_t *const)dev->data;
+    uint16_t val;
+    uint32_t val_32_bit;
+
+
+    if (data->conf.speed == MEPA_SPEED_100M) {
+        T_D("100M speed!\n");
+
+        phy_mmd_reg_wr32(dev, MDIO_MMD_PMAPMD,
+                         T1_1G_E100T1_PMD_ADPLL_CFG_0,
+                         0x600E2804);
+
+        phy_mmd_reg_rd32(dev, MDIO_MMD_PMAPMD,
+                         T1_1G_E100T1_PMD_ADPLL_CFG_0, &val_32_bit);
+        T_D("E100M_ADPLL_CFG_0[0x%x] = 0x%x\n",
+            T1_1G_E100T1_PMD_ADPLL_CFG_0, val_32_bit);
+
+    } else {
+        T_D("1000M speed!\n");
+
+        phy_mmd_reg_wr32(dev, MDIO_MMD_PMAPMD,
+                         T1_1G_E1000T1_PMD_LCPLL_CFG_0,
+                         0x5FE34C08);
+        phy_mmd_reg_rd32(dev, MDIO_MMD_PMAPMD,
+                         T1_1G_E1000T1_PMD_LCPLL_CFG_0, &val_32_bit);
+        T_D("E1000M_LCPLL_CFG_0[0x%x] = 0x%x\n",
+            T1_1G_E1000T1_PMD_LCPLL_CFG_0, val_32_bit);
+    }
+
+
+    /* AFE Config */
+    phy_mmd_reg_wr32(dev, MDIO_MMD_PMAPMD,
+                     T1_1G_E100T1_PMA_ADFE_CFG2, 0x14F4040C);
+    phy_mmd_reg_rd32(dev, MDIO_MMD_PMAPMD,
+                     T1_1G_E100T1_PMA_ADFE_CFG2, &val_32_bit);
+    T_D("E100M_ADFE_CFG2=0x%x\n", val_32_bit);
+
+    phy_mmd_reg_wr(dev, MDIO_MMD_PMAPMD,
+                   T1_1G_E100T1_PMA_ADFE_CFG3, 0x43);
+    phy_mmd_reg_rd(dev, MDIO_MMD_PMAPMD,
+                   T1_1G_E100T1_PMA_ADFE_CFG3, &val);
+    T_D("E100M_ADFE_CFG3=0x%x\n", val);
+
+    /* AFE Config */
+    phy_mmd_reg_wr(dev, MDIO_MMD_PMAPMD, T1_1G_ECMT1_PMD_LDRV_TMR, 0x1);
+    phy_mmd_reg_rd(dev, MDIO_MMD_PMAPMD,
+                   T1_1G_ECMT1_PMD_LDRV_TMR, &val);
+    T_D("LDRV_TIMER=0x%x\n", val);
+
+    phy_mmd_reg_wr(dev, MDIO_MMD_PMAPMD, T1_1G_RI_ABB_CTRL_0, 2);
+    phy_mmd_reg_rd(dev, MDIO_MMD_PMAPMD,
+                   T1_1G_RI_ABB_CTRL_0, &val);
+    T_D("ABB_CTRL_0=0x%x\n", val);
+
+    return lan8x8x_config_done(dev);
+}
 
 static mepa_rc lan8x8x_phy_setup(mepa_device_t *const dev)
 {
     mepa_rc rc = MEPA_RC_OK;
     phy_data_t *const data = (phy_data_t *const)dev->data;
 
-    MEPA_RC_GOTO(rc, phy_get_device_info(dev));
-
-    if (!data->init_done) {
-        //FIXME: onetime setup
-    }
-    data->init_done = PHY_TRUE;
+    MEPA_RC_GOTO(rc, lan8x8x_phy_reset(dev, PHY_FALSE));
 
     MEPA_RC_GOTO(rc, lan8x8x_phy_init(dev));
 
+    if (data->conf.speed != MESA_SPEED_AUTO) {
+        MEPA_RC_GOTO(rc, lan8x8x_speed_config(dev));
+    } else {
+        lan8x8x_config_done(dev);
+    }
     T_D(  "PHY port=%u setup complete!\n", data->port_no);
 
     return MEPA_RC_OK;
@@ -275,18 +436,6 @@ static int lan8x8x_pma_baset1_setup_forced(mepa_device_t *const dev)
     return MEPA_RC_OK;
 }
 
-static mepa_rc lan8x8x_config_done(mepa_device_t *const dev)
-{
-    mepa_rc rc = MEPA_RC_OK;
-
-    MEPA_RC_GOTO(rc, phy_mmd_reg_wr(dev, MDIO_MMD_PMAPMD, T1_1G_TOP_CTRL_CONFIG,
-                                    T1_1G_TOP_CTRL_CONFIG_SET));
-    MEPA_RC_GOTO(rc, phy_mmd_reg_wr(dev, MDIO_MMD_PCS, T1_1G_E1000T1_PCS_EN,
-                                    T1_1G_E1000T1_PCS_EN_));
-
-    return rc;
-}
-
 static mepa_rc lan8x8x_init_conf(mepa_device_t *const dev)
 {
     phy_data_t *data = (phy_data_t *)dev->data;
@@ -298,10 +447,40 @@ static mepa_rc lan8x8x_init_conf(mepa_device_t *const dev)
         //clear power down bit
         MEPA_RC_GOTO(rc, phy_reg_clear_bits(dev, MII_BMCR, BMCR_PDOWN));
 
-        MEPA_RC_GOTO(rc, lan8x8x_pma_baset1_setup_forced(dev));
+        if (data->conf.speed == MESA_SPEED_AUTO) {
+            u16 adv_r1 = 0;
+            u16 adv_r2_mask = 0;
+            u16 adv_r2 = 0;
+
+            adv_r2_mask = (MDIO_AN_T1_ADV_M_B1000 |
+                           MDIO_AN_T1_ADV_M_B100 |
+                           MDIO_AN_T1_ADV_M_MST);
+
+            // Advertise preferred master/slave mode
+            if (mode_ms != MEPA_MANUAL_NEG_CLIENT) {
+                adv_r2 |= MDIO_AN_T1_ADV_M_MST;
+            }
+
+            // Advertise 1G and 100M speed
+            if ((data->media_intf != MESA_PHY_MEDIA_IF_T1_100FX)
+                && (data->conf.aneg.speed_1g_fdx == PHY_TRUE)) {
+                adv_r2 |= MDIO_AN_T1_ADV_M_B100 | MDIO_AN_T1_ADV_M_B1000;
+            } else {
+                adv_r2 |= MDIO_AN_T1_ADV_M_B100;
+            }
+
+            MEPA_RC_GOTO(rc, phy_mmd_reg_modify(dev, MDIO_MMD_AN, MDIO_AN_T1_ADV_M, adv_r2_mask, adv_r2));
+
+            /* NOTE:
+             *  The Base Page value is transferred to mr_adv_ability when register 7.514 is written.
+             *  Therefore, registers 7.515 and 7.516 should be written before 7.514.
+             */
+            MEPA_RC_GOTO(rc, phy_mmd_reg_wr(dev, MDIO_MMD_AN, MDIO_AN_T1_ADV_L, adv_r1));
+        } else {
+            MEPA_RC_GOTO(rc, lan8x8x_pma_baset1_setup_forced(dev));
+        }
 
         MEPA_RC_GOTO(rc, lan8x8x_config_done(dev));
-
         T_I( MEPA_TRACE_GRP_GEN, "PHY port-%u init_conf aneg %sabled, mode %s-%s speed %sM!\n",
              data->port_no, ((data->conf.speed == MESA_SPEED_AUTO) ? "en" : "dis"),
              ((data->conf.speed == MESA_SPEED_AUTO) ? "preferred" : "forced"),
@@ -310,8 +489,10 @@ static mepa_rc lan8x8x_init_conf(mepa_device_t *const dev)
               ((data->conf.speed == MESA_SPEED_1G) ? "1000" :
                ((data->conf.speed == MESA_SPEED_AUTO) ? "auto" : "unknown"))));
 
-    } else {
-        rc = MEPA_RC_NOT_IMPLEMENTED;
+        if (data->conf.speed == MESA_SPEED_AUTO) {
+            MEPA_RC_GOTO(rc, phy_mmd_reg_set_bits(dev, MDIO_MMD_AN, MDIO_AN_T1_CTRL,
+                                                  MDIO_AN_CTRL1_ENABLE | MDIO_AN_CTRL1_RESTART));
+        }
     }
 
     //T_D( MEPA_TRACE_GRP_GEN, "PHY port-%u configuration complete!\n", data->port_no);
@@ -382,6 +563,15 @@ static mepa_rc lan8x8x_config_set(mepa_device_t *dev, const mepa_conf_t *config)
 
         data->conf.fdx = PHY_TRUE;
         data->conf.flow_control = config->flow_control;
+        data->conf.aneg.speed_100m_fdx = config->aneg.speed_100m_fdx;
+        data->conf.aneg.speed_1g_fdx = config->aneg.speed_1g_fdx;
+
+        // Setup MAC ANEG
+        if (data->conf.mac_if_aneg_ena != config->mac_if_aneg_ena) {
+            re_config = PHY_TRUE;
+            data->conf.mac_if_aneg_ena = config->mac_if_aneg_ena;
+            type = LAN8X8X_RST_SOFT_MAC;
+        }
 
         // Setup Speed
         if (data->conf.speed != speed) {
@@ -421,6 +611,62 @@ static mepa_rc lan8x8x_config_set(mepa_device_t *dev, const mepa_conf_t *config)
     return rc;
 }
 
+static mepa_rc lan8x8x_aneg_resolve_master_slave(mepa_device_t *dev, uint8_t *mode)
+{
+    uint16_t val;
+    mepa_rc rc;
+
+    rc = phy_mmd_reg_rd(dev, MDIO_MMD_AN, LAN8X8X_V_AN_STS, &val);
+    if (rc < 0) {
+        return rc;
+    }
+
+    *mode = MASTER_SLAVE_STATE_SLAVE;
+    if ((val & LAN8X8X_V_AN_STS_MS_FAULT) != 0U) {
+        *mode = MASTER_SLAVE_STATE_ERR;
+    }
+
+    if ((val & LAN8X8X_V_AN_STS_CFG_AS_MASTER) != 0U) {
+        *mode = MASTER_SLAVE_STATE_MASTER;
+    }
+
+    return MEPA_RC_OK;
+}
+
+static mepa_rc lan8x8x_aneg_read_status(mepa_device_t *dev, mepa_status_t *status)
+{
+    mepa_rc rc = MEPA_RC_INCOMPLETE;
+    //mepa_bool_t lp_sym_pause, lp_asym_pause;
+    uint16_t val = 0, lp_l = 0, lp_m = 0;
+    phy_data_t *data = (phy_data_t *)dev->data;
+
+    status->aneg.obey_pause = PHY_FALSE;
+    status->aneg.generate_pause = PHY_FALSE;
+    status->link = PHY_FALSE;
+    status->speed = MESA_SPEED_UNDEFINED;
+
+    MEPA_RC_GOTO(rc, phy_mmd_reg_rd(dev, MDIO_MMD_AN, MDIO_AN_T1_STAT, &val));
+    if ((val & MDIO_AN_STAT1_COMPLETE) == ZERO) {
+        //T_D( MEPA_TRACE_GRP_GEN, "aneg is not completed \r\n");
+    } else {
+        rc = MEPA_RC_OK;
+
+        MEPA_RC_GOTO(rc, phy_mmd_reg_rd(dev, MDIO_MMD_AN, MDIO_AN_T1_LP_L, &lp_l));
+        MEPA_RC_GOTO(rc, phy_mmd_reg_rd(dev, MDIO_MMD_AN, MDIO_AN_T1_LP_M, &lp_m));
+
+        if (((lp_m & LPA_1000FULL) == LPA_1000FULL) && (data->conf.aneg.speed_1g_fdx == PHY_TRUE)) {
+            status->speed = MEPA_SPEED_1G;
+        } else if (((lp_m & LPA_100FULL) == LPA_100FULL) && (data->conf.aneg.speed_100m_fdx == PHY_TRUE)) {
+            status->speed = MEPA_SPEED_100M;
+        } else {
+            status->speed = MESA_SPEED_UNDEFINED;
+        }
+        //T_D( MEPA_TRACE_GRP_GEN, "aneg link resolved \r\n");
+    }
+
+    return rc;
+}
+
 static void lan8x8x_fill_probe_data(mepa_driver_t *drv,
                                     mepa_device_t *dev,
                                     phy_data_t *data,
@@ -443,10 +689,10 @@ static void lan8x8x_fill_probe_data(mepa_driver_t *drv,
     data->conf.admin.enable = PHY_TRUE;
     data->conf.fdx = PHY_TRUE;
     //mac-if aneg must be enabled always
-    data->conf.mac_if_aneg_ena = PHY_FALSE;
+    data->conf.mac_if_aneg_ena = PHY_TRUE;
     //phy aneg
-    data->conf.speed = MESA_SPEED_1G;
-    data->conf.aneg.speed_100m_fdx = PHY_FALSE;
+    data->conf.speed = MESA_SPEED_AUTO;
+    data->conf.aneg.speed_100m_fdx = PHY_TRUE;
     data->conf.aneg.speed_1g_fdx = PHY_FALSE;
     data->media_intf = MESA_PHY_MEDIA_IF_T1_100FX;
 
@@ -985,21 +1231,67 @@ static mepa_rc lan8x8x_poll_int(mepa_device_t *dev, mepa_status_t *status)
 {
     phy_data_t *const data = (phy_data_t *const)dev->data;
     mepa_rc rc = MEPA_RC_ERROR;
+    uint8_t master_slave;
+    uint16_t val;
 
-    if (data->conf.mac_if_aneg_ena != PHY_TRUE) {
-        rc = MEPA_RC_OK;
-        //Current link status
-        data->link_status = PHY_FALSE;
+    //Current link status
+    data->link_status = PHY_FALSE;
 
+    if (data->conf.speed == MESA_SPEED_AUTO) {
+        //Resolve speed
+        MEPA_RC_GOTO(rc, lan8x8x_aneg_read_status(dev, status));
+        //Resolve mode
+        MEPA_RC_GOTO(rc, lan8x8x_aneg_resolve_master_slave(dev, &master_slave));
+        status->master = (master_slave == MASTER_SLAVE_STATE_MASTER) ?
+                         PHY_TRUE : PHY_FALSE;
+        MEPA_RC_GOTO(rc, phy_mmd_reg_rd(dev, MDIO_MMD_AN, MDIO_AN_T1_STAT, &val));
+        status->link = (val & MDIO_STAT1_LSTATUS) ? PHY_TRUE : PHY_FALSE;
+        data->link_status =  status->link;
+    } else {
+        MEPA_RC_GOTO(rc, phy_get_link_status(dev, status));
+    }
+
+    //T1 PHY supports only Full Duplex
+    status->fdx = PHY_TRUE;
+    data->dev.is_master = status->master;
+
+    if (data->conf.speed == MEPA_SPEED_AUTO && data->link_status) {
+        //Update resolved mode
+        MEPA_RC_GOTO(rc, phy_mmd_reg_rd(dev, MDIO_MMD_AN, T1_AUTONEG_STATUS, &val));
+        status->master = PHY_FALSE;
+        if (val & T1_AUTONEG_CONFIG_AS_MASTER) {
+            status->master = PHY_TRUE;
+        }
+    } else {
         status->master = ((data->conf.man_neg == MEPA_MANUAL_NEG_REF) ?
                           PHY_TRUE : PHY_FALSE);
         status->speed = data->conf.speed;
+    }
 
-        //T1 PHY supports only Full Duplex
-        status->fdx = PHY_TRUE;
-        data->dev.is_master = status->master;
+    return rc;
+}
 
-        MEPA_RC_GOTO(rc, phy_get_link_status(dev, status));
+static mepa_rc lan8x8x_aneg_status_get(mepa_device_t *dev, mepa_aneg_status_t *status)
+{
+    mepa_rc rc = MEPA_RC_ERROR;
+    uint8_t master_slave_state;
+
+    if ((dev != NULL) && (status != NULL)) {
+        phy_data_t *data = (phy_data_t *)dev->data;
+
+        rc = MEPA_RC_INV_STATE;
+        if (data->conf.speed == MESA_SPEED_AUTO) {
+
+            MEPA_ENTER(dev);
+
+            rc = lan8x8x_aneg_resolve_master_slave(dev, &master_slave_state);
+            if (rc == MEPA_RC_OK) {
+                status->master_cfg_fault = (master_slave_state == MASTER_SLAVE_STATE_ERR) ? PHY_TRUE : PHY_FALSE;
+                status->master = (master_slave_state == MASTER_SLAVE_STATE_MASTER) ? PHY_TRUE : PHY_FALSE;
+            }
+
+            MEPA_EXIT(dev);
+        }
     }
 
     return rc;
@@ -1029,6 +1321,7 @@ static void fill_driver_info(uint32_t id, uint32_t mask, mepa_driver_t *drv_inst
     drv_inst->mepa_driver_reset              = NULL;
     drv_inst->mepa_driver_poll               = &lan8x8x_poll;
     drv_inst->mepa_driver_probe              = &lan8x8x_probe;
+    drv_inst->mepa_driver_aneg_status_get    = &lan8x8x_aneg_status_get;
     drv_inst->mepa_driver_conf_set           = &lan8x8x_conf_set;
     drv_inst->mepa_driver_conf_get           = &lan8x8x_conf_get;
     drv_inst->mepa_driver_if_set             = &lan8x8x_if_set;

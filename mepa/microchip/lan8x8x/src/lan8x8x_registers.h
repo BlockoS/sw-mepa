@@ -80,9 +80,18 @@
 #define LAN8X8X_RGMII_DLL_EN            BIT(0)
 #define LAN8X8X_RGMII_DLL_CONF  (LAN8X8X_RGMII_DELAY_EN |\
                                  LAN8X8X_RGMII_DLL_EN)
-#define LAN8X8X_RGMII_DELAY_ADJ_SEL     0x7EFC
 
-#define LAN8X8X_XGMII_GMII_BYPASS       (0xf0D8U)
+#define PCS1G_REG                       (0xF080)
+#define QSGMII_PCS1G_SOFT_RESET_REG     (PCS1G_REG + 0x1)
+#define QSGMII_PCS1G_SOFT_RESET_EN      BIT(0)
+
+#define QSGMII_PCS1G_CONFIG_REG         (PCS1G_REG + 0x2)
+#define QSGMII_PCS1G_CONFIG_PCS_ENA     BIT(9)
+
+#define QSGMII_ANEG_EN_REG              (PCS1G_REG + 0xB)
+#define QSGMII_ANEG_EN                  BIT(0)
+
+#define LAN8X8X_XGMII_GMII_BYPASS       (0xF0D8U)
 #define LAN8X8X_XGMII_BYPASS_SEL        BIT(0)
 
 /* SQI Registers */
@@ -115,12 +124,10 @@
 
 #define T1_1G_E1000T1_PCS                       0x8300
 #define T1_1G_E1000T1_PCS_EN                    (T1_1G_E1000T1_PCS)
-#define T1_1G_E1000T1_PCS_EN_SHORTER_TMR        BIT(4)
 #define T1_1G_E1000T1_PCS_EN_LINK_SYNC_SW       BIT(2)
 #define T1_1G_E1000T1_PCS_EN_RXPCS_DEFRAMER     BIT(1)
 #define T1_1G_E1000T1_PCS_EN_TXPCS_FRAMER       BIT(0)
-#define T1_1G_E1000T1_PCS_EN_                   (T1_1G_E1000T1_PCS_EN_SHORTER_TMR | \
-                                                 T1_1G_E1000T1_PCS_EN_LINK_SYNC_SW | \
+#define T1_1G_E1000T1_PCS_EN_                   (T1_1G_E1000T1_PCS_EN_LINK_SYNC_SW | \
                                                  T1_1G_E1000T1_PCS_EN_RXPCS_DEFRAMER | \
                                                  T1_1G_E1000T1_PCS_EN_TXPCS_FRAMER)
 
@@ -177,6 +184,7 @@
 #define T1_PMA_LINK_STATUS          (T1_PMA_TR_LOCKED | T1_PMA_ADFE_LOCKED)
 
 #define T1_AUTONEG_STATUS           0x8002
+#define T1_AUTONEG_MS_CONFIG_FAULT      BIT(1)
 #define T1_AUTONEG_CONFIG_AS_MASTER     BIT(0)
 
 /* Interrupts */
@@ -213,11 +221,5 @@
 #define LAN8X8X_INT_MS_TRAINING_COMP    BIT(6)
 #define LAN8X8X_INT_LINK_CHANGE_1G  BIT(2)
 #define LAN8X8X_INT_LINK_CHANGE     BIT(1)
-
-/* T1_100M_PHY_VENDOR_AN */
-#define LAN8X8X_V_AN        (0x8000U)
-#define LAN8X8X_V_AN_STS    (LAN8X8X_V_AN + 2U)
-#define LAN8X8X_V_AN_STS_MS_FAULT   BIT(1)
-#define LAN8X8X_V_AN_STS_CFG_AS_MASTER  BIT(0)
 
 #endif //LAN8X8X_REGISTERS_H

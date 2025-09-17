@@ -167,3 +167,72 @@ mepa_rc phy_mmd_reg_set_bits(mepa_device_t *const phydev,
 {
     return phy_mmd_reg_modify(phydev, dev, offset, 0, value);
 }
+
+mepa_rc phy_mmd_reg_rd32(mepa_device_t *const dev,
+                         uint32_t const devad, uint32_t const addr,
+                         uint32_t *const value)
+{
+    mepa_rc rc;
+    uint16_t data_l;
+    uint16_t data_h;
+
+    /* Read lsb first */
+    rc = phy_mmd_reg_rd(dev, devad, addr, &data_l);
+    if (rc != MEPA_RC_OK) {
+        return rc;
+    }
+
+    rc = phy_mmd_reg_rd(dev, devad, (addr + 1), &data_h);
+    if (rc != MEPA_RC_OK) {
+        return rc;
+    }
+
+    *value = (data_h << 16) | data_l;
+
+    return MEPA_RC_OK;
+}
+
+mepa_rc phy_mmd_reg_wr32(mepa_device_t *const dev, uint32_t const devad,
+                         uint32_t const addr, uint32_t val)
+{
+    uint16_t data_l = (val & 0xFFFF);
+    uint16_t data_h = (val >> 16);
+    int rc;
+
+    /* Write msb first */
+    rc = phy_mmd_reg_wr(dev, devad, (addr + 1), data_h);
+    if (rc < 0) {
+        return rc;
+    }
+
+    return phy_mmd_reg_wr(dev, devad, addr, data_l);
+}
+
+mepa_rc phy_mmd_reg_poll(mepa_device_t *const dev, uint32_t const devad,
+                         uint16_t const addr, uint16_t match,
+                         mepa_bool_t cond, uint32_t to)
+{
+    mepa_rc rc = MEPA_RC_OK;
+    mepa_bool_t done = PHY_FALSE;
+    mepa_bool_t timeout = PHY_FALSE;
+    mepa_mtimer_t   timer = { 0 };
+
+    MEPA_MTIMER_START(&timer, to);
+
+    // wait for reset to complete
+    while ((done == PHY_FALSE) && (timeout == PHY_FALSE)) {
+        uint16_t tmp = 0;
+
+        timeout = (MEPA_MTIMER_TIMEOUT(&timer));
+        if (devad) {
+            (void) phy_mmd_reg_rd(dev, devad, addr, &tmp);
+        } else {
+            (void) phy_reg_rd(dev, addr, &tmp);
+        }
+        if (((tmp & match) == match) == cond) {
+            return MEPA_RC_OK;
+        }
+    }
+
+    return MEPA_RC_INCOMPLETE;
+}

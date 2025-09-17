@@ -47,9 +47,11 @@
 #endif
 #endif //MEPA_lan8x8x_static_mem
 
-#define PHY_ID_LAN8X8X_A          (0x002216A0U)
-#define PHY_ID_LAN8X8X_B          (0x002216B0U)
-#define LAN8X8X_PHY_ID_MASK   (0xFFFFFFF0U)
+#define PHY_ID_LAN878X          (0x002216A0U)
+#define PHY_ID_LAN888X          (0x002216B0U)
+#define PHY_ID_MASK     (0xFFFFFFF0U)
+#define IS_LAN888X(id)      (((id) & PHY_ID_MASK) == PHY_ID_LAN888X)
+#define IS_LAN878X(id)      (((id) & PHY_ID_MASK) == PHY_ID_LAN878X)
 
 #define PHY_LINKUP                  (PHY_TRUE)
 #define PHY_LINKDOWN                (PHY_FALSE)
@@ -90,8 +92,6 @@ struct phy_reg_dbg {
     const char *string;
     u8 mmd;
     u16 reg;
-    u8 bit_hi;
-    u8 bit_lo;
 };
 
 typedef enum  {

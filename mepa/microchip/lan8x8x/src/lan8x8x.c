@@ -360,7 +360,6 @@ static int lan8x8x_speed_config(mepa_device_t *const dev)
 {
     phy_data_t *const data = (phy_data_t *const)dev->data;
     uint16_t val;
-    uint32_t val_32_bit;
 
 
     if (data->conf.speed == MEPA_SPEED_100M) {
@@ -368,35 +367,17 @@ static int lan8x8x_speed_config(mepa_device_t *const dev)
                          T1_1G_E100T1_PMD_ADPLL_CFG_0,
                          0x600E2804);
 
-        phy_mmd_reg_rd32(dev, MDIO_MMD_PMAPMD,
-                         T1_1G_E100T1_PMD_ADPLL_CFG_0, &val_32_bit);
+        /* AFE Config */
+        phy_mmd_reg_wr32(dev, MDIO_MMD_PMAPMD,
+                         T1_1G_E100T1_PMA_ADFE_CFG2, 0x14F4040C);
+
+        phy_mmd_reg_wr(dev, MDIO_MMD_PMAPMD,
+                       T1_1G_E100T1_PMA_ADFE_CFG3, 0x43);
     } else {
         phy_mmd_reg_wr32(dev, MDIO_MMD_PMAPMD,
                          T1_1G_E1000T1_PMD_LCPLL_CFG_0,
                          0x5FE34C08);
-        phy_mmd_reg_rd32(dev, MDIO_MMD_PMAPMD,
-                         T1_1G_E1000T1_PMD_LCPLL_CFG_0, &val_32_bit);
     }
-
-    /* AFE Config */
-    phy_mmd_reg_wr32(dev, MDIO_MMD_PMAPMD,
-                     T1_1G_E100T1_PMA_ADFE_CFG2, 0x14F4040C);
-    phy_mmd_reg_rd32(dev, MDIO_MMD_PMAPMD,
-                     T1_1G_E100T1_PMA_ADFE_CFG2, &val_32_bit);
-
-    phy_mmd_reg_wr(dev, MDIO_MMD_PMAPMD,
-                   T1_1G_E100T1_PMA_ADFE_CFG3, 0x43);
-    phy_mmd_reg_rd(dev, MDIO_MMD_PMAPMD,
-                   T1_1G_E100T1_PMA_ADFE_CFG3, &val);
-
-    /* AFE Config */
-    phy_mmd_reg_wr(dev, MDIO_MMD_PMAPMD, T1_1G_ECMT1_PMD_LDRV_TMR, 0x1);
-    phy_mmd_reg_rd(dev, MDIO_MMD_PMAPMD,
-                   T1_1G_ECMT1_PMD_LDRV_TMR, &val);
-
-    phy_mmd_reg_wr(dev, MDIO_MMD_PMAPMD, T1_1G_RI_ABB_CTRL_0, 2);
-    phy_mmd_reg_rd(dev, MDIO_MMD_PMAPMD,
-                   T1_1G_RI_ABB_CTRL_0, &val);
 
     return lan8x8x_config_done(dev);
 }

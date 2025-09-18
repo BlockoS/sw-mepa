@@ -1035,6 +1035,7 @@ static mepa_rc lan8x8x_debug_info(mepa_device_t *dev,
 static mepa_rc lan8x8x_poll_int(mepa_device_t *dev, mepa_status_t *status)
 {
     phy_data_t *const data = (phy_data_t *const)dev->data;
+    uint16_t old_speed = status->speed;
     mepa_rc rc = MEPA_RC_ERROR;
     uint8_t master_slave;
     uint16_t val;
@@ -1043,6 +1044,11 @@ static mepa_rc lan8x8x_poll_int(mepa_device_t *dev, mepa_status_t *status)
     data->link_status = PHY_FALSE;
 
     if (data->conf.speed == MESA_SPEED_AUTO) {
+        if (IS_LAN888X(dev->drv->id)) {
+            if (data->conf.speed != old_speed && old_speed != MESA_SPEED_UNDEFINED) {
+                MEPA_RC_GOTO(rc, lan8x8x_speed_config(dev));
+            }
+        }
         //Resolve speed
         MEPA_RC_GOTO(rc, lan8x8x_aneg_read_status(dev, status));
         //Resolve mode

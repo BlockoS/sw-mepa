@@ -92,13 +92,21 @@ static mepa_rc lan8x8x_config_mac(mepa_device_t *dev)
                                               QSGMII_PCS1G_CONFIG_PCS_ENA));
         MEPA_RC_GOTO(rc, phy_mmd_reg_set_bits(dev, MDIO_MMD_VEND1,
                                               QSGMII_ANEG_EN_REG,
-                                              QSGMII_ANEG_EN));
+                                              QSGMII_ANEG_SET));
         MEPA_RC_GOTO(rc, phy_mmd_reg_set_bits(dev, MDIO_MMD_VEND1,
                                               QSGMII_PCS1G_ANEG_CONFIG,
-                                              QSGMII_PCS1G_ANEG_ENA));
+                                              QSGMII_PCS1G_ANEG_SET));
     } else if ((data->mac_if >= MESA_PORT_INTERFACE_RGMII) &&
                (data->mac_if <= MESA_PORT_INTERFACE_RGMII_TXID)) {
         rc = MEPA_RC_OK;
+
+        //Clear SGMII
+        MEPA_RC_GOTO(rc, phy_mmd_reg_clear_bits(dev, MDIO_MMD_VEND1,
+                                                QSGMII_ANEG_EN_REG,
+                                                QSGMII_ANEG_SET));
+        MEPA_RC_GOTO(rc, phy_mmd_reg_clear_bits(dev, MDIO_MMD_VEND1,
+                                                QSGMII_PCS1G_ANEG_CONFIG,
+                                                QSGMII_PCS1G_ANEG_SET));
 
         switch (data->mac_if) {
         case MESA_PORT_INTERFACE_RGMII:

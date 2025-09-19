@@ -82,23 +82,14 @@
                                  LAN8X8X_RGMII_DLL_EN)
 
 #define PCS1G_REG                       (0xF080U)
-#define QSGMII_PCS1G_SOFT_RESET_REG     (PCS1G_REG + 0x1U)
-#define QSGMII_PCS1G_SOFT_RESET_EN      BIT(0)
-
-#define QSGMII_PCS1G_CONFIG_REG         (PCS1G_REG + 0x2U)
-#define QSGMII_PCS1G_CONFIG_PCS_ENA     BIT(9)
-
 #define QSGMII_PCS1G_ANEG_CONFIG        (PCS1G_REG + 0x3U)
-#define QSGMII_PCS1G_SW_RESOLVE_PRIO    BIT(5)
-#define QSGMII_PCS1G_ANEG_ENA           BIT(3)
-#define QSGMII_PCS1G_ANEG_SET           (QSGMII_PCS1G_ANEG_ENA | \
-                     QSGMII_PCS1G_SW_RESOLVE_PRIO)
+#define QSGMII_PCS1G_ANEG_RESTART   BIT(4)
+#define QSGMII_PCS1G_ANEG_ENA       BIT(3)
+#define QSGMII_PCS1G_ANEG_SET       (QSGMII_PCS1G_ANEG_ENA | \
+                     QSGMII_PCS1G_ANEG_RESTART)
 
 #define QSGMII_ANEG_EN_REG              (PCS1G_REG + 0xBU)
-#define QSGMII_NP_DISABLE       BIT(2)
-#define QSGMII_SGMII_USGMII_TX_CFG_EN   BIT(1)
-#define QSGMII_ANEG_SET                 (QSGMII_SGMII_USGMII_TX_CFG_EN | \
-                     QSGMII_NP_DISABLE)
+#define QSGMII_AUTO_ANEG_EN     BIT(0)
 
 #define LAN8X8X_XGMII_GMII_BYPASS       (0xF0D8U)
 #define LAN8X8X_XGMII_BYPASS_SEL        BIT(0)

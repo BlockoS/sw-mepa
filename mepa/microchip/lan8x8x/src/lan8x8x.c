@@ -82,31 +82,24 @@ static mepa_rc lan8x8x_config_mac(mepa_device_t *dev)
     uint16_t txc = 0;
     uint16_t rxc = 0;
 
-    MEPA_RC_GOTO(rc, phy_mmd_reg_set_bits(dev, MDIO_MMD_VEND1,
-                                          QSGMII_PCS1G_SOFT_RESET_REG,
-                                          QSGMII_PCS1G_SOFT_RESET_EN));
-
     if (data->mac_if == MESA_PORT_INTERFACE_SGMII) {
-        MEPA_RC_GOTO(rc, phy_mmd_reg_set_bits(dev, MDIO_MMD_VEND1,
-                                              QSGMII_PCS1G_CONFIG_REG,
-                                              QSGMII_PCS1G_CONFIG_PCS_ENA));
-        MEPA_RC_GOTO(rc, phy_mmd_reg_set_bits(dev, MDIO_MMD_VEND1,
-                                              QSGMII_ANEG_EN_REG,
-                                              QSGMII_ANEG_SET));
         MEPA_RC_GOTO(rc, phy_mmd_reg_set_bits(dev, MDIO_MMD_VEND1,
                                               QSGMII_PCS1G_ANEG_CONFIG,
                                               QSGMII_PCS1G_ANEG_SET));
+        MEPA_RC_GOTO(rc, phy_mmd_reg_set_bits(dev, MDIO_MMD_VEND1,
+                                              QSGMII_ANEG_EN_REG,
+                                              QSGMII_AUTO_ANEG_EN ));
     } else if ((data->mac_if >= MESA_PORT_INTERFACE_RGMII) &&
                (data->mac_if <= MESA_PORT_INTERFACE_RGMII_TXID)) {
         rc = MEPA_RC_OK;
 
         //Clear SGMII
         MEPA_RC_GOTO(rc, phy_mmd_reg_clear_bits(dev, MDIO_MMD_VEND1,
-                                                QSGMII_ANEG_EN_REG,
-                                                QSGMII_ANEG_SET));
-        MEPA_RC_GOTO(rc, phy_mmd_reg_clear_bits(dev, MDIO_MMD_VEND1,
                                                 QSGMII_PCS1G_ANEG_CONFIG,
                                                 QSGMII_PCS1G_ANEG_SET));
+        MEPA_RC_GOTO(rc, phy_mmd_reg_clear_bits(dev, MDIO_MMD_VEND1,
+                                                QSGMII_ANEG_EN_REG,
+                                                QSGMII_AUTO_ANEG_EN));
 
         switch (data->mac_if) {
         case MESA_PORT_INTERFACE_RGMII:
@@ -331,10 +324,10 @@ static mepa_rc lan8x8x_config_leds(mepa_device_t *const dev, mepa_bool_t isolate
 }
 
 //one-time configuration to be done after CONFIG_DONE
-static int lan8x8x_onetime_post_config_done(mepa_device_t *const dev)
+static mepa_rc lan8x8x_onetime_post_config_done(mepa_device_t *const dev)
 {
     phy_data_t *const data = (phy_data_t *const)dev->data;
-    int rc;
+    mepa_rc rc;
 
     if (!data->init_done) {
         //LED setup
@@ -345,16 +338,15 @@ static int lan8x8x_onetime_post_config_done(mepa_device_t *const dev)
                      phy_mmd_reg_set_bits(dev, MDIO_MMD_VEND1,
                                           XGMII_GMII_BYPASS,
                                           XGMII_BYPASS_SET_));
-
         data->init_done = PHY_TRUE;
     }
 
-    return 0;
+    return rc;
 }
 
-static int lan8x8x_config_done(mepa_device_t *const dev)
+static mepa_rc lan8x8x_config_done(mepa_device_t *const dev)
 {
-    int rc;
+    mepa_rc rc;
 
     /* Enable LINK_CONTROL + CONFIG_DONE */
     MEPA_RC_GOTO(rc, phy_mmd_reg_wr(dev, MDIO_MMD_PMAPMD,
@@ -364,7 +356,7 @@ static int lan8x8x_config_done(mepa_device_t *const dev)
     return lan8x8x_onetime_post_config_done(dev);
 }
 
-static int lan8x8x_speed_config(mepa_device_t *const dev)
+static mepa_rc lan8x8x_speed_config(mepa_device_t *const dev)
 {
     phy_data_t *const data = (phy_data_t *const)dev->data;
     uint16_t val;
@@ -390,7 +382,7 @@ static int lan8x8x_speed_config(mepa_device_t *const dev)
     return lan8x8x_config_done(dev);
 }
 
-static int lan8x8x_pma_baset1_setup_forced(mepa_device_t *const dev)
+static mepa_rc lan8x8x_pma_baset1_setup_forced(mepa_device_t *const dev)
 {
     phy_data_t *data = (phy_data_t *)dev->data;
     mepa_rc rc = MEPA_RC_OK;
@@ -413,7 +405,7 @@ static int lan8x8x_pma_baset1_setup_forced(mepa_device_t *const dev)
     return MEPA_RC_OK;
 }
 
-static int lan8x8x_pma_baset1_setup_aneg(mepa_device_t *const dev)
+static mepa_rc lan8x8x_pma_baset1_setup_aneg(mepa_device_t *const dev)
 {
     phy_data_t *data = (phy_data_t *)dev->data;
     mepa_rc rc = MEPA_RC_OK;
@@ -631,7 +623,7 @@ static void lan8x8x_fill_probe_data(mepa_driver_t *drv,
         data->conf.aneg.speed_1g_fdx = PHY_TRUE;
         T_I(  "LAN888X_A phy_id=0x%x\n", dev->drv->id);
     }
-    data->mac_if = MESA_PORT_INTERFACE_RGMII_TXID;
+    data->mac_if = MESA_PORT_INTERFACE_SGMII;
 
     data->led_conf[MEPA_LED2].led_num = MEPA_LED2;
     data->led_conf[MEPA_LED2].mode = MEPA_GPIO_MODE_LED_LINK_ACTIVITY;

@@ -955,6 +955,8 @@ static mepa_rc lan80xx_aneg_status(const mepa_device_t *dev, mepa_port_no_t port
             speed = SPEED_10G;
         } else if ((val & LAN80XX_M_HOST_KR_BP_ETH_STS_AN_NEG_1G_KX)) {
             speed = SPEED_1G;
+        } else {
+            speed = SPEED_NONE;
         }
         LAN80XX_CSR_RD(dev, port_no, LAN80XX_HOST_LINE_REG(LAN80XX, is_line, KR_AN_STS0), &status);
         prl_detect = LAN80XX_X_HOST_KR_AN_STS0_PARDETFLT(status);
@@ -2464,6 +2466,21 @@ static mepa_rc lan80xx_mode_conf_set(mepa_device_t *dev, mepa_port_no_t port_no,
         LAN80XX_CSR_WRM(port_no, LAN80XX_HOST_PCS_CFG_PCS25G_CFG, 0, LAN80XX_M_HOST_PCS_CFG_PCS25G_CFG_PCS25G_ENA);
         LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_PCS_CFG_PCS25G_CFG, 0, LAN80XX_M_HOST_PCS_CFG_PCS25G_CFG_PCS25G_ENA);
 
+        /* Enable SGMII for 1000BASE-T Media type */
+        if (data->conf.conf_25g.line_media == MEPA_MEDIA_TYPE_1000BASE_T) {
+            LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_PCS_CFG_PCS1G_MODE_CFG, LAN80XX_M_LINE_PCS_CFG_PCS1G_MODE_CFG_SGMII_MODE_ENA,
+                            LAN80XX_M_LINE_PCS_CFG_PCS1G_MODE_CFG_SGMII_MODE_ENA);
+            T_I(MEPA_TRACE_GRP_GEN, "LINE PCS1G SGMII Enabled \n");
+        } else {
+            LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_PCS_CFG_PCS1G_MODE_CFG, 0,
+                            LAN80XX_M_LINE_PCS_CFG_PCS1G_MODE_CFG_SGMII_MODE_ENA);
+        }
+
+        if (lan80xx_clause37_conf_set_priv(dev, port_no, &data->conf.cl37_conf) != MEPA_RC_OK) {
+            T_E(MEPA_TRACE_GRP_GEN, "\n Failed to configure Clause37 on port : %d\n", port_no);
+            return MEPA_RC_ERROR;
+        } 
+
         /* Line side configurations */
         /*line pcs enable */
         LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_PCS_CFG_PCS1G_CFG, LAN80XX_M_LINE_PCS_CFG_PCS1G_CFG_PCS_ENA,
@@ -2492,16 +2509,6 @@ static mepa_rc lan80xx_mode_conf_set(mepa_device_t *dev, mepa_port_no_t port_no,
 
         LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_PCS_CFG_PCS1G_MODE_CFG, LAN80XX_M_LINE_PCS_CFG_PCS1G_MODE_CFG_SAVE_PREAMBLE_ENA,
                         LAN80XX_M_LINE_PCS_CFG_PCS1G_MODE_CFG_SAVE_PREAMBLE_ENA);
-
-        /* Enable SGMII for 1000BASE-T Media type */
-        if (data->conf.conf_25g.line_media == MEPA_MEDIA_TYPE_1000BASE_T) {
-            LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_PCS_CFG_PCS1G_MODE_CFG, LAN80XX_M_LINE_PCS_CFG_PCS1G_MODE_CFG_SGMII_MODE_ENA,
-                            LAN80XX_M_LINE_PCS_CFG_PCS1G_MODE_CFG_SGMII_MODE_ENA);
-            T_I(MEPA_TRACE_GRP_GEN, "LINE PCS1G SGMII Enabled \n");
-        } else {
-            LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_PCS_CFG_PCS1G_MODE_CFG, 0,
-                            LAN80XX_M_LINE_PCS_CFG_PCS1G_MODE_CFG_SGMII_MODE_ENA);
-        }
 
         LAN80XX_CSR_WRM(port_no, LAN80XX_HOST_PCS_CFG_PCS1G_MODE_CFG, 0, LAN80XX_M_HOST_PCS_CFG_PCS1G_MODE_CFG_SGMII_MODE_ENA);
 
@@ -2856,7 +2863,7 @@ static mepa_rc lan80xx_mail_box_command_set(mepa_device_t *dev, uint8_t u8Packet
 mepa_rc lan80xx_kr_aneg_enable(mepa_device_t *dev, mepa_port_no_t port_no, const mepa_conf_t *const config)
 {
     phy25g_phy_state_t *data = (phy25g_phy_state_t *) dev->data;
-    T_D(MEPA_TRACE_GRP_GEN, "Aneg KR Configuring on port : %d\n", port_no);
+    T_D(MEPA_TRACE_GRP_GEN, "Clause 73: Aneg KR Configuring on port : %d\n", port_no);
     u32 conf_info = 0;
     u8 cmd_param[7] = { 0 };
 
@@ -2895,6 +2902,7 @@ mepa_rc lan80xx_kr_aneg_enable(mepa_device_t *dev, mepa_port_no_t port_no, const
     cmd_param[3] = (conf_info >> 16) & 0xFF;
     cmd_param[4] = (conf_info >> 24) & 0xFF;
 
+    T_D(MEPA_TRACE_GRP_GEN, "\n Port : %d, cmd_param[1] : 0x%x, cmd_param[2] : 0x%x, cmd_param[3] : 0x%x, cmd_param[4] : 0x%x\n", port_no, cmd_param[1], cmd_param[2], cmd_param[3], cmd_param[4]);
     if (lan80xx_mail_box_command_set(dev, eSET_PORT_ANEGKR_CFG, 5, &cmd_param[0]) != MEPA_RC_OK) {
         T_E(MEPA_TRACE_GRP_GEN, "\n Error in config aneg set on Port %d\n", port_no);
         return MEPA_RC_OK;
@@ -2999,7 +3007,7 @@ static mepa_rc lan80xx_pcs_pma_status_get_priv(const mepa_device_t    *dev,
 
     if (data->conf.speed == MESA_SPEED_AUTO) {
         MEPA_RC(lan80xx_aneg_status(dev, port_no));
-        data->port_state.speed = data->host_aneg_status.neg_speed;
+        data->port_state.speed = data->line_aneg_status.neg_speed;
     }
     phy_speed = data->port_state.speed;
     switch (phy_speed) {
@@ -3035,8 +3043,8 @@ mepa_rc lan80xx_status_get_priv(const mepa_device_t   *dev,
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
     rc = LAN80XX_RC_COLD(lan80xx_pcs_pma_status_get_priv(dev, port_no, status));
     status->oper_mode = data->port_state.port_mode.oper_mode;
-    status->host_neg_speed = data->line_aneg_status.neg_speed;
-    status->line_neg_speed = data->host_aneg_status.neg_speed;
+    status->host_neg_speed = data->host_aneg_status.neg_speed;
+    status->line_neg_speed = data->line_aneg_status.neg_speed;
     return rc;
 }
 
@@ -8204,4 +8212,100 @@ mepa_rc lan80xx_KRLog_Reset_priv(const mepa_device_t *dev, uint32_t u32KRLogOffs
         packet_dump(&gau8RespBuffer[0]);
     }
     return rc;
+}
+
+/**
+ * Advertisement Word (Refer to IEEE 802.3 Clause 37):
+ *  MSB                                                                         LSB
+ *  D15  D14  D13  D12  D11  D10   D9   D8   D7   D6   D5   D4   D3   D2   D1   D0
+ * +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+ * | NP | Ack| RF2| RF1|rsvd|rsvd|rsvd| PS2| PS1| HD | FD |rsvd|rsvd|rsvd|rsvd|rsvd|
+ * +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+ **/
+mepa_rc lan80xx_clause37_conf_set_priv(mepa_device_t        *dev,
+                                       mepa_port_no_t       port_no,
+                                       mepa_cl37_conf_t     *cl37_conf)
+{
+    phy25g_phy_state_t *data = (phy25g_phy_state_t *) dev->data;
+    u32 adv_abilities = 0;
+    u32 val = 0;
+    if (cl37_conf->enable == FALSE) {
+        T_D(MEPA_TRACE_GRP_GEN, "Disabling Clause37 on port : %d\n", port_no);
+        if (cl37_conf->advertise_dir == MEPA_ADV_SIDE_LINE || cl37_conf->advertise_dir == MEPA_ADV_SIDE_HOST_LINE || cl37_conf->advertise_dir == MEPA_ADV_SIDE_NONE) {
+             LAN80XX_CSR_WR(dev, port_no, LAN80XX_LINE_PCS_CFG_PCS1G_ANEG_CFG_1, LAN80XX_F_LINE_PCS_CFG_PCS1G_ANEG_CFG_1_ADV_ABILITY(adv_abilities));
+             LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_PCS_CFG_PCS1G_ANEG_CFG_0, LAN80XX_M_LINE_PCS_CFG_PCS1G_ANEG_CFG_0_ANEG_RESTART_ONE_SHOT,
+                             LAN80XX_M_LINE_PCS_CFG_PCS1G_ANEG_CFG_0_ANEG_RESTART_ONE_SHOT |
+                             LAN80XX_M_LINE_PCS_CFG_PCS1G_ANEG_CFG_0_ANEG_ENA);
+        }
+        if (cl37_conf->advertise_dir == MEPA_ADV_SIDE_HOST || cl37_conf->advertise_dir == MEPA_ADV_SIDE_HOST_LINE || cl37_conf->advertise_dir == MEPA_ADV_SIDE_NONE) {
+             LAN80XX_CSR_WR(dev, port_no, LAN80XX_HOST_PCS_CFG_PCS1G_ANEG_CFG_1, LAN80XX_F_HOST_PCS_CFG_PCS1G_ANEG_CFG_1_ADV_ABILITY(adv_abilities));
+             LAN80XX_CSR_WRM(port_no, LAN80XX_HOST_PCS_CFG_PCS1G_ANEG_CFG_0, LAN80XX_M_HOST_PCS_CFG_PCS1G_ANEG_CFG_0_ANEG_RESTART_ONE_SHOT,
+                             LAN80XX_M_HOST_PCS_CFG_PCS1G_ANEG_CFG_0_ANEG_RESTART_ONE_SHOT |
+                             LAN80XX_M_HOST_PCS_CFG_PCS1G_ANEG_CFG_0_ANEG_ENA);
+        }
+        return MEPA_RC_OK;
+    }
+
+	u8 full_duplex_1g = 1;
+    u8 half_duplex_1g = 0;
+    adv_abilities =((full_duplex_1g              << LAN80XX_CLAUSE37_ADV_1G_FDX_BIT) |
+                    (half_duplex_1g              << LAN80XX_CLAUSE37_ADV_1G_HDX_BIT) |
+                    (cl37_conf->symmetric_pause  << LAN80XX_CLAUSE37_ADV_SYMMETRIC_PAUSE) |
+                    (cl37_conf->asymmetric_pause << LAN80XX_CLAUSE37_ADV_ASYMMETRIC_PAUSE) |
+                    (cl37_conf->remote_fault     << LAN80XX_CLAUSE37_ADV_REMOTE_FAULT) |
+                    (cl37_conf->acknowledge      << LAN80XX_CLAUSE37_ADV_ACK) |
+                    (cl37_conf->next_page        << LAN80XX_CLAUSE37_ADV_NEXT_PAGE));
+
+    T_D(MEPA_TRACE_GRP_GEN, "Clause 37, base page ability : 0x%x on port : %d \n", adv_abilities, port_no);
+    T_D(MEPA_TRACE_GRP_GEN, "Clause 37, Next page state : %d , next page ability : 0x%x on port : %d \n", cl37_conf->next_page, cl37_conf->next_page_abilities,  port_no);
+
+    if (cl37_conf->advertise_dir == MEPA_ADV_SIDE_LINE || cl37_conf->advertise_dir == MEPA_ADV_SIDE_HOST_LINE) {
+
+        T_D(MEPA_TRACE_GRP_GEN, "Enabling Clause37 on Line side of the port : %d\n", port_no);
+
+        LAN80XX_CSR_WR(dev, port_no, LAN80XX_LINE_PCS_CFG_PCS1G_ANEG_CFG_1, LAN80XX_F_LINE_PCS_CFG_PCS1G_ANEG_CFG_1_ADV_ABILITY(adv_abilities));
+
+        if (cl37_conf->next_page == TRUE) {
+            LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_PCS_CFG_PCS1G_ANEG_NP_CFG_1, LAN80XX_F_LINE_PCS_CFG_PCS1G_ANEG_NP_CFG_1_NP_TX(cl37_conf->next_page_abilities),
+                            LAN80XX_M_LINE_PCS_CFG_PCS1G_ANEG_NP_CFG_1_NP_TX);
+
+            LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_PCS_CFG_PCS1G_ANEG_NP_CFG_0, LAN80XX_M_LINE_PCS_CFG_PCS1G_ANEG_NP_CFG_0_NP_LOADED_ONE_SHOT, LAN80XX_M_LINE_PCS_CFG_PCS1G_ANEG_NP_CFG_0_NP_LOADED_ONE_SHOT);
+        } else {
+            LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_PCS_CFG_PCS1G_ANEG_NP_CFG_0, 0, LAN80XX_M_LINE_PCS_CFG_PCS1G_ANEG_NP_CFG_0_NP_LOADED_ONE_SHOT);
+        }
+
+        LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_PCS_CFG_PCS1G_ANEG_CFG_0,
+                        LAN80XX_M_LINE_PCS_CFG_PCS1G_ANEG_CFG_0_ANEG_ENA | LAN80XX_M_LINE_PCS_CFG_PCS1G_ANEG_CFG_0_ANEG_RESTART_ONE_SHOT,
+                        LAN80XX_M_LINE_PCS_CFG_PCS1G_ANEG_CFG_0_ANEG_ENA | LAN80XX_M_LINE_PCS_CFG_PCS1G_ANEG_CFG_0_ANEG_RESTART_ONE_SHOT);
+
+        LAN80XX_CSR_RD(dev, port_no, LAN80XX_LINE_PCS_CFG_PCS1G_MODE_CFG, &val);
+
+        if (val & LAN80XX_M_LINE_PCS_CFG_PCS1G_MODE_CFG_SGMII_MODE_ENA) {
+            val = LAN80XX_M_LINE_PCS_CFG_PCS1G_ANEG_CFG_0_SW_RESOLVE_ENA;
+        } else {
+            val = 0;
+        }
+        LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_PCS_CFG_PCS1G_ANEG_CFG_0, val, LAN80XX_M_LINE_PCS_CFG_PCS1G_ANEG_CFG_0_SW_RESOLVE_ENA);
+    }
+
+    if (cl37_conf->advertise_dir == MEPA_ADV_SIDE_HOST || cl37_conf->advertise_dir == MEPA_ADV_SIDE_HOST_LINE) {
+
+        T_D(MEPA_TRACE_GRP_GEN, "Enabling Clause37 on Host side of the port : %d\n", port_no);
+
+        LAN80XX_CSR_WR(dev, port_no, LAN80XX_HOST_PCS_CFG_PCS1G_ANEG_CFG_1, LAN80XX_F_HOST_PCS_CFG_PCS1G_ANEG_CFG_1_ADV_ABILITY(adv_abilities));
+
+        if (cl37_conf->next_page == TRUE) {
+            LAN80XX_CSR_WRM(port_no, LAN80XX_HOST_PCS_CFG_PCS1G_ANEG_NP_CFG_1, LAN80XX_F_HOST_PCS_CFG_PCS1G_ANEG_NP_CFG_1_NP_TX(cl37_conf->next_page_abilities),
+                            LAN80XX_M_HOST_PCS_CFG_PCS1G_ANEG_NP_CFG_1_NP_TX);
+
+            LAN80XX_CSR_WRM(port_no, LAN80XX_HOST_PCS_CFG_PCS1G_ANEG_NP_CFG_0, LAN80XX_M_HOST_PCS_CFG_PCS1G_ANEG_NP_CFG_0_NP_LOADED_ONE_SHOT, LAN80XX_M_HOST_PCS_CFG_PCS1G_ANEG_NP_CFG_0_NP_LOADED_ONE_SHOT);
+        } else {
+            LAN80XX_CSR_WRM(port_no, LAN80XX_HOST_PCS_CFG_PCS1G_ANEG_NP_CFG_0, 0, LAN80XX_M_HOST_PCS_CFG_PCS1G_ANEG_NP_CFG_0_NP_LOADED_ONE_SHOT);
+        }
+
+        LAN80XX_CSR_WRM(port_no, LAN80XX_HOST_PCS_CFG_PCS1G_ANEG_CFG_0,
+                        LAN80XX_M_HOST_PCS_CFG_PCS1G_ANEG_CFG_0_ANEG_ENA | LAN80XX_M_HOST_PCS_CFG_PCS1G_ANEG_CFG_0_ANEG_RESTART_ONE_SHOT,
+                        LAN80XX_M_HOST_PCS_CFG_PCS1G_ANEG_CFG_0_ANEG_ENA | LAN80XX_M_HOST_PCS_CFG_PCS1G_ANEG_CFG_0_ANEG_RESTART_ONE_SHOT);
+    }
+    return MEPA_RC_OK;
 }

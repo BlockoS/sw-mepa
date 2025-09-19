@@ -53,6 +53,7 @@ typedef struct {
     mepa_bool_t           rfec;
     mepa_bool_t           rsfec;
     mepa_adv_side_t       fec_direction;
+    mepa_bool_t           clause37_neg;
 } port_cli_req_t;
 
 meba_inst_t meba_phy_inst;
@@ -419,6 +420,15 @@ static void cli_cmd_force_speed(cli_req_t *req)
                 return;
             }
         }
+
+        if (mreq->clause37_neg == 1 && phy_family.family != PHY_FAMILY_MALIBU_25G) {
+            T_E("\nConfig failed on port %d, Clause-37 not supported\n", (iport + 1));
+            continue;
+        }
+        if (mreq->speed != MESA_SPEED_1G && mreq->clause37_neg == 1) {
+            T_E("\nConfig failed on port %d, Clause-37 supported only at 1G Speed\n", (iport + 1));
+            continue;
+        }
         if ((rc = mepa_conf_get(meba_phy_inst->phy_devices[iport], &conf)) != MESA_RC_OK) {
             T_E("\n mepa_conf_get failed on port %d\n", iport);
             continue;
@@ -453,6 +463,18 @@ static void cli_cmd_force_speed(cli_req_t *req)
             if ((mreq->rfec || mreq->rsfec) && (mreq->fec_direction == MEPA_ADV_SIDE_NONE)) {
                 T_E("\n FEC Direction Not Selected on Port :%d\n", iport);
                 continue;
+            }
+            if (mreq->clause37_neg == TRUE) {
+                conf.cl37_conf.enable = 1;
+                conf.cl37_conf.advertise_dir = MEPA_ADV_SIDE_LINE;
+                conf.cl37_conf.symmetric_pause = 1;
+                conf.cl37_conf.asymmetric_pause = 0;
+                conf.cl37_conf.remote_fault = 0;
+                conf.cl37_conf.acknowledge = 1;
+                conf.cl37_conf.next_page = 0;
+                conf.cl37_conf.next_page_abilities = 0;
+            } else {
+                memset(&conf.cl37_conf, 0, sizeof(conf.cl37_conf));
             }
         }
         if ((rc = mepa_conf_set(meba_phy_inst->phy_devices[iport], &conf)) != MESA_RC_OK) {
@@ -609,7 +631,7 @@ static cli_cmd_t cli_cmd_table[] = {
         cli_cmd_fpp_get
     },
     {
-        "phy speed <port_list> [10hdx|10fdx|100hdx|100fdx|1000fdx|10g|25g] [r-fec] [rs-fec] [fec-host|fec-line|fec-h-l]",
+        "phy speed <port_list> [10hdx|10fdx|100hdx|100fdx|1000fdx|10g|25g] [cl37-aneg] [r-fec] [rs-fec] [fec-host|fec-line|fec-h-l]",
         "Configure Forced Fixed Speed of PHY",
         cli_cmd_force_speed,
     },
@@ -666,6 +688,9 @@ static int cli_parm_keyword(cli_req_t *req)
     if (!strncasecmp(found, "rs-fec", strlen(req->cmd))) {
         mreq->rsfec = 1;
     }
+    if (!strncasecmp(req->cmd, "cl37-aneg", strlen(req->cmd))) {
+        mreq->clause37_neg = 1;
+	}
     return 0;
 
 
@@ -801,6 +826,12 @@ static cli_parm_t cli_parm_table[] = {
         "mac_retimer : Port Configure to MAC RETIMER Mode \n",
         CLI_PARM_FLAG_SET,
         cli_parm_mode_select,
+    },
+    {
+        "cl37-aneg",
+        "Enable Clause37 Aneg on LINE side of PHY",
+        CLI_PARM_FLAG_SET,
+        cli_parm_keyword,
     },
     {
         "r-fec",

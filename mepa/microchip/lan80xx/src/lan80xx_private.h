@@ -93,6 +93,13 @@
 #define LAN80XX_GPIO_26                         (26U)
 #define LAN80XX_GPIO_27                         (27U)
 
+#define LAN80XX_CLAUSE37_ADV_1G_FDX_BIT        (5U)
+#define LAN80XX_CLAUSE37_ADV_1G_HDX_BIT        (6U)
+#define LAN80XX_CLAUSE37_ADV_SYMMETRIC_PAUSE   (7U)
+#define LAN80XX_CLAUSE37_ADV_ASYMMETRIC_PAUSE  (8U)
+#define LAN80XX_CLAUSE37_ADV_REMOTE_FAULT      (12U)
+#define LAN80XX_CLAUSE37_ADV_ACK               (14U)
+#define LAN80XX_CLAUSE37_ADV_NEXT_PAGE         (15U)
 
 /* MAC block Config values */
 #define LAN80XX_MAC_FC_BUFF_STICY_MASK         (0xFFFFFFU)
@@ -694,5 +701,9 @@ mepa_rc lan80xx_KRLog_Enable_priv(const mepa_device_t *dev,
 mepa_rc lan80xx_KRLog_Reset_priv(const mepa_device_t *dev,
                                  uint32_t u32KRLogOffset,
                                  uint16_t u16Len);
+
+mepa_rc lan80xx_clause37_conf_set_priv(mepa_device_t        *dev,
+                                       mepa_port_no_t       port_no,
+                                       mepa_cl37_conf_t     *cl37_conf);
 
 #endif //_MEPA_LAN80XX_PRIVATE_H_

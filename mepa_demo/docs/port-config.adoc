@@ -123,7 +123,7 @@ The configuration is passed to the respective port from the file_name, the file 
 mepa_conf_t structure in the json format. the json string should start with the json object
 "port_config"
 
-        mepa-cmd phy speed <port_list> [10hdx|10fdx|100hdx|100fdx|1000fdx|10g|25g] [r-fec] [rs-fec] [fec-host|fec-line|fec-h-l]
+        mepa-cmd phy speed <port_list> [10hdx|10fdx|100hdx|100fdx|1000fdx|10g|25g] [cl37-aneg] [r-fec] [rs-fec] [fec-host|fec-line|fec-h-l]
 
 User can either use `dev conf` command or `phy speed` command to configure the Dev of the Port,
 This `phy speed` command will configure the Fixed Speed to the port by hardcoding few parameters of

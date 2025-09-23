@@ -62,9 +62,29 @@
 #define GET_PHY_REV(x)              EXTRACT_BITS(x, 0U, 4U)
 #define GET_PHY_MODEL(x)            EXTRACT_BITS(x, 4U, 6U)
 
+/* Maximum supported SECYs */
+//8 vPorts, 16 SAs per direction (2 SAs per vPort)
+#define MCHP_MS_MAX_SECYS               8
+#define MCHP_MS_MAX_FLOWS               16
+
+/* Blackfyre ENGINEERING NOTE:
+ * Blackfyre supports only 2 VLAN TAG bypass for insertion of SecTAG.
+ */
+#define MCHP_MS_MAX_VLANS               2
+
 /*
  * Data structures
  */
+typedef struct {
+    mepa_bool_t dis_macsec;
+    mepa_bool_t dis_1588;
+    mepa_bool_t dis_1000;
+    mepa_bool_t dis_100;
+#ifdef MEPA_LAN8X8X_MACSEC
+    struct mchp_ms_cap ms_cap;
+#endif
+} mchp_t1_otp_cap_t;
+
 typedef struct {
     uint32_t id;
     uint16_t  model;
@@ -74,6 +94,7 @@ typedef struct {
 } phy_dev_info_t;
 
 typedef struct {
+    mchp_t1_otp_cap_t       t1_cap;
     mepa_bool_t             init_done;
     mepa_bool_t             link_status;
     mepa_port_no_t          port_no;

@@ -10,39 +10,6 @@
 
 #define LAN8X8X_DEF_MASK    DEF_MASK
 
-#define BIT32(x)                        ((ONE32) << (x))
-
-#define BIT_MASK(x)             (((ONE) << (x)) - (ONE))
-#define BIT32_MASK(x)           (((ONE32) << (x)) - (ONE32))
-
-#define GENMASK(offset, width)      (BIT_MASK(width) << (offset))
-#define GENMASK32(offset, width)    (BIT32_MASK(width) << (offset))
-
-#define MCHP_MASK           GENMASK32(15, 0)
-#define MCHP_4B_MASK        GENMASK32(31, 0)
-#define DEF_MASK            (0xFFFFU)
-
-#define EXTRACT_BITFIELD(value, offset, width)  (((value) >> (offset)) & BIT_MASK(width))
-#define EXTRACT_BITS(val, offset, width)    EXTRACT_BITFIELD(val, offset, width)
-
-#define ENCODE_BITFIELD(value, offset, width)   (((value) & BIT_MASK(width)) << (offset))
-
-#define ARRAY_SIZE(x)       (sizeof(x) / sizeof((x)[0]))
-
-/* Generate register address from reg_group + reg_offset */
-#define MCHP_TEST_BIT(v, x)      ((((v) & BIT32(x)) != 0U) ? 1U : 0U)
-
-#define MCHP_EXTRACT_V(v, h, l) (((v) & GENMASK32((h), (l))) >> (l))
-
-#define MCHP_BSWAP(A) ((((A) & 0xFF00UL) >> 8UL) | (((A) & 0x00FFUL) << 8UL))
-
-#define MCHP_BSWAP32(V) ((((V) & 0x000000FFU) << 24U) | (((V) & 0x0000FF00U) << 8U) | (((V) & 0x00FF0000U) >> 8U) | (((V) & 0xFF000000U) >> 24U))
-
-#define MCHP_GET_U32(v, idx) ((uint32_t)(v)[(idx)] | \
-            ((uint32_t)(v)[(idx) + 1U] << 8U) | \
-            ((uint32_t)(v)[(idx) + 2U] << 16U) | \
-            ((uint32_t)(v)[(idx) + 3U] << 24U))
-
 #define LAN8X8X_PMA_COMM_100T1_CTL_T1_TYPE_1000 (0x1U)
 
 /* GPIO Registers */
@@ -73,8 +40,8 @@
 #define LAN8X8X_LED_FORCED_LED_ON       (0xFU)
 
 #define LAN8X8X_CLK_RST_REG             (0xF070U)
-#define LAN8X8X_RGMII_RX_DLL_CFG        (LAN8X8X_CLK_RST_REG + 0xA)
-#define LAN8X8X_RGMII_TX_DLL_CFG        (LAN8X8X_CLK_RST_REG + 0xB)
+#define LAN8X8X_RGMII_RX_DLL_CFG        (LAN8X8X_CLK_RST_REG + 0xAU)
+#define LAN8X8X_RGMII_TX_DLL_CFG        (LAN8X8X_CLK_RST_REG + 0xBU)
 
 #define LAN8X8X_RGMII_DELAY_EN          BIT(15)
 #define LAN8X8X_RGMII_DLL_EN            BIT(0)
@@ -97,7 +64,7 @@
 /* SQI Registers */
 #define LAN8X8X_SQI_1000_REG         (0x8820U)
 #define LAN8X8X_SQI_100_REG          (0x8218U)
-#define T1_DCQ_SQI_MSK          GENMASK(3, 1)
+#define T1_DCQ_SQI_MSK          GENMASK(1, 3)
 #define LAN8X8X_SQI_GET(v)  (((v) & T1_DCQ_SQI_MSK) >> ONE)
 
 /* Cable Diagonistics Registers */
@@ -105,24 +72,15 @@
 #define LAN8X8X_CD_DONE     BIT(1)
 #define LAN8X8X_CD_EN       BIT(0)
 
-#define TC12_HDD_TDR        (0x8930U)
-#define TC12_HDD_TDR_LOC    GENMASK(13, 8)
-#define TC12_HDD_TDR_STS    GENMASK(7, 4)
-#define TC12_HDD_TDR_EN     GENMASK(1, 0)
-#define TC12_HDD_TDR_ON     BIT(1)
-
-#define LAN8X8X_CD_STS(v)   (((v) & TC12_HDD_TDR_STS) >> 4U)
-#define LAN8X8X_CD_LOC(v)   (((v) & TC12_HDD_TDR_LOC) >> 8U)
-
 /*CONFIG DONE */
-#define T1_1G_TOP_CTRL                          0x8900
-#define T1_1G_TOP_CTRL_CONFIG                   (T1_1G_TOP_CTRL + 0x2)
+#define T1_1G_TOP_CTRL                          0x8900U
+#define T1_1G_TOP_CTRL_CONFIG                   (T1_1G_TOP_CTRL + 0x2U)
 #define T1_1G_TOP_CTRL_CONFIG_DONE              BIT(3)
 #define T1_1G_TOP_CTRL_CONFIG_LINK_CTRL         BIT(0)
 #define T1_1G_TOP_CTRL_CONFIG_SET               (T1_1G_TOP_CTRL_CONFIG_DONE | \
                                                  T1_1G_TOP_CTRL_CONFIG_LINK_CTRL)
 
-#define T1_1G_E1000T1_PCS                       0x8300
+#define T1_1G_E1000T1_PCS                       0x8300U
 #define T1_1G_E1000T1_PCS_EN                    (T1_1G_E1000T1_PCS)
 #define T1_1G_E1000T1_PCS_EN_LINK_SYNC_SW       BIT(2)
 #define T1_1G_E1000T1_PCS_EN_RXPCS_DEFRAMER     BIT(1)
@@ -131,8 +89,8 @@
                                                  T1_1G_E1000T1_PCS_EN_RXPCS_DEFRAMER | \
                                                  T1_1G_E1000T1_PCS_EN_TXPCS_FRAMER)
 
-#define T1_1G_E100T1_PMA        0x8200
-#define T1_1G_E1000T1_PMA       0x8800
+#define T1_1G_E100T1_PMA        0x8200U
+#define T1_1G_E1000T1_PMA       0x8800U
 #define T1_PMA_TR_LOCKED        BIT(1)
 #define T1_PMA_ADFE_LOCKED      BIT(0)
 #define T1_PMA_LINK_STATUS      (T1_PMA_TR_LOCKED | T1_PMA_ADFE_LOCKED)
@@ -144,7 +102,7 @@
 
 #define CHIPTOP         (0xF0C0U)
 
-#define XGMII_GMII_BYPASS       (CHIPTOP + 0x18)
+#define XGMII_GMII_BYPASS       (CHIPTOP + 0x18U)
 #define MACSEC_MEGABLK_BYPASS_SEL   BIT(2)
 #define GMII_BYPASS_SEL         BIT(1)
 #define XGMII_BYPASS_SEL        BIT(0)
@@ -152,8 +110,33 @@
                      GMII_BYPASS_SEL | \
                      MACSEC_MEGABLK_BYPASS_SEL)
 
-#define T1_1G_TOP_CTRL              0x8900
-#define T1_1G_TOP_CTRL_CONFIG           (T1_1G_TOP_CTRL + 0x2)
+#define OTP_STRAP_READ_REG              (CHIPTOP + 0x38U)
+#define OTP_STRAP_READ_AUTO_MODE_EN     BIT(3)
+#define OTP_STRAP_READ_SPEED_SEL        BIT(2)
+#define OTP_STRAP_READ_AUTO_NEG_EN      BIT(1)
+#define OTP_STRAP_READ_MST_SLV_SEL      BIT(0)
+
+#define T1_OTP_RO                       (0xF040U)
+
+#define T1_OTP_RO_FEAT_DIS              (T1_OTP_RO + 0x12U)
+#define T1_OTP_RO_FEAT_DIS_1000M        BIT(4)
+#define T1_OTP_RO_FEAT_DIS_100M         BIT(3)
+#define T1_OTP_RO_FEAT_DIS_1588         BIT(2)
+#define T1_OTP_RO_FEAT_DIS_MS256        BIT(1)
+#define T1_OTP_RO_FEAT_DIS_MS           BIT(0)
+
+#define T1_OTP_RO_PART_ID               (T1_OTP_RO + 0x13U)
+
+#define OTP_STRAP_OVERRIDE              (T1_OTP_RO + 0x15U)
+#define OTP_STRAP_OVERRIDE_EN           BIT(7)
+#define OTP_STRAP_AUTO_MODE_EN          BIT(5)
+#define OTP_STRAP_SPEED_SEL             BIT(4)
+#define OTP_STRAP_MAC_MODE              GENMASK(3, 2)
+#define OTP_STRAP_AUTO_NEG_EN           BIT(1)
+#define OTP_STRAP_MST_SLV_SEL           BIT(0)
+
+#define T1_1G_TOP_CTRL              0x8900U
+#define T1_1G_TOP_CTRL_CONFIG           (T1_1G_TOP_CTRL + 0x2U)
 #define T1_1G_TOP_CTRL_IEEE_POWERDOWN_PMD   BIT(4)
 #define T1_1G_TOP_CTRL_CONFIG_DONE      BIT(3)
 #define T1_1G_TOP_CTRL_SOFT_RESET       BIT(1)
@@ -161,50 +144,104 @@
 #define T1_1G_TOP_CTRL_CONFIG_SET       (T1_1G_TOP_CTRL_CONFIG_DONE | \
                          T1_1G_TOP_CTRL_CONFIG_LINK_CTRL)
 
-#define T1_100M_E100T1_PCS          0x8000
+#define T1_100M_CD_CFG          (T1_1G_TOP_CTRL + 0x18U)
+#define T1_100M_CD_DONE         BIT(1)
+#define T1_100M_CD_EN           BIT(0)
 
-#define T1_1G_ECMT1_PMD             0x8000
-#define T1_1G_ECMT1_PMD_LDRV_TMR        (T1_1G_ECMT1_PMD + 0xE)
+#define TC12_HDD_TDR            (T1_1G_TOP_CTRL + 0x30U)
+#define TC12_HDD_TDR_LOC        GENMASK(8, 5)
+#define T1_100M_CD_LOC          GENMASK(8, 4)
+;
+//Cable diag length to fault
+#define TC12_HDD_TDR_CD_NO_ERR  (0x0U) //No Error
+#define TC12_HDD_TDR_CD_LOC1  (0x1U) // Error between 0-1.5 m away
+#define TC12_HDD_TDR_CD_LOC2  (0x3U) // Error between 1.5-3m away
+#define TC12_HDD_TDR_CD_LOC3  (0x4U) // Error between 3 -4.5m away
+#define TC12_HDD_TDR_CD_LOC4  (0x6U) // Error between 4.5 - 6m away
+#define TC12_HDD_TDR_CD_LOC5  (0x7U) // Error between 6 - 7.5m away
+#define TC12_HDD_TDR_CD_LOC6  (0x9U) // Error between 7.5-9m away
+#define TC12_HDD_TDR_CD_LOC7  (0xAU) // Error between 9 - 10.5m away
+#define TC12_HDD_TDR_CD_LOC8  (0xCU) // Error between 10.5 - 12m away
+#define TC12_HDD_TDR_CD_LOC9  (0xDU) // Error between 12 - 13.5m away
+#define TC12_HDD_TDR_CD_LOC10  (0xFU) // Error between 13.5 - 15m away
+#define TC12_HDD_TDR_CD_LOC11  (0x3FU) // Error about 15m
 
-#define T1_1G_E100T1_PMD            0x8000
-#define T1_1G_E100T1_PMD_ADPLL_CFG_0        (T1_1G_E100T1_PMD + 0x40)
+#define TC12_HDD_TDR_PAIR_0 (0U)
 
-#define T1_1G_E1000T1_PMD           0x8100
+#define TC12_HDD_TDR_LEN_0_M  (0U)
+#define TC12_HDD_TDR_LEN_2_M  (2U)
+#define TC12_HDD_TDR_LEN_3_M  (3U)
+#define TC12_HDD_TDR_LEN_5_M  (5U)
+#define TC12_HDD_TDR_LEN_6_M  (6U)
+#define TC12_HDD_TDR_LEN_8_M  (8U)
+#define TC12_HDD_TDR_LEN_9_M  (9U)
+#define TC12_HDD_TDR_LEN_11_M (11U)
+#define TC12_HDD_TDR_LEN_12_M (12U)
+#define TC12_HDD_TDR_LEN_14_M (14U)
+#define TC12_HDD_TDR_LEN_15_M (15U)
+#define TC12_HDD_TDR_LEN_MAX_M  (16U)
+
+#define TC12_HDD_TDR_STS        GENMASK(4, 8)
+
+//Cable diag status
+#define TC12_HDD_TDR_LINK_UP      0xDU
+#define TC12_HDD_TDR_TST_ACTIVE   0x8U
+#define TC12_HDD_TDR_CBL_OK       0x7U
+#define TC12_HDD_TDR_CBL_OPEN     0x6U
+#define TC12_HDD_TDR_HIG_NOISE    0x5U
+#define TC12_HDD_TDR_CBL_SHORT    0x3U
+
+#define TC12_HDD_TDR_STS_DONE       (TC12_HDD_TDR_TST_ACTIVE << 4U)
+#define TC12_HDD_TDR_STS_GET(x)         (((x) & TC12_HDD_TDR_STS) >> 4U)
+
+#define TC12_HDD_TDR_ACTIVE     GENMASK(0, 2)
+#define TC12_HDD_TDR_ENABLE     BIT(1)
+#define TC12_HDD_TDR_DISABLE    BIT(0)
+
+#define T1_100M_E100T1_PCS          0x8000U
+
+#define T1_1G_ECMT1_PMD             0x8000U
+#define T1_1G_ECMT1_PMD_LDRV_TMR        (T1_1G_ECMT1_PMD + 0xEU)
+
+#define T1_1G_E100T1_PMD            0x8000U
+#define T1_1G_E100T1_PMD_ADPLL_CFG_0        (T1_1G_E100T1_PMD + 0x40U)
+
+#define T1_1G_E1000T1_PMD           0x8100U
 #define T1_1G_E1000T1_PMD_LCPLL_CFG_0       (T1_1G_E1000T1_PMD)
 
-#define T1_1G_E100T1_PMA            0x8200
-#define T1_1G_E100T1_PMA_ADFE_CFG2      (T1_1G_E100T1_PMA + 0x2A)
-#define T1_1G_E100T1_PMA_ADFE_CFG3      (T1_1G_E100T1_PMA + 0x2C)
+#define T1_1G_E100T1_PMA            0x8200U
+#define T1_1G_E100T1_PMA_ADFE_CFG2      (T1_1G_E100T1_PMA + 0x2AU)
+#define T1_1G_E100T1_PMA_ADFE_CFG3      (T1_1G_E100T1_PMA + 0x2CU)
 
-#define T1_1G_RI_ABB_CTRL_0         0x8300
+#define T1_1G_RI_ABB_CTRL_0         0x8300U
 
-#define T1_1G_E1000T1_PMA           0x8800
+#define T1_1G_E1000T1_PMA           0x8800U
 #define T1_PMA_TR_LOCKED            BIT(1)
 #define T1_PMA_ADFE_LOCKED          BIT(0)
 #define T1_PMA_LINK_STATUS          (T1_PMA_TR_LOCKED | T1_PMA_ADFE_LOCKED)
 
-#define T1_AUTONEG_STATUS           0x8002
+#define T1_AUTONEG_STATUS           0x8002U
 #define T1_AUTONEG_MS_CONFIG_FAULT      BIT(1)
 #define T1_AUTONEG_CONFIG_AS_MASTER     BIT(0)
 
 /* Interrupts */
-#define LAN8X8X_INT_STS0_SC     (LAN8X8X_CHIPTOP + 0x20U)
-#define LAN8X8X_INT_EN0_SC              (LAN8X8X_CHIPTOP + 0x24U)
+#define LAN8X8X_INT_STS0_SC     (CHIPTOP + 0x20U)
+#define LAN8X8X_INT_EN0_SC              (CHIPTOP + 0x24U)
 #define LAN8X8X_INT_EN0_MAC_INTRF       BIT(11)
-#define LAN8X8X_INT_EN0_EPG         BIT(10)
+#define LAN8X8X_INT_EN0_EPG     BIT(10)
 #define LAN8X8X_INT_EN0_GPIO            BIT(9)
-#define LAN8X8X_INT_EN0_WDT         BIT(8)
+#define LAN8X8X_INT_EN0_WDT     BIT(8)
 #define LAN8X8X_INT_EN0_TC10_PRT        BIT(7)
 #define LAN8X8X_INT_EN0_CHIP_TOP        BIT(6)
-#define LAN8X8X_INT_EN0_PVT         BIT(5)
+#define LAN8X8X_INT_EN0_PVT     BIT(5)
 #define LAN8X8X_INT_EN0_TC10_COM        BIT(4)
 #define LAN8X8X_INT_EN0_UVOV            BIT(3)
-#define LAN8X8X_INT_EN0_T1_DATA_FAULT       BIT(2)
+#define LAN8X8X_INT_EN0_T1_DATA_FAULT   BIT(2)
 #define LAN8X8X_INT_EN0_T1_FUNC_SC      BIT(1)
 #define LAN8X8X_INT_EN0_T1_FUNC         BIT(0)
 
-#define LAN8X8X_INT_STS1_SC     (LAN8X8X_CHIPTOP + 0x21U)
-#define LAN8X8X_INT_EN1_SC      (LAN8X8X_CHIPTOP + 0x25U)
+#define LAN8X8X_INT_STS1_SC     (CHIPTOP + 0x21U)
+#define LAN8X8X_INT_EN1_SC      (CHIPTOP + 0x25U)
 #define LAN8X8X_INT_EN1_MS_EG_EN    BIT(8)
 #define LAN8X8X_INT_EN1_MS_IG_EN    BIT(7)
 #define LAN8X8X_INT_EN1_MS_FCB_EN   BIT(6)

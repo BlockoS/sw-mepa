@@ -52,6 +52,80 @@ static mepa_rc phy_get_device_info(mepa_device_t *const dev)
     return MEPA_RC_OK;
 }
 
+static void lan8x8x_read_capabilities(mepa_device_t *const dev)
+{
+    phy_data_t *const priv = (phy_data_t *const)dev->data;
+    uint16_t val = 0U;
+
+    //Read Feature disable from OTP
+    (void) phy_mmd_reg_rd(dev, MDIO_MMD_VEND1, T1_OTP_RO_FEAT_DIS, &val);
+    priv->t1_cap.dis_1000 = PHY_FALSE;
+    if (IS_LAN888X(dev->drv->id) &&
+        ((val & T1_OTP_RO_FEAT_DIS_1000M) != 0U)) {
+        priv->t1_cap.dis_1000 = PHY_TRUE;
+    }
+    priv->t1_cap.dis_100    = PHY_FALSE;
+    if ((val & T1_OTP_RO_FEAT_DIS_100M) != 0U) {
+        priv->t1_cap.dis_100    = PHY_TRUE;
+    }
+    priv->t1_cap.dis_macsec = PHY_FALSE;
+    if ((val & T1_OTP_RO_FEAT_DIS_MS) != 0U) {
+        priv->t1_cap.dis_macsec = PHY_TRUE;
+    }
+#ifdef MEPA_LAN8X8X_MACSEC
+    priv->t1_cap.ms_cap.dis_256 = 0U;
+    if ((val & T1_OTP_RO_FEAT_DIS_MS256) != 0U) {
+        priv->t1_cap.ms_cap.dis_256 = 1U;
+    }
+    //Setup MACsec capabilities
+    priv->t1_cap.ms_cap.max_secy = MCHP_MS_MAX_SECYS;
+    priv->t1_cap.ms_cap.max_flows = MCHP_MS_MAX_FLOWS;
+    priv->t1_cap.ms_cap.max_vlans = MCHP_MS_MAX_VLANS;
+#endif
+
+    //set mac-interface
+    priv->mac_if = MESA_PORT_INTERFACE_RGMII_RXID;
+    (void) phy_mmd_reg_rd(dev, MDIO_MMD_VEND1, T1_OTP_RO_PART_ID, &val);
+    if (val == 0x888DU) {
+        priv->mac_if = MESA_PORT_INTERFACE_SGMII;
+    }
+
+    //Read STRAPs
+    (void) phy_mmd_reg_rd(dev, MDIO_MMD_VEND1, OTP_STRAP_OVERRIDE, &val);
+    if ((val & OTP_STRAP_OVERRIDE_EN) != 0U) {
+        if ((val & OTP_STRAP_AUTO_NEG_EN) != 0U) {
+            priv->conf.speed = MESA_SPEED_AUTO;
+        } else {
+            priv->conf.speed = MESA_SPEED_100M;
+            if (IS_LAN888X(dev->drv->id) &&
+                ((val & OTP_STRAP_SPEED_SEL) != 0U)) {
+                priv->conf.speed = MESA_SPEED_1G;
+            }
+        }
+
+        priv->conf.man_neg = MEPA_MANUAL_NEG_CLIENT;
+        if ((val & OTP_STRAP_MST_SLV_SEL) != 0U) {
+            priv->conf.man_neg = MEPA_MANUAL_NEG_REF;
+        }
+    } else {
+        (void) phy_mmd_reg_rd(dev, MDIO_MMD_VEND1, OTP_STRAP_READ_REG, &val);
+        if ((val & OTP_STRAP_READ_AUTO_NEG_EN) != 0U) {
+            priv->conf.speed = MESA_SPEED_AUTO;
+        } else {
+            priv->conf.speed = MESA_SPEED_100M;
+            if (IS_LAN888X(dev->drv->id) &&
+                ((val & OTP_STRAP_SPEED_SEL) != 0U)) {
+                priv->conf.speed = MESA_SPEED_1G;
+            }
+        }
+
+        priv->conf.man_neg = MEPA_MANUAL_NEG_CLIENT;
+        if ((val & OTP_STRAP_READ_MST_SLV_SEL) != 0U) {
+            priv->conf.man_neg = MEPA_MANUAL_NEG_REF;
+        }
+    }
+}
+
 static mepa_rc phy_get_link_status(mepa_device_t *const dev,
                                    mepa_status_t *const status)
 {
@@ -164,12 +238,12 @@ static mepa_rc lan8x8x_check_media(const mepa_device_t *const dev,
                                    mepa_media_interface_t media_if,
                                    mesa_port_speed_t speed)
 {
+    const phy_data_t *const data = (const phy_data_t *const)dev->data;
     mepa_rc rc = MEPA_RC_ERR_KR_CONF_NOT_SUPPORTED;
 
-    if ((media_if == MESA_PHY_MEDIA_IF_T1_100FX) ||
-        ((media_if == MESA_PHY_MEDIA_IF_T1_1000FX) &&
+    if (((media_if == MESA_PHY_MEDIA_IF_T1_100FX) && (!data->t1_cap.dis_100)) ||
+        (((media_if == MESA_PHY_MEDIA_IF_T1_1000FX) && (!data->t1_cap.dis_1000)) &&
          IS_LAN888X(dev->drv->id))) {
-        const phy_data_t *const data = (const phy_data_t *const)dev->data;
 
         rc = MEPA_RC_OK;
         // speed selection based on media type
@@ -456,7 +530,8 @@ static mepa_rc lan8x8x_phy_setup(mepa_device_t *const dev)
     if (data->conf.speed == MESA_SPEED_AUTO) {
         MEPA_RC_GOTO(rc, lan8x8x_pma_baset1_setup_aneg(dev));
 
-        if (IS_LAN888X(dev->drv->id)) {
+        //if (IS_LAN888X(dev->drv->id))
+        {
             MEPA_RC_GOTO(rc, lan8x8x_config_done(dev));
         }
     } else {
@@ -607,23 +682,26 @@ static void lan8x8x_fill_probe_data(mepa_driver_t *drv,
     data->init_done = PHY_FALSE;
     data->events = 0;
     //Default is preferred master when autoneg is enabled and forced master when aneg is disabled
-    data->conf.man_neg = MEPA_MANUAL_NEG_REF;
     data->conf.admin.enable = PHY_TRUE;
     data->conf.fdx = PHY_TRUE;
     //mac-if aneg must be enabled always
     data->conf.mac_if_aneg_ena = PHY_TRUE;
-    //phy aneg
-    data->conf.speed = MESA_SPEED_AUTO;
-    data->conf.aneg.speed_100m_fdx = PHY_TRUE;
-    data->conf.aneg.speed_1g_fdx = PHY_FALSE;
-    data->media_intf = MESA_PHY_MEDIA_IF_T1_100FX;
 
-    if (IS_LAN888X(dev->drv->id)) {
+    //Read OTP capabilities
+    lan8x8x_read_capabilities(dev);
+
+    //phy aneg
+    data->conf.aneg.speed_1g_fdx = PHY_FALSE;
+    data->conf.aneg.speed_100m_fdx = PHY_FALSE;
+    if (!data->t1_cap.dis_100) {
+        data->conf.aneg.speed_100m_fdx = PHY_TRUE;
+        data->media_intf = MESA_PHY_MEDIA_IF_T1_100FX;
+    }
+    if (IS_LAN888X(dev->drv->id) && !data->t1_cap.dis_1000) {
         data->media_intf = MESA_PHY_MEDIA_IF_T1_1000FX;
         data->conf.aneg.speed_1g_fdx = PHY_TRUE;
         T_I(  "LAN888X_A phy_id=0x%x\n", dev->drv->id);
     }
-    data->mac_if = MESA_PORT_INTERFACE_SGMII;
 
     data->led_conf[MEPA_LED2].led_num = MEPA_LED2;
     data->led_conf[MEPA_LED2].mode = MEPA_GPIO_MODE_LED_LINK_ACTIVITY;

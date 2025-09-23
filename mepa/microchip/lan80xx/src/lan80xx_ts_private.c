@@ -588,15 +588,21 @@ static mepa_rc lan80xx_ts_block_init(const mepa_device_t  *dev)
         LAN80XX_CSR_WR(dev, base_port, LAN80XX_PTP_LTC_CLK_PER_CFG(0), 0x7f9eae35);
 
         /* Wait for PLL lock */
-        LAN80XX_CSR_RD(dev, base_port, LAN80XX_CLK_CFG_LTCPLL_STS_REG, &value);
-        if (value & LAN80XX_M_CLK_CFG_LTCPLL_STS_REG_LTCPLL_STS) {
-            T_I(MEPA_TRACE_GRP_TS, "LTC PLL Locked");
-            base_data->ptp_shared_ltc_pll_init = TRUE;
-        } else {
-            T_E(MEPA_TRACE_GRP_TS, "LTC PLL Lock FAIL!!");
-            return MEPA_RC_ERROR;
+        u8 u8timeout = 0;
+        while (1) {
+            LAN80XX_CSR_RD(dev, base_port, LAN80XX_CLK_CFG_LTCPLL_STS_REG, &value);
+            if (value & LAN80XX_M_CLK_CFG_LTCPLL_STS_REG_LTCPLL_STS) {
+                T_I(MEPA_TRACE_GRP_TS, "LTC PLL Locked after %d ms \n", u8timeout);
+                base_data->ptp_shared_ltc_pll_init = TRUE;
+                break;
+            }
+            MEPA_MSLEEP(1); /* 1 ms sleep */
+            u8timeout++;
+            if (u8timeout >= 50) {
+                T_E(MEPA_TRACE_GRP_GEN, "LTC PLL Lock FAIL after %d ms\n", u8timeout);
+                return MEPA_RC_ERROR;
+            }
         }
-
         if (!base_data-> ptp_shared_ltc_resource) {
             value = 0x802B;
             //configure the phase detector.
@@ -5072,8 +5078,7 @@ static mepa_rc lan80xx_phy_ts_signature_set_priv(mepa_device_t         *dev,
 
             if (encap_type == LAN80XX_PHY_TS_ENCAP_ETH_PTP) {
                 MEPA_RC(lan80xx_phy_ts_eth1_sig_mask_set_priv(dev, port_no, eng_id, blk_id));
-            }
-            else if ((encap_type == LAN80XX_PHY_TS_ENCAP_ETH_ETH_PTP) || (encap_type == LAN80XX_PHY_TS_ENCAP_ETH_MPLS_ETH_PTP)) {
+            } else if ((encap_type == LAN80XX_PHY_TS_ENCAP_ETH_ETH_PTP) || (encap_type == LAN80XX_PHY_TS_ENCAP_ETH_MPLS_ETH_PTP)) {
                 MEPA_RC(lan80xx_phy_ts_eth2_sig_mask_set_priv(dev, port_no, eng_id, blk_id));
             }
         }
@@ -5480,43 +5485,47 @@ static mepa_rc lan80xx_ts_csr_set_priv(mepa_device_t *dev,
                         LAN80XX_F_PTP_LTC_PTP_DOM_CFG_PTP_ENA(1),
                         LAN80XX_M_PTP_LTC_PTP_DOM_CFG_PTP_ENA);
 
+        u8 u8timeout = 0;
+        mepa_bool_t locked = FALSE;
         if (enable) {
-            /* PHAD lock takes ~1.2ms to lock */
-            MEPA_MSLEEP(2);
-            /* Check PHAD_LOCK to port clock */
-            if (!data->conf.conf_25g.rs_fec_25g) {
-                LAN80XX_CSR_RD(dev, port_no, LAN80XX_PTP_PROC_EGR_SOF_PHAD_CTRL, &value);
-                if (!LAN80XX_X_PTP_PROC_EGR_SOF_PHAD_CTRL_EGR_STAT_LOCKED(value)) {
-                    T_E(MEPA_TRACE_GRP_TS, "SOF Egress phad control lock failed for port %u value=%x\n", __FUNCTION__, port_no, value);
-                    rc = MEPA_RC_ERROR;
+
+            while (u8timeout < 50) {
+                /* Check PHAD_LOCK to port clock */
+                if (!data->conf.conf_25g.rs_fec_25g) {
+                    LAN80XX_CSR_RD(dev, port_no, LAN80XX_PTP_PROC_EGR_SOF_PHAD_CTRL, &value);
+                    if (LAN80XX_X_PTP_PROC_EGR_SOF_PHAD_CTRL_EGR_STAT_LOCKED(value)) {
+                        T_I(MEPA_TRACE_GRP_TS, "SOF egress phad locked to port clock\n");
+                        LAN80XX_CSR_RD(dev, port_no, LAN80XX_PTP_PROC_INGR_SOF_PHAD_CTRL, &value);
+
+                        if (LAN80XX_X_PTP_PROC_INGR_SOF_PHAD_CTRL_INGR_STAT_LOCKED(value)) {
+                            locked = TRUE;
+                            T_I(MEPA_TRACE_GRP_TS, "SOF ingress phad locked to port clock\n");
+                            break;
+                        }
+                    }
                 } else {
-                    T_I(MEPA_TRACE_GRP_TS, "SOF egress phad locked to port clock\n");
-                    LAN80XX_CSR_RD(dev, port_no, LAN80XX_PTP_PROC_INGR_SOF_PHAD_CTRL, &value);
-                    if (!LAN80XX_X_PTP_PROC_INGR_SOF_PHAD_CTRL_INGR_STAT_LOCKED(value)) {
-                        T_E(MEPA_TRACE_GRP_TS, "SOF Ingress phad control lock failed for port %u value=%x\n", __FUNCTION__, port_no, value);
-                        rc = MEPA_RC_ERROR;
-                    } else {
-                        T_I(MEPA_TRACE_GRP_TS, "SOF ingress phad locked to port clock\n");
+                    LAN80XX_CSR_RD(dev, port_no, LAN80XX_PTP_PROC_EGR_RSFEC_PHAD_CTRL, &value);
+                    if (LAN80XX_X_PTP_PROC_EGR_RSFEC_PHAD_CTRL_EGR_STAT_LOCKED(value)) {
+                        T_I(MEPA_TRACE_GRP_TS, "RS-FEC egress phad locked to port clock\n");
+                        LAN80XX_CSR_RD(dev, port_no, LAN80XX_PTP_PROC_INGR_RSFEC_PHAD_CTRL, &value);
+                        if (LAN80XX_X_PTP_PROC_INGR_RSFEC_PHAD_CTRL_INGR_STAT_LOCKED(value)) {
+                            T_I(MEPA_TRACE_GRP_TS, "RS-FEC ingress phad locked to port clock\n");
+                            locked = TRUE;
+                            break;
+                        }
                     }
                 }
-            } else {
-                LAN80XX_CSR_RD(dev, port_no, LAN80XX_PTP_PROC_EGR_RSFEC_PHAD_CTRL, &value);
-                if (!LAN80XX_X_PTP_PROC_EGR_RSFEC_PHAD_CTRL_EGR_STAT_LOCKED(value)) {
-                    T_E(MEPA_TRACE_GRP_TS, "RSFEC egress phad control lock failed for port %u value=%x\n", __FUNCTION__, port_no, value);
-                    rc = MEPA_RC_ERROR;
-                } else {
-                    T_I(MEPA_TRACE_GRP_TS, "RS-FEC egress phad locked to port clock\n");
-                    LAN80XX_CSR_RD(dev, port_no, LAN80XX_PTP_PROC_INGR_RSFEC_PHAD_CTRL, &value);
-                    if (!LAN80XX_X_PTP_PROC_INGR_RSFEC_PHAD_CTRL_INGR_STAT_LOCKED(value)) {
-                        T_E(MEPA_TRACE_GRP_TS, "RSFEC Ingress phad control lock failed for port %u value=%x\n", __FUNCTION__, port_no, value);
-                        rc = MEPA_RC_ERROR;
-                    } else {
-                        T_I(MEPA_TRACE_GRP_TS, "RS-FEC ingress phad locked to port clock\n");
-                    }
-                }
+                MEPA_MSLEEP(1);
+                u8timeout++;
             }
-            if (rc == MEPA_RC_ERROR) {
+            if (locked == FALSE) {
+                if (!data->conf.conf_25g.rs_fec_25g) {
+                    T_E(MEPA_TRACE_GRP_TS, "SOF PHAD lock timeout on port %u\n", port_no);
+                } else {
+                    T_E(MEPA_TRACE_GRP_TS, "RS-FEC PHAD lock timeout on port %u\n", port_no);
+                }
                 data->phy_ts_port_conf.port_ena = FALSE;
+                rc = MEPA_RC_ERROR;
             }
         }
 

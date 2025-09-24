@@ -111,6 +111,8 @@ Before accessing the TS block, it is mandatory to initialize the TS. This can be
     - 0 - Disable
     - 1 - Store 10-byte ingress timestamp for delay request message. Used for auto delay req/response
 
+* tx_af <tx_af> - If true, PHY will insert timestamp in follow-up message instead of generating interrupt to application, not support by LAN80XX PHYs
+
 * mch <mch> 
     - 0 - Disable, 1 - Enable
 
@@ -119,7 +121,8 @@ Before accessing the TS block, it is mandatory to initialize the TS. This can be
 
  ...... TS Block Configured on Port : 1......
 ----
-Note: Base port needs to be initialized before using the other ports.
+
+NOTE: Base port needs to be initialized before using the other ports, LTC PLL Configuration are done only on Base port of the PHY.
 
 === TS Block Egress Port Configuration
 ==== Egress Port Classifier Configuration
@@ -129,6 +132,7 @@ The command below are used to configure Egress port Classifier.
 ----
 
 * eng_id <eng_idx> - PTP Engine Select (0 or 1 or 2)
+
 * entype <entype> - Encapsulation type
     - 0 - None, 1 - Eth PTP, 2 - Eth IP PTP, 3 - Eth IP IP PTP, 4 - Eth Eth PTP, 5 - Eth Eth IP PTP,
     - 6 - Eth MPLS IP PTP, 7 - Eth MPLS Eth PTP, 8 - Eth MPLS Eth IP PTP
@@ -189,7 +193,7 @@ Based on Encapsulation type selected, Ethernet/IP Header classification paramete
 User
 
 ----
- #mepa-cmd rx_class_conf 2 eng_id 0 entype 3
+ #mepa-cmd rx_class_conf 2 eng_id 0 entype 1
 
  ------------------------------------------
 
@@ -205,6 +209,7 @@ User
 
  ...... TS Rx classifier Configuration on Port : 1......
 ----
+
 ==== Ingress Port Clock Configuration
 The command below are used to configure Ingress port Clock.
 
@@ -274,7 +279,7 @@ Port       part-id(hex)     Rev    Max speed      Host IF
  ...... TS Block Enabled on Port : 1......
 #
 #
-# mepa-cmd tx_class_conf 1 flow_idx 0 entype 2
+# mepa-cmd tx_class_conf 1 eng_id 0 entype 2
 
  ------------------------------------------
 
@@ -298,7 +303,7 @@ Port       part-id(hex)     Rev    Max speed      Host IF
 #
 #
 #
-# mepa-cmd tx_clock_conf 1 clk_id 0 clk_mode 1 dly_type 0
+# mepa-cmd tx_clock_conf 1 eng_id 0 clk_mode 1 dly_type 0
 
  ...... TS Tx Clock Configuration on Port : 0......
 #
@@ -347,6 +352,18 @@ Parameters:
 
     <ls_ctrl_sel>: 0 - LS0, 1 - LS1, 2 - LS2, 3 - LS3
 ----
+
+The `clk_sel` option allows you to specify when the 1PPS signal pin should be sampled to determine its current state.
+
+If *Asynchronous mode* is selected, the PTP block samples the state of the 1PPS signal on both the rising and falling edges of the LTC_CLK,
+which operates at 318 MHz. This results in the 1PPS pin being sampled approximately every 1.6 nanoseconds.
+
+If a rising edge of the 1PPS signal occurs between these 1.6 ns intervals, it may impact sub-nanosecond accuracy.
+
+To address this, there is an option to synchronize the sampling of the 1PPS signal. Instead of using the LTC_CLK for sampling,
+user can provide an external clock to any of the LSC pins that is synchronized with the 1PPS signal.
+By selecting `clk_sel` to a mode other than Asynchronous, the 1PPS signal will be sampled using the external synchronous clock provided by the user, thereby improving sub-nanosecond accuracy.
+
 
 Once the LSC pin is configured as an input and the 1PPS signal is connected to the corresponding LSC pin,
 the LTC load and store operations can be performed using the following commands:

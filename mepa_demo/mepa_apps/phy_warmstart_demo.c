@@ -179,21 +179,14 @@ static void enable_warmstart(void)
 {
     demo_phy_info_t phy_info;
     mepa_rc rc;
-    for (int port_no = 0; port_no < meba_phy_inst_wr->phy_device_cnt; port_no++) {
+    for (int port_no = 0; port_no < (meba_phy_inst_wr->phy_device_cnt - 1); port_no++) {
         if ((rc = phy_family_detect(meba_phy_inst_wr, port_no, &phy_info)) == MEPA_RC_OK) {
             switch (phy_info.family) {
-            case PHY_FAMILY_MALIBU_10G:
-            case PHY_FAMILY_VIPER:
-            case PHY_FAMILY_TESLA:
-                // M10G, Viper, Tesla - ToDo
-                break;
-
-            case PHY_FAMILY_LAN8814:
-                // Indy - Not supported
-                break;
-
             case PHY_FAMILY_MALIBU_25G:
                 rc = mepa_warmstart_conf_set(meba_phy_inst_wr->phy_devices[port_no], MEPA_RESTART_WARM);
+                break;
+            default:
+                cli_printf("\n PHY on port %d doesn't support warmstart\n", (port_no + 1));
                 break;
             }
         }
@@ -224,44 +217,14 @@ static void backup_phy_data(void)
         }
     }
     write_json_to_file(phy_data_file, jarray);
+	cli_printf("\n JSON write completed");
 }
 
 static int mepa_drv_del()
 {
-    int base_ports[meba_phy_inst_wr->phy_device_cnt], n_base = 0;
     int port_no = 0;
 
-    // Delete all M25G instance
-    for (port_no = 0; port_no < meba_phy_inst_wr->phy_device_cnt; port_no++) {
-        if (gaphy_family[port_no] == PHY_FAMILY_MALIBU_25G) {
-            phy25g_phy_state_t *data = (phy25g_phy_state_t *)meba_phy_inst_wr->phy_devices[port_no]->data;
-            mepa_device_t *base_dev = (mepa_device_t *)data->base_dev;
-            phy25g_phy_state_t *base_data = (phy25g_phy_state_t *)base_dev->data;
-
-            // Store Base port and delete at end
-            if (base_data->port_no == port_no) {
-                base_ports[n_base] = port_no;
-                n_base++;
-                continue;
-            }
-            T_I("Deleting dev port_no %u\n", port_no);
-            if (meba_phy_inst_wr->phy_devices[port_no]) {
-                if (mepa_delete(meba_phy_inst_wr->phy_devices[port_no]) != MEPA_RC_OK) {
-                    T_E("Unable to delete the mepa device %d", port_no);
-                    return MESA_RC_ERROR;
-                }
-                memset(&meba_phy_inst_wr->phy_device_ctx[port_no], 0, sizeof(mepa_callout_ctx_t));
-                meba_phy_inst_wr->phy_devices[port_no] = NULL;
-            } else {
-                T_E("No Dev created for port_no %d\n", port_no);
-                return MESA_RC_ERROR;
-            }
-        }
-    }
-    port_no = 0;
-    for (int i = 0; i < n_base; i++) {
-        port_no = base_ports[i];
-        T_I("Deleting dev port_no %d\n", port_no);
+    for (port_no = (meba_phy_inst_wr->phy_device_cnt - 2); port_no >= 0; port_no--) {
         if (meba_phy_inst_wr->phy_devices[port_no]) {
             if (mepa_delete(meba_phy_inst_wr->phy_devices[port_no]) != MEPA_RC_OK) {
                 T_E("Unable to delete the mepa device %d", port_no);
@@ -269,6 +232,7 @@ static int mepa_drv_del()
             }
             memset(&meba_phy_inst_wr->phy_device_ctx[port_no], 0, sizeof(mepa_callout_ctx_t));
             meba_phy_inst_wr->phy_devices[port_no] = NULL;
+            board_conf.vtss_instance_ptr = NULL;
         } else {
             T_E("No Dev created for port_no %d\n", port_no);
             return MESA_RC_ERROR;
@@ -315,13 +279,13 @@ static void cli_cmd_phy_warmstart_perform(cli_req_t *req)
     mepa_device_t       *phy_dev;
     demo_phy_info_t     phy_info;
 
-    cli_printf("Performing Warm Start\n");
+    cli_printf("Performing Warm Start....\n");
 
     // Allocate memory for the global array
     gaphy_family = (int *)malloc((meba_phy_inst_wr->phy_device_cnt) * sizeof(int));
 
     // Check if warmstart is enabled if not, do not proceed
-    for (int port_no = 0; port_no < meba_phy_inst_wr->phy_device_cnt; port_no++) {
+    for (int port_no = 0; port_no < (meba_phy_inst_wr->phy_device_cnt - 1); port_no++) {
         if ((rc = phy_family_detect(meba_phy_inst_wr, port_no, &phy_info)) == MEPA_RC_OK) {
             gaphy_family[port_no] = phy_info.family;
 
@@ -329,9 +293,6 @@ static void cli_cmd_phy_warmstart_perform(cli_req_t *req)
             case PHY_FAMILY_MALIBU_10G:
             case PHY_FAMILY_VIPER:
             case PHY_FAMILY_TESLA:
-                // M10G, Viper, Tesla - ToDo
-                break;
-
             case PHY_FAMILY_LAN8814:
                 // Indy - Not supported
                 break;
@@ -403,6 +364,7 @@ static void cli_cmd_phy_warmstart_perform(cli_req_t *req)
     // free memory
     free(gaphy_family);
     gaphy_family = NULL;
+    cli_printf("\n Warm Start Completed\n");
 }
 
 /* CLI Command Function to Enable PHY Warm start */

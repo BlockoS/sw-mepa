@@ -269,20 +269,7 @@ mepa_rc lan80xx_xconnect_conf_get(mepa_device_t *dev, const mepa_port_no_t port_
     return MEPA_RC_NOT_IMPLEMENTED;
 }
 
-mepa_rc lan80xx_mpls_config_set(mepa_device_t *dev,
-                                const mepa_port_no_t  port_no,
-                                BOOL ingress_flow, uint16_t flow_index,
-                                BOOL in_cw_en, const phy25g_ts_mpls_flow_conf_t *const mpls_conf)
-{
-    return MEPA_RC_NOT_IMPLEMENTED;
-}
-
 mepa_rc lan80xx_phy_ts_pps_input_confset(mepa_device_t *dev, const mepa_port_no_t    port_no, const  phy25g_pps_input_conf_t *const pin_conf)
-{
-    return MEPA_RC_NOT_IMPLEMENTED;
-}
-
-mepa_rc lan80xx_phy_ts_load_store_contoller_set(mepa_device_t *dev, const mepa_port_no_t  port_no, uint8_t  ls_controller_sel)
 {
     return MEPA_RC_NOT_IMPLEMENTED;
 }
@@ -446,24 +433,26 @@ mepa_rc lan80xx_set_serdes_config(const mepa_device_t *dev,
     return MEPA_RC_NOT_IMPLEMENTED;
 }
 
-mepa_rc lan80xx_phy_ts_fifo_get(mepa_device_t *dev, const mepa_port_no_t    port_no,
-                                phy25g_ts_fifo_entry_t ts_list[], const size_t   size, uint32_t   *const num)
-{
-
-    return MEPA_RC_NOT_IMPLEMENTED;
-}
-
-mepa_rc lan80xx_phy_ts_fifo_sig_set(mepa_device_t *dev, const mepa_port_no_t  port_no,
-                                    const phy25g_ts_fifo_sig_mask_t sig_mask)
-{
-
-    return MEPA_RC_NOT_IMPLEMENTED;
-}
 mepa_rc lan80xx_xconnect_failover_conf_get(mepa_device_t  *dev,
                                            const mepa_port_no_t   port_no,
                                            phy25g_autofailover_t  *const conf)
 {
 
+    return MEPA_RC_NOT_IMPLEMENTED;
+}
+
+mepa_rc lan80xx_KRLog_Enable(const mepa_device_t *dev,
+                             mepa_bool_t bkrlog_enable,
+                             mepa_bool_t bline_port_en,
+                             mepa_bool_t  bhost_port_en)
+{
+    return MEPA_RC_NOT_IMPLEMENTED;
+}
+
+mepa_rc lan80xx_KRLog_Reset(const mepa_device_t *dev,
+                            uint32_t u32KRLogOffset,
+                            uint16_t u16Len)
+{
     return MEPA_RC_NOT_IMPLEMENTED;
 }
 #if 0

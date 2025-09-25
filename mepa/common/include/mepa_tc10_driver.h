@@ -1,6 +1,7 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
+#ifdef MEPA_OPT_TC10
 #ifndef _MEPA_TC10_DRV_API_H_
 #define _MEPA_TC10_DRV_API_H_
 
@@ -160,15 +161,17 @@ typedef mepa_rc (*mepa_tc10_send_sleep_request_t)(struct mepa_device *dev,
 /**
  * \brief provides TC10 state.
  *
- * \param dev   [IN]    Driver instance.
- * \param state [OUT]   TC10 state.
+ * \param dev        [IN]    Driver instance.
+ * \param state      [OUT]   TC10 state.
+ * \param indication [OUT]   TC10 indication.
  *
  * \return
  *   MEPA_RC_OK on success.\n
  *   MEPA_RC_ERROR on error.
  **/
 typedef mepa_rc (*mepa_tc10_get_state_t)(struct mepa_device *dev,
-                                         mepa_tc10_state_t *const state);
+                                         mepa_tc10_state_t *const state,
+                                         uint16_t      *const indication);
 
 /**
  * \brief sends TC10 wakeup request.
@@ -181,19 +184,6 @@ typedef mepa_rc (*mepa_tc10_get_state_t)(struct mepa_device *dev,
  **/
 typedef mepa_rc (*mepa_tc10_send_wake_request_t)(struct mepa_device *dev);
 
-/**
- * \brief provides TC10 indication.
- *
- * \param dev   [IN]    Driver instance.
- * \param state [OUT]   TC10 indication which includes
- *                      lps receive, wake, wake in indicaiton
- *
- * \return
- *   MEPA_RC_OK on success.\n
- *   MEPA_RC_ERROR on error.
- **/
-typedef mepa_rc (*mepa_tc10_get_indication_t)(struct mepa_device *dev,
-                                              uint16_t   *const indication);
 
 /** \brief PHY TC10 Driver */
 typedef struct mepa_tc10_driver {
@@ -210,7 +200,7 @@ typedef struct mepa_tc10_driver {
     mepa_tc10_send_sleep_request_t          mepa_tc10_send_sleep_request;
     mepa_tc10_get_state_t                   mepa_tc10_get_state;
     mepa_tc10_send_wake_request_t           mepa_tc10_send_wake_request;
-    mepa_tc10_get_indication_t              mepa_tc10_get_indication;
 } mepa_tc10_driver_t;
 
 #endif  /* _MEPA_TC10_DRV_API_H_ */
+#endif // MEPA_OPT_TC10

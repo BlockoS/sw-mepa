@@ -174,6 +174,35 @@ typedef struct {
     mepa_bool_t fiber;       /**< For dual-media ports */
 } mepa_status_t;
 
+
+typedef enum {
+    MEPA_CLAUSE_37_RF_LINK_OK,        /**< Link OK */
+    MEPA_CLAUSE_37_RF_OFFLINE,        /**< Off line */
+    MEPA_CLAUSE_37_RF_LINK_FAILURE,   /**< Link failure */
+    MEPA_CLAUSE_37_RF_AUTONEG_ERROR   /**< Autoneg error */
+} mepa_cl37_remote_fault_t;
+
+
+/**
+ * Advertisement Word (Refer to IEEE 802.3 Clause 37):
+ *  MSB                                                                         LSB
+   D15  D14  D13  D12  D11  D10   D9   D8   D7   D6   D5   D4   D3   D2   D1   D0
+ * +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+ * | NP | Ack| RF2| RF1|rsvd|rsvd|rsvd| PS2| PS1| HD | FD |rsvd|rsvd|rsvd|rsvd|rsvd|
+ * +----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+----+
+ **/
+typedef struct {
+    mepa_bool_t                enable;              /**< Enable or disable Clause 37 Auto-Negotiation */
+    mepa_adv_side_t            advertise_dir;       /**< Direction of advertisement */
+    mepa_bool_t                symmetric_pause;     /**< PS1: Symmetric pause capability (flow control in both directions) */
+    mepa_bool_t                asymmetric_pause;    /**< PS2: Asymmetric pause capability (flow control in one direction) */
+    mepa_cl37_remote_fault_t   remote_fault;        /**< RF2, RF1: Remote fault indication type (e.g., link failure) */
+    mepa_bool_t                acknowledge;         /**< Ack: Acknowledge reception of a received Clause 37 config */
+    mepa_bool_t                next_page;           /**< NP: Next page capability supported (used for extended negotiation) */
+    uint16_t                   next_page_abilities; /**< Next Page Abilities: Optional 16-bit representing additional capabilities when Next Page (NP) is set. Format follows Clause 37 next page encoding */
+} mepa_cl37_conf_t;
+
+
 /** \brief manual negotiation preferred state */
 typedef enum {
     MEPA_MANUAL_NEG_DISABLED = 0, /**< Disable manual preference of master/slave states in IEEE registers 9,10 for 1G speed */
@@ -244,24 +273,25 @@ typedef enum {
 
 /** \brief 10G and 25G Phy Media type */
 typedef enum {
-    MEPA_MEDIA_TYPE_SR,               /**< SR,10GBASE-SR Optical*/
+    MEPA_MEDIA_TYPE_SR,               /**< SR,10GBASE-SR or 1000BASE-SX Optical*/
     MEPA_MEDIA_TYPE_SR2,              /**< SR,10GBASE-SR */
     MEPA_MEDIA_TYPE_DAC,              /**< DAC,Direct attach cable 10GBASE-SR 1M*/
     MEPA_MEDIA_TYPE_ZR,               /**< ZR,10GBASE-ZR */
     MEPA_MEDIA_TYPE_KR,               /**< KR,10GBASE-KR */
-    MEPA_MEDIA_TYPE_LR,               /**< LR,10GBASE-LR */
-    MEPA_MEDIA_TYPE_ER,               /**< LR,10GBASE-ER */
     MEPA_MEDIA_TYPE_SR_SC,            /**< SR,10GBASE-SR with software control*/
     MEPA_MEDIA_TYPE_SR2_SC,           /**< SR,10GBASE-SR with software control*/
     MEPA_MEDIA_TYPE_DAC_SC,           /**< DAC,Direct attach cable with software control*/
     MEPA_MEDIA_TYPE_ZR_SC,            /**< ZR,10GBASE-ZR with software control*/
     MEPA_MEDIA_TYPE_ZR2_SC,           /**< ZR,10GBASE-ZR with software control with ld_lev_ini:40*/
     MEPA_MEDIA_TYPE_KR_SC,            /**< KR,10GBASE-KR with software control*/
+    MEPA_MEDIA_TYPE_LR,               /**< LR,10GBASE-LR or 1000BASE-LX */
+    MEPA_MEDIA_TYPE_ER,               /**< LR,10GBASE-ER or 1000BASE-EX */
     MEPA_MEDIA_TYPE_SFP28_25G_SR,     /**< SR 25GBASE-SR, SFP28 Optical */
     MEPA_MEDIA_TYPE_SFP28_25G_LR,     /**< SR 25GBASE-LR, SFP28 Optical */
     MEPA_MEDIA_TYPE_SFP28_25G_ER,     /**< SR 25GBASE-ER, SFP28 Optical */
     MEPA_MEDIA_TYPE_SFP28_25G_DAC1M,  /**< SFP28 DAC 1M */
     MEPA_MEDIA_TYPE_SFP28_25G_DAC2M,  /**< SFP28 DAC 2M */
+    MEPA_MEDIA_TYPE_1000BASE_T,       /**< 1000BASE-T SGMIII */
     MEPA_MEDIA_TYPE_NONE,             /**< None          */
 } phy_media_t;
 
@@ -302,34 +332,35 @@ typedef struct {
 /** \brief Represent the configs for 25g PHY */
 
 typedef struct {
-    mepa_phy_channel_id_t           channel_id;     /* PHY Channel Number */
-    phy_media_t                     line_media;     /* Media Type connected to LINE side */
-    phy_media_t                     host_media;     /* Media Type connected to HOST side */
-    phy_polarity_inv_t              polarity;       /* Serdes Polarity Inversion configuration */
-    mepa_bool_t                     kr_train_enable;/* Enable KR Training */
-    mepa_bool_t                     base_r_10gfec;  /* Enable Base-R FEC at 10G Speed */
-    mepa_bool_t                     base_r_25gfec;  /* Enabled Base-R FEC at 25G Speed */
-    mepa_bool_t                     rs_fec_25g;     /* Enable RSFEC */
-    mepa_bool_t                     np_base_r_fec;  /* Advertise Next-Page R FEC */
-    mepa_bool_t                     np_rs_fec;      /* Advertise Next-Page RS FEC */
-    mepa_bool_t                     fw_resolve;      /* Enable firmware resolve */
+    mepa_phy_channel_id_t           channel_id;            /* PHY Channel Number */
+    phy_media_t                     line_media;            /* Media Type connected to LINE side */
+    phy_media_t                     host_media;            /* Media Type connected to HOST side */
+    phy_polarity_inv_t              polarity;              /* Serdes Polarity Inversion configuration */
+    mepa_bool_t                     kr_train_enable;       /* Enable Clause 73 KR Training */
+    mepa_bool_t                     base_r_10gfec;         /* Enable Base-R FEC at 10G Speed */
+    mepa_bool_t                     base_r_25gfec;         /* Enabled Base-R FEC at 25G Speed */
+    mepa_bool_t                     rs_fec_25g;            /* Enable RSFEC */
+    mepa_bool_t                     np_base_r_fec;         /* Advertise Next-Page R FEC in Clause 73*/
+    mepa_bool_t                     np_rs_fec;             /* Advertise Next-Page RS FEC in Clause73*/
+    mepa_bool_t                     fw_resolve;            /* Enable firmware resolve in Clause73*/
 } phy25g_conf_t;
 
 
 /** \brief Represents the configuration that is applied to PHY. */
 typedef struct {
-    mepa_port_speed_t speed;       /**< Forced port speed */
-    mepa_bool_t fdx;               /**< Forced duplex mode */
-    mepa_bool_t flow_control;      /**< Flow control (Standard 802.3x) */
-    uint32_t adv_dis;              /**< Auto neg advertisement disable */
-    mepa_port_admin_state_t admin; /**< Admin state */
-    mepa_aneg_adv_t aneg;          /**< Auto-negitiation advertisement */
-    mepa_bool_t mac_if_aneg_ena;   /**< Enable auto-negotiation on host mac interface */
-    mepa_manual_neg_t man_neg;     /**< manual negotiation control in 1G instead of using auto-negotiation */
-    mepa_media_mode_t mdi_mode;    /**< Preferred media mode */
-    mepa_phy_media_force_ams_sel_t force_ams_mode_sel; /**< Force AMS Media Select */
-    phy10g_conf_t conf_10g;
-    phy25g_conf_t conf_25g;        /*25G config structure */
+    mepa_port_speed_t               speed;               /**< Forced port speed */
+    mepa_bool_t                     fdx;                 /**< Forced duplex mode */
+    mepa_bool_t                     flow_control;        /**< Flow control (Standard 802.3x) */
+    uint32_t                        adv_dis;             /**< Auto neg advertisement disable */
+    mepa_port_admin_state_t         admin;               /**< Admin state */
+    mepa_aneg_adv_t                 aneg;                /**< Auto-negitiation advertisement */
+    mepa_bool_t                     mac_if_aneg_ena;     /**< Enable auto-negotiation on host mac interface */
+    mepa_manual_neg_t               man_neg;             /**< manual negotiation control in 1G instead of using auto-negotiation */
+    mepa_media_mode_t               mdi_mode;            /**< Preferred media mode */
+    mepa_phy_media_force_ams_sel_t  force_ams_mode_sel;  /**< Force AMS Media Select */
+    mepa_cl37_conf_t                cl37_conf;           /**< Clause 37 Configuration for 1000BASE-X for supported PHYs */
+    phy10g_conf_t                   conf_10g;
+    phy25g_conf_t                   conf_25g;            /**< 25G PHY config structure */
 } mepa_conf_t;
 
 /** \brief  MEPA event mask */

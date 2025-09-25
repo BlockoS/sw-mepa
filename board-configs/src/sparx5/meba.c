@@ -19,6 +19,9 @@
 #define COMA_GPIO 33
 #define VTSS_TS_IO_ARRAY_SIZE 4
 #define MIIM_FREQ_CONTROLLER_0 2200000
+#define EDSX_SYSTEM_CLOCK_FREQUENCY 625000000 /*625 MHz */
+#define EDSX_FAN_FREQUENCY     2000 /* 2kHz*/
+#define EDSX_FAN_CTRL_PWM_FREQ_REG_ADDR     0x44041AE
 
 /* LED colors */
 typedef enum {
@@ -36,10 +39,10 @@ typedef enum {
 #define VTSS_MSLEEP(m) usleep((m) * 1000)
 
 static const mesa_fan_conf_t fan_spec = {
-    .fan_pwm_freq = MESA_FAN_PWM_FREQ_20HZ,    // 20Hz
-    .fan_low_pol = 0,                          // active low
-    .fan_open_col = true,                      // Open collector
-    .type = MESA_FAN_3_WIRE_TYPE,              // 3-wire
+    .fan_pwm_freq = MESA_FAN_PWM_FREQ_120HZ,   // 120Hz at starting which will be changed to 2kHz
+    .fan_low_pol = 1,                          // active low
+    .fan_open_col = false,                     // Open collector
+    .type = MESA_FAN_4_WIRE_TYPE,              // 3-wire
     .ppr = 2,                                  // 2 PPR
 };
 
@@ -1688,7 +1691,9 @@ static mesa_rc fa_reset(meba_inst_t inst, meba_reset_point_t reset)
                 rc = mesa_sgpio_conf_set(NULL, 0, 2, &conf);
             }
         }
-        mesa_fan_cool_lvl_set(NULL, 0xFF); // Set default level to maximum
+        /* FAN PWM Frequency is chnaged to 2kHz, as MESA doesn't support 2kHz directly configuring the register to chnage it to 2kHz Frequency */
+		rc = mesa_reg_write(NULL,0,EDSX_FAN_CTRL_PWM_FREQ_REG_ADDR,(((EDSX_SYSTEM_CLOCK_FREQUENCY/100000) << 17) | (EDSX_SYSTEM_CLOCK_FREQUENCY/EDSX_FAN_FREQUENCY/256))); 
+        mesa_fan_cool_lvl_set(NULL, 0x3F); // Set PWM to 25%
         break;
     case MEBA_SENSOR_INITIALIZE:
         (void)mesa_temp_sensor_init(NULL, true);

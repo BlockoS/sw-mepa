@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _MEPA_LAN80XX_TS_PRIVATE_H_
-#define _MEPA_LAN80XX_TS_PRIVATE_H_
+#ifndef MEPA_LAN80XX_TS_PRIVATE_H_
+#define MEPA_LAN80XX_TS_PRIVATE_H_
 
 #include <microchip/ethernet/phy/api/types.h>
 #include <microchip/ethernet/phy/api.h>
@@ -21,6 +21,7 @@
 #define LAN80XX_PTP_LS_CTRL_1           (1U)
 #define LAN80XX_PTP_LS_CTRL_2           (2U)
 #define LAN80XX_PTP_LS_CTRL_3           (3U)
+#define LAN80XX_MPLS_MAX_LABEL_VALUE    (0xFFFFF)
 
 #define LAN80XX_PPS_LOW_PERIOD(ti) ((1000000000) - (ti)) /* For computing the low period for the pps user will provide only the width */
 
@@ -95,6 +96,24 @@ typedef struct {
 
 
 /**
+ * \brief Frame signature mask
+**/
+typedef u32 phy25g_ts_fifo_sig_mask_t;
+
+/**
+ * \brief Defines Tx TSFIFO signature mask.
+ **/
+#define LAN80XX_PHY_TS_FIFO_SIG_SRC_IP            (0x01U)  /**< IPv4 Src IP address: inner IP for IP-over-IP */
+#define LAN80XX_PHY_TS_FIFO_SIG_DEST_IP           (0x02U)  /**< IPv4 Dest IP address */
+#define LAN80XX_PHY_TS_FIFO_SIG_MSG_TYPE          (0x04U)  /**< Message type */
+#define LAN80XX_PHY_TS_FIFO_SIG_DOMAIN_NUM        (0x08U)  /**< Domain number */
+#define LAN80XX_PHY_TS_FIFO_SIG_SOURCE_PORT_ID    (0x10U)  /**< Source port identity */
+#define LAN80XX_PHY_TS_FIFO_SIG_SEQ_ID            (0x20U)  /**< PTP frame Sequence ID */
+#define LAN80XX_PHY_TS_FIFO_SIG_DEST_MAC          (0x40U)  /**< Dest MAC address */
+#define LAN80XX_PHY_TS_FIFO_SIG_IPV6_DEST_IP      (0x80U)  /**< IPv6 Dest IP */
+
+
+/**
  * \brief Time interval in ns * 1<<16
  * range +-2**47 ns = 140737 sec = 39 hours
  * For example, 2.5 ns is expressed as 0x0000.0000.0002.8000
@@ -131,17 +150,33 @@ typedef enum {
     LAN80XX_PHY_TS_CLOCK_SRC_EXTERNAL_25MHZ,   /**< External source */
     LAN80XX_PHY_TS_CLOCK_SRC_EXTERNAL_50MHZ,   /**< External source */
     LAN80XX_PHY_TS_CLOCK_SRC_EXTERNAL_125MHZ,   /**< External source */
-    LAN80XX_PHY_TS_CLOCK_SRC_CLIENT_RX,  /**< 10G: XAUI lane 0 recovered clock, */
-    /**< 1G: MAC RX clock (note: direction is opposite to 10G, i.e. PHY->MAC) */
-    LAN80XX_PHY_TS_CLOCK_SRC_CLIENT_TX,  /**< 10G: XAUI lane 0 recovered clock, */
-    /**< 1G: MAC TX clock (note:  direction is opposite to 10G, i.e. MAC->PHY)  */
-    LAN80XX_PHY_TS_CLOCK_SRC_LINE0,    /**< Received line clock */
-    LAN80XX_PHY_TS_CLOCK_SRC_LINE1,    /**< transmitted line clock */
-    LAN80XX_PHY_TS_CLOCK_SRC_LINE2,    /**< Received line clock */
-    LAN80XX_PHY_TS_CLOCK_SRC_LINE3,    /**< transmitted line clock */
-    LAN80XX_PHY_TS_CLOCK_SRC_INTERNAL,   /**< 10G: Invalid, 1G: Internal 250 MHz Clock */
+    LAN80XX_PHY_TS_CLOCK_SRC_LINE0,    /**< line 0 recovery clock */
+    LAN80XX_PHY_TS_CLOCK_SRC_LINE1,    /**< line 1 recovery clock */
+    LAN80XX_PHY_TS_CLOCK_SRC_LINE2,    /**< line 2 recovery clock */
+    LAN80XX_PHY_TS_CLOCK_SRC_LINE3,    /**< line 3 recovery clock */
+    LAN80XX_PHY_TS_CLOCK_SRC_HOST0,    /**< host 0 recovery clock */
+    LAN80XX_PHY_TS_CLOCK_SRC_HOST1,    /**< host 1 recovery clock */
+    LAN80XX_PHY_TS_CLOCK_SRC_HOST2,    /**< host 2 recovery clock */
+    LAN80XX_PHY_TS_CLOCK_SRC_HOST3,    /**< host 3 recovery clock */
+    LAN80XX_PHY_TS_CLOCK_SRC_SYSREFCLK,   /**< 156.25 MHz Clock */
 } phy25g_phy_ts_clock_src_t;
 
+
+/**
+ * \brief Analyzer supported frame encapsulation type
+ **/
+typedef enum {
+    /* PTP encap */
+    LAN80XX_PHY_TS_ENCAP_ETH_PTP,
+    LAN80XX_PHY_TS_ENCAP_ETH_IP_PTP,
+    LAN80XX_PHY_TS_ENCAP_ETH_IP_IP_PTP,
+    LAN80XX_PHY_TS_ENCAP_ETH_ETH_PTP,
+    LAN80XX_PHY_TS_ENCAP_ETH_ETH_IP_PTP,
+    LAN80XX_PHY_TS_ENCAP_ETH_MPLS_IP_PTP,
+    LAN80XX_PHY_TS_ENCAP_ETH_MPLS_ETH_PTP,
+    LAN80XX_PHY_TS_ENCAP_ETH_MPLS_ETH_IP_PTP,
+    LAN80XX_PHY_TS_ENCAP_NONE,
+} phy25g_ts_encap_t;
 
 /**
  * \brief defines Rx Timestamp position inside PTP frame.
@@ -277,7 +312,7 @@ typedef enum {
     LAN80XX_PHY_TS_PATH_DELAY_SET,  /* called from mepa_ts_path_delay_set*/
     LAN80XX_PHY_TS_DELAY_ASYM_SET,  /* called from mepa_ts_delay_asymmetry_set*/
     LAN80XX_PHY_TS_RATE_ADJ_SET,
-    LAN80XX_PHY_TS_PORT_ENA_SET,   /* called from lan80xx_phy_ts_mode_set*/
+    LAN80XX_PHY_TS_PORT_ENA_SET,   /* called from lan80xx_ts_mode_set*/
     LAN80XX_PHY_TS_PORT_EVT_MASK_SET,
     LAN80XX_PHY_TS_PORT_OPER_MODE_CHANGE_SET,
     LAN80XX_PHY_TS_PPS_OUTPUT_CONF_SET,
@@ -306,10 +341,6 @@ typedef struct {
     mepa_bool_t                       tx_fifo_spi_conf; /**< Modify default 1588_spi configuration, applicable only on PHYs with SPI timestamp fifo support */
     uint8_t                           tx_fifo_hi_clk_cycs; /**< Number of clock periods that the spi_clk is high */
     uint8_t                           tx_fifo_lo_clk_cycs; /**< Number of clock periods that the spi_clk is low */
-    //phy25g_phy_ts_8487_xaui_sel_t       xaui_sel_8487; /**< 8487 XAUI lane selection*/
-#if defined (VTSS_SW_OPTION_REMOTE_TS_PHY)
-    BOOL                              remote_phy;    /**< TRUE if the phy is remote */
-#endif /* VTSS_SW_OPTION_REMOTE_TS_PHY */
     phy25g_phy_ts_tc_op_mode_t          tc_op_mode; /**< TC operating mode */
     mepa_bool_t                       auto_clear_ls; /**< Load and Save of LTC are auto cleared */
     mepa_bool_t                       macsec_ena;       /**< MACsec is enabled or disabled */
@@ -334,6 +365,7 @@ typedef struct {
 #define LAN80XX_PHY_TS_ETH_MATCH_DEST_ADDR      ((u8)0x00) /**< Match destination MAC address */
 #define LAN80XX_PHY_TS_ETH_MATCH_SRC_ADDR       ((u8)0x01) /**< Match source MAC address */
 #define LAN80XX_PHY_TS_ETH_MATCH_SRC_OR_DEST    ((u8)0x02) /**< Match source or destination MAC address */
+#define LAN80XX_PHY_TS_ETH_MATCH_NONE           ((u8)0x03)
     uint8_t    addr_match_select; /**< src or dest addr to be matched */
     uint8_t    mac_addr[6]; /**< addr to be matched, src or dest */
 
@@ -387,7 +419,6 @@ typedef struct {
         uint16_t   etype;  /**< The value of Ether type to be checked if Ethertype/length field is an Ethertype */
         uint16_t   tpid;  /**< VLAN TPID for S or B-tag */
     } comm_opt; /**< Ethernet common config */
-
     phy25g_ts_eth_flow_conf_t flow_opt[8]; /**< Ethernet per flow config */
 } phy25g_ts_eth_conf_t; /**< ETH configuration */
 
@@ -398,6 +429,7 @@ typedef struct {
 #define LAN80XX_PHY_TS_IP_MATCH_SRC          0x00 /**< Match source IP address */
 #define LAN80XX_PHY_TS_IP_MATCH_DEST         0x01 /**< Match destination IP address */
 #define LAN80XX_PHY_TS_IP_MATCH_SRC_OR_DEST  0x02 /**< Match source or destination IP address */
+#define LAN80XX_PHY_TS_IP_MATCH_NONE         0x03
     u8    match_mode; /**< match src, dest or either IP address */
     union {
         struct {
@@ -443,6 +475,39 @@ typedef struct {
 
 
 /**
+ * \brief MPLS level range
+ **/
+typedef struct {
+    u32    lower; /**< lower range value */
+    u32    upper; /**< upper range value */
+    u8     match_mode;/*Label match mode for the label */
+} phy25g_ts_mpls_lvl_rng_t;
+
+
+/** \brief MPLS per flow configuration */
+typedef struct {
+    BOOL                         flow_en;  /**< flow enable/disable */
+
+    u8                           stack_depth; /**< depth of MPLS level; multiple depth match can be possible using OR */
+
+    mepa_ts_mpls_parse_t         stack_ref_point; /**< Search direction for label matching: top to bottom or bottom to top */
+    union {
+        struct {
+            phy25g_ts_mpls_lvl_rng_t  top; /**< Top level */
+            phy25g_ts_mpls_lvl_rng_t  frst_lvl_after_top; /**< First label after the top label */
+            phy25g_ts_mpls_lvl_rng_t  snd_lvl_after_top; /**< Second label after the top label */
+            phy25g_ts_mpls_lvl_rng_t  thrd_lvl_after_top; /**< Third label after the top label */
+        } top_down; /**< Top down configuration */
+        struct {
+            phy25g_ts_mpls_lvl_rng_t  end; /**< End level */
+            phy25g_ts_mpls_lvl_rng_t  frst_lvl_before_end; /**< First label before the end label */
+            phy25g_ts_mpls_lvl_rng_t  snd_lvl_before_end; /**< Second label before the end label */
+            phy25g_ts_mpls_lvl_rng_t  thrd_lvl_before_end; /**< Third label before the end label */
+        } bottom_up; /**< Bottom up configuration */
+    } stack_level; /**< 4 level values; top_down or bottom_up depends on stack_ref_point */
+} phy25g_ts_mpls_flow_conf_t;
+
+/**
  * \brief Analyzer MPLS comparator configuration options
  **/
 typedef struct {
@@ -463,7 +528,6 @@ typedef struct {
     phy25g_ts_ip_conf_t        ip1_opt;     /**< IP-1 comparator */
     phy25g_ts_ip_conf_t        ip2_opt;     /**< IP-2 comparator; for single IP encap, IP-1 is used */
     phy25g_ts_mpls_conf_t      mpls_opt;    /**< MPLS comparator */
-    //phy25g_ts_ach_conf_t       ach_opt;     /**< ACH: it uses the IP1 comparator, so IP1 and ACH can not enabled simultaneously */
 } phy25g_ts_ptp_engine_flow_conf_t;
 
 /**
@@ -508,12 +572,8 @@ typedef struct lan80xx_phy_ts_target_map {
  **/
 typedef struct {
     mepa_bool_t                              eng_mode;    /**< engine enable/disable */
-    //phy25g_ts_engine_channel_map_t  channel_map[8]; /**< maps flows to channel for multi-channel timestamp block. flow_map can be set per comparator in HW */
-
     union {
         phy25g_ts_ptp_engine_flow_conf_t ptp;       /**< PTP engine configuration */
-        //phy25g_ts_oam_engine_flow_conf_t oam;       /**< OAM engine configuration */
-        //phy25g_ts_generic_flow_conf_t    gen;       /**< Generic match configuration */
     } flow_conf; /**< PTP/OAM flow config */
 } phy25g_ts_engine_flow_conf_t;
 
@@ -542,17 +602,9 @@ typedef enum {
  * \brief Analyzer PTP comparator configuration options
  **/
 typedef struct {
-    mepa_bool_t    range_en;  /**< PTP domain number in range enable/disable */
-    union {
-        struct {
-            uint8_t    val; /**< PTP domain number value */
-            uint8_t    mask; /**< PTP domain number mask */
-        } value; /**< specific PTP domain, for don't care set mask as '0' */
-        struct {
-            uint8_t    upper; /**< Ranger upper value */
-            uint8_t    lower; /**< Range lower value */
-        } range; /**< PTP domain range configuration */
-    } domain; /**< PTP domain number configuration */
+    mepa_bool_t             range_en;  /**< PTP domain number in range enable/disable */
+    mepa_range_unit8_t      range; /* Domain Range */
+    mepa_value_unit8_t      value; /* Domain value */
 } phy25g_ts_ptp_conf_t;
 
 
@@ -666,7 +718,6 @@ typedef struct {
     mepa_bool_t                      is_gen2;
     phy25g_ts_scaled_ppb_t         rate_adj;  /* clock rate adjustment */
     phy25g_ts_alt_clock_mode_t       alt_clock_mode;
-    phy25g_ts_pps_conf_t               pps_conf;
     phy25g_ltc_freq_synth_t            ltc_freq_synth;
     phy25g_timeinterval_t              ingress_latency;
     phy25g_timeinterval_t              egress_latency;
@@ -695,10 +746,63 @@ typedef struct {
 } phy25g_phy_ts_local_latency;
 
 
+/**
+ * \brief Defines Tx TSFIFO signature length.
+ **/
+#define LAN80XX_PHY_TS_SIG_TIME_STAMP_LEN         (11U)
+#define LAN80XX_PHY_TS_SIG_SOURCE_PORT_ID_LEN     (10U)
+#define LAN80XX_PHY_TS_SIG_SEQUENCE_ID_LEN        (2U)
+#define LAN80XX_PHY_TS_SIG_DEST_IP_LEN            (4U)
+#define LAN80XX_PHY_TS_SIG_SRC_IP_LEN             (4U)
+#define LAN80XX_PHY_TS_SIG_DEST_MAC_LEN           (6U)
+#define LAN80XX_PHY_TS_SIG_IPV6_LEN               (16U)
+#define LAN80XX_PTP_SIGNATURE_LEN                 (28U)
+
+/**
+ * \brief Tx TSFIFO entry signature
+ **/
+typedef struct {
+    phy25g_ts_fifo_sig_mask_t  sig_mask;  /**< valid signature fields */
+    u8        msg_type;              /**< PTP message type */
+    u8        domain_num;            /**< domain number in PTP message */
+    u8        src_port_identity[10]; /**< source port identity in PTP message */
+    u16       sequence_id;           /**< PTP message sequence ID */
+    u32       dest_ip;               /**< Destination IP */
+    u32       src_ip;                /**< Source IP */
+    u8        dest_mac[6];           /**< Destination MAC */
+    u32       dest_ipv6_addr[4]; /**< IPv6 Address */
+    u32       src_ipv6_addr[4]; /**<IPv6 Mask */
+} phy25g_ts_fifo_sig_t;
 
 
-phy25g_phy_ts_tc_op_mode_t mepa_to_mesa_tc_opmode(mepa_ts_tc_op_mode_t tc_opmode);
-mepa_rc lan80xx_ts_hard_reset_private(mepa_device_t *dev, mepa_port_no_t port_no);
+/**
+ * \brief PHY timestamp in seconds and nanoseconds (11 bytes Timestamp)
+ **/
+typedef struct {
+    struct {
+        uint16_t    high; /**< bits 32-47 of 48-bit second */
+        uint32_t    low;  /**< bits 0-31 of 48-bit second */
+    } seconds;             /**< 6 bytes second part of Timestamp */
+    uint32_t        nanoseconds; /**< 4 bytes nano-sec part of Timestamp */
+    uint8_t         subnanoseconds; /**< 1 bytes sub-nano-sec part of Timestamp */
+} phy25g_phy_timestamp_t;
+
+
+/**
+ *brief configure TS FIFO frame signature mask.
+ * \param dev[IN]                   mepa driver
+ * \param port_no [IN]              port number
+ * \phy25g_ts_fifo_sig_mask_t[IN]   mask for the frame signature field.
+*/
+mepa_rc lan80xx_phy_ts_fifo_sig_set(mepa_device_t                    *dev,
+                                    const mepa_port_no_t             port_no,
+                                    phy25g_ts_engine_t               eng_id,
+                                    const phy25g_ts_fifo_sig_mask_t  sig_mask);
+
+
+phy25g_phy_ts_tc_op_mode_t mepa_to_lan80xx_tc_opmode(mepa_ts_tc_op_mode_t tc_opmode);
+mepa_ts_tc_op_mode_t lan80xx_to_mepa_tc_opmode(phy25g_phy_ts_tc_op_mode_t tc_opmode);
+mepa_rc lan80xx_ts_reset_priv(mepa_device_t *dev, const mepa_ts_reset_conf_t *const ts_rst_type);
 mepa_rc lan80xx_phy_ts_init_conf_get(mepa_device_t *dev, mepa_port_no_t port_no,
                                      mepa_bool_t  *const   port_ts_init_done,
                                      phy25g_phy_ts_init_conf_t         *const conf);
@@ -708,9 +812,6 @@ mepa_rc lan80xx_phy_ts_init_conf_get(mepa_device_t *dev, mepa_port_no_t port_no,
 mepa_rc lan80xx_phy_ts_init(const mepa_device_t *dev,
                             const  mepa_port_no_t port_no,
                             const phy25g_phy_ts_init_conf_t  *const conf);
-
-mepa_rc lan80xx_ts_is_1588_supported(const mepa_device_t *dev,
-                                     mepa_bool_t *gen, mepa_bool_t *support);
 
 mepa_rc lan80xx_ts_get_1588_version(const mepa_device_t *dev,
                                     const mepa_port_no_t port_no, uint32_t *version);
@@ -745,12 +846,17 @@ mepa_rc lan80xx_ts_egress_engine_action_set(mepa_device_t *dev, mepa_port_no_t p
 mepa_rc lan80xx_ts_ingress_engine_action_set(mepa_device_t *dev, mepa_port_no_t port_no,
                                              phy25g_ts_engine_t eng_id, const phy25g_ts_engine_action_t *const action_conf);
 
-mepa_rc lan80xx_phy_ts_fifo_empty_priv(mepa_device_t *dev,
-                                       const mepa_port_no_t port_no,
-                                       phy25g_ts_fifo_entry_t ts_list[],
-                                       u32                 *const num,
-                                       BOOL                     callback);
+mepa_rc lan80xx_phy_ts_fifo_empty_priv(mepa_device_t          *dev,
+                                       const mepa_port_no_t   port_no,
+                                       mepa_fifo_ts_entry_t   ts_list[],
+                                       u32                    *const num,
+                                       BOOL                   callback);
 
+mepa_rc lan80xx_phy_ts_fifo_empty (mepa_device_t           *dev,
+                                   const mepa_port_no_t    port_no,
+                                   mepa_fifo_ts_entry_t    ts_list[],
+                                   u32                     *const num,
+                                   BOOL                    callback);
 
 mepa_rc lan80xx_ts_tx_clock_conf_get_priv(mepa_device_t *dev,
                                           u16 clock_id, mepa_ts_ptp_clock_conf_t *ptpclock_conf);
@@ -768,11 +874,9 @@ mepa_rc lan80xx_ts_ingress_engine_conf_get(mepa_device_t  *dev,
                                            const phy25g_ts_engine_t      eng_id,
                                            phy25g_ts_engine_flow_conf_t  *const flow_conf);
 
-mepa_rc lan80xx_phy_rx_classifier_conf_get(mepa_device_t *dev, uint16_t in_flow,
-                                           mepa_ts_classifier_t *const out_conf);
+mepa_rc lan80xx_rx_classifier_conf_get_priv(mepa_device_t *dev, u16 in_flow,
+                                            mepa_ts_classifier_t *const out_conf);
 
-mepa_rc lan80xx_phy_tx_classifier_conf_get(mepa_device_t *dev, uint16_t in_flow,
-                                           mepa_ts_classifier_t *const out_conf);
 
 mepa_rc lan80xx_phy_ts_path_delay_set(mepa_device_t *dev,
                                       const mepa_port_no_t  port_no,
@@ -790,10 +894,6 @@ mepa_rc lan80xx_phy_ts_path_delay_get(const mepa_device_t *dev,
                                       const mepa_port_no_t  port_no,
                                       phy25g_timeinterval_t          *const path_delay);
 
-mepa_rc lan80xx_phy_ts_fifo_read_install_priv(mepa_device_t *dev,
-                                              lan80xx_phy_ts_fifo_read  rd_cb,
-                                              void                   *cntxt);
-
 
 mepa_rc lan80xx_phy_ts_clock_rateadj_get(const mepa_device_t  *dev,
                                          const mepa_port_no_t      port_no,
@@ -805,16 +905,12 @@ mepa_rc lan80xx_phy_ts_clock_rateadj_set(mepa_device_t  *dev,
                                          const phy25g_ts_scaled_ppb_t *const adj);
 
 
-mepa_rc lan80xx_phy_ts_mode_set(mepa_device_t *dev,
-                                const mepa_port_no_t  port_no,
-                                const mepa_bool_t   enable);
+mepa_rc lan80xx_ts_mode_set_priv(mepa_device_t *dev,
+                                 const mepa_bool_t   enable);
 
-mepa_rc lan80xx_phy_ts_mode_get( mepa_device_t *dev,
-                                 const mepa_port_no_t  port_no,
-                                 mepa_bool_t      *const enable);
+mepa_rc lan80xx_ts_mode_get_priv( mepa_device_t *dev,
+                                  mepa_bool_t      *const enable);
 
-mepa_rc lan80xx_phy_ts_pps_conf_get(const mepa_device_t *dev,
-                                    phy25g_ts_pps_conf_t *const phy_pps_conf);
 mepa_rc lan80xx_phy_ts_stats_get(mepa_device_t *dev, const mepa_port_no_t  port_no, phy25g_phy_ts_stats_t  *const statistics);
 
 mepa_rc lan80xx_phy_ts_event_enable_set(mepa_device_t *dev, const mepa_port_no_t port_no, const BOOL enable, const mepa_ts_event_t ev_mask);
@@ -837,4 +933,43 @@ mepa_rc lan80xx_ptp_reg_dump(mepa_device_t            *dev,
                              const mepa_port_no_t     port_no,
                              const mepa_debug_print_t pr);
 
+mepa_rc lan80xx_ts_tx_classifier_conf_set_priv(struct mepa_device *dev,
+                                               uint16_t flow_index,
+                                               const mepa_ts_classifier_t *const pkt_class_conf);
+
+mepa_rc lan80xx_tx_classifier_conf_get_priv(mepa_device_t *dev,
+                                            u16 in_flow,
+                                            mepa_ts_classifier_t *const out_conf);
+
+mepa_rc mepa_to_lan80xx_encap(mepa_ts_pkt_encap_t encap, phy25g_ts_encap_t *phy25g_encap);
+
+mepa_ts_pkt_encap_t lan80xx_to_mepa_encap(phy25g_ts_encap_t phy25g_encap);
+
+uint8_t lan80xx_get_vs_ntw_type(mepa_ts_ip_match_select_t ntw_type);
+
+uint8_t lan80xx_get_vs_addr_type(mepa_ts_mac_match_mode_t mac_match);
+
+uint8_t lan80xx_get_vs_mac_type(mepa_ts_mac_match_select_t mac_type);
+
+mepa_rc lan80xx_ts_rx_classifier_conf_set_priv(struct mepa_device *dev,
+                                               uint16_t flow_index,
+                                               const mepa_ts_classifier_t *const pkt_class_conf);
+
+mepa_rc lan80xx_ts_tx_clock_conf_set_priv(struct mepa_device *dev,
+                                          uint16_t clock_id,
+                                          const mepa_ts_ptp_clock_conf_t *const ptpclock_conf);
+
+mepa_rc lan80xx_phy_ts_fifo_get(mepa_device_t           *dev,
+                                const mepa_port_no_t    port_no,
+                                mepa_fifo_ts_entry_t    ts_list[],
+                                const size_t            size,
+                                uint32_t                *const num);
+
+mepa_rc lan80xx_ts_rx_clock_conf_set_priv(struct mepa_device *dev,
+                                          uint16_t clock_id,
+                                          const mepa_ts_ptp_clock_conf_t *const ptpclock_conf);
+
+mepa_rc lan80xx_ts_pps_conf_set_priv(mepa_device_t *dev, const mepa_ts_pps_conf_t *const phy_pps_conf);
+
+mepa_rc lan80xx_ts_pps_conf_get_priv(mepa_device_t *dev, mepa_ts_pps_conf_t *const phy_pps_conf);
 #endif //_MEPA_LAN80XX_TS_PRIVATE_H_

@@ -1,6 +1,7 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
+#ifdef MEPA_OPT_TC10
 #ifndef _MEPA_TC10_API_H_
 #define _MEPA_TC10_API_H_
 
@@ -48,6 +49,8 @@ typedef enum mepa_tc10_sleep_state {
     MEPA_TC10_SLEEP_FAIL,   /**< TC10 SLEEP FAIL state */
     MEPA_TC10_SLEEP_SILENT, /**< TC10 SLEEP SILENT state */
     MEPA_TC10_SLEEP,        /**< TC10 SLEEP state */
+    MEPA_TC10_WUR_RCVD,     /**< TC10 WUR Received */
+    MEPA_TC10_WAKE,         /**< TC10 Wake Indication  */
 } mepa_tc10_state_t;
 
 
@@ -205,18 +208,18 @@ mepa_rc mepa_tc10_send_sleep_request(struct mepa_device                     *dev
 /**
  * \brief provides TC10 state.
  *
- * \param dev   [IN]    Driver instance.
- * \param state [OUT]   TC10 state.
+ * \param dev        [IN]    Driver instance.
+ * \param state      [OUT]   TC10 state.
+ * \param indication [OUT]   TC10 indication.
  *
  * \return
  *   MEPA_RC_OK on success.\n
  *   MEPA_RC_ERROR on error.
  **/
 mepa_rc mepa_tc10_get_state(struct mepa_device      *dev,
-                            mepa_tc10_state_t       *const state);
+                            mepa_tc10_state_t       *const state,
+                            uint16_t            *const indication);
 
-mepa_rc mepa_tc10_get_indication(struct mepa_device      *dev,
-                                 uint16_t       *const indication);
 /**
  * \brief sends TC10 wakeup request.
  *
@@ -230,3 +233,4 @@ mepa_rc mepa_tc10_send_wake_request(struct mepa_device *dev);
 
 #include <microchip/ethernet/hdr_end.h>
 #endif /**< _MEPA_TC10_API_H_ */
+#endif // MEPA_OPT_TC10

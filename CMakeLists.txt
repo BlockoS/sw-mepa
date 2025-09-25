@@ -18,19 +18,89 @@ option(BUILD_MEPA_DEMO   "Build the MEPA demo" ON)
 option(MESA_OPSYS_LINUX  "Build the MESA for Linux" ON)
 option(MESA_OPSYS_VELOCITYSP "Build the MESA for VelocitySP" OFF)
 option(MESA_WRAP         "Generate and build the MESA Wrapper" ON)
+option(BUILD_AUTOMOTIVE "Build MESA for Automotive" OFF)
+option(BUILD_TC10       "Build MESA with TC10 for Automotive" ON)
+option(BUILD_MACSEC     "Build MESA with MACSec for no-Automotive" ON)
+option(BUILD_TS         "Build MESA with Timestamping" ON)
+option(MESA_USE_INLINE_UTILS "Create an object library instead of static/shared library" ON)
+
+if (NOT MESA_USE_INLINE_UTILS)
+    message(FATAL_ERROR "MESA_USE_INLINE_UTILS must be ON. Shared or static lm_utils is not supported.")
+endif ()
 
 mark_as_advanced(BUILD_MEPA_DEMO MESA_PRE_AG BUILD_DOXYGEN)
+mark_as_advanced(BUILD_AUTOMOTIVE BUILD_TC10 BUILD_MACSEC BUILD_TS)
 
 include(.cmake/doxygen.cmake)
+
+if (${BUILD_AUTOMOTIVE})
+    add_definitions(-DMEPA_OPT_AUTOMOTIVE)
+endif()
+
+if (${BUILD_MACSEC})
+    add_definitions(-DMEPA_OPT_MACSEC)
+endif()
+
+if (${BUILD_TS})
+    add_definitions(-DMEPA_OPT_TS)
+endif()
+
+if (${BUILD_TC10})
+    add_definitions(-DMEPA_OPT_TC10)
+endif()
 
 add_subdirectory(mepa)
 
 include_directories(me/include)
 include_directories(sw-mesa/mesa/include)
+include_directories(sw-mesa/utils/include)
 include_directories(board-configs/include)
 include_directories(mepa/include)
 
 set (OS_CNT 0)
+
+#LM Utils for sw-mesa
+set(lm_utils_src sw-mesa/utils/src/lm_utils.c sw-mesa/utils/src/lm_utils_trace_conf.c)
+
+if (NOT (CMAKE_SYSTEM_NAME STREQUAL "Linux"))
+    if (CMAKE_SYSTEM_PROCESSOR STREQUAL "armv8")
+        include_directories(sw-mesa/utils/src/arm-optimized-routines/string/aarch64)
+        include_directories(sw-mesa/utils/src/arm-optimized-routines/string/include)
+        list(APPEND lm_utils_src sw-mesa/utils/src/arm-optimized-routines/string/aarch64/memcmp.S)
+        list(APPEND lm_utils_src sw-mesa/utils/src/arm-optimized-routines/string/aarch64/memcpy.S)
+        list(APPEND lm_utils_src sw-mesa/utils/src/arm-optimized-routines/string/aarch64/memset.S)
+
+    elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL "armv7l")
+        include_directories(sw-mesa/utils/src/arm-optimized-routines/string/arm)
+        include_directories(sw-mesa/utils/src/arm-optimized-routines/string/include)
+        list(APPEND lm_utils_src sw-mesa/utils/src/arm-optimized-routines/string/arm/memcpy.S)
+        list(APPEND lm_utils_src sw-mesa/utils/src/arm-optimized-routines/string/arm/memset.S)
+    endif ()
+endif ()
+
+list(APPEND lm_utils_src sw-mesa/utils/src/lm_utils_memcmp.c)
+list(APPEND lm_utils_src sw-mesa/utils/src/lm_utils_memcpy.c)
+list(APPEND lm_utils_src sw-mesa/utils/src/lm_utils_memmove.c)
+list(APPEND lm_utils_src sw-mesa/utils/src/lm_utils_memset.c)
+
+if (${MESA_USE_INLINE_UTILS})
+    add_library(lm_utils OBJECT ${lm_utils_src})
+    target_compile_options(lm_utils PRIVATE -fPIC)
+else ()
+    add_library(lm_utils ${lm_utils_src})
+endif ()
+
+target_include_directories(lm_utils PRIVATE sw-mesa/utils/include/include)
+
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    target_compile_definitions(lm_utils PRIVATE -DLMU_OS_LINUX)
+endif ()
+
+
+if (${MESA_OPSYS_LINUX})
+    add_definitions(-DLMU_BOOL_IS_UINT8)
+endif()
+
 if (${MESA_OPSYS_LINUX})
     MATH(EXPR OS_CNT "${OS_CNT} + 1")
 endif ()
@@ -213,7 +283,7 @@ set(LIST_OF_API_TARGETS)
 if (${MESA_OPSYS_LINUX})
     set(GLOBAL_DEFS -DVTSS_OPSYS_LINUX -DVTSS_OPT_SYMREG=1)
 elseif (${MESA_OPSYS_VELOCITYSP})
-	set(GLOBAL_DEFS -DVTSS_OPSYS_VELOCITYSP -DVTSS_OPT_SYMREG=0)
+	set(GLOBAL_DEFS -DVTSS_OPSYS_VELOCITYSP)
 endif ()
 
 macro(API_TARGET)
@@ -238,7 +308,13 @@ macro(API_TARGET)
   set(DEFS ${GLOBAL_DEFS} -DVTSS_CHIP_${A_CHIP} ${A_DEFS})
 
   if (${BUILD_SHARED_LIBS})
-      add_library(${A_LIB} SHARED ${API_UNI_SRC} ${API_MESA_SRC})
+      if (${MESA_USE_INLINE_UTILS})
+          add_library(${A_LIB} SHARED $<TARGET_OBJECTS:lm_utils> ${API_UNI_SRC} ${API_MESA_SRC})
+      else ()
+          add_library(${A_LIB} SHARED ${API_UNI_SRC} ${API_MESA_SRC})
+          target_link_libraries(${A_LIB} lm_utils)
+      endif ()
+
       target_compile_options(${A_LIB} PUBLIC ${DEFS}
                                       PRIVATE -Wno-logical-op)
 
@@ -250,11 +326,16 @@ macro(API_TARGET)
       endif()
   endif()
 
-  add_library(${A_LIB}_static STATIC ${API_UNI_SRC} ${API_MESA_SRC})
-  set_target_properties(${A_LIB}_static PROPERTIES OUTPUT_NAME "${A_LIB}")
+  if (${MESA_USE_INLINE_UTILS})
+      add_library(${A_LIB}_static STATIC $<TARGET_OBJECTS:lm_utils> ${API_UNI_SRC} ${API_MESA_SRC})
+  else ()
+      add_library(${A_LIB}_static STATIC ${API_UNI_SRC} ${API_MESA_SRC})
+      target_link_libraries(${A_LIB}_static lm_utils)
+  endif ()
+
   target_compile_options(${A_LIB}_static PUBLIC ${DEFS}
 	                                 PRIVATE -Wno-format-security -Wno-sign-compare -Wno-type-limits -Wno-implicit-fallthrough -Wno-array-parameter -Wno-enum-conversion -Wno-logical-op)
-
+  
   if (${A_LIB}_static)
       message(STATUS "Adding ${A_LIB}_static (${A_CHIP}) MESA=${has_mesa} Defines: [${DEFS}]")
       set_target_properties(${A_LIB}_static PROPERTIES EXCLUDE_FROM_ALL FALSE)
@@ -274,12 +355,8 @@ macro(API_TARGET)
   list(APPEND LIST_OF_API_TARGETS ${A_LIB})
 endmacro(API_TARGET)
 
-API_TARGET(LIB vsc7558TSN            CHIP 7558TSN       DEFS -DVTSS_OPT_PORT_COUNT=57)
-API_TARGET(LIB vsc7558MSEC           CHIP 7558TSN       DEFS -DVTSS_OPT_PORT_COUNT=57)
+API_TARGET(LIB vsc7558               CHIP 7558TSN       DEFS -DVTSS_OPT_PORT_COUNT=57)
 API_TARGET(LIB lan966x               CHIP 966X)
-#API_TARGET(LIB lan966x_lm            CHIP 966X          DEFS -DVTSS_OPT_LIGHT=1 -DVTSS_OPT_TRACE=1 -DVTSS_OPT_DEBUG_PRINT=1)
-#API_TARGET(LIB lan966x_ad            CHIP 966X          DEFS -DVTSS_OPT_FPGA=2)
-#API_TARGET(LIB lan969x_lm            CHIP 969X          DEFS -DVTSS_OPT_PORT_COUNT=30 -DVTSS_OPT_LIGHT=1 -DVTSS_OPT_TRACE=0 -DVTSS_OPT_TRACE_ERROR=0 -DVTSS_OPT_DEBUG_PRINT=1)
 
 option(BUILD_MESA_CAPABILITY_DUMPER "Build all the mesa capability dumper function" OFF)
 mark_as_advanced(BUILD_MESA_CAPABILITY_DUMPER)

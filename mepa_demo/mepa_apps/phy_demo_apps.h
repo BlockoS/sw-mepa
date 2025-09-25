@@ -2,10 +2,14 @@
 // SPDX-License-Identifier: MIT
 
 /* Malibu25G Part bumbers */
-#define PHY_TYPE_8021 0x8021
-#define PHY_TYPE_8042 0x8042
+#define PHY_TYPE_8263 0x8263
+#define PHY_TYPE_8262 0x8262
+#define PHY_TYPE_8264 0x8264
+#define PHY_TYPE_8267 0x8267
+#define PHY_TYPE_8268 0x8268
 #define PHY_TYPE_8022 0x8022
-#define PHY_TYPE_8041 0x8041
+#define PHY_TYPE_8023 0x8023
+#define PHY_TYPE_8024 0x8024
 #define PHY_TYPE_8042 0x8042
 #define PHY_TYPE_8043 0x8043
 #define PHY_TYPE_8044 0x8044

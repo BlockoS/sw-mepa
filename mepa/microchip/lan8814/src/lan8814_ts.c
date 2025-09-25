@@ -15,7 +15,7 @@
 
 static  uint16_t lan8814_ing_latencies[MEPA_TS_CLOCK_FREQ_MAX - 1][3] = {
     // 1000,  100,    10 speeds
-    [MEPA_TS_CLOCK_FREQ_25M] =    {  415, 1447, 8377 }, // Internal clock is 250 MHz
+    [MEPA_TS_CLOCK_FREQ_25M] =    {  415, 144, 8377 }, // Internal clock is 250 MHz
     [MEPA_TS_CLOCK_FREQ_125M] =   {  000, 0000, 00000 },
     [MEPA_TS_CLOCK_FREQ_15625M] = {  000, 0000, 00000 },
     [MEPA_TS_CLOCK_FREQ_200M] =   {  417, 1441, 8380 },
@@ -33,7 +33,7 @@ static  uint16_t lan8814_egr_latencies[MEPA_TS_CLOCK_FREQ_MAX - 1][3] = {
 
 static uint16_t lan8814_twostep_egr_lat_adj[MEPA_TS_CLOCK_FREQ_MAX][4] = {
     //     10M,100M, 1G
-    [MEPA_TS_CLOCK_FREQ_25M] =    {0, 11198, 1120, 115}, // Internal clock is 250 MHz
+    [MEPA_TS_CLOCK_FREQ_25M] =    {0, 11198, 112, 115}, // Internal clock is 250 MHz
     [MEPA_TS_CLOCK_FREQ_125M] =   {0,     0,    0,   0},
     [MEPA_TS_CLOCK_FREQ_15625M] = {0,     0,    0,   0},
     [MEPA_TS_CLOCK_FREQ_200M] =   {0, 11197, 1125, 120}, //200Mhz
@@ -2166,6 +2166,10 @@ static mepa_rc lan8814_ts_tx_ts_get (mepa_device_t *dev)
             sig.sequence_id = head2;
             sig.crc_src_port = head1 >> 4;
             sig.has_crc_src = TRUE;
+            sig.dmac_sig_supported = FALSE;
+            sig.ipv4_sig_supported = FALSE;
+            memset(&sig.dest_ipv4, 0 , sizeof(sig.dest_ipv4));
+            memset(&sig.dmac_addr, 0, sizeof(sig.dmac_addr));
 
             MEPA_EXIT(dev);
             rd_cb(data->port_no, &ts, &sig, status);
@@ -2322,6 +2326,10 @@ mepa_rc lan8814_ts_fifo_get(mepa_device_t *dev, mepa_fifo_ts_entry_t ts_list[], 
             ts_list[i].sig.msg_type = val & 0xF;
             ts_list[i].sig.crc_src_port = val >> 4;
             ts_list[i].sig.has_crc_src = TRUE;
+            ts_list[i].sig.dmac_sig_supported = FALSE;
+            ts_list[i].sig.ipv4_sig_supported = FALSE;
+            memset(&ts_list[i].sig.dest_ipv4, 0 , sizeof(ts_list[i].sig.dest_ipv4));
+            memset(&ts_list[i].sig.dmac_addr, 0, sizeof(ts_list[i].sig.dmac_addr));
 
             EP_RD_INCR(dev, LAN8814_PTP_TX_MSG_HEADER2, &val, FALSE);
             ts_list[i].sig.sequence_id = val;

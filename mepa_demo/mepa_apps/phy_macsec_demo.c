@@ -203,7 +203,7 @@ static void cli_cmd_macsec_ena(cli_req_t *req)
             return;
         }
 
-        cli_printf("\n ...... MACsec Block Enabled on Port : %d......\n", iport);
+        cli_printf("\n ...... MACsec Block Enabled on Port : %d......\n", port_no);
     }
     return;
 }
@@ -251,7 +251,7 @@ static void cli_cmd_macsec_dis(cli_req_t *req)
             T_E("\n Error in Enabling MACsec on port : %d\n", iport);
             return;
         }
-        cli_printf("\n ...... MACsec Block Disabled on Port : %d......\n", iport);
+        cli_printf("\n ...... MACsec Block Disabled on Port : %d......\n", port_no);
     }
     return;
 }
@@ -427,7 +427,7 @@ static void cli_cmd_secy_create(cli_req_t *req)
             return;
         }
     }
-    cli_printf("\n ...... SecY %s on Port : %d with port_id : %d......\n", mreq->secy_create ? "Created" : "Updated", req->port_no, mreq->port_id);
+    cli_printf("\n ...... SecY %s on Port : %d with port_id : %d......\n", mreq->secy_create ? "Created" : "Updated", (req->port_no + 1), mreq->port_id);
     return;
 }
 
@@ -450,7 +450,7 @@ static void cli_cmd_macsec_secy_del(cli_req_t *req)
         T_E("\n Error in Deleting the SecY on port : %d \n", req->port_no);
         return;
     }
-    cli_printf("\n ....... SecY Deleted on Port : %d with port_id : %d...... \n", req->port_no, mreq->port_id);
+    cli_printf("\n ....... SecY Deleted on Port : %d with port_id : %d...... \n", (req->port_no + 1), mreq->port_id);
 }
 
 static void cli_cmd_match_param(cli_req_t *req)
@@ -588,7 +588,7 @@ static void cli_cmd_tx_sc_create(cli_req_t *req)
         T_E("\n Error in creating Transmit Secure channel on port : %d\n", req->port_no);
         return;
     }
-    cli_printf("\n...... Transmit Secure Channel Created on port %d for SecY with is :%d......\n", req->port_no, mreq->port_id);
+    cli_printf("\n...... Transmit Secure Channel Created on port %d for SecY with is :%d......\n", (req->port_no + 1), mreq->port_id);
     return;
 }
 
@@ -610,7 +610,7 @@ static void cli_cmd_macsec_tx_sc_del(cli_req_t *req)
         T_E("\n Error in deleting Transmit Secure channel on port : %d\n", req->port_no);
         return;
     }
-    cli_printf("\n ...... Transmit Secure Channel Deleted on port %d for SecY with Port id :%d......\n", req->port_no, mreq->port_id);
+    cli_printf("\n ...... Transmit Secure Channel Deleted on port %d for SecY with Port id :%d......\n", (req->port_no + 1), mreq->port_id);
     return;
 }
 
@@ -644,7 +644,7 @@ static void cli_cmd_rx_sc_create(cli_req_t *req)
         T_E("\n Error in Rx Secure Channel Create on port : %d\n", req->port_no);
         return;
     }
-    cli_printf("\n ...... Receive Secure Channel Created on port %d for SecY with Port id :%d......\n", req->port_no, mreq->port_id);
+    cli_printf("\n ...... Receive Secure Channel Created on port %d for SecY with Port id :%d......\n", (req->port_no + 1), mreq->port_id);
 
     return;
 }
@@ -679,7 +679,7 @@ static void cli_cmd_macsec_rx_sc_del(cli_req_t *req)
         T_E("\n Error in Rx Secure Channel Deleted on port : %d\n", req->port_no);
         return;
     }
-    cli_printf("\n ...... Receive Secure Channel Deleted on port %d for SecY with Port id :%d......\n", req->port_no, mreq->port_id);
+    cli_printf("\n ...... Receive Secure Channel Deleted on port %d for SecY with Port id :%d......\n", (req->port_no + 1), mreq->port_id);
     return;
 }
 
@@ -807,7 +807,7 @@ static void cli_cmd_tx_sa_create(cli_req_t *req)
     memset(salt, 0, sizeof(salt));
     memset(ssci_xpn, 0, sizeof(ssci_xpn));
     if ((rc = mepa_macsec_secy_conf_get(meba_macsec_instance->phy_devices[req->port_no], macsec_port, &secy_conf_get)) != MEPA_RC_OK) {
-        T_E("\n Error in getting the SecY Config on port : %d \n", req->port_no);
+        T_E("\n Error in getting the SecY Config on port : %d \n", (req->port_no + 1));
         return;
     }
 
@@ -820,7 +820,7 @@ static void cli_cmd_tx_sa_create(cli_req_t *req)
     if (secy_conf_get.current_cipher_suite == MEPA_MACSEC_CIPHER_SUITE_GCM_AES_XPN_256 || secy_conf_get.current_cipher_suite == MEPA_MACSEC_CIPHER_SUITE_GCM_AES_XPN_128) {
         next_pkt.xpn = mreq->next_pn;
         if ((rc = mepa_macsec_tx_seca_set(meba_macsec_instance->phy_devices[req->port_no], macsec_port, mreq->an_no, next_pkt, mreq->conf, &sak, &ssci)) != MEPA_RC_OK) {
-            T_E("Error is creating Tx Secure asoosiation on port %d\n", req->port_no);
+            T_E("Error is creating Tx Secure asoosiation on port %d\n", (req->port_no + 1));
             return;
         }
     } else {
@@ -829,7 +829,7 @@ static void cli_cmd_tx_sa_create(cli_req_t *req)
         }
         next_pn_nxpn = mreq->next_pn & MASK_32BIT;
         if ((rc = mepa_macsec_tx_sa_set(meba_macsec_instance->phy_devices[req->port_no], macsec_port, mreq->an_no, next_pn_nxpn, mreq->conf, &sak)) != MEPA_RC_OK) {
-            T_E("Error is creating Tx Secure asoosiation on port %d\n", req->port_no);
+            T_E("Error is creating Tx Secure asoosiation on port %d\n", (req->port_no + 1));
             return;
         }
     }
@@ -850,7 +850,7 @@ static void cli_cmd_rx_sa_create(cli_req_t *req)
     mepa_macsec_pkt_num_t next_pkt;
     mepa_macsec_ssci_t ssci;
     if ((rc = mepa_dev_check(meba_macsec_instance, req->port_no)) != MEPA_RC_OK) {
-        printf(" Dev is Not Created for the port : %d\n", req->port_no);
+        printf(" Dev is Not Created for the port : %d\n", (req->port_no + 1));
         return;
     }
     uint32_t lowest_pn_nxpn;
@@ -891,7 +891,7 @@ static void cli_cmd_rx_sa_create(cli_req_t *req)
     mepa_macsec_secy_conf_t secy_conf_get;
 
     if ((rc = mepa_macsec_secy_conf_get(meba_macsec_instance->phy_devices[req->port_no], macsec_port, &secy_conf_get)) != MEPA_RC_OK) {
-        T_E("\n Error in getting the SecY on port : %d \n", req->port_no);
+        T_E("\n Error in getting the SecY on port : %d \n", (req->port_no + 1));
         return;
     }
 
@@ -920,7 +920,7 @@ static void cli_cmd_rx_sa_create(cli_req_t *req)
     if (secy_conf_get.current_cipher_suite == MEPA_MACSEC_CIPHER_SUITE_GCM_AES_XPN_256 || secy_conf_get.current_cipher_suite == MEPA_MACSEC_CIPHER_SUITE_GCM_AES_XPN_128) {
         next_pkt.xpn = mreq->lowest_pn;
         if ((rc = mepa_macsec_rx_seca_set(meba_macsec_instance->phy_devices[req->port_no], macsec_port, &sci, mreq->an_no, next_pkt, &sak, &ssci)) != MEPA_RC_OK) {
-            T_E("Error is creating Rx Secure asoosiation on port %d\n", req->port_no);
+            T_E("Error is creating Rx Secure asoosiation on port %d\n", (req->port_no + 1));
             return;
         }
     } else {
@@ -930,12 +930,12 @@ static void cli_cmd_rx_sa_create(cli_req_t *req)
         lowest_pn_nxpn = mreq->lowest_pn & MASK_32BIT;
 
         if ((rc = mepa_macsec_rx_sa_set(meba_macsec_instance->phy_devices[req->port_no], macsec_port, &sci, mreq->an_no, lowest_pn_nxpn, &sak)) != MEPA_RC_OK) {
-            T_E("Error is creating Rx Secure asoosiation on port %d\n", req->port_no);
+            T_E("Error is creating Rx Secure asoosiation on port %d\n", (req->port_no + 1));
             return;
         }
     }
     if ((rc = mepa_macsec_rx_sa_activate(meba_macsec_instance->phy_devices[req->port_no], macsec_port, &sci, mreq->an_no)) != MEPA_RC_OK) {
-        T_E("\n Error in activating Rx Secure Assosiation on port : %d\n", req->port_no);
+        T_E("\n Error in activating Rx Secure Assosiation on port : %d\n", (req->port_no + 1));
         return;
     }
     cli_printf("\n ...... Receive Secure Association an = %d Created for Channel id :%d ......\n", mreq->an_no, mreq->rx_sc_id);
@@ -948,7 +948,7 @@ static void cli_cmd_macsec_tx_sa_del(cli_req_t *req)
     mepa_rc rc;
     macsec_configuration *mreq = req->module_req;
     if ((rc = mepa_dev_check(meba_macsec_instance, req->port_no)) != MEPA_RC_OK) {
-        printf(" Dev is Not Created for the port : %d\n", req->port_no);
+        printf(" Dev is Not Created for the port : %d\n", (req->port_no + 1));
         return;
     }
 
@@ -958,7 +958,7 @@ static void cli_cmd_macsec_tx_sa_del(cli_req_t *req)
     macsec_port.port_id    = mreq->port_id;
 
     if ((rc = mepa_macsec_tx_sa_del(meba_macsec_instance->phy_devices[req->port_no], macsec_port, mreq->an_no)) != MEPA_RC_OK) {
-        T_E("Error is Deleting Tx Secure asoosiation on port %d\n", req->port_no);
+        T_E("Error is Deleting Tx Secure asoosiation on port %d\n", (req->port_no + 1));
         return;
     }
     cli_printf("\n ...... Transmit Secure Association an = %d Deleted for Channel id :%d ......\n", mreq->an_no, mreq->port_id);
@@ -970,7 +970,7 @@ static void cli_cmd_macsec_rx_sa_del(cli_req_t *req)
     mepa_rc rc;
     macsec_configuration *mreq = req->module_req;
     if ((rc = mepa_dev_check(meba_macsec_instance, req->port_no)) != MEPA_RC_OK) {
-        printf(" Dev is Not Created for the port : %d\n", req->port_no);
+        printf(" Dev is Not Created for the port : %d\n", (req->port_no + 1));
         return;
     }
 
@@ -982,7 +982,7 @@ static void cli_cmd_macsec_rx_sa_del(cli_req_t *req)
     mepa_macsec_secy_conf_t secy_conf_get;
 
     if ((rc = mepa_macsec_secy_conf_get(meba_macsec_instance->phy_devices[req->port_no], macsec_port, &secy_conf_get)) != MEPA_RC_OK) {
-        T_E("\n Error in getting the SecY on port : %d \n", req->port_no);
+        T_E("\n Error in getting the SecY on port : %d \n", (req->port_no + 1));
         return;
     }
 
@@ -991,7 +991,7 @@ static void cli_cmd_macsec_rx_sa_del(cli_req_t *req)
     sci.port_id = mreq->rx_sc_id;
 
     if ((rc = mepa_macsec_rx_sa_del(meba_macsec_instance->phy_devices[req->port_no], macsec_port, &sci, mreq->an_no)) != MEPA_RC_OK) {
-        T_E("Error is Deleting Rx Secure asoosiation on port %d\n", req->port_no);
+        T_E("Error is Deleting Rx Secure asoosiation on port %d\n", (req->port_no + 1));
         return;
     }
     cli_printf("\n ...... Receive Secure Association an = %d Deleted for Channel id :%d ......\n", mreq->an_no, mreq->rx_sc_id);
@@ -1004,7 +1004,7 @@ static void cli_cmd_rx_sa_pn_update(cli_req_t *req)
     macsec_configuration *mreq = req->module_req;
     mepa_macsec_pkt_num_t next_pkt;
     if ((rc = mepa_dev_check(meba_macsec_instance, req->port_no)) != MEPA_RC_OK) {
-        printf(" Dev is Not Created for the port : %d\n", req->port_no);
+        printf(" Dev is Not Created for the port : %d\n", (req->port_no + 1));
         return;
     }
     uint32_t lowest_pn_nxpn;
@@ -1015,7 +1015,7 @@ static void cli_cmd_rx_sa_pn_update(cli_req_t *req)
     mepa_macsec_secy_conf_t secy_conf_get;
 
     if ((rc = mepa_macsec_secy_conf_get(meba_macsec_instance->phy_devices[req->port_no], macsec_port, &secy_conf_get)) != MEPA_RC_OK) {
-        T_E("\n Error in getting the SecY on port : %d \n", req->port_no);
+        T_E("\n Error in getting the SecY on port : %d \n", (req->port_no + 1));
         return;
     }
 
@@ -1026,7 +1026,7 @@ static void cli_cmd_rx_sa_pn_update(cli_req_t *req)
     if (secy_conf_get.current_cipher_suite == MEPA_MACSEC_CIPHER_SUITE_GCM_AES_XPN_256 || secy_conf_get.current_cipher_suite == MEPA_MACSEC_CIPHER_SUITE_GCM_AES_XPN_128) {
         next_pkt.xpn = mreq->lowest_pn;
         if ((rc = mepa_macsec_rx_seca_lowest_pn_update(meba_macsec_instance->phy_devices[req->port_no], macsec_port, &sci, mreq->an_no, next_pkt)) != MEPA_RC_OK) {
-            T_E("Error is Updating Next PN on port %d\n", req->port_no);
+            T_E("Error is Updating Next PN on port %d\n", (req->port_no + 1));
             return;
         }
     } else {
@@ -1037,7 +1037,7 @@ static void cli_cmd_rx_sa_pn_update(cli_req_t *req)
         lowest_pn_nxpn = mreq->lowest_pn & MASK_32BIT;
 
         if ((rc = mepa_macsec_rx_sa_lowest_pn_update(meba_macsec_instance->phy_devices[req->port_no], macsec_port, &sci, mreq->an_no, lowest_pn_nxpn)) != MEPA_RC_OK) {
-            T_E("Error is Updating Next PN on port %d\n", req->port_no);
+            T_E("Error is Updating Next PN on port %d\n", (req->port_no + 1));
             return;
         }
     }
@@ -1065,7 +1065,7 @@ static void cli_cmd_macsec_secy_statistics(cli_req_t *req)
         return;
     }
     if ((rc = mepa_dev_check(meba_macsec_instance, req->port_no)) != MEPA_RC_OK) {
-        printf(" Dev is Not Created for the port : %d\n", req->port_no);
+        printf(" Dev is Not Created for the port : %d\n", (req->port_no + 1));
         return;
     }
 
@@ -1075,16 +1075,16 @@ static void cli_cmd_macsec_secy_statistics(cli_req_t *req)
     macsec_port.port_id    = mreq->port_id;
     if (!mreq->statistics_get) {
         if ((rc = mepa_macsec_secy_counters_clear(meba_macsec_instance->phy_devices[req->port_no], macsec_port)) != MEPA_RC_OK) {
-            T_E("\n Error in Clearing the SecY Statistics on port : %d \n", req->port_no);
+            T_E("\n Error in Clearing the SecY Statistics on port : %d \n", (req->port_no + 1));
             return;
         }
-        cli_printf("\n SecY Statistics Cleared on Port : %d \n", req->port_no);
+        cli_printf("\n SecY Statistics Cleared on Port : %d \n", (req->port_no + 1));
         return;
     }
 
     mepa_macsec_secy_counters_t counters;
     if ((rc = mepa_macsec_secy_counters_get(meba_macsec_instance->phy_devices[req->port_no], macsec_port, &counters)) != MEPA_RC_OK) {
-        T_E("\n Error in getting the SecY Statistics on port : %d \n", req->port_no);
+        T_E("\n Error in getting the SecY Statistics on port : %d \n", (req->port_no + 1));
         return;
     }
     cli_printf("\n\n");
@@ -1110,7 +1110,7 @@ static void cli_cmd_macsec_tx_sc_statistics(cli_req_t *req)
         return;
     }
     if ((rc = mepa_dev_check(meba_macsec_instance, req->port_no)) != MEPA_RC_OK) {
-        printf(" Dev is Not Created for the port : %d\n", req->port_no);
+        printf(" Dev is Not Created for the port : %d\n", (req->port_no + 1));
         return;
     }
     mepa_macsec_port_t  macsec_port;
@@ -1119,15 +1119,15 @@ static void cli_cmd_macsec_tx_sc_statistics(cli_req_t *req)
     macsec_port.port_id    = mreq->port_id;
     if (!mreq->statistics_get) {
         if ((rc = mepa_macsec_txsc_counters_clear(meba_macsec_instance->phy_devices[req->port_no], macsec_port)) != MEPA_RC_OK) {
-            T_E("\n Error in Clearing the Transmit Secure Channel Statistics on port : %d \n", req->port_no);
+            T_E("\n Error in Clearing the Transmit Secure Channel Statistics on port : %d \n", (req->port_no + 1));
             return;
         }
-        cli_printf("\n TX SC Statistics Cleared on Port : %d \n", req->port_no);
+        cli_printf("\n TX SC Statistics Cleared on Port : %d \n", (req->port_no + 1));
         return;
     }
     mepa_macsec_tx_sc_counters_t counters;
     if ((rc = mepa_macsec_tx_sc_counters_get(meba_macsec_instance->phy_devices[req->port_no], macsec_port, &counters)) != MEPA_RC_OK) {
-        T_E("\n Error in getting the Transmit Secure Channel Statistics on port : %d \n", req->port_no);
+        T_E("\n Error in getting the Transmit Secure Channel Statistics on port : %d \n", (req->port_no + 1));
         return;
     }
     cli_printf("\n\n");
@@ -1148,7 +1148,7 @@ static void cli_cmd_macsec_tx_sa_statistics(cli_req_t *req)
         return;
     }
     if ((rc = mepa_dev_check(meba_macsec_instance, req->port_no)) != MEPA_RC_OK) {
-        printf(" Dev is Not Created for the port : %d\n", req->port_no);
+        printf(" Dev is Not Created for the port : %d\n", (req->port_no + 1));
         return;
     }
     mepa_macsec_port_t  macsec_port;
@@ -1157,15 +1157,15 @@ static void cli_cmd_macsec_tx_sa_statistics(cli_req_t *req)
     macsec_port.port_id    = mreq->port_id;
     if (!mreq->statistics_get) {
         if ((rc = mepa_macsec_txsa_counters_clear(meba_macsec_instance->phy_devices[req->port_no], macsec_port, mreq->an_no)) != MEPA_RC_OK) {
-            T_E("\n Error in Clearing the Transmit Secure Association Statistics on port : %d \n", req->port_no);
+            T_E("\n Error in Clearing the Transmit Secure Association Statistics on port : %d \n", (req->port_no + 1));
             return;
         }
-        cli_printf("\n TX SA Statistics Cleared on Port : %d with AN %d\n", req->port_no, mreq->an_no);
+        cli_printf("\n TX SA Statistics Cleared on Port : %d with AN %d\n", (req->port_no + 1), mreq->an_no);
         return;
     }
     mepa_macsec_tx_sa_counters_t counters;
     if ((rc = mepa_macsec_tx_sa_counters_get(meba_macsec_instance->phy_devices[req->port_no], macsec_port, mreq->an_no, &counters)) != MEPA_RC_OK) {
-        T_E("\n Error in getting the Transmit Secure Association Statistics on port : %d \n", req->port_no);
+        T_E("\n Error in getting the Transmit Secure Association Statistics on port : %d \n", (req->port_no + 1));
         return;
     }
     cli_printf("\n\n");
@@ -1186,7 +1186,7 @@ static void cli_cmd_macsec_rx_sc_statistics(cli_req_t *req)
         return;
     }
     if ((rc = mepa_dev_check(meba_macsec_instance, req->port_no)) != MEPA_RC_OK) {
-        printf(" Dev is Not Created for the port : %d\n", req->port_no);
+        printf(" Dev is Not Created for the port : %d\n", (req->port_no + 1));
         return;
     }
     mepa_macsec_port_t  macsec_port;
@@ -1196,7 +1196,7 @@ static void cli_cmd_macsec_rx_sc_statistics(cli_req_t *req)
     mepa_macsec_secy_conf_t secy_conf_get;
 
     if ((rc = mepa_macsec_secy_conf_get(meba_macsec_instance->phy_devices[req->port_no], macsec_port, &secy_conf_get)) != MEPA_RC_OK) {
-        T_E("\n Error in getting the SecY on port : %d \n", req->port_no);
+        T_E("\n Error in getting the SecY on port : %d \n", (req->port_no + 1));
         return;
     }
 
@@ -1206,15 +1206,15 @@ static void cli_cmd_macsec_rx_sc_statistics(cli_req_t *req)
 
     if (!mreq->statistics_get) {
         if ((rc = mepa_macsec_rxsc_counters_clear(meba_macsec_instance->phy_devices[req->port_no], macsec_port, &sci)) != MEPA_RC_OK) {
-            T_E("\n Error in Clearing the Receive Secure Channel Statistics on port : %d \n", req->port_no);
+            T_E("\n Error in Clearing the Receive Secure Channel Statistics on port : %d \n", (req->port_no + 1));
             return;
         }
-        cli_printf("\n RX SC Statistics Cleared on Port : %d \n", req->port_no);
+        cli_printf("\n RX SC Statistics Cleared on Port : %d \n", (req->port_no + 1));
         return;
     }
     mepa_macsec_rx_sc_counters_t counters;
     if ((rc = mepa_macsec_rx_sc_counters_get(meba_macsec_instance->phy_devices[req->port_no], macsec_port, &sci, &counters)) != MEPA_RC_OK) {
-        T_E("\n Error in getting the Receive Secure Channel Statistics on port : %d \n", req->port_no);
+        T_E("\n Error in getting the Receive Secure Channel Statistics on port : %d \n", (req->port_no + 1));
         return;
     }
     cli_printf("\n\n");
@@ -1238,7 +1238,7 @@ static void cli_cmd_macsec_rx_sa_statistics(cli_req_t *req)
         return;
     }
     if ((rc = mepa_dev_check(meba_macsec_instance, req->port_no)) != MEPA_RC_OK) {
-        printf(" Dev is Not Created for the port : %d\n", req->port_no);
+        printf(" Dev is Not Created for the port : %d\n", (req->port_no + 1));
         return;
     }
     mepa_macsec_port_t  macsec_port;
@@ -1248,7 +1248,7 @@ static void cli_cmd_macsec_rx_sa_statistics(cli_req_t *req)
     mepa_macsec_secy_conf_t secy_conf_get;
 
     if ((rc = mepa_macsec_secy_conf_get(meba_macsec_instance->phy_devices[req->port_no], macsec_port, &secy_conf_get)) != MEPA_RC_OK) {
-        T_E("\n Error in getting the SecY on port : %d \n", req->port_no);
+        T_E("\n Error in getting the SecY on port : %d \n", (req->port_no + 1));
         return;
     }
 
@@ -1258,15 +1258,15 @@ static void cli_cmd_macsec_rx_sa_statistics(cli_req_t *req)
 
     if (!mreq->statistics_get) {
         if ((rc = mepa_macsec_rxsa_counters_clear(meba_macsec_instance->phy_devices[req->port_no], macsec_port, &sci, mreq->an_no)) != MEPA_RC_OK) {
-            T_E("\n Error in Clearing the Receive Secure Association Statistics on port : %d \n", req->port_no);
+            T_E("\n Error in Clearing the Receive Secure Association Statistics on port : %d \n", (req->port_no + 1));
             return;
         }
-        cli_printf("\n RX SA Statistics Cleared on Port : %d with AN %d\n", req->port_no, mreq->an_no);
+        cli_printf("\n RX SA Statistics Cleared on Port : %d with AN %d\n", (req->port_no + 1), mreq->an_no);
         return;
     }
     mepa_macsec_rx_sa_counters_t counters;
     if ((rc = mepa_macsec_rx_sa_counters_get(meba_macsec_instance->phy_devices[req->port_no], macsec_port, &sci, mreq->an_no, &counters)) != MEPA_RC_OK) {
-        T_E("\n Error in getting the Receive Secure Association Statistics on port : %d \n", req->port_no);
+        T_E("\n Error in getting the Receive Secure Association Statistics on port : %d \n", (req->port_no + 1));
         return;
     }
     cli_printf("\n\n");
@@ -1290,28 +1290,28 @@ static void cli_cmd_macsec_mac_statistics(cli_req_t *req)
         return;
     }
     if ((rc = mepa_dev_check(meba_macsec_instance, req->port_no)) != MEPA_RC_OK) {
-        printf(" Dev is Not Created for the port : %d\n", req->port_no);
+        printf(" Dev is Not Created for the port : %d\n", (req->port_no + 1));
         return;
     }
     if (!mreq->statistics_get) {
         if (mreq->hmac_counters) {
             if ((rc = mepa_macsec_hmac_counters_clear(meba_macsec_instance->phy_devices[req->port_no], req->port_no)) != MEPA_RC_OK) {
-                T_E("\n Error in Clearing HMAC Counters on port : %d \n", req->port_no);
+                T_E("\n Error in Clearing HMAC Counters on port : %d \n", (req->port_no + 1));
                 return;
             }
         } else {
             if ((rc = mepa_macsec_lmac_counters_clear(meba_macsec_instance->phy_devices[req->port_no], req->port_no)) != MEPA_RC_OK) {
-                T_E("\n Error in Clearing LMAC Counters on port : %d \n", req->port_no);
+                T_E("\n Error in Clearing LMAC Counters on port : %d \n", (req->port_no + 1));
                 return;
             }
         }
-        cli_printf("\n %s Counters cleared on Port : %d\n", mreq->hmac_counters ? "HMAC" : "LMAC", req->port_no);
+        cli_printf("\n %s Counters cleared on Port : %d\n", mreq->hmac_counters ? "HMAC" : "LMAC", (req->port_no + 1));
         return;
     }
     mepa_macsec_mac_counters_t counters;
     if (mreq->hmac_counters) {
         if ((rc = mepa_macsec_hmac_counters_get(meba_macsec_instance->phy_devices[req->port_no], req->port_no, &counters, FALSE)) != MEPA_RC_OK) {
-            T_E("\n Error in Getting HMAC Counters on port : %d \n", req->port_no);
+            T_E("\n Error in Getting HMAC Counters on port : %d \n", (req->port_no + 1));
             return;
         }
         cli_printf("\n\n");
@@ -1319,7 +1319,7 @@ static void cli_cmd_macsec_mac_statistics(cli_req_t *req)
         cli_printf("============================\n");
     } else {
         if ((rc = mepa_macsec_lmac_counters_get(meba_macsec_instance->phy_devices[req->port_no], req->port_no, &counters, FALSE)) != MEPA_RC_OK) {
-            T_E("\n Error in Getting LMAC Counters on port : %d \n", req->port_no);
+            T_E("\n Error in Getting LMAC Counters on port : %d \n", (req->port_no + 1));
             return;
         }
         cli_printf("\n\n");
@@ -1359,7 +1359,7 @@ static void cli_cmd_macsec_vlan_bypass(cli_req_t *req)
         return;
     }
     if ((rc = mepa_dev_check(meba_macsec_instance, req->port_no)) != MEPA_RC_OK) {
-        printf(" Dev is Not Created for the port : %d\n", req->port_no);
+        printf(" Dev is Not Created for the port : %d\n", (req->port_no + 1));
         return;
     }
 
@@ -1369,7 +1369,7 @@ static void cli_cmd_macsec_vlan_bypass(cli_req_t *req)
         .hdr_etype        = 0,
     };
     if ((rc = mepa_macsec_bypass_mode_set(meba_macsec_instance->phy_devices[req->port_no], req->port_no, &bypass_mode)) != MEPA_RC_OK) {
-        T_E("\n Error in Configuring VLAN Bypass Configuring : %d \n", req->port_no);
+        T_E("\n Error in Configuring VLAN Bypass Configuring : %d \n", (req->port_no + 1));
         return;
     }
 
@@ -1400,10 +1400,10 @@ static void cli_cmd_macsec_vlan_bypass(cli_req_t *req)
     macsec_port.port_id    = mreq->port_id;
 
     if ((rc = mepa_macsec_bypass_tag_set(meba_macsec_instance->phy_devices[req->port_no], macsec_port, tag)) != MEPA_RC_OK) {
-        T_E("\n Error in Configuring VLAN Bypass Configuring : %d \n", req->port_no);
+        T_E("\n Error in Configuring VLAN Bypass Configuring : %d \n", (req->port_no + 1));
         return;
     }
-    cli_printf("\n ...... VLAN Bypass Configured for %d tag on port no %d with SecY id %d......\n", mreq->vlan_tag, req->port_no, mreq->port_id);
+    cli_printf("\n ...... VLAN Bypass Configured for %d tag on port no %d with SecY id %d......\n", mreq->vlan_tag, (req->port_no + 1), mreq->port_id);
     return;
 }
 
@@ -1423,7 +1423,7 @@ static void cli_cmd_macsec_frame_capt(cli_req_t *req)
             continue;
         }
         if ((rc = mepa_dev_check(meba_macsec_instance, iport)) != MEPA_RC_OK) {
-            cli_printf(" Dev is Not Created for the port : %d\n", iport);
+            cli_printf(" Dev is Not Created for the port : %d\n", port_no);
             return;
         }
         mepa_macsec_frame_capture_t frame_capt;
@@ -1433,10 +1433,10 @@ static void cli_cmd_macsec_frame_capt(cli_req_t *req)
             frame_capt = MEPA_MACSEC_FRAME_CAPTURE_INGRESS;
         }
         if ((rc = mepa_macsec_frame_capture_set(meba_macsec_instance->phy_devices[iport], iport, frame_capt)) != MEPA_RC_OK) {
-            T_E("\n Error in Configuring MACsec FIFO to Capture : %d \n", iport);
+            T_E("\n Error in Configuring MACsec FIFO to Capture : %d \n", port_no);
             return;
         }
-        cli_printf("\n ...... MACsec FIFO Enabled on port %d send packets to capture ......\n", iport);
+        cli_printf("\n ...... MACsec FIFO Enabled on port %d send packets to capture ......\n", port_no);
     }
     return;
 }
@@ -1454,14 +1454,14 @@ static void cli_cmd_macsec_frame_get(cli_req_t *req)
         }
         memset(&frame, 0, sizeof(frame));
         if ((rc = mepa_dev_check(meba_macsec_instance, iport)) != MEPA_RC_OK) {
-            cli_printf(" Dev is Not Created for the port : %d\n", iport);
+            cli_printf(" Dev is Not Created for the port : %d\n", port_no);
             return;
         }
         if ((rc = mepa_macsec_frame_get(meba_macsec_instance->phy_devices[iport], iport, MEPA_MACSEC_FRAME_CAPTURE_SIZE_MAX, &frame_length, &frame[0])) != MEPA_RC_OK) {
-            T_E("\n Error in Reading the Frame from MACsec FIFO on port : %d \n", iport);
+            T_E("\n Error in Reading the Frame from MACsec FIFO on port : %d \n", port_no);
             return;
         }
-        cli_printf("\n Frame Captured on Port %d", iport);
+        cli_printf("\n Frame Captured on Port %d", port_no);
         cli_printf("\n===============================================\n\n");
         cli_printf("\n Length of Frame Captured : %d\n", frame_length);
         for (int j = 0; j < frame_length; j++) {
@@ -1559,7 +1559,7 @@ static void cli_cmd_macsec_event_set(cli_req_t *req)
             continue;
         }
         if ((rc = mepa_dev_check(meba_macsec_instance, iport)) != MEPA_RC_OK) {
-            cli_printf(" Dev is Not Created for the port : %d\n", iport);
+            cli_printf(" Dev is Not Created for the port : %d\n", port_no);
             return;
         }
         mepa_macsec_event_t event;
@@ -1572,7 +1572,7 @@ static void cli_cmd_macsec_event_set(cli_req_t *req)
         }
 
         if ((rc = mepa_macsec_event_enable_set(meba_macsec_instance->phy_devices[iport], iport, event, mreq->enable)) != MEPA_RC_OK) {
-            T_E("\n Error in Configuring MACsec Event on Port : %d \n", iport);
+            T_E("\n Error in Configuring MACsec Event on Port : %d \n", port_no);
             return;
         }
     }
@@ -1620,17 +1620,17 @@ static void cli_cmd_macsec_seq_num_set(cli_req_t *req)
         }
         if (mreq->statistics_get) {
             if ((rc = mepa_macsec_event_seq_threshold_get(meba_macsec_instance->phy_devices[iport], iport, &threshold)) != MEPA_RC_OK) {
-                T_E("\n Error in getting the Seq number Threshold on Port : %d \n", iport);
+                T_E("\n Error in getting the Seq number Threshold on Port : %d \n", port_no);
                 return;
             }
-            cli_printf("\n Sequence Number threshold on port %ld is    : %d\n", iport, threshold);
+            cli_printf("\n Sequence Number threshold on port %ld is    : %d\n", port_no, threshold);
         } else {
             if (mreq->seq_threshold_value == 0) {
-                T_E("\n Sequence Threshold Value Cannot be zero configure value on port : %d \n", iport);
+                T_E("\n Sequence Threshold Value Cannot be zero configure value on port : %d \n", port_no);
                 return;
             }
             if ((rc = mepa_macsec_event_seq_threshold_set(meba_macsec_instance->phy_devices[iport], iport, mreq->seq_threshold_value)) != MEPA_RC_OK) {
-                T_E("\n Error in Configuring the Seq number Threshold on Port : %d \n", iport);
+                T_E("\n Error in Configuring the Seq number Threshold on Port : %d \n", port_no);
                 return;
             }
         }
@@ -1658,7 +1658,7 @@ static void cli_cmd_macsec_conf_get(cli_req_t *req)
     mepa_macsec_ssci_t ssci;
     mepa_bool_t active;
     if ((rc = mepa_dev_check(meba_macsec_instance, req->port_no)) != MEPA_RC_OK) {
-        printf(" Dev is Not Created for the port : %d\n", req->port_no);
+        printf(" Dev is Not Created for the port : %d\n", (req->port_no + 1));
         return;
     }
 
@@ -1670,10 +1670,10 @@ static void cli_cmd_macsec_conf_get(cli_req_t *req)
     switch (mreq->conf_get) {
     case MACSEC_SECY_CONF_GET:
         if ((rc = mepa_macsec_secy_conf_get(meba_macsec_instance->phy_devices[req->port_no], macsec_port, &secy_conf_get)) != MEPA_RC_OK) {
-            T_E("\n Error in getting the SecY on port : %d \n", req->port_no);
+            T_E("\n Error in getting the SecY on port : %d \n", (req->port_no + 1));
             return;
         }
-        cli_printf("\n\nSecY Configuration for port no %d with port id %d \n", req->port_no, mreq->port_id);
+        cli_printf("\n\nSecY Configuration for port no %d with port id %d \n", (req->port_no + 1), mreq->port_id);
         cli_printf("=============================================================\n");
         cli_printf("%-25s :", "Frame Validation");
         switch (secy_conf_get.validate_frames) {
@@ -1714,10 +1714,10 @@ static void cli_cmd_macsec_conf_get(cli_req_t *req)
         break;
     case MACSEC_TX_SC_CONF_GET:
         if ((rc = mepa_macsec_tx_sc_get_conf(meba_macsec_instance->phy_devices[req->port_no], macsec_port, &tx_sc_conf_get)) != MEPA_RC_OK) {
-            T_E("\n Error in getting the Tx SC Conf on port : %d \n", req->port_no);
+            T_E("\n Error in getting the Tx SC Conf on port : %d \n", (req->port_no + 1));
             return;
         }
-        cli_printf("Tx Secure Channel Configuration for port no %d with port id %d \n", req->port_no, mreq->port_id);
+        cli_printf("Tx Secure Channel Configuration for port no %d with port id %d \n", (req->port_no + 1), mreq->port_id);
         cli_printf("=======================================================================\n");
         cli_printf("%-25s : %s\n", "Protect frames", tx_sc_conf_get.protect_frames ? "Enabled" : "Disabled");
         cli_printf("%-25s : %s\n", "always_include_sci", tx_sc_conf_get.always_include_sci ? "Enabled" : "Disabled");
@@ -1728,24 +1728,24 @@ static void cli_cmd_macsec_conf_get(cli_req_t *req)
     case MACSEC_TX_SA_CONF_GET:
         /* Get Current Cipher Suit of the Secure Association */
         if ((rc = mepa_macsec_secy_conf_get(meba_macsec_instance->phy_devices[req->port_no], macsec_port, &secy_conf_get)) != MEPA_RC_OK) {
-            T_E("\n Error in getting the SecY on port : %d \n", req->port_no);
+            T_E("\n Error in getting the SecY on port : %d \n", (req->port_no + 1));
             return;
         }
         if (secy_conf_get.current_cipher_suite == MEPA_MACSEC_CIPHER_SUITE_GCM_AES_128 || secy_conf_get.current_cipher_suite == MEPA_MACSEC_CIPHER_SUITE_GCM_AES_256) {
             xpn = 0;
             if ((rc = mepa_macsec_tx_sa_get(meba_macsec_instance->phy_devices[req->port_no], macsec_port, mreq->an_no, &next_pn, &conf, &sak, &active)) != MEPA_RC_OK) {
-                T_E("\n Error in getting TX Secure Association Conf on port : %d \n", req->port_no);
+                T_E("\n Error in getting TX Secure Association Conf on port : %d \n", (req->port_no + 1));
                 return;
             }
         } else {
             xpn = 1;
             if ((rc = mepa_macsec_tx_seca_get(meba_macsec_instance->phy_devices[req->port_no], macsec_port, mreq->an_no, &next_pn_xpn, &conf, &sak, &active,
                                               &ssci)) != MEPA_RC_OK) {
-                T_E("\n Error in getting the Tx XPN Secure Association Get on port : %d \n", req->port_no);
+                T_E("\n Error in getting the Tx XPN Secure Association Get on port : %d \n", (req->port_no + 1));
                 return;
             }
         }
-        cli_printf("Tx Secure Association Configuration for port no %d with port id %d \n", req->port_no, mreq->port_id);
+        cli_printf("Tx Secure Association Configuration for port no %d with port id %d \n", (req->port_no + 1), mreq->port_id);
         cli_printf("=============================================================================\n");
         if (xpn) {
             cli_printf("%-25s : %ld\n", "Next Pn", next_pn_xpn.xpn);
@@ -1780,7 +1780,7 @@ static void cli_cmd_macsec_conf_get(cli_req_t *req)
     case MACSEC_RX_SC_CONF_GET:
 
         if ((rc = mepa_macsec_secy_conf_get(meba_macsec_instance->phy_devices[req->port_no], macsec_port, &secy_conf_get)) != MEPA_RC_OK) {
-            T_E("\n Error in getting the SecY on port : %d \n", req->port_no);
+            T_E("\n Error in getting the SecY on port : %d \n", (req->port_no + 1));
             return;
         }
 
@@ -1789,7 +1789,7 @@ static void cli_cmd_macsec_conf_get(cli_req_t *req)
         cli_printf("Rx Secure Channel Configuration for port no %d with port id %d and channel id %d\n", req->port_no, mreq->port_id, mreq->rx_sc_id);
         cli_printf("=================================================================================================\n");
         if ((rc = mepa_macsec_rx_sc_get_conf(meba_macsec_instance->phy_devices[req->port_no], macsec_port, &sci, &rx_sc_conf)) != MEPA_RC_OK) {
-            T_E("\n Error in getting the SecY on port : %d \n", req->port_no);
+            T_E("\n Error in getting the SecY on port : %d \n", (req->port_no + 1));
             return;
         }
         cli_printf("%-25s :", "Frame Validation");
@@ -1811,7 +1811,7 @@ static void cli_cmd_macsec_conf_get(cli_req_t *req)
     case MACSEC_RX_SA_CONF_GET:
 
         if ((rc = mepa_macsec_secy_conf_get(meba_macsec_instance->phy_devices[req->port_no], macsec_port, &secy_conf_get)) != MEPA_RC_OK) {
-            T_E("\n Error in getting the SecY on port : %d \n", req->port_no);
+            T_E("\n Error in getting the SecY on port : %d \n", (req->port_no + 1));
             return;
         }
 
@@ -1821,18 +1821,18 @@ static void cli_cmd_macsec_conf_get(cli_req_t *req)
         if (secy_conf_get.current_cipher_suite == MEPA_MACSEC_CIPHER_SUITE_GCM_AES_128 || secy_conf_get.current_cipher_suite == MEPA_MACSEC_CIPHER_SUITE_GCM_AES_256) {
             xpn = 0;
             if ((rc = mepa_macsec_rx_sa_get(meba_macsec_instance->phy_devices[req->port_no], macsec_port, &sci, mreq->an_no, &next_pn, &sak, &active)) != MEPA_RC_OK) {
-                T_E("\n Error in getting the Rx SA Conf on port : %d \n", req->port_no);
+                T_E("\n Error in getting the Rx SA Conf on port : %d \n", (req->port_no + 1));
                 return;
             }
         } else {
             xpn = 1;
             if ((rc = mepa_macsec_rx_seca_get(meba_macsec_instance->phy_devices[req->port_no], macsec_port, &sci, mreq->an_no, &next_pn_xpn, &sak, &active,
                                               &ssci)) != MEPA_RC_OK) {
-                T_E("\n Error in getting the Rx SA Conf on port : %d \n", req->port_no);
+                T_E("\n Error in getting the Rx SA Conf on port : %d \n", (req->port_no + 1));
                 return;
             }
         }
-        cli_printf("Rx Secure Channel Configuration for port no %d with port id %d and channel id %d and an = %d\n", req->port_no, mreq->port_id, mreq->rx_sc_id,
+        cli_printf("Rx Secure Channel Configuration for port no %d with port id %d and channel id %d and an = %d\n", (req->port_no + 1), mreq->port_id, mreq->rx_sc_id,
                    mreq->an_no);
         cli_printf("====================================================================================================================\n");
         if (xpn) {
@@ -1877,7 +1877,7 @@ static void cli_cmd_cltr_frame_set(cli_req_t *req)
     char input[3];
     macsec_configuration *mreq = req->module_req;
     if ((rc = mepa_dev_check(meba_macsec_instance, req->port_no)) != MEPA_RC_OK) {
-        printf(" Dev is Not Created for the port : %d\n", req->port_no);
+        printf(" Dev is Not Created for the port : %d\n", (req->port_no + 1));
         return;
     }
     mepa_macsec_control_frame_match_conf_t conf;
@@ -1907,10 +1907,10 @@ static void cli_cmd_cltr_frame_set(cli_req_t *req)
     conf.etype = mreq->pattern_ethtype;
 
     if ((rc = mepa_macsec_control_frame_match_conf_set(meba_macsec_instance->phy_devices[req->port_no], req->port_no, &conf, NULL)) != MEPA_RC_OK) {
-        T_E("\n Error in Configuring Control Match Configuration on port : %d \n", req->port_no);
+        T_E("\n Error in Configuring Control Match Configuration on port : %d \n", (req->port_no + 1));
         return;
     }
-    cli_printf("\n ...... Control Frame Match Configured on port : %d  ......\n", req->port_no);
+    cli_printf("\n ...... Control Frame Match Configured on port : %d  ......\n", (req->port_no + 1));
     return;
 }
 
@@ -1920,23 +1920,23 @@ static void cli_cmd_cltr_frame_get(cli_req_t *req)
     uint32_t max_rules = 0;
     demo_phy_info_t phy_family;
     if ((rc = mepa_dev_check(meba_macsec_instance, req->port_no)) != MEPA_RC_OK) {
-        printf(" Dev is Not Created for the port : %d\n", req->port_no);
+        printf(" Dev is Not Created for the port : %d\n", (req->port_no + 1));
         return;
     }
 
     if ((rc = phy_family_detect(meba_macsec_instance, req->port_no, &phy_family)) != MEPA_RC_OK) {
-        T_E("\n Error in Detecting PHY Family on Port %d\n", req->port_no);
+        T_E("\n Error in Detecting PHY Family on Port %d\n", (req->port_no + 1));
         return;
     }
     max_rules = (phy_family.family == PHY_FAMILY_MALIBU_25G) ? LAN80XX_MAX_CP_RULES : VSC_PHY_MAX_CP_RULES;
     mepa_macsec_control_frame_match_conf_t conf;
-    cli_printf("\n\n Rules configured for 802.1X Control Traffic Bypass on Port %d", req->port_no);
+    cli_printf("\n\n Rules configured for 802.1X Control Traffic Bypass on Port %d", (req->port_no + 1));
     cli_printf("\n==================================================================================================\n");
     cli_printf("\n %-10s%-15s%-30s%s", "Rule id", "Ethertype", "DMAC Address", "Match");
     cli_printf("\n---------------------------------------------------------------------------------\n");
     for (uint32_t i = 0; i < max_rules; i++) {
         if ((rc = mepa_macsec_control_frame_match_conf_get(meba_macsec_instance->phy_devices[req->port_no], req->port_no, &conf, i)) != MEPA_RC_OK) {
-            T_E("\n Error in Geting Control Match Configuration on port : %d \n", req->port_no);
+            T_E("\n Error in Geting Control Match Configuration on port : %d \n", (req->port_no + 1));
             return;
         }
         if (conf.match > 1) {
@@ -1959,12 +1959,12 @@ static void cli_cmd_cltr_frame_del(cli_req_t *req)
     mepa_rc rc;
     macsec_configuration *mreq = req->module_req;
     if ((rc = mepa_dev_check(meba_macsec_instance, req->port_no)) != MEPA_RC_OK) {
-        printf(" Dev is Not Created for the port : %d\n", req->port_no);
+        printf(" Dev is Not Created for the port : %d\n", (req->port_no + 1));
         return;
     }
     for (int i = 0; i < mreq->value_cnt; i++) {
         if ((rc = mepa_macsec_control_frame_match_conf_del(meba_macsec_instance->phy_devices[req->port_no], req->port_no, mreq->value_list[i])) != MEPA_RC_OK) {
-            T_E("\n Error in Geting Control Match Configuration on port : %d \n", req->port_no);
+            T_E("\n Error in Geting Control Match Configuration on port : %d \n", (req->port_no + 1));
             return;
         }
     }

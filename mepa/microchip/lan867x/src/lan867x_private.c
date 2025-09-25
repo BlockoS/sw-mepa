@@ -36,10 +36,7 @@ mepa_rc lan867x_mmd_reg_rd(mepa_device_t *const dev, uint8_t const devaddr, uint
 {
     mepa_rc rc = MEPA_RC_ERROR;
 
-    if(dev->callout->mmd_read != NULL) {
-        rc = dev->callout->mmd_read(dev->callout_ctx, devaddr, offset, value);
-    }
-    else if((dev->callout->miim_read != NULL) && (dev->callout->miim_write != NULL)) {
+    if((dev->callout->miim_read != NULL) && (dev->callout->miim_write != NULL)) {
         *value = 0;
         MEPA_RC(rc, dev->callout->miim_write(dev->callout_ctx, LAN867X_MMDCTRL_REG, (MMDCTRL_ADDRESS | devaddr)));
         MEPA_RC(rc, dev->callout->miim_write(dev->callout_ctx, LAN867X_MMDAD_REG, offset));
@@ -58,11 +55,7 @@ mepa_rc lan867x_mmd_reg_wr(mepa_device_t *const dev, uint8_t const devaddr, uint
 {
     mepa_rc rc = MEPA_RC_ERROR;
 
-    if(dev->callout->mmd_write != NULL)
-    {
-        rc = dev->callout->mmd_write(dev->callout_ctx, devaddr, offset, value);
-    }
-    else if((dev->callout->miim_read != NULL) && (dev->callout->miim_write != NULL))
+    if((dev->callout->miim_read != NULL) && (dev->callout->miim_write != NULL))
     {
         MEPA_RC(rc, dev->callout->miim_write(dev->callout_ctx, LAN867X_MMDCTRL_REG, (MMDCTRL_ADDRESS | devaddr)));
         MEPA_RC(rc, dev->callout->miim_write(dev->callout_ctx, LAN867X_MMDAD_REG, offset));
@@ -216,6 +209,8 @@ mepa_rc lan867x_init_conf(mepa_device_t *const dev, const mepa_t1s_plca_cfg_t cf
 #endif
     rc = lan867x_mmd_reg_wr(dev, MMD_MISC, MISC_PIN_CTRL, id);
 
+    data->init_done = true;
+
 error:
     return rc;
 }
@@ -224,6 +219,7 @@ mepa_rc lan867x_phy_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
 {
     uint16_t bmcr = 0;
     mepa_rc rc=MEPA_RC_OK;
+    phy_data_t *data = (phy_data_t *) dev->data;
 
     /**
      *  NOTE: return an error if config is wrong.
@@ -232,7 +228,7 @@ mepa_rc lan867x_phy_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
      *  fdx always disabled.
      */
     if (!(config->man_neg == MEPA_MANUAL_NEG_REF || config->man_neg == MEPA_MANUAL_NEG_CLIENT) ||
-        (config->fdx == true) || (config->speed != MESA_SPEED_10M) || (config->mac_if_aneg_ena != false)) {
+        (config->fdx == true) || (config->speed != MESA_SPEED_10M)) {
         return MEPA_RC_ERR_PARM;
     }
 
@@ -244,7 +240,9 @@ mepa_rc lan867x_phy_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
         bmcr = (bmcr | ((uint16_t)LAN867X_BASIC_CONTROL_POWER_DOWN));
     }
 
-    rc = lan867x_miim_reg_wr(dev, LAN867X_BASIC_CONTROL_REG, bmcr);
+    MEPA_RC(rc, lan867x_miim_reg_wr(dev, LAN867X_BASIC_CONTROL_REG, bmcr));
+
+    data->conf.admin.enable = config->admin.enable;
 
 error:
     return rc;
@@ -254,16 +252,16 @@ mepa_rc lan867x_get_link_status(mepa_device_t *const dev, mepa_status_t *const s
 {
     mepa_rc rc = MEPA_RC_ERROR;
 
+#ifdef LINK_STATUS_ENHANCED
     uint16_t plca = 0, id = 0, beacon = 0;
+    phy_data_t *data = (phy_data_t *) dev->data;
 
     MEPA_RC(rc, lan867x_mmd_reg_rd(dev, MMD_MISC, PLCA_CTRL_0, &plca));
     MEPA_RC(rc, lan867x_mmd_reg_rd(dev, MMD_MISC, PLCA_CTRL_1, &id));
     MEPA_RC(rc, lan867x_mmd_reg_rd(dev, MMD_MISC, PLCA_STATUS, &beacon));
 
     /* T1S PHY cannot detect link. */
-    status->link = true;
-    status->speed = MESA_SPEED_10M;
-    status->fdx = false;
+    status->link = (data->conf.admin.enable) ? true : false;
 
     /* Simulate link down if the beacon status is down for node that is not
      * the coordinator (node id 0).
@@ -273,6 +271,16 @@ mepa_rc lan867x_get_link_status(mepa_device_t *const dev, mepa_status_t *const s
             status->link = ((beacon & BEACON_ACTIVE) != 0U) ? true : false;
         }
     }
+#else
+    uint16_t bmsr = 0;
+
+    MEPA_RC(rc, lan867x_miim_reg_rd(dev, LAN867X_BASIC_STATUS_REG, &bmsr));
+
+    status->link = ((bmsr & BIT(2)) != 0U) ? true : false;
+#endif
+
+    status->speed = MESA_SPEED_10M;
+    status->fdx = false;
 
 error:
     return rc;

@@ -19,6 +19,8 @@
 #define MEBA_10GPHY_8268  0x8268
 #define MEBA_10GPHY_8267  0x8267
 #define MEBA_10GPHY_8264  0x8264
+#define MEBA_10GPHY_8263  0x8263
+#define MEBA_10GPHY_8262  0x8262
 
 /* Malibu 10G SKU */
 #define MEBA_10GPHY_8258  0x8258
@@ -111,10 +113,15 @@ void mem_free(struct mepa_callout_ctx *ctx, void *ptr)
     free(ptr);
 }
 
-uint8_t gpio_callback(void)
+/* MEPA-1226: mepa dev must be passed to callback function */
+uint8_t gpio_callback(const mepa_device_t *dev)
 {
     uint8_t val;
 
+    /* We don't use dev as part of EDSx platform mepa-demo,
+     * but customer(s) may need to access dev.
+     * Refer MEPA-1226 for more details.
+     */
     mesa_gpio_read(NULL, 0, HOST_INTR_B, &val);
 
     return val;
@@ -147,6 +154,8 @@ static void phy_detect_family(mepa_phy_info_t phy_info, phy_type_t *phy)
     case MEBA_10GPHY_8268:
     case MEBA_10GPHY_8267:
     case MEBA_10GPHY_8264:
+    case MEBA_10GPHY_8263:
+    case MEBA_10GPHY_8262:
         *phy = PHY25G_MAX_10G_SPEED;
         break;
     case MEBA_10GPHY_8258:
@@ -198,10 +207,10 @@ static void meba_phy_config(meba_inst_t inst, const vtss_inst_t vtss_instance, m
     }
     if (phy_type == PHY25G_MAX_25G_SPEED) {
         /* LAN80XX PHYs Port Config to 25G Speed */
-        lan80xx_phy_conf(inst, port_no, base_port_no, MEBA_PHY_PORT_MAX_25G_SPEED);
+        lan80xx_phy_conf(inst, port_no, MEBA_PHY_PORT_MAX_25G_SPEED);
     } else if (phy_type == PHY25G_MAX_10G_SPEED) {
         /* LAN80XX PHYs Port Config to 10G Speed */
-        lan80xx_phy_conf(inst, port_no, base_port_no, MEBA_PHY_PORT_MAX_10G_SPEED);
+        lan80xx_phy_conf(inst, port_no, MEBA_PHY_PORT_MAX_10G_SPEED);
     }
 }
 
@@ -267,7 +276,7 @@ void phy_25g_slot1_scan(meba_inst_t inst, mepa_port_no_t port_no, meba_port_entr
         entry->cap = (MEBA_PORT_CAP_25G_PHY | MEBA_PORT_CAP_10G_FDX | MEBA_PORT_CAP_FLOW_CTRL | MEBA_PORT_CAP_1G_FDX | MEBA_PORT_CAP_25G_FDX | MEBA_PORT_CAP_AUTONEG |
                       MEBA_PORT_CAP_SFP_DETECT);
         entry->phy_base_port       = (base_port + 2);
-    } else if (phy_id == MEBA_10GPHY_8264) {
+    } else if (phy_id == MEBA_10GPHY_8264 || phy_id == MEBA_10GPHY_8263 || phy_id == MEBA_10GPHY_8262) {
         /* 10G Capable Dual-PHYs */
         entry->mac_if              = MESA_PORT_INTERFACE_SFI;
         entry->map.miim_controller = MESA_MIIM_CONTROLLER_0;
@@ -348,7 +357,7 @@ void phy_25g_slot2_scan(meba_inst_t inst, mepa_port_no_t port_no, meba_port_entr
         entry->cap = (MEBA_PORT_CAP_25G_PHY | MEBA_PORT_CAP_10G_FDX | MEBA_PORT_CAP_FLOW_CTRL | MEBA_PORT_CAP_1G_FDX | MEBA_PORT_CAP_25G_FDX | MEBA_PORT_CAP_AUTONEG |
                       MEBA_PORT_CAP_SFP_DETECT);
         entry->phy_base_port       = (base_port + 2);
-    } else if (phy_id == MEBA_10GPHY_8264) {
+    } else if (phy_id == MEBA_10GPHY_8264 || phy_id == MEBA_10GPHY_8263 || phy_id == MEBA_10GPHY_8262) {
         /* 10G Capable Dual-PHYs */
         entry->mac_if              = MESA_PORT_INTERFACE_SFI;
         entry->map.miim_controller = MESA_MIIM_CONTROLLER_0;

@@ -1,8 +1,8 @@
 // Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
 // SPDX-License-Identifier: MIT
 
-#ifndef _MEPA_LAN80XX_PRIVATE_H_
-#define _MEPA_LAN80XX_PRIVATE_H_
+#ifndef MEPA_LAN80XX_PRIVATE_H_
+#define MEPA_LAN80XX_PRIVATE_H_
 
 #include <microchip/ethernet/phy/api/types.h>
 #include <microchip/ethernet/phy/api.h>
@@ -12,10 +12,35 @@
 #define MEPA_RC(expr) { mesa_rc __rc__ = (expr); if (__rc__ < MESA_RC_OK) return __rc__; }
 #define MEPA_ASSERT(x) if((x)) { return MESA_RC_ERROR;}
 
+#define T_N(grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_NOISE, __FUNCTION__, __LINE__, __FILE__, format, ##__VA_ARGS__);
 #define T_D(grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_DEBUG, __FUNCTION__, __LINE__, __FILE__, format, ##__VA_ARGS__);
 #define T_I(grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_INFO, __FUNCTION__, __LINE__, __FILE__, format, ##__VA_ARGS__);
 #define T_W(grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_WARNING, __FUNCTION__, __LINE__, __FILE__, format, ##__VA_ARGS__);
 #define T_E(grp, format, ...) MEPA_trace(grp, MEPA_TRACE_LVL_ERROR, __FUNCTION__, __LINE__, __FILE__, format, ##__VA_ARGS__);
+
+#define T_DM(format, ...) \
+    do { \
+        uint32_t val = 0; \
+        LAN80XX_CSR_RD(dev, 0, \
+                        LAN80XX_MCU_IO_MNGT_MISC_MCU_BOOT_STATUS_REG, &val);\
+        T_D(MEPA_TRACE_GRP_GEN, "[MCU_STS:0x%X] " format, val, ##__VA_ARGS__); \
+    } while (0)
+
+#define T_EM(format, ...) \
+    do { \
+        uint32_t val = 0; \
+        LAN80XX_CSR_RD(dev, 0, \
+                        LAN80XX_MCU_IO_MNGT_MISC_MCU_BOOT_STATUS_REG, &val);\
+        T_E(MEPA_TRACE_GRP_GEN, "[MCU_STS:0x%X] " format, val, ##__VA_ARGS__); \
+    } while (0)
+
+#define T_IM(format, ...) \
+    do { \
+        uint32_t val = 0; \
+        LAN80XX_CSR_RD(dev, 0, \
+                        LAN80XX_MCU_IO_MNGT_MISC_MCU_BOOT_STATUS_REG, &val);\
+        T_I(MEPA_TRACE_GRP_GEN, "[MCU_STS:0x%X] " format, val, ##__VA_ARGS__); \
+    } while (0)
 
 #define LAN80XX_UINT_8_MAX_VALUE                (255U)
 
@@ -68,6 +93,13 @@
 #define LAN80XX_GPIO_26                         (26U)
 #define LAN80XX_GPIO_27                         (27U)
 
+#define LAN80XX_CLAUSE37_ADV_1G_FDX_BIT        (5U)
+#define LAN80XX_CLAUSE37_ADV_1G_HDX_BIT        (6U)
+#define LAN80XX_CLAUSE37_ADV_SYMMETRIC_PAUSE   (7U)
+#define LAN80XX_CLAUSE37_ADV_ASYMMETRIC_PAUSE  (8U)
+#define LAN80XX_CLAUSE37_ADV_REMOTE_FAULT      (12U)
+#define LAN80XX_CLAUSE37_ADV_ACK               (14U)
+#define LAN80XX_CLAUSE37_ADV_NEXT_PAGE         (15U)
 
 /* MAC block Config values */
 #define LAN80XX_MAC_FC_BUFF_STICY_MASK         (0xFFFFFFU)
@@ -107,6 +139,8 @@
 #define LAN80XX_POST1_SLICE0_BIST_RESULT_ADDR  (0x85U)
 #define LAN80XX_POST1_STATUS_P1_POST_DONE      (0x1U)
 
+extern mepa_ts_driver_t lan80xx_ts_drivers;
+extern mepa_macsec_driver_t lan80xx_macsec_drivers;
 
 typedef struct {
     u8     r_dwidthctrl_from_hwt;
@@ -251,14 +285,14 @@ mepa_rc _lan80xx_csr_warm_wr(const mepa_device_t *dev,
         base_dev = data->base_dev; \
         base_data =  (phy25g_phy_state_t *)base_dev->data; \
      }\
-
+ 
 #define LAN80XX_CSR_RD(dev,port, io_reg, value)                      \
     {                                                                \
        mepa_rc __rc = lan80xx_csr_rd(dev,port, io_reg->mmd, io_reg->is32, io_reg->addr, value);\
         if (__rc != MEPA_RC_OK)                                       \
             return __rc;                                               \
     }                                                           \
-
+ 
 #define LAN80XX_CSR_WR(dev,port, io_reg, value)                 \
     {                                                              \
       mepa_rc __rc = lan80xx_csr_wr(dev, port, io_reg->mmd, io_reg->is32, io_reg->addr, value); \
@@ -593,9 +627,83 @@ mepa_rc lan80xx_flow_control_set_priv(const mepa_device_t     *dev,
 
 mepa_rc lan80xx_serdes_configuration(mepa_device_t *dev, mepa_port_no_t port_no, mepa_port_speed_t speed, phy25g_port_mode_t  *mode);
 
-mepa_rc lan80xx_post1_init(mepa_device_t   *dev, mepa_port_no_t port_no);
+mepa_rc lan80xx_check_mcu_rdy_priv(mepa_device_t *dev);
+
+mepa_rc lan80xx_post1_init_priv(mepa_device_t   *dev, mepa_port_no_t port_no);
 
 mepa_bool_t lan80xx_driver_check(const mepa_device_t   *dev);
 
 mepa_rc lan80xx_xconnect_conf_get_priv(mepa_device_t  *dev, mepa_port_no_t port_no, phy25g_xconnect_get_conf_t  *const conf);
+
+mepa_rc lan80xx_fw_update_priv(mepa_device_t *dev);
+
+mepa_rc lan80xx_mcu_reset_priv(const mepa_device_t *dev);
+
+mepa_rc lan80xx_mcu_mailbox_init_priv(const mepa_device_t *dev, u32 u32McuIntMask, u32 u32HostIntMask);
+
+typedef struct DeviceInfo DEVICE_INFO;
+
+typedef struct OTPRAMUpdatedDB OTPRAMUpdatedDB_t;
+
+typedef enum OTP_Key_Counter enOTP_ACTIVE_KEY;
+
+typedef enum SD_CFG_SPEED_IDX SD_CFG_SPEED_IDX_t;
+
+typedef enum SERDES_CFG eSERDES_CFG_T;
+
+typedef struct SERDES_CONFIG __SERDES_CONFIG_T;
+
+mepa_rc lan80xx_get_fw_info_priv(const mepa_device_t *dev, DEVICE_INFO *psDevInfo);
+
+uint16_t lan80xx_CreatePacket(uint8_t u8PacketId, uint16_t u16CmdParamLen, uint8_t *pu8PktBuf, uint8_t *pu8CmdData, uint8_t u8Reserved);
+mepa_rc lan80xx_MB_SendRequest(const mepa_device_t *dev, uint8_t *au8CmdPkt, uint16_t u16DataLen);
+mepa_rc lan80xx_MB_ReadResponse(const mepa_device_t *dev, uint8_t *u8ResponsePkt, uint16_t *u16PayloadLen, uint16_t u16MailboxTimeout);
+mepa_rc lan80xx_ValidatePacket(uint8_t *u8PktBuf);
+
+mepa_rc lan80xx_memory_read_priv(const mepa_device_t *dev, uint32_t u32Addres, uint8_t *pu8Data, const uint16_t u16Len);
+mepa_rc lan80xx_memory_write_priv(const mepa_device_t *dev, uint32_t u16Addres, uint8_t *pu8Data, const u16 u16Len);
+
+mepa_rc lan80xx_otp_cfg_program_priv(const mepa_device_t  *dev, u8 *pu8OTPBuffer, OTPRAMUpdatedDB_t *pCfgUpdates, u8 u8UpdateCnt);
+
+mepa_rc lan80xx_otp_cfg_read_priv(const mepa_device_t  *dev, u8 u8RecIdx, u8 *pu8Cfg, u16 *pu16Len);
+
+mepa_rc lan80xx_otp_prog_RepKey_priv(const mepa_device_t  *dev, u8 *pu8SignedKey, u8 *pu8OTPBuffer, OTPRAMUpdatedDB_t *pCfgUpdates, u8 u8UpdateCnt);
+
+mepa_rc lan80xx_otp_revoke_ROTKey_priv(const mepa_device_t  *dev, u8 *pu8OTPBuffer, OTPRAMUpdatedDB_t *pCfgUpdates, u8 u8UpdateCnt);
+
+mepa_rc lan80xx_otp_revoke_AllKeys_priv(const mepa_device_t  *dev, u8 *pu8OTPBuffer, OTPRAMUpdatedDB_t *pCfgUpdates, u8 u8UpdateCnt);
+
+mepa_rc lan80xx_otp_getKey_Status_priv(const mepa_device_t  *dev, enOTP_ACTIVE_KEY *pKey);
+
+mepa_rc lan80xx_otp_read_priv(const mepa_device_t  *dev, u8 *pu8Data, u16 u16Offset, const u16 u16Len);
+
+mepa_rc lan80xx_otp_write_priv(const mepa_device_t  *dev,
+                               u8 *pu8Data,
+                               u16 u16Offset,
+                               const u16 u16Len,
+                               u8 u8WriteMode);
+
+mepa_rc lan80xx_get_serdes_config_priv(const mepa_device_t *dev,
+                                       SD_CFG_SPEED_IDX_t speed,
+                                       eSERDES_CFG_T cfgType,
+                                       __SERDES_CONFIG_T *const data);
+
+mepa_rc lan80xx_set_serdes_config_priv(const mepa_device_t *dev,
+                                       SD_CFG_SPEED_IDX_t speed,
+                                       eSERDES_CFG_T cfgType,
+                                       const __SERDES_CONFIG_T *data);
+
+mepa_rc lan80xx_KRLog_Enable_priv(const mepa_device_t *dev,
+                                  mepa_bool_t bkrlog_enable,
+                                  mepa_bool_t bline_port_en,
+                                  mepa_bool_t  bhost_port_en);
+
+mepa_rc lan80xx_KRLog_Reset_priv(const mepa_device_t *dev,
+                                 uint32_t u32KRLogOffset,
+                                 uint16_t u16Len);
+
+mepa_rc lan80xx_clause37_conf_set_priv(mepa_device_t        *dev,
+                                       mepa_port_no_t       port_no,
+                                       mepa_cl37_conf_t     *cl37_conf);
+
 #endif //_MEPA_LAN80XX_PRIVATE_H_

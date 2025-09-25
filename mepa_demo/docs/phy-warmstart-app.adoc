@@ -10,6 +10,10 @@ The following are the example use cases for the warm start feature.
     * Warm start done after upgrading the system software
     * Warm start done due to failoverto another CPU system
 
+== Supported PHYs
+
+    * The Warmstart application is currenlty supported only for Malibu25G(LAN80XX) PHYs.
+
 == Directory
 * `./mepa_demo/mepa_apps/phy_warmstart_demo.c` - Source File for Warm start Demo Application
 
@@ -38,8 +42,8 @@ The above command is used to enable Warmstart for connected M25G PHYs
 ----
 
 The above command demonstrates the process of performing a warm start on a PHY device. 
-When executed, this command will back up all the current PHY configurations and store them 
-in a file located at /root/mepa_scripts/phy_data_ws.json. It will then proceed to destroy the 
-existing PHY instance, recreate a new PHY instance, and subsequently reload the saved configurations 
+When executed, this command will back up all the current PHY configurations of LAN80XX PHYs and store them 
+in a file located at /root/mepa_scripts/phy_data_ws.json. It will then proceed to destroy all the 
+existing PHY instance, recreate a new PHY instance for LAN80XX PHYs, and subsequently reload the saved configurations 
 from the phy_data_ws.json file. This entire process is designed to be seamless, ensuring that 
 network traffic remains unaffected throughout the operation.

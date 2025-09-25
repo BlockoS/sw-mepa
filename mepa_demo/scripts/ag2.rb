@@ -96,6 +96,12 @@ $struct_blacklist = [
     "vtss_phy_init_conf_t",
     "vtss_phy_10g_pkt_gen_conf_t",
     "mepa_phy_cap_t",
+    "phy25g_macsec_internal_secy_t",
+    "phy25g_macsec_internal_tx_sc_t",
+    "phy25g_macsec_internal_rx_sc_t",
+    "phy25g_macsec_internal_tx_sa_t",
+    "phy25g_macsec_internal_rx_sa_t",
+    "phy25g_macsec_internal_conf_t",
 ]
 
 $methods_blacklist = [
@@ -106,6 +112,7 @@ $methods_blacklist = [
     "mesa_symreg_data_get",
     "mesa_debug_info_get",
     "mesa_debug_info_print",
+    "mesa_debug_info_print_buf",
     "mesa_macsec_dbg_reg_dump",
     "mesa_macsec_dbg_fcb_block_reg_dump",
     "mesa_macsec_dbg_frm_match_handling_ctrl_reg_dump",
@@ -137,12 +144,12 @@ $methods_blacklist = [
     "vtss_phy_10g_get_user_data",
     "vtss_phy_10g_pkt_gen_conf",
     "mepa_to_mesa_tc_opmode",
-    "lan80xx_ts_hard_reset_private",
+    "lan80xx_ts_reset_priv",
     "lan80xx_phy_ts_init_conf_get",
     "lan80xx_phy_ts_init",
-    "lan80xx_ts_is_1588_supported",
     "lan80xx_ts_get_1588_version",
     "lan80xx_ts_csr_ptptime_get_priv",
+    "lan80xx_phy_ts_fifo_sig_set",
     "lan80xx_ts_csr_ptptime_set_priv",
     "lan80xx_get_eng_flow_info",
     "lan80xx_ts_egress_engine_conf_set",
@@ -152,25 +159,32 @@ $methods_blacklist = [
     "lan80xx_ts_ingress_engine_action_set",
     "lan80xx_phy_ts_fifo_empty_priv",
     "lan80xx_phy_ts_fifo_empty",
-    "lan80xx_phy_ts_fifo_get",
-    "lan80xx_phy_ts_fifo_read_install",
     "lan80xx_ts_tx_clock_conf_get_priv",
     "lan80xx_ts_rx_clock_conf_get_priv",
+    "lan80xx_phy_ts_fifo_get",
     "lan80xx_ts_egress_engine_conf_get",
     "lan80xx_ts_ingress_engine_conf_get",
-    "lan80xx_phy_rx_classifier_conf_get",
-    "lan80xx_phy_tx_classifier_conf_get",
+    "lan80xx_tx_classifier_conf_get_priv",
+    "lan80xx_rx_classifier_conf_get_priv",
+    "lan80xx_ts_rx_clock_conf_set_priv",
+    "lan80xx_ts_tx_clock_conf_set_priv",
+    "lan80xx_ts_rx_classifier_conf_set_priv",
+    "lan80xx_ts_tx_classifier_conf_set_priv",
+    "lan80xx_tx_classifier_conf_get_priv",
+    "mepa_to_lan80xx_encap",
+    "lan80xx_to_mepa_encap",
+    "lan80xx_get_vs_ntw_type",
+    "lan80xx_get_vs_addr_type",
+    "lan80xx_get_vs_mac_type",
     "lan80xx_phy_ts_path_delay_set",
     "lan80xx_phy_ts_delay_asymmetry_get",
     "lan80xx_phy_ts_delay_asymmetry_set",
     "lan80xx_phy_ts_path_delay_get",
-    "lan80xx_phy_ts_fifo_read_install_priv",
     "lan80xx_phy_ts_pps_conf_set",
     "lan80xx_phy_ts_clock_rateadj_get",
     "lan80xx_phy_ts_clock_rateadj_set",
-    "lan80xx_phy_ts_mode_set",
-    "lan80xx_phy_ts_mode_get",
-    "lan80xx_phy_ts_pps_conf_get",
+    "lan80xx_ts_mode_set_priv",
+    "lan80xx_ts_mode_get_priv",
     "lan80xx_phy_ts_stats_get",
     "lan80xx_phy_ts_event_enable_set",
     "lan80xx_phy_ts_event_enable_get",
@@ -181,8 +195,105 @@ $methods_blacklist = [
     "lan80xx_phy_ts_ingress_latency_set",
     "lan80xx_ptp_reg_dump",
     "lan80xx_linkup_delay",
-    "lan80xx_phy_ts_fifo_sig_set",
     "lan80xx_phy_ts_ltc_ls_action_set",
+    "lan80xx_phy_is_macsec_capable",
+    "lan80xx_macsec_init_set_priv",
+    "lan80xx_macsec_init_get_priv",
+    "lan80xx_macsec_is_capable_priv",
+    "lan80xx_macsec_default_action_set_priv",
+    "lan80xx_macsec_default_action_get_priv",
+    "lan80xx_macsec_secy_conf_add_priv",
+    "lan80xx_macsec_secy_conf_get_priv",
+    "lan80xx_macsec_secy_conf_del_priv",
+    "lan80xx_macsec_secy_controlled_set_priv",
+    "lan80xx_macsec_secy_controlled_get_priv",
+    "lan80xx_macsec_pattern_set_priv",
+    "lan80xx_macsec_pattern_get_priv",
+    "lan80xx_macsec_pattern_del_priv",
+    "lan80xx_macsec_tx_sa_set_priv",
+    "lan80xx_macsec_tx_sa_get_priv",
+    "lan80xx_macsec_tx_seca_set_priv",
+    "lan80xx_macsec_tx_seca_get_priv",
+    "lan80xx_macsec_rx_sa_set_priv",
+    "lan80xx_macsec_rx_sa_get_priv",
+    "lan80xx_macsec_rx_seca_set_priv",
+    "lan80xx_macsec_rx_seca_get_priv",
+    "lan80xx_macsec_rx_sc_del_priv",
+    "lan80xx_macsec_tx_sa_del_priv",
+    "lan80xx_macsec_tx_sa_activate_priv",
+    "lan80xx_macsec_tx_sa_disable_priv",
+    "lan80xx_macsec_tx_sa_status_get_priv",
+    "lan80xx_macsec_rx_sa_activate_priv",
+    "lan80xx_macsec_rx_sa_disable_priv",
+    "lan80xx_macsec_rx_sa_del_priv",
+    "lan80xx_macsec_rx_sa_status_get_priv",
+    "lan80xx_macsec_rx_sa_lowest_pn_update_priv",
+    "lan80xx_macsec_rxsa_an_status_get_priv",
+    "lan80xx_macsec_tx_sa_counters_get_priv",
+    "lan80xx_macsec_tx_sc_counters_get_priv",
+    "lan80xx_macsec_rx_sc_counters_get_priv",
+    "lan80xx_macsec_rx_sa_counters_get_priv",
+    "lan80xx_macsec_txsc_counters_clear_priv",
+    "lan80xx_macsec_txsa_counters_clear_priv",
+    "lan80xx_macsec_rxsc_counters_clear_priv",
+    "lan80xx_macsec_rxsa_counters_clear_priv",
+    "lan80xx_macsec_secy_counters_get_priv",
+    "lan80xx_macsec_controlled_counters_get_priv",
+    "lan80xx_macsec_uncontrolled_counters_get_priv",
+    "lan80xx_macsec_common_counters_get_priv",
+    "lan80xx_macsec_counters_update_priv",
+    "lan80xx_macsec_secy_counters_clear_priv",
+    "lan80xx_macsec_uncontrolled_counters_clear_priv",
+    "lan80xx_macsec_controlled_counters_clear_priv",
+    "lan80xx_macsec_common_counters_clear_priv",
+    "lan80xx_macsec_lmac_counters_get_priv",
+    "lan80xx_macsec_hmac_counters_get_priv",
+    "lan80xx_macsec_lmac_counters_clear_priv",
+    "lan80xx_macsec_hmac_counters_clear_priv",
+    "lan80xx_macsec_debug_counters_clear_priv",
+    "lan80xx_macsec_csr_read_priv",
+    "lan80xx_macsec_csr_write_priv",
+    "lan80xx_macsec_mtu_set_priv",
+    "lan80xx_macsec_mtu_get_priv",
+    "lan80xx_mac_block_mtu_set_priv",
+    "lan80xx_mac_block_mtu_get_priv",
+    "lan80xx_macsec_dbg_update_seq_set_priv",
+    "lan80xx_macsec_frame_capture_set_priv",
+    "lan80xx_macsec_frame_get_priv",
+    "lan80xx_macsec_event_seq_threshold_set_priv",
+    "lan80xx_macsec_event_seq_threshold_get_priv",
+    "lan80xx_macsec_secy_cap_get_priv",
+    "lan80xx_macsec_event_enable_set_priv",
+    "lan80xx_macsec_event_enable_get_priv",
+    "lan80xx_macsec_event_poll_priv",
+    "lan80xx_macsec_port_get_next_priv",
+    "lan80xx_macsec_egr_policy_mode_set_priv",
+    "lan80xx_macsec_egr_policy_mode_get_priv",
+    "lan80xx_macsec_bypass_mode_set_priv",
+    "lan80xx_macsec_bypass_mode_get_priv",
+    "lan80xx_macsec_bypass_tag_set_priv",
+    "lan80xx_macsec_bypass_tag_get_priv",
+    "lan80xx_macsec_cleartags_conf_set_priv",
+    "lan80xx_macsec_control_frame_match_conf_set_priv",
+    "lan80xx_macsec_control_frame_match_conf_del_priv",
+    "lan80xx_macsec_control_frame_match_conf_get_priv",
+    "lan80xx_macsec_cleartags_conf_get_priv",
+    "lan80xx_macsec_inst_count_get_priv",
+    "lan80xx_macsec_dbg_reg_dump_priv",
+    "lan80xx_macsec_dbg_counter_get_priv",
+    "lan80xx_macsec_secy_conf_update_priv",
+    "lan80xx_macsec_tx_sc_set_priv",
+    "lan80xx_macsec_tx_sc_update_priv",
+    "lan80xx_macsec_tx_sc_del_priv",
+    "lan80xx_macsec_tx_sc_status_get_priv",
+    "lan80xx_macsec_tx_sc_get_conf_priv",
+    "lan80xx_macsec_rx_sc_add_priv",
+    "lan80xx_macsec_rx_sc_update_priv",
+    "lan80xx_macsec_rx_sc_get_conf_priv",
+    "lan80xx_macsec_rx_sc_status_get_priv",
+    "lan80xx_macsec_port_enable_status_get_priv",
+    "lan80xx_macsec_event_xpn_seq_threshold_set_priv",
+    "lan80xx_macsec_event_xpn_seq_threshold_get_priv",
 ]
 
 $methods_greylist = [
@@ -1055,7 +1166,16 @@ $methods.each do |m, o|
         aa = analyze_args o[:args]
         aa.each do |a|
             next if skip_inst(a)
-            t = (cap ? "mesa_cap_t" : a[:type_resolved][:type_resolved][:type])
+            t = if cap
+                "mesa_cap_t"
+            else
+                a&.dig(:type_resolved, :type_resolved, :type)
+            end
+
+            if t.nil?
+                puts "WARNING: Could not resolve type for method #{m}"
+                next
+            end
             $tl << t
         end
         $tl << "phy25g_phy_state_t"
@@ -1081,7 +1201,7 @@ while $tl.size > 0
         $sl << t
         
         tt[:members].delete_if do |m|
-            if m[:member_type] == 'lan80xx_phy_ts_fifo_read'
+            if m[:member_type] == 'mepa_ts_fifo_read_t'
                 #puts "Removed member: #{m[:member_name]} #{m[:member_type]}/#{m[:type_resolved][:type]}"
                 true  # This removes the member from the array
             else
@@ -1390,6 +1510,7 @@ $methods.each do |m, o|
     begin
         next if $methods_greylist.include? m
         next if $methods_blacklist.include? m
+        next if m.to_s.end_with?("_priv")
         $c_src.puts "static mesa_rc mesa_rpc_#{m}(json_rpc_req_t *req) /* #{__LINE__} */"
         $c_src.puts "{"
         aa = analyze_args o[:args]
@@ -1521,6 +1642,7 @@ $methods.each do |m, o|
     begin
         next if $methods_greylist.include? m
         next if $methods_blacklist.include? m
+        next if m.to_s.end_with?("_priv")
         $c_src.puts "    { \"#{m}\", mesa_rpc_#{m} }, "
     rescue => err
         puts "Failed #{m}"

@@ -25,10 +25,6 @@ Test will not be performed on that Port.
 == Directory
  * `./mepa_demo/mepa_apps/phy_kat_demo.c` - Source Code for KAT Demo Sample Application.
 
-== Prerequisites
-To Test KAT Demo Application User have to use either `arm64vsc7888MSEC.itb` or 
-`arm64_vsc7558MSEC.ext4` image to EDSx Platform.
-
 == Procedure to run KAT Demo Application
 
 To Run KAT Demo Application the 'mepa-demo' application needs to be running.

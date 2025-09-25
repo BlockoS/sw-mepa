@@ -58,10 +58,10 @@ static const edsx_phy_config_map_t vsc825x_gpio_map[] = {
     },
 };
 
-void lan80xx_phy_conf(meba_inst_t inst, mepa_port_no_t port_no, mepa_port_no_t slot_port, uint8_t speed)
+void lan80xx_phy_conf(meba_inst_t inst, mepa_port_no_t port_no, uint8_t speed)
 {
     mepa_rc rc = MEPA_RC_ERROR;
-    const edsx_phy_config_map_t *map = &lan80xx_phy_map[port_no - slot_port];
+    const edsx_phy_config_map_t *map = &lan80xx_phy_map[port_no % 4];
     mepa_conf_t   conf = {0};
     mepa_gpio_conf_t  gpio_conf = {0};
     conf.fdx = 1;
@@ -163,4 +163,12 @@ void m10g_mode_conf(const vtss_inst_t inst, meba_inst_t meba_inst, mepa_port_no_
             return;
         }
     }
+
+    /* In VSC825X PHYs, by default the GPIO Pins 34, 35, 36, 37 are used for LINE side LOPC signal but as per the EVB Hardware,
+     * these signals are not handled, so disable the LOPC detection from GPIO PIN and invert the coresponding GPIO PIN to High state
+     * The LOPC register of each channel should be configured with 0x13F, where the base address for channel 0 register is 0xf234
+     */
+    uint32_t lopc_reg_addr = 0xf234 + (gmap->channel_id - 1);
+    uint32_t reg_mmd = 0x1e;
+    vtss_phy_10g_csr_write(PHY_INST, iport, reg_mmd, lopc_reg_addr, 0x13f);
 }

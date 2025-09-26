@@ -616,7 +616,7 @@ static mepa_rc lan8x8x_aneg_read_status(mepa_device_t *dev,
     status->speed = MESA_SPEED_UNDEFINED;
 
     MEPA_RC_GOTO(rc, phy_mmd_reg_rd(dev, MDIO_MMD_AN, MDIO_AN_T1_STAT, &val));
-    if ((val & MDIO_AN_STAT1_COMPLETE) == ZERO) {
+    if ((val & MDIO_AN_STAT1_COMPLETE) != ZERO) {
         //T_D( MEPA_TRACE_GRP_GEN, "aneg is not completed \r\n");
     } else {
         rc = MEPA_RC_OK;
@@ -1029,14 +1029,12 @@ static mepa_rc lan8x8x_info_get(mepa_device_t *dev,
         const phy_data_t *const data = (const phy_data_t *const)dev->data;
 
         MEPA_ENTER(dev);
-        if (data->init_done == PHY_TRUE) {
-            phy_info->part_number = data->dev.model;
-            phy_info->revision = data->dev.rev;
-            phy_info->cap = ((data->conf.speed == MESA_SPEED_100M) ?
-                             MEPA_CAP_SPEED_MASK_1G : MEPA_CAP_TS_MASK_NONE);
+        phy_info->part_number = data->dev.model;
+        phy_info->revision = data->dev.rev;
+        phy_info->cap = ((data->conf.speed == MESA_SPEED_100M) ?
+                         MEPA_CAP_SPEED_MASK_1G : MEPA_CAP_TS_MASK_NONE);
 
-            rc = MEPA_RC_OK;
-        }
+        rc = MEPA_RC_OK;
         MEPA_EXIT(dev);
     }
     T_D(  "phy_info_get rc=%d\r\n", rc);

@@ -126,29 +126,6 @@ static void lan8x8x_read_capabilities(mepa_device_t *const dev)
     }
 }
 
-static mepa_rc phy_get_link_status(mepa_device_t *const dev,
-                                   mepa_status_t *const status)
-{
-    mepa_rc rc = MEPA_RC_ERROR;
-    uint16_t reg_val = 0;
-    phy_data_t *const data = (phy_data_t *const)dev->data;
-
-    if (data->conf.speed == MESA_SPEED_100M) {
-        rc = phy_mmd_reg_rd(dev, MDIO_MMD_PMAPMD, T1_1G_E100T1_PMA, &reg_val);
-    } else {
-        rc = phy_mmd_reg_rd(dev, MDIO_MMD_PMAPMD, T1_1G_E1000T1_PMA, &reg_val);
-    }
-
-    if (rc == MEPA_RC_OK) {
-        status->link = ((reg_val & T1_PMA_LINK_STATUS) != ZERO);
-        data->link_status = status->link;
-        status->master = (data->conf.man_neg == MEPA_MANUAL_NEG_REF) ?
-                         PHY_TRUE : PHY_FALSE;
-    }
-
-    return rc;
-}
-
 static mepa_rc lan8x8x_config_mac(mepa_device_t *dev)
 {
     const phy_data_t *const data = (const phy_data_t *const)dev->data;
@@ -1121,27 +1098,39 @@ static mepa_rc lan8x8x_poll_int(mepa_device_t *dev, mepa_status_t *status)
     //Current link status
     data->link_status = PHY_FALSE;
 
-    if (data->conf.speed == MESA_SPEED_AUTO) {
-        if (IS_LAN888X(dev->drv->id)) {
-            if (data->conf.speed != old_speed && old_speed != MESA_SPEED_UNDEFINED) {
-                MEPA_RC_GOTO(rc, lan8x8x_speed_config(dev));
-            }
-        }
-        //Resolve speed
+    if (IS_LAN878X(dev->drv->id) || data->conf.speed == MESA_SPEED_100M) {
+        //Latch-low register
+        MEPA_RC_GOTO(rc, phy_reg_rd(dev, MII_BMSR, &val));
+        MEPA_RC_GOTO(rc, phy_reg_rd(dev, MII_BMSR, &val));
+        status->link = ((val & BMSR_LSTATUS) != ZERO);
+        data->link_status = status->link;
+    } else if (data->conf.speed == MESA_SPEED_AUTO) {
+        //Resolve adv
         MEPA_RC_GOTO(rc, lan8x8x_aneg_read_status(dev, status));
-        //Resolve mode
-        MEPA_RC_GOTO(rc, lan8x8x_aneg_resolve_master_slave(dev, &master_slave));
-        status->master = (master_slave == MASTER_SLAVE_STATE_MASTER) ?
-                         PHY_TRUE : PHY_FALSE;
+
+        if (data->conf.speed != old_speed && old_speed != MESA_SPEED_UNDEFINED) {
+            MEPA_RC_GOTO(rc, lan8x8x_speed_config(dev));
+        }
+
         MEPA_RC_GOTO(rc, phy_mmd_reg_rd(dev, MDIO_MMD_AN, MDIO_AN_T1_STAT, &val));
         status->link = (val & MDIO_STAT1_LSTATUS) ? PHY_TRUE : PHY_FALSE;
         data->link_status =  status->link;
     } else {
-        MEPA_RC_GOTO(rc, phy_get_link_status(dev, status));
-
+        MEPA_RC_GOTO(rc, phy_mmd_reg_rd(dev, MDIO_MMD_PMAPMD,
+                                        T1_1G_E1000T1_PMA, &val));
+        status->link = ((val & T1_PMA_LINK_STATUS) != ZERO);
+        data->link_status = status->link;
         status->master = ((data->conf.man_neg == MEPA_MANUAL_NEG_REF) ?
                           PHY_TRUE : PHY_FALSE);
         status->speed = data->conf.speed;
+    }
+
+    //Update resolved mode
+    if (data->conf.speed == MESA_SPEED_AUTO) {
+        //Resolve mode
+        MEPA_RC_GOTO(rc, lan8x8x_aneg_resolve_master_slave(dev, &master_slave));
+        status->master = (master_slave == MASTER_SLAVE_STATE_MASTER) ?
+                         PHY_TRUE : PHY_FALSE;
     }
 
     //T1 PHY supports only Full Duplex

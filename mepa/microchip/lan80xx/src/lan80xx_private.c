@@ -177,7 +177,7 @@ static mepa_rc lan80xx_a0_a1_revision_serd_init_strap_wrkrd(mepa_device_t *dev, 
         LAN80XX_CSR_RD(dev, port_no, LAN80XX_IOREG(MMD_ID_MCU_MAILBOX, 1, STRAP_OVERRIDE_REG), &val);
         val |= SERDES_INIT_STRAP;
         LAN80XX_CSR_WR(dev, port_no, LAN80XX_IOREG(MMD_ID_MCU_MAILBOX, 1, STRAP_OVERRIDE_REG), val);
-        T_IM("Forcing Serdes Init strap to high for A0 and A1 silicon revison\n");
+        T_IM(data->port_no,"Forcing Serdes Init strap to high for A0 and A1 silicon revison\n");
     }
     return MEPA_RC_OK;
 }
@@ -5812,7 +5812,7 @@ static mepa_rc lan80xx_ram_init(mepa_device_t    *dev, mepa_port_no_t  port_no)
     mepa_rc rc = MEPA_RC_OK;
     u32 val = 0;
 
-    T_IM("POST 1 RAM INIT Triggered on Port : %d\n", port_no);
+    T_IM(data->port_no,"POST 1 RAM INIT Triggered on Port : %d\n", port_no);
     /* Read Channel ID */
     LAN80XX_CSR_RD(dev, port_no, LAN80XX_HOST_SLICE_SPARE_RW_0, &val);
     u8 channel_id =  LAN80XX_X_HOST_SLICE_SPARE_RW_0_SPARE_RW_0_CHN_ID(val);
@@ -5885,7 +5885,7 @@ static mepa_rc lan80xx_post1_bist_trigger(mepa_device_t  *dev, mepa_port_no_t  p
     mepa_rc rc = MEPA_RC_OK;
     u32 val = 0;
 
-    T_IM("POST 1 BIST Trigger on Port : %d\n", port_no);
+    T_IM(data->port_no,"POST 1 BIST Trigger on Port : %d\n", port_no);
     /* Read Channel ID */
     LAN80XX_CSR_RD(dev, port_no, LAN80XX_HOST_SLICE_SPARE_RW_0, &val);
     u8 channel_id =  LAN80XX_X_HOST_SLICE_SPARE_RW_0_SPARE_RW_0_CHN_ID(val);
@@ -5939,7 +5939,7 @@ static mepa_rc lan80xx_post1_bist_trigger(mepa_device_t  *dev, mepa_port_no_t  p
                         LAN80XX_M_MCU_IO_MNGT_MISC_POST1_SLICE0_BIST_STATUS_P1_SLICE0_BIST_TO,
                         LAN80XX_M_MCU_IO_MNGT_MISC_POST1_SLICE0_BIST_STATUS_P1_SLICE0_BIST_TO)
 
-        T_EM("POST 1 Init Failed on Port : %d\n", port_no);
+        T_EM(data->port_no,"POST 1 Init Failed on Port : %d\n", port_no);
         base_data->post1_passed = 0;
         rc = MEPA_RC_ERROR;
     }
@@ -5990,7 +5990,7 @@ mepa_rc lan80xx_post1_init_priv(mepa_device_t   *dev, mepa_port_no_t port_no)
         LAN80XX_CSR_WRM(base_data->port_no, LAN80XX_MCU_IO_MNGT_MISC_POST1_POST_STATUS, 0, LAN80XX_POST1_STATUS_P1_POST_DONE);
         rc = MEPA_RC_ERROR;
     }
-    T_IM("POST1 INIT Done\n");
+    T_IM(data->port_no,"POST1 INIT Done\n");
     return rc;
 }
 
@@ -6000,13 +6000,13 @@ mepa_rc lan80xx_check_mcu_rdy_priv(mepa_device_t *dev)
     u32 val;
     mepa_rc rc = MEPA_RC_ERROR;
 
-    T_DM("Checking MCU ready status...\n");
+    T_DM(data->port_no,"Checking MCU ready status...\n");
     LAN80XX_CSR_RD(dev, data->port_no, LAN80XX_IOREG(MMD_ID_MCU_MAILBOX, 1, MAILBOX_FLAG_REGISTER), &val);
     if (val & 0x4) {
-        T_IM("%s MCU ready ", __FUNCTION__);
+        T_IM(data->port_no,"%s MCU ready ", __FUNCTION__);
         rc = MEPA_RC_OK;
     } else {
-        T_EM("%s Error in MCU ready ", __FUNCTION__);
+        T_EM(data->port_no,"%s Error in MCU ready ", __FUNCTION__);
         rc = MEPA_RC_ERROR;
     }
     return rc;
@@ -6025,13 +6025,13 @@ mepa_rc lan80xx_mcu_mailbox_init_priv(const mepa_device_t *dev, u32 u32McuIntMas
     }
     data = (phy25g_phy_state_t *)dev->data;
 
-    T_IM("Enabling MB host mask...\n");
+    T_IM(data->port_no,"Enabling MB host mask...\n");
     /* Enable Host interrupt mask register */
     LAN80XX_CSR_WRM(data->port_no, LAN80XX_MCU_MAILBOX_MAILBOX_HOST_INT_MASK, u32HostIntMask, LAN80XX_BIT(1));
-    T_IM("Enabling MB mcu mask...\n");
+    T_IM(data->port_no,"Enabling MB mcu mask...\n");
     /* Enable MCU interrupt mask register */
     LAN80XX_CSR_WRM(data->port_no, LAN80XX_MCU_MAILBOX_MAILBOX_MCU_INT_MASK, u32McuIntMask, LAN80XX_BIT(0));
-    T_IM("Enabling MB src en...\n");
+    T_IM(data->port_no,"Enabling MB src en...\n");
     /* Enable INTR_SRC_EN_1 with mailbox interrupt */
     LAN80XX_CSR_WRM(data->port_no, LAN80XX_GPIO_CTRL_INTR_SRC_EN(1), LAN80XX_M_GPIO_CTRL_INTR_SRC_EN_MCU_MBOX_INTR_EN,
                     LAN80XX_M_GPIO_CTRL_INTR_SRC_EN_MCU_MBOX_INTR_EN);
@@ -6334,7 +6334,7 @@ mepa_rc lan80xx_MB_ReadResponse(const mepa_device_t *dev, uint8_t *u8ResponsePkt
         }
     }
     if (u16Timeout > u16MailboxTimeout) {
-        T_EM("%s: Timeout. No response from MCU", __FUNCTION__);
+        T_EM(data->port_no,"%s: Timeout. No response from MCU", __FUNCTION__);
         LAN80XX_CSR_RD(dev, port_no, LAN80XX_IOREG(MMD_ID_MCU_MAILBOX, 1, MAILBOX_FLAG_REGISTER), &u32Val);
         T_E(MEPA_TRACE_GRP_GEN, "MB Flag:0x%x\n", u32Val);
         LAN80XX_CSR_RD(dev, port_no, LAN80XX_IOREG(MMD_ID_MCU_MAILBOX, 1, MAILBOX_HOST_INTR_MASK_REGISTER), &u32Val);
@@ -6359,7 +6359,7 @@ mepa_rc lan80xx_MB_ReadResponse(const mepa_device_t *dev, uint8_t *u8ResponsePkt
         if (pPktHdr->u16PktLen == 0) {
             /* Clear HOST interrupt flag */
             lan80xx_MB_ClearFlag(dev, MAILBOX_FLAG_CLEAR_BIT1);
-            T_EM("%s: Response packet length is 0, pkt: 0x%x\n", __FUNCTION__, u32Val);
+            T_EM(data->port_no,"%s: Response packet length is 0, pkt: 0x%x\n", __FUNCTION__, u32Val);
             rc = MEPA_RC_ERR_MB_INVALID_PKT_LEN;
             return rc;
         }
@@ -6748,7 +6748,7 @@ mepa_rc lan80xx_fw_update_priv(mepa_device_t *dev)
     }
 
     if (u16Timeout > MAILBOX_INTR_TIMEOUT) {
-        T_EM("%s. DFU Strap not set, Abort Firmware Update", __FUNCTION__);
+        T_EM(data->port_no,"%s. DFU Strap not set, Abort Firmware Update", __FUNCTION__);
         rc = MEPA_RC_ERR_MB_FW_UPDATE_FAIL;
         return rc;
     }
@@ -6756,27 +6756,24 @@ mepa_rc lan80xx_fw_update_priv(mepa_device_t *dev)
     T_D(MEPA_TRACE_GRP_GEN, "Resetting MCU...");
     LAN80XX_CSR_WR(dev, port_no, LAN80XX_IOREG(MMD_ID_GLOBAL_REGISTERS, 1, BLOCK_LVL_SOFT_RESET2), SW_RESET_MCU);
 
-    T_IM("Waiting for FW to enter DFU mode...\n");
+    T_IM(data->port_no,"Waiting for FW to enter DFU mode...\n");
     u16Timeout = 0;
-    while (TRUE)
+    while (u16Timeout <= MAILBOX_INTR_TIMEOUT)
     {
         LAN80XX_CSR_RD(dev, port_no, LAN80XX_MCU_IO_MNGT_MISC_MCU_BOOT_STATUS_REG, &u32Val);
-        if (u32Val == 0x12)
+        if (u32Val == BOOT_STS_DFU_MODE)
         {
             /* DFU mode */
             break;
         }
         MEPA_MSLEEP(1);
         u16Timeout++;
-        if (u16Timeout > (MAILBOX_INTR_TIMEOUT)) {
-            break;
+        if (u16Timeout > MAILBOX_INTR_TIMEOUT)
+        {
+            T_E(MEPA_TRACE_GRP_GEN, "FW Failed to enter DFU mode [BOOT_STS: %d]\n", u32Val);
+            rc = MEPA_RC_ERR_MB_FW_UPDATE_FAIL;
+            return rc;
         }
-    }
-    if (u16Timeout > MAILBOX_INTR_TIMEOUT)
-    {
-        T_E(MEPA_TRACE_GRP_GEN, "FW Failed to enter DFU mode [BOOT_STS: %d]\n", u32Val);
-        rc = MEPA_RC_ERR_MB_FW_UPDATE_FAIL;
-        return rc;
     }
     /* Configure Mailbox MCU and Host interrupt mask after reset */
     rc = lan80xx_mcu_mailbox_init_priv(dev, MAILBOX_INTR_ENABLE, MAILBOX_HOST_INTR_MASK);
@@ -6784,7 +6781,7 @@ mepa_rc lan80xx_fw_update_priv(mepa_device_t *dev)
         T_E(MEPA_TRACE_GRP_GEN, "mailbox init failed\n");
         return rc;
     }
-    T_IM("Waiting for First packet interrupt...\n");
+    T_IM(data->port_no,"Waiting for First packet interrupt...\n");
     // Wait for DFU first packet Interrupt
     u16Timeout = 0;
     while (1) {
@@ -6816,7 +6813,7 @@ mepa_rc lan80xx_fw_update_priv(mepa_device_t *dev)
         lan80xx_memory_read_priv(dev, LAN80XX_MCU_CODE_RAM_START_REGION + LAN80XX_MEMORY_SLICE_THREE_OFFSET, byDataBuffer, 4);
         do {
             u16Count++;
-            T_IM("Sending DFU packet %d...\n", u16Count);
+            T_IM(data->port_no,"Sending DFU packet %d...\n", u16Count);
             if ((u32Offset + MB_MAX_PAYLOAD_LEN) > u32Size) {
                 u16CmdParamLen = u32Size - u32Offset;
             } else {
@@ -6841,7 +6838,7 @@ mepa_rc lan80xx_fw_update_priv(mepa_device_t *dev)
 
             PKT_HDR_T *recvPkt = (PKT_HDR_T *)&gau8RespBuffer[0];
             if (recvPkt->u8PktId == eDFU_UPDATE + 0x80) {
-                T_IM("%s:DFU Packet %d success", __FUNCTION__, u16Count);
+                T_IM(data->port_no,"%s:DFU Packet %d success", __FUNCTION__, u16Count);
             } else {
                 if (recvPkt->u8PktId == eDFU_UPDATE + 0x81) {
                     T_E(MEPA_TRACE_GRP_GEN, "%s. Fail with error code %d", __FUNCTION__, gau8RespBuffer[MB_PKT_DATA_OFFSET]);
@@ -6881,7 +6878,7 @@ mepa_rc lan80xx_fw_update_priv(mepa_device_t *dev)
                 }
             }
             LAN80XX_CSR_RD(dev, port_no, LAN80XX_IOREG(MMD_ID_MCU_MAILBOX, 1, STRAP_OVERRIDE_REG), &u32Val);
-            T_IM("Waiting for FW ready interrupt...\n");
+            T_IM(data->port_no,"Waiting for FW ready interrupt...\n");
             u16Timeout = 0;
             while (u16Timeout < MAILBOX_INTR_TIMEOUT) {
                 /* Read FW Status */
@@ -6889,16 +6886,16 @@ mepa_rc lan80xx_fw_update_priv(mepa_device_t *dev)
                 /* As endianess is different, bit 0 goes to MSB*/
                 if (u32Val & 0x04) {
                     /* If BIT0 set, FW status active*/
-                    T_DM("Switched to Application. Took %d msecs", u16Timeout);
+                    T_DM(data->port_no,"Switched to Application. Took %d msecs", u16Timeout);
                     break;
                 }
                 MEPA_MSLEEP(1);
                 u16Timeout++;
             }
             if (u16Timeout == MAILBOX_INTR_TIMEOUT) {
-                T_EM("MB Flag reg value : 0x%x", u32Val);
+                T_EM(data->port_no,"MB Flag reg value : 0x%x", u32Val);
                 LAN80XX_CSR_RD(dev, port_no, LAN80XX_IOREG(MMD_ID_MCU_MAILBOX, 1, MAILBOX_MCU_INTR_MASK_REGISTER), &u32Val);
-                T_EM("MB mask reg value : 0x%x", u32Val);
+                T_EM(data->port_no,"MB mask reg value : 0x%x", u32Val);
                 T_E(MEPA_TRACE_GRP_GEN, "Failed to start Application, aborting");
                 rc = MEPA_RC_ERR_MB_FW_UPDATE_FAIL;
                 return rc;
@@ -6919,12 +6916,12 @@ mepa_rc lan80xx_fw_update_priv(mepa_device_t *dev)
                 return rc;
             }
             T_D(MEPA_TRACE_GRP_GEN, "%s. Signature Verification passed", __FUNCTION__);
-            T_IM("DFU Success!!\n");
+            T_IM(data->port_no,"DFU Success!!\n");
         } else {
-            T_EM("DFU aborted!!\n");
+            T_EM(data->port_no,"DFU aborted!!\n");
         }
     } else {
-        T_EM("Timeout! No first packet interrupt received");
+        T_EM(data->port_no,"Timeout! No first packet interrupt received");
         rc = MEPA_RC_ERR_MB_FW_UPDATE_FAIL;
         /* Clearing DFU Strap  for failure case before return */
         T_D(MEPA_TRACE_GRP_GEN, "Clearing DFU strap");

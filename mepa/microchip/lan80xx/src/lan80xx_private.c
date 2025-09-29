@@ -6025,13 +6025,6 @@ mepa_rc lan80xx_mcu_mailbox_init_priv(const mepa_device_t *dev, u32 u32McuIntMas
     }
     data = (phy25g_phy_state_t *)dev->data;
 
-    T_IM("Clearing MB host mask...\n");
-    /* Clearing Interrupt Mask and Flags */
-    LAN80XX_CSR_WR(dev, data->port_no, LAN80XX_MCU_MAILBOX_MAILBOX_HOST_INT_MASK, 0);
-    T_IM("Clearing MB mcu mask...\n");
-    LAN80XX_CSR_WR(dev, data->port_no, LAN80XX_MCU_MAILBOX_MAILBOX_MCU_INT_MASK, 0);
-    T_IM("Clearing MB flags...\n");
-    LAN80XX_CSR_WR(dev, data->port_no, LAN80XX_IOREG(MMD_ID_MCU_MAILBOX, 1, MAILBOX_FLAG_REGISTER), MALIBOX_FALG_CLEAR_ALL);
     T_IM("Enabling MB host mask...\n");
     /* Enable Host interrupt mask register */
     LAN80XX_CSR_WRM(data->port_no, LAN80XX_MCU_MAILBOX_MAILBOX_HOST_INT_MASK, u32HostIntMask, LAN80XX_BIT(1));
@@ -6460,7 +6453,7 @@ mepa_rc lan80xx_get_fw_info_priv(const mepa_device_t *dev, DEVICE_INFO *psDevInf
         T_I(MEPA_TRACE_GRP_GEN, "Part ID: 0x%x\n", psDevInfo->PartId);
         T_I(MEPA_TRACE_GRP_GEN, "Target ID: 0x%x\n", psDevInfo->TargetId);
         T_I(MEPA_TRACE_GRP_GEN, "Image Type: 0x%x\n", psDevInfo->ImageType);
-        T_I(MEPA_TRACE_GRP_GEN, "Firmware Version: %02x.%02x\n", pu8Payload[4], pu8Payload[5]);
+        T_I(MEPA_TRACE_GRP_GEN, "Firmware Version: %02d.%02d\n", pu8Payload[4], pu8Payload[5]);
     } else {
         if (recvPkt->u8PktId == eGET_DEVICE_INFO + 0x81) {
             T_E(MEPA_TRACE_GRP_GEN, "%s. Fail with error code %d", __FUNCTION__, gau8RespBuffer[MB_PKT_DATA_OFFSET]);
@@ -6763,13 +6756,35 @@ mepa_rc lan80xx_fw_update_priv(mepa_device_t *dev)
     T_D(MEPA_TRACE_GRP_GEN, "Resetting MCU...");
     LAN80XX_CSR_WR(dev, port_no, LAN80XX_IOREG(MMD_ID_GLOBAL_REGISTERS, 1, BLOCK_LVL_SOFT_RESET2), SW_RESET_MCU);
 
-    T_DM("Waiting for First packet interrupt...\n");
+    T_IM("Waiting for FW to enter DFU mode...\n");
+    u16Timeout = 0;
+    while (TRUE)
+    {
+        LAN80XX_CSR_RD(dev, port_no, LAN80XX_MCU_IO_MNGT_MISC_MCU_BOOT_STATUS_REG, &u32Val);
+        if (u32Val == 0x12)
+        {
+            /* DFU mode */
+            break;
+        }
+        MEPA_MSLEEP(1);
+        u16Timeout++;
+        if (u16Timeout > (MAILBOX_INTR_TIMEOUT)) {
+            break;
+        }
+    }
+    if (u16Timeout > MAILBOX_INTR_TIMEOUT)
+    {
+        T_E(MEPA_TRACE_GRP_GEN, "FW Failed to enter DFU mode [BOOT_STS: %d]\n", u32Val);
+        rc = MEPA_RC_ERR_MB_FW_UPDATE_FAIL;
+        return rc;
+    }
     /* Configure Mailbox MCU and Host interrupt mask after reset */
     rc = lan80xx_mcu_mailbox_init_priv(dev, MAILBOX_INTR_ENABLE, MAILBOX_HOST_INTR_MASK);
     if (rc != MEPA_RC_OK) {
         T_E(MEPA_TRACE_GRP_GEN, "mailbox init failed\n");
         return rc;
     }
+    T_IM("Waiting for First packet interrupt...\n");
     // Wait for DFU first packet Interrupt
     u16Timeout = 0;
     while (1) {

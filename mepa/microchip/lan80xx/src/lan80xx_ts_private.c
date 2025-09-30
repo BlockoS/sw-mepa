@@ -7472,6 +7472,14 @@ mepa_rc lan80xx_ptp_reg_dump(mepa_device_t            *dev,
     MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32, dump_ptp_ltc_misc_dump[LAN80XX_PTP_LTC_MISC_NUM - 1].addr, &val1));
     pr("%-25s: 0x%08X\n", dump_ptp_ltc_misc_dump[LAN80XX_PTP_LTC_MISC_NUM - 1].str, val1);
 
+    pr("\n\n\t\t:-:-:-:  PTP_STI  :-:-:-:\n\n");
+    mmd = MMD_ID_PTP_STI;
+    for (u8 i = 0; i < LAN80XX_PTP_STI_REG_NUM; i = i + 2) {
+        MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32, dump_ptp_sti_dump[i].addr, &val1));
+        MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32, dump_ptp_sti_dump[i + 1].addr, &val2));
+        pr("%-25s: 0x%08X     %-25s: 0x%08X\n", dump_ptp_sti_dump[i].str, val1, dump_ptp_sti_dump[i + 1].str, val2);
+    }
+
     pr("\n\n\t\t:-:-:-:  PTP_PROC  :-:-:-:\n\n");
     mmd = MMD_ID_PTP_BLOCK;
     for (u8 i = 0; i < LAN80XX_PTP_PROC_LTC_REG_NUM; i = i + 2) {

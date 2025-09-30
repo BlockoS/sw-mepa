@@ -12,6 +12,7 @@
 #define LAN80XX_PTP_LTC_MISC_NUM         (45)
 #define LAN80XX_PTP_LTC_PIN_NUM          (12)
 #define LAN80XX_PTP_LTC_PHAD_NUM         (12)
+#define LAN80XX_PTP_STI_REG_NUM          (14)
 #define LAN80XX_PTP_PROC_INGR_BASE       (0x9020)
 #define LAN80XX_PTP_PROC_EGR_BASE        (0x9057)
 #define LAN80XX_PTP_ANA0_INGR_BASE       (0xA000)
@@ -21,6 +22,23 @@
 #define LAN80XX_PTP_ANA2_INGR_BASE       (0xC000)
 #define LAN80XX_PTP_ANA2_EGR_BASE        (0xC800)
 #define LAN80XX_PTP_LTC_PIN_CFG_BASE     (0xD000)
+
+static phy25g_reg_dump_t dump_ptp_sti_dump[] = {
+    {"TS_FIFO_SI_CFG",               0xD200},
+    {"TS_FIFO_SI_TX_CNT_0",          0xD201},
+    {"TS_FIFO_SI_TX_CNT_1",          0xD202},
+    {"TS_FIFO_SI_TX_CNT_2",          0xD203},
+    {"TS_FIFO_SI_TX_CNT_3",          0xD204},
+    {"STI_SPARE_REG_CFG",            0xD205},
+    {"STI_DEBUG0_CFG",               0xD2F8},
+    {"STI_DEBUG1_CFG",               0xD2F9},
+    {"STI_DEBUG2_CFG",               0xD2FA},
+    {"STI_DEBUG3_CFG",               0xD2FB},
+    {"STI_DEBUG4_CFG",               0xD2FC},
+    {"STI_DEBUG5_CFG",               0xD2FD},
+    {"STI_DEBUG6_CFG",               0xD2FE},
+    {"STI_DEBUG7_CFG",               0xD2FF},
+};
 
 static phy25g_reg_dump_t dump_ptp_ltc_pin_cfg_dump[LAN80XX_PTP_LTC_PIN_NUM] = {
     {"_PIN_CFG",                     0x0},

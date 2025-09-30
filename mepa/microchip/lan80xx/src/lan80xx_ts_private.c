@@ -7441,6 +7441,37 @@ mepa_rc lan80xx_ptp_reg_dump(mepa_device_t            *dev,
     u32 mmd = 0;
     mepa_bool_t is_32 = TRUE;
     u32 val1 = 0, val2 = 0;
+
+    pr("\n\n\t\t:-:-:-:  PTP_LTC  :-:-:-:\n\n");
+    mmd = MMD_ID_PTP_LTC;
+    for (u8 j = 0; j < 4; j++) {
+        for (u8 i = 0; i < LAN80XX_PTP_LTC_PIN_NUM; i = i + 2) {
+            MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32,
+                    (LAN80XX_PTP_LTC_PIN_CFG_BASE + (dump_ptp_ltc_pin_cfg_dump[i].addr) + (0x10 * j)), &val1));
+
+            MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32,
+                    (LAN80XX_PTP_LTC_PIN_CFG_BASE + (dump_ptp_ltc_pin_cfg_dump[i+1].addr) + (0x10 * j)), &val2));
+
+            pr("%d%-24s: 0x%08X     %d%-24s: 0x%08X\n", j, dump_ptp_ltc_pin_cfg_dump[i].str, val1,
+               j, dump_ptp_ltc_pin_cfg_dump[i + 1].str, val2);
+        }
+    }
+
+    for (u8 i = 0; i < LAN80XX_PTP_LTC_PHAD_NUM; i = i + 2) {
+        MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32, dump_ptp_ltc_phad_det_dump[i].addr, &val1));
+        MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32, dump_ptp_ltc_phad_det_dump[i + 1].addr, &val2));
+        pr("%-25s: 0x%08X     %-25s: 0x%08X\n",dump_ptp_ltc_phad_det_dump[i].str,val1, dump_ptp_ltc_phad_det_dump[i + 1].str, val2);
+    }
+
+    for (u8 i = 0; i < (LAN80XX_PTP_LTC_MISC_NUM - 1); i = i + 2) {
+        MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32, dump_ptp_ltc_misc_dump[i].addr, &val1));
+        MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32, dump_ptp_ltc_misc_dump[i + 1].addr, &val2));
+        pr("%-25s: 0x%08X     %-25s: 0x%08X\n", dump_ptp_ltc_misc_dump[i].str, val1, dump_ptp_ltc_misc_dump[i + 1].str, val2);
+    }
+
+    MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32, dump_ptp_ltc_misc_dump[LAN80XX_PTP_LTC_MISC_NUM - 1].addr, &val1));
+    pr("%-25s: 0x%08X\n", dump_ptp_ltc_misc_dump[LAN80XX_PTP_LTC_MISC_NUM - 1].str, val1);
+
     pr("\n\n\t\t:-:-:-:  PTP_PROC  :-:-:-:\n\n");
     mmd = MMD_ID_PTP_BLOCK;
     for (u8 i = 0; i < LAN80XX_PTP_PROC_LTC_REG_NUM; i = i + 2) {

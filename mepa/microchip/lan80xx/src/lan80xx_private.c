@@ -19,6 +19,7 @@
 #define BLOCK_RESET_1                                 (0xFFFFU)
 #define BLOCK_RESET_2                                 (0xFFFFU)
 
+#define LAN80XX_PCS1G_XMIT_DATA_MODE                  (0x3U)
 #define MAX_SOURCE_EVENTS                             (31U)
 #define MAX_ACK_TIMER                                 (15U)
 #define LAN80XX_IS_BITSET(value, x)                   ( (((value) & (x)) != 0U) ? 1U : 0U )
@@ -2932,6 +2933,8 @@ static mepa_rc lan80xx_pcs_pma_status_get_priv(const mepa_device_t    *dev,
     memset(status, 0, sizeof(phy25g_status_t));
     phy25g_oper_speed_mode_t phy_speed;
     mepa_bool_t line_lp_enabled = 0;
+    u8 xmit_mode = 0;
+    u8 line_xmit_mode = 0, host_xmit_mode = 0;
 
     /* When H3P or H3M Loopback is Enabled Line side Rx Link Goes down, eliminating LINE Side link
      * check in poll when H3M or H3P loopback is enabled, so traffic can be forwared from HOST */
@@ -2970,16 +2973,35 @@ static mepa_rc lan80xx_pcs_pma_status_get_priv(const mepa_device_t    *dev,
     LAN80XX_CSR_RD(dev, port_no, LAN80XX_LINE_PCS_CFG_PCS25G_STATUS, &value);
     status->line_pcs25g.hi_ber = LAN80XX_IS_BITSET(value, LAN80XX_M_LINE_PCS_CFG_PCS25G_STATUS_HI_BER);
 
-
     //LINE PCS1G Status
     LAN80XX_CSR_RD(dev, port_no, LAN80XX_LINE_PCS_CFG_PCS1G_LINK_STATUS, &value);
     status->line_pcs1g.link_status = LAN80XX_IS_BITSET(value, LAN80XX_M_LINE_PCS_CFG_PCS1G_LINK_STATUS_LINK_STATUS);
     status->line_pcs1g.sync_status = LAN80XX_IS_BITSET(value, LAN80XX_M_LINE_PCS_CFG_PCS1G_LINK_STATUS_SYNC_STATUS);
+    line_xmit_mode = LAN80XX_X_LINE_PCS_CFG_PCS1G_LINK_STATUS_XMIT_MODE(value);
+
+    if (line_xmit_mode != LAN80XX_PCS1G_XMIT_DATA_MODE) {
+        status->line_pcs1g.link_status = 0;
+    }
 
     //HOST PCS1G Status
     LAN80XX_CSR_RD(dev, port_no, LAN80XX_HOST_PCS_CFG_PCS1G_LINK_STATUS, &value);
     status->host_pcs1g.link_status = LAN80XX_IS_BITSET(value, LAN80XX_M_HOST_PCS_CFG_PCS1G_LINK_STATUS_LINK_STATUS);
     status->host_pcs1g.sync_status = LAN80XX_IS_BITSET(value, LAN80XX_M_HOST_PCS_CFG_PCS1G_LINK_STATUS_SYNC_STATUS);
+    host_xmit_mode = LAN80XX_X_HOST_PCS_CFG_PCS1G_LINK_STATUS_XMIT_MODE(value);
+
+    if (host_xmit_mode != LAN80XX_PCS1G_XMIT_DATA_MODE) {
+        status->host_pcs1g.link_status = 0;
+    }
+
+
+    /* SW Workarround for Clause37 RTL Bug
+     * As per Clause-37 Auto-Negotiation when the HCD of Link partner is not matching with advertised abilities then its RTL
+     * responsiblity to send IDLE signals by changing XMIT_MODE to IDLE and clear LINK_STATUS, but in LAN80XX PHYs the LINK_STATUS
+     * bit is not cleared even the LP Abilties are not matched with advertised abilities by XMIT_MODE is changed to IDLE mode
+     */
+    if ((line_xmit_mode == LAN80XX_PCS1G_XMIT_DATA_MODE) && (host_xmit_mode == LAN80XX_PCS1G_XMIT_DATA_MODE)) {
+        xmit_mode = 1;
+    }
 
     //Check RS-FEC status
     LAN80XX_CSR_RD(dev, port_no, LAN80XX_LINE_PCS_CFG_PCS25G_RSFEC_CFG, &value);
@@ -3015,7 +3037,8 @@ static mepa_rc lan80xx_pcs_pma_status_get_priv(const mepa_device_t    *dev,
         if (line_lp_enabled) {
             status->phy_status = (status->host_pcs1g.link_status) ? TRUE : FALSE;
         } else {
-            status->phy_status = (status->pma.rx_link && status->line_pcs1g.link_status && status->host_pcs1g.link_status) ? TRUE : FALSE;
+            status->phy_status = (status->pma.rx_link && status->line_pcs1g.link_status && status->host_pcs1g.link_status &&
+                                  xmit_mode) ? TRUE : FALSE;
         }
         break;
     case SPEED_10G:

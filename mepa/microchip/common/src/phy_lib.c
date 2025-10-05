@@ -169,7 +169,7 @@ mepa_rc phy_mmd_reg_set_bits(mepa_device_t *const phydev,
 }
 
 mepa_rc phy_mmd_reg_rd32(mepa_device_t *const dev,
-                         uint32_t const devad, uint32_t const addr,
+                         uint8_t const devad, uint32_t const addr,
                          uint32_t *const value)
 {
     mepa_rc rc;
@@ -182,57 +182,142 @@ mepa_rc phy_mmd_reg_rd32(mepa_device_t *const dev,
         return rc;
     }
 
-    rc = phy_mmd_reg_rd(dev, devad, (addr + 1), &data_h);
+    rc = phy_mmd_reg_rd(dev, devad, (addr + 1UL), &data_h);
     if (rc != MEPA_RC_OK) {
         return rc;
     }
 
-    *value = (data_h << 16) | data_l;
+    *value = data_h;
+    *value = (*value << 16U) | data_l;
 
     return MEPA_RC_OK;
 }
 
-mepa_rc phy_mmd_reg_wr32(mepa_device_t *const dev, uint32_t const devad,
-                         uint32_t const addr, uint32_t val)
+mepa_rc phy_mmd_reg_wr32(mepa_device_t *const dev, uint8_t const mmd,
+                         uint32_t const offset, uint32_t value)
 {
-    uint16_t data_l = (val & 0xFFFF);
-    uint16_t data_h = (val >> 16);
-    int rc;
+    mepa_rc rc;
+    uint16_t data_l = (uint16_t) (value & DEF_MASK);
+    uint16_t data_h = (uint16_t) (value >> 16U);
 
     /* Write msb first */
-    rc = phy_mmd_reg_wr(dev, devad, (addr + 1), data_h);
-    if (rc < 0) {
+    rc = phy_mmd_reg_wr(dev, mmd, (offset + 1UL), data_h);
+    if (rc != MEPA_RC_OK) {
         return rc;
     }
 
-    return phy_mmd_reg_wr(dev, devad, addr, data_l);
+    return phy_mmd_reg_wr(dev, mmd, offset, data_l);
 }
 
-mepa_rc phy_mmd_reg_poll(mepa_device_t *const dev, uint32_t const devad,
-                         uint16_t const addr, uint16_t match,
-                         mepa_bool_t cond, uint32_t to)
+mepa_rc phy_mmd_reg_rd_ms(mepa_device_t *const dev,
+                          uint8_t const mmd,
+                          uint32_t const offset,
+                          uint32_t *const value)
 {
-    mepa_rc rc = MEPA_RC_OK;
-    mepa_bool_t done = PHY_FALSE;
+    return phy_mmd_reg_rd32(dev, MMD_REAL_DEV(mmd), offset, value);
+}
+
+mepa_rc phy_mmd_reg_wr_ms(mepa_device_t *const dev,
+                          uint8_t const mmd,
+                          uint32_t const offset,
+                          uint32_t const value)
+{
+    return phy_mmd_reg_wr32(dev, MMD_REAL_DEV(mmd), offset, value);
+}
+
+mepa_rc phy_mmd_reg_modify_ms(mepa_device_t *const dev,
+                              uint8_t devad, uint32_t addr,
+                              uint32_t mask, uint32_t val)
+{
+    mepa_rc rc;
+    uint8_t mmd = MMD_REAL_DEV(devad);
+    uint32_t reg_val = 0;
+
+    rc = phy_mmd_reg_rd_ms(dev, mmd, addr, &reg_val);
+    if (rc != MEPA_RC_OK) {
+        return rc;
+    }
+
+    reg_val &= ~mask;
+    reg_val |= val;
+
+    return phy_mmd_reg_wr_ms(dev, mmd, addr, reg_val);
+}
+
+mepa_rc phy_mmd_reg_poll(mepa_device_t *const dev, uint8_t const devad,
+                         uint16_t const addr, uint16_t match, uint16_t mask,
+                         uint8_t cond, uint32_t to, uint16_t *val)
+{
     mepa_bool_t timeout = PHY_FALSE;
     mepa_mtimer_t   timer = { 0 };
+    uint8_t result;
 
     MEPA_MTIMER_START(&timer, to);
 
     // wait for reset to complete
-    while ((done == PHY_FALSE) && (timeout == PHY_FALSE)) {
-        uint16_t tmp = 0;
-
+    while (timeout == PHY_FALSE) {
         timeout = (MEPA_MTIMER_TIMEOUT(&timer));
-        if (devad) {
-            (void) phy_mmd_reg_rd(dev, devad, addr, &tmp);
+        if (devad == 0U) {
+            (void) phy_reg_rd(dev, addr, val);
         } else {
-            (void) phy_reg_rd(dev, addr, &tmp);
+            (void) phy_mmd_reg_rd(dev, devad, addr, val);
         }
-        if (((tmp & match) == match) == cond) {
+        result = ((*val & mask) == match) ? 1U : 0U;
+        if (result == cond) {
             return MEPA_RC_OK;
         }
     }
 
     return MEPA_RC_INCOMPLETE;
+}
+
+//callout print API
+static void phy_dbg_pr(mepa_device_t *const dev,
+                       const mepa_debug_print_t pr,
+                       uint8_t mmd, uint16_t offset,
+                       uint8_t bit_hi, uint8_t bit_lo,
+                       const char *str, const uint8_t is_ms)
+{
+    if (is_ms == 0U) {
+        uint16_t value = 0;
+        (void) phy_mmd_reg_rd(dev, mmd, offset, &value);
+        (void) pr("%-45s:\t[0X%02X].[0X%X]\t=\t0X%08X \r\n", str, mmd, offset, value);
+    } else {
+#ifdef MEPA_LAN8X8X_MACSEC
+        uint32_t value = 0;
+
+        (void)phy_mmd_reg_rd_ms(dev, mmd, offset, &value);
+
+        if ((bit_hi == ZERO) && (bit_lo != ZERO)) {
+            value = MCHP_TEST_BIT(value, bit_lo);
+        } else if (bit_hi != ZERO) {
+            value = MCHP_EXTRACT_V(value, bit_hi, bit_lo);
+        } else {
+            //  misra_c_2023_rule_15_7_violation
+        }
+
+        (void) pr("%-45s:\t[0X%02X].[0X%X]\t=\t0X%08X \r\n", str, mmd, offset, value);
+#endif // MEPA_LAN8X8X_MACSEC
+    }
+
+    return;
+}
+
+//Register dump
+void phy_reg_dump(struct mepa_device *dev,
+                  const mepa_debug_print_t pr,
+                  const struct phy_reg_dbg *const regs,
+                  const uint8_t reglen, const uint8_t is_ms)
+{
+    uint8_t i;
+    uint8_t dev_id = (uint8_t)dev->drv->id;
+
+    //Direct registers
+    (void) pr("************ Register Dump for PHY-0x%x ************ \r\n", dev_id);
+    (void) pr("%-45s:\tPAGE.REG\t=\tVALUE \r\n", "REG_NAME");
+    for (i = 0; i < reglen; i++) {
+        phy_dbg_pr(dev, pr, regs[i].mmd, regs[i].reg,
+                   regs[i].bit_hi, regs[i].bit_lo,
+                   regs[i].string, is_ms);
+    }
 }

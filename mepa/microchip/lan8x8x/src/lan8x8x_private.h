@@ -7,6 +7,7 @@
 #include <phy_lib.h>
 #include "lan8x8x_registers.h"
 
+#define LAN8X8X_NSLEEP(ns)           MEPA_NSLEEP((ns))
 #define LAN8X8X_MTIMER_START(t, ms)  MEPA_MTIMER_START((t), (ms))
 
 #define MEPA_RC_GOTO(rc, expr) { { (rc) = (expr); }  if ((rc) != 0) { return rc; } }
@@ -80,9 +81,6 @@ typedef struct {
     mepa_bool_t dis_1588;
     mepa_bool_t dis_1000;
     mepa_bool_t dis_100;
-#ifdef MEPA_LAN8X8X_MACSEC
-    struct mchp_ms_cap ms_cap;
-#endif
 } mchp_t1_otp_cap_t;
 
 typedef struct {
@@ -109,25 +107,4 @@ typedef struct {
     mepa_gpio_conf_t        led_conf[4];
 } phy_data_t;
 
-struct phy_reg_dbg {
-    const char *string;
-    u8 mmd;
-    u16 reg;
-};
-
-typedef enum  {
-    LAN8X8X_RST_SOFT,           // soft-reset and re-configure
-    LAN8X8X_RST_SOFT_MAC,       // mac change, soft-reset and re-configure
-    LAN8X8X_RST_SOFT_EXT,       // external soft-reset and re-configure
-    LAN8X8X_RST_HARD_ONLY,      // hard-reset only
-    LAN8X8X_RST_HARD,           // hard-reset, phy_setup and re-configure
-    LAN8X8X_RST_SKIP_TO_CONF,   // no reset. proceed to re-configure
-    //Anything new above this line
-    LAN8X8X_RST_MAX
-} lan8x8x_reset_typ;
-
-void lan8x8x_phy_reg_dump(struct mepa_device *dev,
-                          const mepa_debug_print_t pr,
-                          const struct phy_reg_dbg *regs,
-                          const uint8_t reglen, const uint8_t is_ms);
 #endif //LAN8X8X_PRIVATE_H

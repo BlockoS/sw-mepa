@@ -113,12 +113,6 @@ typedef struct {
     //mepa_device_t           *base_dev;
 } phy_data_t;
 
-struct phy_reg_dbg {
-    const char *string;
-    uint8_t mmd;
-    uint16_t reg;
-};
-
 struct phy_reg_map {
     uint8_t  mmd;
     uint16_t offset;

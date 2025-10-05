@@ -39,24 +39,71 @@
 #define LAN8X8X_LED_FORCED_LED_OFF      (0xEU)
 #define LAN8X8X_LED_FORCED_LED_ON       (0xFU)
 
-#define LAN8X8X_CLK_RST_REG             (0xF070U)
-#define LAN8X8X_RGMII_RX_DLL_CFG        (LAN8X8X_CLK_RST_REG + 0xAU)
-#define LAN8X8X_RGMII_TX_DLL_CFG        (LAN8X8X_CLK_RST_REG + 0xBU)
+#define CLK_RST_REG                 (0xF070U)
+
+#define SERDES_CLOCK_CONTROL        (CLK_RST_REG + 0x0U)
+#define SERDES_CMOS_IN_EN       BIT(3)
+#define SERDES_CML_OUT_EN       BIT(1)
+#define SERDES_CLOCK_CTL_EN         (SERDES_CMOS_IN_EN |\
+                     SERDES_CML_OUT_EN)
+
+#define LAN8X8X_RGMII_RX_DLL_CFG        (CLK_RST_REG + 0xAU)
+#define LAN8X8X_RGMII_TX_DLL_CFG        (CLK_RST_REG + 0xBU)
 
 #define LAN8X8X_RGMII_DELAY_EN          BIT(15)
 #define LAN8X8X_RGMII_DLL_EN            BIT(0)
 #define LAN8X8X_RGMII_DLL_CONF  (LAN8X8X_RGMII_DELAY_EN |\
                                  LAN8X8X_RGMII_DLL_EN)
 
+#define SERDES_REG          (0xF502U)
+#define SERDES_LANEA_DATAPATH_0     (SERDES_REG + 0x12U)
+#define SERDES_TXPLL_CONTROL_0      (SERDES_REG + 0xBEU)
+#define SERDES_TXPLL_DIVIDER_0      (SERDES_REG + 0xC0U)
+#define SERDES_TXPLL_DIVIDER_1      (SERDES_REG + 0xC2U)
+#define SERDES_TXPLL_DIVIDER_2      (SERDES_REG + 0xC4U)
+#define SERDES_TXPLL_REFCLK_CTRL_0  (SERDES_REG + 0xC6U)
+
+#define SERDES_LANEA_DATAPATH_0     (SERDES_REG + 0x12U)
+#define SERDES_LANEA_DRIVER_0       (SERDES_REG + 0x14U)
+#define SERDES_LANEA_DRIVER_1       (SERDES_REG + 0x16U)
+#define SERDES_LANEA_TRIM_0     (SERDES_REG + 0x2EU)
+#define SERDES_TXA_DRVR_FSM_0       (SERDES_REG + 0xB6U)
+#define SERDES_LANEA_TEST3_0        (SERDES_REG + 0x28U)
+#define SERDES_LANEA_TXPWR_CTRL_0   (SERDES_REG + 0x30U)
+#define SERDES_RXA_CDR_DIVIDERS_0   (SERDES_REG + 0x34U)
+#define SERDES_RXA_FREQUENCY_DET_0  (SERDES_REG + 0x5EU)
+#define SERDES_RXA_DESCAL_OVR_0     (SERDES_REG + 0x4CU)
+#define SERDES_RXA_CTLE_CTRL_0      (SERDES_REG + 0x36U)
+#define SERDES_RXA_DFEEM_CTRL_0     (SERDES_REG + 0x56U)
+#define SERDES_LANEA_POWERDOWN_0    (SERDES_REG + 0x18U)
+#define SERDES_RXA_PHCTRL_0     (SERDES_REG + 0x64U)
+#define SERDES_TOP_PD_RST_0     (SERDES_REG + 0xB4U)
+
 #define PCS1G_REG                       (0xF080U)
+#define QSGMII_PCS1G_SOFT_RESET_REG     (PCS1G_REG + 0x1U)
+#define QSGMII_PCS1G_SOFT_RESET_EN      BIT(0)
+
+#define QSGMII_PCS1G_CONFIG         (PCS1G_REG + 0x2U)
+#define QSGMII_SAVE_PREAMBLE_EN     BIT(11)
+#define QSGMII_PCS_ENA          BIT(9)
+#define QSGMII_SD_POL           BIT(7)
+#define QSGMII_SD_ENA           BIT(6)
+#define QSGMII_PCS1G_CFG_EN     (QSGMII_SD_ENA |\
+                     QSGMII_SD_POL |\
+                     QSGMII_PCS_ENA |\
+                     QSGMII_SAVE_PREAMBLE_EN)
+
 #define QSGMII_PCS1G_ANEG_CONFIG        (PCS1G_REG + 0x3U)
 #define QSGMII_PCS1G_ANEG_RESTART   BIT(4)
 #define QSGMII_PCS1G_ANEG_ENA       BIT(3)
 #define QSGMII_PCS1G_ANEG_SET       (QSGMII_PCS1G_ANEG_ENA | \
                      QSGMII_PCS1G_ANEG_RESTART)
 
-#define QSGMII_ANEG_EN_REG              (PCS1G_REG + 0xBU)
-#define QSGMII_AUTO_ANEG_EN     BIT(0)
+#define QSGMII_ANEG_EN_REG                  (PCS1G_REG + 0xBU)
+#define QSGMII_NP_DISABLE               BIT(2)
+#define QSGMII_SGMII_USGMII_TX_CFG_EN       BIT(1)
+#define QSGMII_ANEG_CFG             (QSGMII_SGMII_USGMII_TX_CFG_EN |\
+                         QSGMII_NP_DISABLE)
 
 #define LAN8X8X_XGMII_GMII_BYPASS       (0xF0D8U)
 #define LAN8X8X_XGMII_BYPASS_SEL        BIT(0)
@@ -89,12 +136,6 @@
                                                  T1_1G_E1000T1_PCS_EN_RXPCS_DEFRAMER | \
                                                  T1_1G_E1000T1_PCS_EN_TXPCS_FRAMER)
 
-#define T1_1G_E100T1_PMA        0x8200U
-#define T1_1G_E1000T1_PMA       0x8800U
-#define T1_PMA_TR_LOCKED        BIT(1)
-#define T1_PMA_ADFE_LOCKED      BIT(0)
-#define T1_PMA_LINK_STATUS      (T1_PMA_TR_LOCKED | T1_PMA_ADFE_LOCKED)
-
 /* Loopback Registers */
 #define T1_1G_E100T1_PCS_REMOTE_LPBK    (32768U)
 #define T1_1G_E1000T1_PCS_REMOTE_LPBK   (33570U)
@@ -106,9 +147,6 @@
 #define MACSEC_MEGABLK_BYPASS_SEL   BIT(2)
 #define GMII_BYPASS_SEL         BIT(1)
 #define XGMII_BYPASS_SEL        BIT(0)
-#define XGMII_BYPASS_SET_       (XGMII_BYPASS_SEL | \
-                     GMII_BYPASS_SEL | \
-                     MACSEC_MEGABLK_BYPASS_SEL)
 
 #define OTP_STRAP_READ_REG              (CHIPTOP + 0x38U)
 #define OTP_STRAP_READ_AUTO_MODE_EN     BIT(3)
@@ -209,16 +247,17 @@
 #define T1_1G_E1000T1_PMD           0x8100U
 #define T1_1G_E1000T1_PMD_LCPLL_CFG_0       (T1_1G_E1000T1_PMD)
 
-#define T1_1G_E100T1_PMA            0x8200U
+#define T1_1G_E100T1_PMA        0x8200U
+#define T1_1G_E1000T1_PMA       0x8800U
+#define T1_PMA_TR_LOCKED        BIT(1)
+#define T1_PMA_ADFE_LOCKED      BIT(0)
+#define T1_PMA_LINK_STATUS      (T1_PMA_TR_LOCKED | T1_PMA_ADFE_LOCKED)
+
 #define T1_1G_E100T1_PMA_ADFE_CFG2      (T1_1G_E100T1_PMA + 0x2AU)
 #define T1_1G_E100T1_PMA_ADFE_CFG3      (T1_1G_E100T1_PMA + 0x2CU)
+#define T1_1G_E1000T1_PMA_ADFE_CFG3     (T1_1G_E1000T1_PMA + 0x34U)
 
 #define T1_1G_RI_ABB_CTRL_0         0x8300U
-
-#define T1_1G_E1000T1_PMA           0x8800U
-#define T1_PMA_TR_LOCKED            BIT(1)
-#define T1_PMA_ADFE_LOCKED          BIT(0)
-#define T1_PMA_LINK_STATUS          (T1_PMA_TR_LOCKED | T1_PMA_ADFE_LOCKED)
 
 #define T1_AUTONEG_STATUS           0x8002U
 #define T1_AUTONEG_MS_CONFIG_FAULT      BIT(1)

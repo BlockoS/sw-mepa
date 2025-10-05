@@ -50,20 +50,6 @@ mepa_rc phy_mmd_reg_set_bits(mepa_device_t *const phydev,
                              uint32_t const dev, uint32_t const offset,
                              uint16_t const value);
 
-mepa_rc phy_mmd_reg_rd_ms(mepa_device_t *const dev,
-                          uint8_t const mmd,
-                          uint32_t const offset,
-                          uint32_t *const value);
-
-mepa_rc phy_mmd_reg_wr_ms(mepa_device_t *const dev,
-                          uint8_t const mmd,
-                          uint32_t const offset,
-                          uint32_t const value);
-
-mepa_rc phy_mmd_reg_modify_ms(mepa_device_t *const dev,
-                              uint8_t devad, uint32_t addr,
-                              uint32_t mask, uint32_t val);
-
 mepa_rc phy_mmd_reg_wr32(mepa_device_t *const dev, uint8_t const mmd,
                          uint32_t const offset, uint32_t value);
 

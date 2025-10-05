@@ -209,41 +209,6 @@ mepa_rc phy_mmd_reg_wr32(mepa_device_t *const dev, uint8_t const mmd,
     return phy_mmd_reg_wr(dev, mmd, offset, data_l);
 }
 
-mepa_rc phy_mmd_reg_rd_ms(mepa_device_t *const dev,
-                          uint8_t const mmd,
-                          uint32_t const offset,
-                          uint32_t *const value)
-{
-    return phy_mmd_reg_rd32(dev, MMD_REAL_DEV(mmd), offset, value);
-}
-
-mepa_rc phy_mmd_reg_wr_ms(mepa_device_t *const dev,
-                          uint8_t const mmd,
-                          uint32_t const offset,
-                          uint32_t const value)
-{
-    return phy_mmd_reg_wr32(dev, MMD_REAL_DEV(mmd), offset, value);
-}
-
-mepa_rc phy_mmd_reg_modify_ms(mepa_device_t *const dev,
-                              uint8_t devad, uint32_t addr,
-                              uint32_t mask, uint32_t val)
-{
-    mepa_rc rc;
-    uint8_t mmd = MMD_REAL_DEV(devad);
-    uint32_t reg_val = 0;
-
-    rc = phy_mmd_reg_rd_ms(dev, mmd, addr, &reg_val);
-    if (rc != MEPA_RC_OK) {
-        return rc;
-    }
-
-    reg_val &= ~mask;
-    reg_val |= val;
-
-    return phy_mmd_reg_wr_ms(dev, mmd, addr, reg_val);
-}
-
 mepa_rc phy_mmd_reg_poll(mepa_device_t *const dev, uint8_t const devad,
                          uint16_t const addr, uint16_t match, uint16_t mask,
                          uint8_t cond, uint32_t to, uint16_t *val)
@@ -283,7 +248,7 @@ static void phy_dbg_pr(mepa_device_t *const dev,
         (void) phy_mmd_reg_rd(dev, mmd, offset, &value);
         (void) pr("%-45s:\t[0X%02X].[0X%X]\t=\t0X%08X \r\n", str, mmd, offset, value);
     } else {
-#ifdef MEPA_LAN8X8X_MACSEC
+#if defined(MEPA_OPT_MACSEC)
         uint32_t value = 0;
 
         (void)phy_mmd_reg_rd_ms(dev, mmd, offset, &value);

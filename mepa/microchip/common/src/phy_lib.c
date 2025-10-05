@@ -247,22 +247,6 @@ static void phy_dbg_pr(mepa_device_t *const dev,
         uint16_t value = 0;
         (void) phy_mmd_reg_rd(dev, mmd, offset, &value);
         (void) pr("%-45s:\t[0X%02X].[0X%X]\t=\t0X%08X \r\n", str, mmd, offset, value);
-    } else {
-#if defined(MEPA_OPT_MACSEC)
-        uint32_t value = 0;
-
-        (void)phy_mmd_reg_rd_ms(dev, mmd, offset, &value);
-
-        if ((bit_hi == ZERO) && (bit_lo != ZERO)) {
-            value = MCHP_TEST_BIT(value, bit_lo);
-        } else if (bit_hi != ZERO) {
-            value = MCHP_EXTRACT_V(value, bit_hi, bit_lo);
-        } else {
-            //  misra_c_2023_rule_15_7_violation
-        }
-
-        (void) pr("%-45s:\t[0X%02X].[0X%X]\t=\t0X%08X \r\n", str, mmd, offset, value);
-#endif // MEPA_LAN8X8X_MACSEC
     }
 
     return;

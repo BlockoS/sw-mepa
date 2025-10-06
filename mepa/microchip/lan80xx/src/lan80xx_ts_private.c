@@ -9,6 +9,16 @@
 #include "lan80xx_ts.h"
 #include "regs_lan80xx_ts_dump.h"
 
+/* Each system clock cycle, the time-of-day is increased with the value set in these registers, with fixed point 5.59 nanosecond value
+ * CLK_PER_CFG_0 represents the LSB 32-bit
+ * CLK_PER_CFG_1 represents the MSB 32-bit
+ *
+ * LTC Clock Frequency = 318.309886158 MHz, so the Time period is 3.1415926538443369637994679176244 ns
+ * 5.59 fixed point representation of 3.1415926538443369637994679176244 ns will be 0x1921fb547f9eae35 which is spilited into two
+ * 32-bit values (5 + 59 = 64-bit) and configured in CLK_PER_CFG_1 and CLK_PER_CFG_0 register 
+ */
+#define LAN80XX_PTP_LTC_CLK_PER_CFG_1     (0x1921fb54)
+#define LAN80XX_PTP_LTC_CLK_PER_CFG_0     (0x7f9eae35)
 
 static lan80xx_phy_ts_pll_map_t phy25g_ts_pll_map[] = {
     [LAN80XX_PHY_TS_CLOCK_SRC_SYSREFCLK] = {
@@ -583,10 +593,6 @@ static mepa_rc lan80xx_ts_block_init(const mepa_device_t  *dev)
                         LAN80XX_F_CLK_CFG_LTCPLL_CMD_REG_LTCPLL_UPDATE(1),
                         LAN80XX_M_CLK_CFG_LTCPLL_CMD_REG_LTCPLL_UPDATE);
 
-        /* setting the clock value */
-        LAN80XX_CSR_WR(dev, base_port, LAN80XX_PTP_LTC_CLK_PER_CFG(1), 0x1921fb54);
-        LAN80XX_CSR_WR(dev, base_port, LAN80XX_PTP_LTC_CLK_PER_CFG(0), 0x7f9eae35);
-
         /* Wait for PLL lock */
         u8 u8timeout = 0;
         while (1) {
@@ -603,6 +609,11 @@ static mepa_rc lan80xx_ts_block_init(const mepa_device_t  *dev)
                 return MEPA_RC_ERROR;
             }
         }
+
+        /* setting the clock value */
+        LAN80XX_CSR_WR(dev, base_port, LAN80XX_PTP_LTC_CLK_PER_CFG(1), LAN80XX_PTP_LTC_CLK_PER_CFG_1);
+        LAN80XX_CSR_WR(dev, base_port, LAN80XX_PTP_LTC_CLK_PER_CFG(0), LAN80XX_PTP_LTC_CLK_PER_CFG_0);
+
         if (!base_data-> ptp_shared_ltc_resource) {
             value = 0x802B;
             //configure the phase detector.

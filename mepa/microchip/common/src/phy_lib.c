@@ -209,6 +209,27 @@ mepa_rc phy_mmd_reg_wr32(mepa_device_t *const dev, uint8_t const mmd,
     return phy_mmd_reg_wr(dev, mmd, offset, data_l);
 }
 
+mepa_rc phy_mmd_reg_mod32(mepa_device_t *const phydev,
+                          uint32_t const dev, uint32_t const offset,
+                          uint32_t const mask, uint32_t const value)
+{
+    uint32_t val = 0;
+    uint32_t new_val = 0;
+    mepa_rc rc = MEPA_RC_OK;
+
+    rc = phy_mmd_reg_rd32(phydev, dev, offset, &val);
+    if (rc != MEPA_RC_OK) {
+        return rc;
+    }
+
+    new_val = (val & ~mask) | value;
+    if (val != new_val) {
+        rc = phy_mmd_reg_wr32(phydev, dev, offset, new_val);
+    }
+
+    return rc;
+}
+
 mepa_rc phy_mmd_reg_poll(mepa_device_t *const dev, uint8_t const devad,
                          uint16_t const addr, uint16_t match, uint16_t mask,
                          uint8_t cond, uint32_t to, uint16_t *val)
@@ -227,6 +248,29 @@ mepa_rc phy_mmd_reg_poll(mepa_device_t *const dev, uint8_t const devad,
         } else {
             (void) phy_mmd_reg_rd(dev, devad, addr, val);
         }
+        result = ((*val & mask) == match) ? 1U : 0U;
+        if (result == cond) {
+            return MEPA_RC_OK;
+        }
+    }
+
+    return MEPA_RC_INCOMPLETE;
+}
+
+mepa_rc phy_mmd_reg_poll32(mepa_device_t *const dev, uint8_t const devad,
+                           uint16_t const addr, uint32_t match, uint32_t mask,
+                           uint8_t cond, uint32_t to, uint32_t *val)
+{
+    mepa_bool_t timeout = PHY_FALSE;
+    mepa_mtimer_t   timer = { 0 };
+    uint8_t result;
+
+    MEPA_MTIMER_START(&timer, to);
+
+    // wait for reset to complete
+    while (timeout == PHY_FALSE) {
+        timeout = (MEPA_MTIMER_TIMEOUT(&timer));
+        (void) phy_mmd_reg_rd32(dev, devad, addr, val);
         result = ((*val & mask) == match) ? 1U : 0U;
         if (result == cond) {
             return MEPA_RC_OK;

@@ -1743,7 +1743,8 @@ static mepa_rc lan8x8x_poll_int(mepa_device_t *dev, mepa_status_t *status)
             MEPA_RC_GOTO(rc, phy_mmd_reg_rd(dev, MDIO_MMD_PMAPMD, T1_1G_E1000T1_PMA, &val));
             status->link = ((val & T1_PMA_LINK_STATUS) != ZERO);
             MEPA_RC_GOTO(rc, phy_mmd_reg_rd(dev, MDIO_MMD_PCS, T1_1G_PCS_E1000M_STATUS, &val));
-            status->link &= ((val & T1_PCS_LINK_STS) != ZERO);
+            status->link = ((status->link == PHY_TRUE) &&
+                            ((val & T1_PCS_LINK_STS) != ZERO));
             data->link_status = status->link;
         }
         status->master = ((data->conf.man_neg == MEPA_MANUAL_NEG_REF) ?

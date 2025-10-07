@@ -136,7 +136,7 @@
                                                  T1_1G_E1000T1_PCS_EN_RXPCS_DEFRAMER | \
                                                  T1_1G_E1000T1_PCS_EN_TXPCS_FRAMER)
 
-#define T1_1G_PCS_E1000M_STATUS                 (T1_1G_E1000T1_PCS + 0x10)
+#define T1_1G_PCS_E1000M_STATUS                 (T1_1G_E1000T1_PCS + 0x10U)
 #define T1_PCS_LINK_STATUS                      BIT(1)
 #define T1_PCS_REM_RCVR_STATUS_OK               BIT(0)
 #define T1_PCS_LINK_STS                         (T1_PCS_REM_RCVR_STATUS_OK | \

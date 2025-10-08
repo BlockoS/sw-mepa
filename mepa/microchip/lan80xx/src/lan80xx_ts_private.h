@@ -553,7 +553,6 @@ typedef struct lan80xx_phy_ts_target_map {
  * encapsulation type provided during engine allocation.
  **/
 typedef struct {
-    mepa_bool_t                              eng_mode;    /**< engine enable/disable */
     union {
         phy25g_ts_ptp_engine_flow_conf_t ptp;       /**< PTP engine configuration */
     } flow_conf; /**< PTP/OAM flow config */
@@ -659,7 +658,6 @@ typedef struct {
 typedef struct {
     mepa_bool_t                     eng_used; /* allocated the engine to application */
     phy25g_ts_encap_t               encap_type; /* engine encapsulation */
-    phy25g_ts_engine_flow_match_t   flow_match_mode; /* strict/non-strict flow match */
     uint8_t                         flow_st_index; /* start index of flow */
     uint8_t                         flow_end_index; /* end index of flow */
     phy25g_ts_engine_flow_conf_t    flow_conf; /* engine flow config */

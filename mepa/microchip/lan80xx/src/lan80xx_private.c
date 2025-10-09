@@ -5226,6 +5226,22 @@ mepa_rc lan80xx_pcs_reg_dump(mepa_device_t            *dev,
         MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32, host_line_pcs25g[i + 1].addr, &val2));
         pr("%-25s: 0x%08X     %-25s: 0x%08X\n", host_line_pcs25g[i].str, val1, host_line_pcs25g[i + 1].str, val2);
     }
+
+    pr("\n\n\t\t:-:-:-:  HOST_RSFEC  :-:-:-:\n\n");
+    mmd = MMD_ID_HOST_RSFEC;
+    for (u8 i = 0; i < LAN80XX_RSFEC_REG_NUM; i += 2) {
+        MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32, dump_rsfec_reg[i].addr, &val1));
+        MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32, dump_rsfec_reg[i + 1].addr, &val2));
+        pr("%-25s: 0x%08X     %-25s: 0x%08X\n", dump_rsfec_reg[i].str, val1, dump_rsfec_reg[i + 1].str, val2);
+    }
+
+    pr("\n\n\t\t:-:-:-:  LINE_RSFEC  :-:-:-:\n\n");
+    mmd = MMD_ID_LINE_RSFEC;
+    for (u8 i = 0; i < LAN80XX_RSFEC_REG_NUM; i += 2) {
+        MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32, dump_rsfec_reg[i].addr, &val1));
+        MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32, dump_rsfec_reg[i + 1].addr, &val2));
+        pr("%-25s: 0x%08X     %-25s: 0x%08X\n", dump_rsfec_reg[i].str, val1, dump_rsfec_reg[i + 1].str, val2);
+    }
     return MEPA_RC_OK;
 }
 

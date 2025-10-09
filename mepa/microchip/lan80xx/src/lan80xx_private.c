@@ -3716,8 +3716,9 @@ mepa_rc lan80xx_rx_eye_scan_conf_set_priv (const mepa_device_t          *dev,
     /* Normal Eye Scan */
     LAN80XX_CSR_WRM(port_no, LAN80XX_HOST_LINE_REG(LAN80XX, is_line, PMA_8BIT_LANE_2E), 0,
                     LAN80XX_HOST_LINE_REG(LAN80XX_M, is_line, PMA_8BIT_LANE_2E_LN_CFG_EN_FAST_ISCAN));
-    cnt = 0;
+
     while (!max_vref) {
+        cnt = 0;
         /* Polling the EYE Scan status bit for 10 ms */
         while (cnt <= LAN80XX_EYE_SCAN_POLL_DELAY_10MS) {
             LAN80XX_CSR_RD(dev, port_no, LAN80XX_HOST_LINE_REG(LAN80XX, is_line, PMA_8BIT_LANE_DD), &value);

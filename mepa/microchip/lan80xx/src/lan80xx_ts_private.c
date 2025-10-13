@@ -4560,8 +4560,7 @@ mepa_rc lan80xx_phy_ts_fifo_empty_priv(mepa_device_t           *dev,
     u32    pos = 0;
 
     mepa_timestamp_t             ts;
-    phy25g_ts_fifo_sig_mask_t    sig_mask;
-    phy25g_ts_fifo_sig_t         signature;
+    phy25g_ts_fifo_sig_t         signature = {0};
     mepa_ts_fifo_status_t        status = MEPA_TS_FIFO_SUCCESS;
 
     u32   val_1st = 0, val_2nd = 0;
@@ -4571,6 +4570,10 @@ mepa_rc lan80xx_phy_ts_fifo_empty_priv(mepa_device_t           *dev,
     mepa_ts_fifo_sig_t   mepa_sig;
     memset(&mepa_sig, 0, sizeof(mepa_ts_fifo_sig_t));
     memset(&ts, 0, sizeof(mepa_timestamp_t));
+
+    phy25g_ts_fifo_sig_mask_t         sig_mask;
+
+    sig_mask = data->phy_ts_port_conf.sig_mask;
 
     if (callback) {
         if (data->ts_fifo_cb == NULL) {
@@ -4582,9 +4585,6 @@ mepa_rc lan80xx_phy_ts_fifo_empty_priv(mepa_device_t           *dev,
         *num = 0;
     }
 
-    sig_mask = data->phy_ts_port_conf.sig_mask;
-
-    T_D(MEPA_TRACE_GRP_TS, "\n sig_mask : %d \n", sig_mask);
     /* Step 1:: Loop reading the TSFIFO_0 register, until TS_EMPTY bit = 0 */
     do {
         MEPA_RC(LAN80XX_PHY_TS_READ_CSR(port_no, LAN80XX_PHY_TS_PROC_BLK_ID(0), LAN80XX_PTP_PROC_EGR_TSFIFO_0, &val_1st));
@@ -4692,56 +4692,60 @@ mepa_rc lan80xx_phy_ts_fifo_empty_priv(mepa_device_t           *dev,
             sig[37] = LAN80XX_PHY_TS_EXTRACT_BYTE(value, 16);
             sig[38] = LAN80XX_PHY_TS_EXTRACT_BYTE(value, 24);
 
-            signature.sig_mask = sig_mask;
             ts.picoseconds = (uint8_t)sig[0];
             ts.nanoseconds = (uint32_t)((sig[4] << 24) | (sig[3] << 16) | (sig[2] << 8)  | sig[1]);
             ts.seconds.low = (uint32_t)((sig[8] << 24) | (sig[7] << 16) | (sig[6] << 8)  | sig[5]);
             ts.seconds.high = (uint16_t)((sig[10] << 8) | sig[9]);
 
             T_D(MEPA_TRACE_GRP_TS, "Time sh: %u ,sl: %u ns: %u fns=%u\n", ts.seconds.high, ts.seconds.low, ts.nanoseconds, ts.picoseconds);
-            //printf("Time sh: %d ,sl: %d ns: %d fns=%d\n", ts.seconds.high, ts.seconds.low, ts.nanoseconds, ts.picoseconds);
-#if 0
-            printf("\n");
-            printf("\n ============ \n");
-            for (int i = 0; i < 39; i ++) {
-                printf("\n sig[%d] : %d , 0x%X", i, sig[i], sig[i]);
-            }
-            printf("Time sh: %d ,sl: %d ns: %d fns=%d\n", ts.seconds.high, ts.seconds.low, ts.nanoseconds, ts.picoseconds);
-            printf("\n ========\n");
-            printf("\n");
-#endif
 
             pos += LAN80XX_PHY_TS_SIG_TIME_STAMP_LEN; /* 11 Byte Timestamp length */
 
-            MEPA_ASSERT((pos + LAN80XX_PHY_TS_SIG_SEQUENCE_ID_LEN) > (LAN80XX_PTP_SIGNATURE_LEN + LAN80XX_PHY_TS_SIG_TIME_STAMP_LEN)); /* LINT */
-            signature.sequence_id = (sig[pos + 1] << 8) | sig[pos];
+            if (sig_mask & LAN80XX_PHY_TS_FIFO_SIG_SEQ_ID) {
+                MEPA_ASSERT((pos + LAN80XX_PHY_TS_SIG_SEQUENCE_ID_LEN) > (LAN80XX_PTP_SIGNATURE_LEN + LAN80XX_PHY_TS_SIG_TIME_STAMP_LEN)); /* LINT */
+                signature.sequence_id = (sig[pos + 1] << 8) | sig[pos];
+            }
             pos += LAN80XX_PHY_TS_SIG_SEQUENCE_ID_LEN;
 
-            MEPA_ASSERT((pos + LAN80XX_PHY_TS_SIG_SOURCE_PORT_ID_LEN) > (LAN80XX_PTP_SIGNATURE_LEN + LAN80XX_PHY_TS_SIG_TIME_STAMP_LEN)); /* LINT */
-            for (id_cnt = 0; id_cnt <= 9; id_cnt++) { /* 0 - 9, Total 10 Byte Source Port ID */
-                signature.src_port_identity[id_cnt] = sig[pos + (9 - id_cnt)];
+            if (sig_mask & LAN80XX_PHY_TS_FIFO_SIG_SOURCE_PORT_ID) {
+                MEPA_ASSERT((pos + LAN80XX_PHY_TS_SIG_SOURCE_PORT_ID_LEN) > (LAN80XX_PTP_SIGNATURE_LEN + LAN80XX_PHY_TS_SIG_TIME_STAMP_LEN)); /* LINT */
+                for (id_cnt = 0; id_cnt <= 9; id_cnt++) { /* 0 - 9, Total 10 Byte Source Port ID */
+                    signature.src_port_identity[id_cnt] = sig[pos + (9 - id_cnt)];
+                }
             }
             pos += LAN80XX_PHY_TS_SIG_SOURCE_PORT_ID_LEN;
 
-            MEPA_ASSERT((pos + 1) > (LAN80XX_PTP_SIGNATURE_LEN + LAN80XX_PHY_TS_SIG_TIME_STAMP_LEN)); /* LINT */
-            signature.domain_num = sig[pos++];
+            if (sig_mask & LAN80XX_PHY_TS_FIFO_SIG_DOMAIN_NUM) {
+                MEPA_ASSERT((pos + 1) > (LAN80XX_PTP_SIGNATURE_LEN + LAN80XX_PHY_TS_SIG_TIME_STAMP_LEN)); /* LINT */
+                signature.domain_num = sig[pos];
+            }
+            pos += 1;
 
             /* message_type field is only the lower nibble
              */
-            MEPA_ASSERT((pos + 1) > (LAN80XX_PTP_SIGNATURE_LEN + LAN80XX_PHY_TS_SIG_TIME_STAMP_LEN)); /* LINT */
-            signature.msg_type = sig[pos++] & 0x0f;
+            if (sig_mask & LAN80XX_PHY_TS_FIFO_SIG_MSG_TYPE) {
+                MEPA_ASSERT((pos + 1) > (LAN80XX_PTP_SIGNATURE_LEN + LAN80XX_PHY_TS_SIG_TIME_STAMP_LEN)); /* LINT */
+                signature.msg_type = sig[pos] & 0x0f;
+            }
+            pos = pos + 1;
 
-            MEPA_ASSERT((pos + LAN80XX_PHY_TS_SIG_DEST_IP_LEN) > (LAN80XX_PTP_SIGNATURE_LEN + LAN80XX_PHY_TS_SIG_TIME_STAMP_LEN)); /* LINT */
-            signature.dest_ip = (sig[pos + 3] << 24) | (sig[pos + 2] << 16) | (sig[pos + 1] << 8) | sig[pos];
+            if (sig_mask & LAN80XX_PHY_TS_FIFO_SIG_DEST_IP) {
+                MEPA_ASSERT((pos + LAN80XX_PHY_TS_SIG_DEST_IP_LEN) > (LAN80XX_PTP_SIGNATURE_LEN + LAN80XX_PHY_TS_SIG_TIME_STAMP_LEN)); /* LINT */
+                signature.dest_ip = (sig[pos + 3] << 24) | (sig[pos + 2] << 16) | (sig[pos + 1] << 8) | sig[pos];
+            }
             pos += LAN80XX_PHY_TS_SIG_DEST_IP_LEN;
 
-            MEPA_ASSERT((pos + LAN80XX_PHY_TS_SIG_SRC_IP_LEN) > (LAN80XX_PTP_SIGNATURE_LEN + LAN80XX_PHY_TS_SIG_TIME_STAMP_LEN)); /* LINT */
-            signature.src_ip = (sig[pos + 3] << 24) | (sig[pos + 2] << 16) | (sig[pos + 1] << 8) | sig[pos];
+            if (sig_mask & LAN80XX_PHY_TS_FIFO_SIG_SRC_IP) {
+                MEPA_ASSERT((pos + LAN80XX_PHY_TS_SIG_SRC_IP_LEN) > (LAN80XX_PTP_SIGNATURE_LEN + LAN80XX_PHY_TS_SIG_TIME_STAMP_LEN)); /* LINT */
+                signature.src_ip = (sig[pos + 3] << 24) | (sig[pos + 2] << 16) | (sig[pos + 1] << 8) | sig[pos];
+            }
             pos += LAN80XX_PHY_TS_SIG_SRC_IP_LEN;
 
-            MEPA_ASSERT((pos + LAN80XX_PHY_TS_SIG_DEST_MAC_LEN) > (LAN80XX_PTP_SIGNATURE_LEN + LAN80XX_PHY_TS_SIG_TIME_STAMP_LEN)); /* LINT */
-            for (loop_cnt = 0; loop_cnt < LAN80XX_PHY_TS_SIG_DEST_MAC_LEN; loop_cnt++) {
-                signature.dest_mac[loop_cnt] = sig[pos + loop_cnt];
+            if (sig_mask & LAN80XX_PHY_TS_FIFO_SIG_DEST_MAC) {
+                MEPA_ASSERT((pos + LAN80XX_PHY_TS_SIG_DEST_MAC_LEN) > (LAN80XX_PTP_SIGNATURE_LEN + LAN80XX_PHY_TS_SIG_TIME_STAMP_LEN)); /* LINT */
+                for (loop_cnt = 0; loop_cnt < LAN80XX_PHY_TS_SIG_DEST_MAC_LEN; loop_cnt++) {
+                    signature.dest_mac[loop_cnt] = sig[pos + loop_cnt];
+                }
             }
             pos += LAN80XX_PHY_TS_SIG_DEST_MAC_LEN;
 
@@ -4808,7 +4812,7 @@ static mepa_rc lan80xx_phy_ts_ip1_sig_mask_set_priv(mepa_device_t               
     phy25g_ts_fifo_sig_mask_t sig_mask;
     phy25g_ts_engine_flow_conf_t *flow_conf = NULL;
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
-    sig_mask = data->phy_ts_port_conf.sig_mask ;
+    sig_mask = data->phy_ts_port_conf.sig_mask;
     flow_conf = &data->phy_ts_port_conf.egress_eng_conf[engine_id].flow_conf;
 
     if (sig_mask & (LAN80XX_PHY_TS_FIFO_SIG_DEST_IP | LAN80XX_PHY_TS_FIFO_SIG_SRC_IP)) {
@@ -4954,7 +4958,6 @@ static mepa_rc lan80xx_phy_ts_signature_set_priv(mepa_device_t         *dev,
     u8 sig_sel[LAN80XX_PTP_SIGNATURE_LEN];
     phy25g_ts_blk_id_t blk_id;
     phy25g_ts_encap_t  encap_type;
-
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
     /* Configure the signature bytes in each of the 3 engines */
     /* If the engine is not able to generate the signature than Ignore the sig_mask
@@ -5191,15 +5194,24 @@ static mepa_rc lan80xx_phy_ts_signature_set_priv(mepa_device_t         *dev,
     return MEPA_RC_OK;
 }
 
-mepa_rc lan80xx_phy_ts_fifo_sig_set(mepa_device_t                     *dev,
-                                    const mepa_port_no_t              port_no,
-                                    phy25g_ts_engine_t                eng_id,
-                                    const phy25g_ts_fifo_sig_mask_t   sig_mask)
+mepa_rc lan80xx_phy_ts_fifo_sig_get_priv(mepa_device_t                     *dev,
+                                         const mepa_port_no_t              port_no,
+                                         phy25g_ts_fifo_sig_mask_t         *sig_mask)
+{
+    phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
+
+    *sig_mask = data->phy_ts_port_conf.sig_mask;
+    return MEPA_RC_OK;
+}
+
+
+mepa_rc lan80xx_phy_ts_fifo_sig_set_priv(mepa_device_t                     *dev,
+                                         const mepa_port_no_t              port_no,
+                                         const phy25g_ts_fifo_sig_mask_t   sig_mask)
 {
     mepa_rc        rc = MEPA_RC_OK;
     u8             len = 0;
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
-
 
     if (sig_mask & LAN80XX_PHY_TS_FIFO_SIG_MSG_TYPE) {
         len += 1;    /* PTP Msg Type = 1Byte */
@@ -5227,21 +5239,27 @@ mepa_rc lan80xx_phy_ts_fifo_sig_set(mepa_device_t                     *dev,
     }
 
     if (len > LAN80XX_PTP_SIGNATURE_LEN) {
-        T_E(MEPA_TRACE_GRP_TS, "Invalid FIFO signature length");
+        T_E(MEPA_TRACE_GRP_TS, "Invalid FIFO signature length\n");
         return MEPA_RC_ERROR;
     }
 
     do {
         T_D(MEPA_TRACE_GRP_TS, "port_ts_init =%d port %u mask=%d\n", data->phy_ts_port_conf.port_ts_init_done, port_no, sig_mask);
         if (data->phy_ts_port_conf.port_ts_init_done == TRUE) {
-            data->phy_ts_port_conf.sig_mask |= sig_mask;
+            data->phy_ts_port_conf.sig_mask = sig_mask;
             /* configure the analyzer to extract the signature bytes from the packet
              */
             /* set the signature timestamp bytes based on the signature mask config */
 
-            if ((rc = lan80xx_phy_ts_signature_set_priv(dev, port_no, eng_id, sig_mask)) != MEPA_RC_OK) {
-                T_E(MEPA_TRACE_GRP_TS, "Signature set fail, port %u", port_no);
+            for (u8 eng_id = LAN80XX_PHY_TS_PTP_ENGINE_ID_0; eng_id <= LAN80XX_PHY_TS_OAM_ENGINE_ID_2A; eng_id++) { 
+                if ((rc = lan80xx_phy_ts_signature_set_priv(dev, port_no, eng_id, sig_mask)) != MEPA_RC_OK) {
+                    T_E(MEPA_TRACE_GRP_TS, "Signature set fail, on PTP Engine :%d at port %u\n", eng_id, port_no);
+                    rc = MEPA_RC_ERROR;
+                }
             }
+        } else {
+            T_E(MEPA_TRACE_GRP_TS, "Signature set failed as TS Port init not completed on port : %d \n", port_no);
+            rc = MEPA_RC_ERROR;
         }
     } while (0);
     return rc;
@@ -6613,12 +6631,10 @@ mepa_rc lan80xx_ts_tx_classifier_conf_set_priv(struct mepa_device *dev,
         }
 
         /* TS FIFO Signature configuration */
-        /* Signature length is forced to 28-bytes */
-        phy25g_ts_fifo_sig_mask_t sig_mask = (LAN80XX_PHY_TS_FIFO_SIG_MSG_TYPE | LAN80XX_PHY_TS_FIFO_SIG_DOMAIN_NUM |
-                                              LAN80XX_PHY_TS_FIFO_SIG_SOURCE_PORT_ID | LAN80XX_PHY_TS_FIFO_SIG_SEQ_ID | LAN80XX_PHY_TS_FIFO_SIG_SRC_IP |
-                                              LAN80XX_PHY_TS_FIFO_SIG_DEST_IP | LAN80XX_PHY_TS_FIFO_SIG_DEST_MAC);
+        phy25g_ts_fifo_sig_mask_t sig_mask;
+        sig_mask = data->phy_ts_port_conf.sig_mask | (LAN80XX_PHY_TS_FIFO_SIG_MSG_TYPE | LAN80XX_PHY_TS_FIFO_SIG_SEQ_ID);
 
-        if ((rc = lan80xx_phy_ts_fifo_sig_set(dev, data->port_no, eng_id, sig_mask)) != MEPA_RC_OK) {
+        if ((rc = lan80xx_phy_ts_fifo_sig_set_priv(dev, data->port_no, sig_mask)) != MEPA_RC_OK) {
             T_E(MEPA_TRACE_GRP_TS, "\n Failed to configure TS FIFO Signature Mask on port : %d \n", data->port_no);
             return MEPA_RC_ERROR;
         }

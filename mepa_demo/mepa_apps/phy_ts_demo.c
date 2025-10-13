@@ -23,6 +23,11 @@
 #define TXT_NOT_TRIG 4
 #define TXT_TRIG     5
 
+#define PRINT_SIG_FIELD(flag, desc) \
+    if (sig_mask & (flag)) {        \
+        cli_printf("%d) %s\n", count++, (desc)); \
+    }
+
 static uint8_t packet_count = 0;
 
 
@@ -2261,6 +2266,54 @@ static void cli_cmd_ts_fifo_get(cli_req_t *req)
         cli_printf("\nNo Event Occured\n");
     }
 }
+
+static void cli_cmd_ts_sig_conf(cli_req_t *req)
+{
+    mepa_rc rc = MEPA_RC_ERROR;
+    ts_configuration *mreq = req->module_req;
+    phy25g_ts_fifo_sig_mask_t   sig_mask = 0;
+
+    switch (mreq->sig_mask) {
+    case 1:
+        sig_mask = (LAN80XX_PHY_TS_FIFO_SIG_SEQ_ID | LAN80XX_PHY_TS_FIFO_SIG_MSG_TYPE | LAN80XX_PHY_TS_FIFO_SIG_DOMAIN_NUM);
+        break;
+    case 2:
+        sig_mask = (LAN80XX_PHY_TS_FIFO_SIG_SEQ_ID | LAN80XX_PHY_TS_FIFO_SIG_MSG_TYPE | LAN80XX_PHY_TS_FIFO_SIG_DOMAIN_NUM | LAN80XX_PHY_TS_FIFO_SIG_SOURCE_PORT_ID);
+        break;
+    case 3:
+        sig_mask = (LAN80XX_PHY_TS_FIFO_SIG_SEQ_ID | LAN80XX_PHY_TS_FIFO_SIG_MSG_TYPE | LAN80XX_PHY_TS_FIFO_SIG_DOMAIN_NUM | LAN80XX_PHY_TS_FIFO_SIG_DEST_IP | LAN80XX_PHY_TS_FIFO_SIG_SRC_IP);
+        break;
+    case 4:
+        sig_mask = (LAN80XX_PHY_TS_FIFO_SIG_SEQ_ID | LAN80XX_PHY_TS_FIFO_SIG_MSG_TYPE | LAN80XX_PHY_TS_FIFO_SIG_DOMAIN_NUM | LAN80XX_PHY_TS_FIFO_SIG_DEST_IP | LAN80XX_PHY_TS_FIFO_SIG_SRC_IP |
+                    LAN80XX_PHY_TS_FIFO_SIG_SOURCE_PORT_ID);
+        break;
+    case 5:
+        sig_mask = (LAN80XX_PHY_TS_FIFO_SIG_SEQ_ID | LAN80XX_PHY_TS_FIFO_SIG_MSG_TYPE | LAN80XX_PHY_TS_FIFO_SIG_DOMAIN_NUM | LAN80XX_PHY_TS_FIFO_SIG_DEST_MAC);
+        break;
+    case 6:
+        sig_mask = (LAN80XX_PHY_TS_FIFO_SIG_SEQ_ID | LAN80XX_PHY_TS_FIFO_SIG_MSG_TYPE | LAN80XX_PHY_TS_FIFO_SIG_DOMAIN_NUM | LAN80XX_PHY_TS_FIFO_SIG_DEST_IP | LAN80XX_PHY_TS_FIFO_SIG_SRC_IP |
+                    LAN80XX_PHY_TS_FIFO_SIG_DEST_MAC);
+        break;
+    case 7:
+        sig_mask = (LAN80XX_PHY_TS_FIFO_SIG_SEQ_ID | LAN80XX_PHY_TS_FIFO_SIG_MSG_TYPE | LAN80XX_PHY_TS_FIFO_SIG_DOMAIN_NUM | LAN80XX_PHY_TS_FIFO_SIG_DEST_IP | LAN80XX_PHY_TS_FIFO_SIG_SRC_IP |
+                    LAN80XX_PHY_TS_FIFO_SIG_IPV6_DEST_IP);
+        break;
+    default:
+        cli_printf("\n Invalid Signal configuration selected ");
+        return;
+    }
+
+
+    rc = lan80xx_phy_ts_fifo_sig_set(meba_ts_instance->phy_devices[req->port_no], req->port_no, sig_mask);
+
+    if (rc != MEPA_RC_OK) {
+        cli_printf ("\n Failed to Configure PTP Signature fileds on port : %d\n", req->port_no);
+        return;
+    }
+
+    return;
+}
+
 static void cli_cmd_ts_delay_set(cli_req_t *req)
 {
     ts_configuration *mreq = req->module_req;
@@ -2414,8 +2467,25 @@ static void cli_cmd_ts_conf_get(cli_req_t *req)
         }
         cli_printf("\n---------------TS Rx Clock Configuration: Port %d-------------------------", (req->port_no + 1));
         cli_printf("\n clock_id: %x", flw_idx_clk_id);
-    }
+    } else if (mreq->config == 5) {
+        u8 count = 1;
+        phy25g_ts_fifo_sig_mask_t   sig_mask;
+        lan80xx_phy_ts_fifo_sig_get(meba_ts_instance->phy_devices[req->port_no], req->port_no, &sig_mask);
+        if (sig_mask == 0) {
+            cli_printf("\n\n None of the PTP fields are enabled in PTP Signature on port %d\n", (req->port_no + 1));
+            return;
+        }  
+        cli_printf("\n\n Following Fields are enabled in FIFO Signature on port :%d -----------------\n", (req->port_no + 1));
 
+        PRINT_SIG_FIELD(LAN80XX_PHY_TS_FIFO_SIG_MSG_TYPE,       "Message Type");
+        PRINT_SIG_FIELD(LAN80XX_PHY_TS_FIFO_SIG_DOMAIN_NUM,     "Domain Number");
+        PRINT_SIG_FIELD(LAN80XX_PHY_TS_FIFO_SIG_SEQ_ID,         "Sequence ID");
+        PRINT_SIG_FIELD(LAN80XX_PHY_TS_FIFO_SIG_SOURCE_PORT_ID, "Source Port ID");
+        PRINT_SIG_FIELD(LAN80XX_PHY_TS_FIFO_SIG_DEST_IP,        "IPv4 Address");
+        PRINT_SIG_FIELD(LAN80XX_PHY_TS_FIFO_SIG_DEST_MAC,       "Dest MAC Address");
+        PRINT_SIG_FIELD(LAN80XX_PHY_TS_FIFO_SIG_IPV6_DEST_IP,   "IPv6 Address");
+        return;
+    }
     if (jobj != NULL) { // Check if the JSON object was created successfully
         json_object_object_foreach(jobj, key, val) {
             cli_printf("\n %s: ", key);
@@ -2503,6 +2573,7 @@ static void cli_cmd_ts_cmds()
     cli_printf("\n %-20s| %-80s| %s", "ts_conf_get", " <port_no> conf_sel <conf_sel>", "Get TS Configurations");
     cli_printf("\n %-20s| %-80s| %s", "ts_port_stati", " <port_no>", "Get TS Port Statistics");
     cli_printf("\n %-20s| %-80s| %s", "ts_1pps_out_en", " <port_no> ls_ctrl_sel <ls_ctrl_sel>", "Enable 1PPS output signal");
+	cli_printf("\n %-20s| %-80s| %s", "ts_sig_set", "<port_no> sig <sig_val>", "PTP FIFO Signature Configuration");
     //cli_printf("\n %-20s| %-80s| %s", "ts_reset", " <port_no>", "Perform TS Block Hard Reset");
     cli_printf("\n\n");
     return;
@@ -2667,6 +2738,12 @@ static cli_cmd_t cli_cmd_ts_table[] = {
         "ts_conf_get <port_no> conf_sel <conf_sel>",
         "Get TS Configurations",
         cli_cmd_ts_conf_get,
+    },
+
+    {
+        "ts_sig_set <port_no> sig <sig_val>",
+        "Configure TS FIFO Signature fields",
+        cli_cmd_ts_sig_conf,
     },
     // {
     //     "ts_clk_rateadj_set <port_no> rateadj <rateadj>",
@@ -2993,15 +3070,20 @@ static cli_parm_t cli_parm_table[] = {
         cli_cmd_parse_ltc_time,
     },
     {
-        "sig_mask",
+        "sig",
         "",
         CLI_PARM_FLAG_NO_TXT,
         cli_cmd_parse_keyword,
     },
     {
-        "<sig_mask>",
-        "Source IP - 0x01, Destination IP - 0x02, Message Type - 0x04, Domain Number - 0x08, \n \
-        Source Port Identity - 0x10, Sequence ID - 0x20, Destination MAC - 0x40",
+        "<sig_val>",
+        "1 - Seq ID, Message type, Domain Number \n \
+         2 - Seq ID, Message type, Domain Number, Source Port ID \n \
+         3 - Seq ID, Message type, Domain Number, IPv4 Address \n \
+         4 - Seq ID, Message type, Domain Number, Source Port ID, IPv4 Address \n \
+         5 - Seq ID, Message type, Domain Number, DMAC Address \n \
+         6 - Seq ID, Message type, Domain Number, DMAC Address, IPv4 Address \n \
+         7 - Seq ID, Message type, Domain Number, IPv4 Address, IPv6 Address \n",
         CLI_PARM_FLAG_NONE,
         cli_cmd_parse_u16_param,
     },
@@ -3038,7 +3120,7 @@ static cli_parm_t cli_parm_table[] = {
     {
         "<conf_sel>",
         "0 - Init Config, 1 - Tx Classifier Config, 2 - Tx Clock Config, \n \
-        3 - Rx Classifier Config, 4 - Rx Clock Config\n",
+        3 - Rx Classifier Config, 4 - Rx Clock Config, 5 - Signature Field\n",
         CLI_PARM_FLAG_NONE,
         cli_cmd_parse_u8_param,
     },

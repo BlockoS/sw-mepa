@@ -667,6 +667,23 @@ static mepa_rc lan80xx_ts_pps_conf_get(mepa_device_t *dev, mepa_ts_pps_conf_t *c
     return rc;
 }
 
+mepa_rc lan80xx_phy_ts_fifo_sig_set(mepa_device_t  *dev, const mepa_port_no_t  port_no, const phy25g_ts_fifo_sig_mask_t   sig_mask)
+{
+    mepa_rc rc = MEPA_RC_ERROR;
+    MEPA_ENTER(dev);
+    rc = lan80xx_phy_ts_fifo_sig_set_priv(dev, port_no, sig_mask);
+    MEPA_EXIT(dev);
+    return rc;
+}
+
+mepa_rc lan80xx_phy_ts_fifo_sig_get(mepa_device_t  *dev, const mepa_port_no_t  port_no, phy25g_ts_fifo_sig_mask_t   *sig_mask)
+{
+    mepa_rc rc = MEPA_RC_ERROR;
+    MEPA_ENTER(dev);
+    rc = lan80xx_phy_ts_fifo_sig_get_priv(dev, port_no, sig_mask);
+    MEPA_EXIT(dev);
+    return rc;
+}
 
 mepa_ts_driver_t lan80xx_ts_drivers = {
     .mepa_ts_reset                      = lan80xx_ts_reset,

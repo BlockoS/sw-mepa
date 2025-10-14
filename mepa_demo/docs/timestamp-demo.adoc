@@ -263,6 +263,12 @@ Following are different Signature options supported
 
 NOTE: By default `Seq ID` and `Message Type` are enabled after configuring PTP Classifier block 
 
+=== Disable PTP Engine Flow
+
+The following command will disable the PTP Classifier and Clock configuration for the specified PTP Engine on the port, affecting both the Egress and Ingress directions.
+
+    * mepa-cmd ts_flow_dis <port_no> eng_id <eng_idx>
+
 === Sample Config
 
 Following sample application log demonstrates the configuration of PTP engine on Port 1 in BC 1-Step for Eth-IP-PTP Encapsulation

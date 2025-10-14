@@ -1353,7 +1353,7 @@ static void cli_cmd_ts_tx_class_conf(cli_req_t *req)
             }
         }
         ts_classifier.pkt_encap_type = mreq->encap_type;
-
+        ts_classifier.enable = TRUE;
         if (MEPA_RC_OK == mepa_ts_tx_classifier_conf_set(meba_ts_instance->phy_devices[iport], flow_index, &ts_classifier)) {
             cli_printf("\n ...... TS Tx classifier Configuration on Port : %d......\n", (iport + 1));
         } else {
@@ -1723,7 +1723,7 @@ static void cli_cmd_ts_tx_clock_conf(cli_req_t *req)
         ts_clock.delaym_type = mreq->delay_type;
 
         ts_clock.ptp_class_conf.domain.match.range.upper = 255;
-
+        ts_clock.enable = TRUE;
         if (MEPA_RC_OK == mepa_ts_tx_clock_conf_set(meba_ts_instance->phy_devices[iport], clk_id, &ts_clock)) {
             cli_printf("\n ...... TS Tx Clock Configuration on Port : %d......\n", (iport + 1));
         } else {
@@ -1955,7 +1955,7 @@ static void cli_cmd_ts_rx_class_conf(cli_req_t *req)
             }
         }
         ts_classifier.pkt_encap_type = mreq->encap_type;
-
+        ts_classifier.enable = TRUE;
         if (MEPA_RC_OK == mepa_ts_rx_classifier_conf_set(meba_ts_instance->phy_devices[iport], flow_index, &ts_classifier)) {
             cli_printf("\n ...... TS Rx classifier Configuration on Port : %d......\n", (iport + 1));
         } else {
@@ -1994,7 +1994,7 @@ static void cli_cmd_ts_rx_clock_conf(cli_req_t *req)
 
         ts_clock.clk_mode = mreq->clk_mode;
         ts_clock.delaym_type = mreq->delay_type;
-
+        ts_clock.enable = TRUE;
 
         if (MEPA_RC_OK == mepa_ts_rx_clock_conf_set(meba_ts_instance->phy_devices[iport], clk_id, &ts_clock)) {
             cli_printf("\n ...... TS Rx Clock Configuration on Port : %d......\n", (iport + 1));
@@ -2388,6 +2388,76 @@ static void cli_cmd_ts_delay_get(cli_req_t *req)
     cli_printf("\n Delay: %f ns (Equivalent hex value is 0x%x)\n", time_in_ns, delay );
 }
 
+
+static void cli_cmd_ts_flow_disable(cli_req_t *req)
+{
+    mepa_rc rc = MEPA_RC_ERROR;
+
+    ts_configuration *mreq = req->module_req;
+    mepa_ts_classifier_t      tx_class_conf = {0};
+    mepa_ts_ptp_clock_conf_t  tx_clk_conf = {0};
+    mepa_ts_classifier_t      rx_class_conf = {0};
+    mepa_ts_ptp_clock_conf_t  rx_clk_conf = {0};
+
+    u16 flow_index = (mreq->eng_id * 8);
+    u16 clock_id = mreq->eng_id;
+
+    rc = mepa_ts_tx_classifier_conf_get(meba_ts_instance->phy_devices[req->port_no], flow_index, &tx_class_conf);
+    if (rc != MEPA_RC_OK) {
+        cli_printf("\n Failed to Get TX Classifier conf\n");
+        return;
+    }
+
+    rc = mepa_ts_tx_clock_conf_get(meba_ts_instance->phy_devices[req->port_no], clock_id, &tx_clk_conf);
+    if (rc != MEPA_RC_OK) {
+        cli_printf("\n Failed to Get RX Classifier conf\n");
+        return;
+    }
+
+    rc = mepa_ts_rx_classifier_conf_get(meba_ts_instance->phy_devices[req->port_no], flow_index, &rx_class_conf);
+    if (rc != MEPA_RC_OK) {
+        cli_printf("\n Failed to Get TX Classifier conf\n");
+        return;
+    }
+
+    rc = mepa_ts_rx_clock_conf_get(meba_ts_instance->phy_devices[req->port_no], clock_id, &rx_clk_conf);
+    if (rc != MEPA_RC_OK) {
+        cli_printf("\n Failed to Get RX Classifier conf\n");
+        return;
+    }
+
+    tx_class_conf.enable = FALSE;
+    rx_class_conf.enable = FALSE;
+    tx_clk_conf.enable = FALSE;
+    rx_clk_conf.enable = FALSE;
+
+    rc = mepa_ts_tx_classifier_conf_set(meba_ts_instance->phy_devices[req->port_no], flow_index, &tx_class_conf);
+    if (rc != MEPA_RC_OK) {
+        cli_printf("\n Failed to Set TX Classifier conf\n");
+        return;
+    }
+
+    rc = mepa_ts_tx_clock_conf_set(meba_ts_instance->phy_devices[req->port_no], clock_id, &tx_clk_conf);
+    if (rc != MEPA_RC_OK) {
+        cli_printf("\n Failed to Set RX Classifier conf\n");
+        return;
+    }
+
+    rc = mepa_ts_rx_classifier_conf_set(meba_ts_instance->phy_devices[req->port_no], flow_index, &rx_class_conf);
+    if (rc != MEPA_RC_OK) {
+        cli_printf("\n Failed to Set TX Classifier conf\n");
+        return;
+    }
+
+    rc = mepa_ts_rx_clock_conf_set(meba_ts_instance->phy_devices[req->port_no], clock_id, &rx_clk_conf);
+    if (rc != MEPA_RC_OK) {
+        cli_printf("\n Failed to Set RX Classifier conf\n");
+        return;
+    }
+
+    return;
+}
+
 static void cli_cmd_ts_port_stati (cli_req_t *req)
 {
     mepa_ts_stats_t stats;
@@ -2575,6 +2645,7 @@ static void cli_cmd_ts_cmds()
     cli_printf("\n %-20s| %-80s| %s", "ts_1pps_out_en", " <port_no> ls_ctrl_sel <ls_ctrl_sel>", "Enable 1PPS output signal");
 	cli_printf("\n %-20s| %-80s| %s", "ts_sig_set", "<port_no> sig <sig_val>", "PTP FIFO Signature Configuration");
     //cli_printf("\n %-20s| %-80s| %s", "ts_reset", " <port_no>", "Perform TS Block Hard Reset");
+    cli_printf("\n %-20s| %-80s| %s", "ts_flow_dis", " <port_no> eng_id <eng_idx>", "Disable TX, RX Classifier and Clock config on PTP Engine");
     cli_printf("\n\n");
     return;
 }
@@ -2759,7 +2830,12 @@ static cli_cmd_t cli_cmd_ts_table[] = {
         "ts_reset <port_no>",
         "Hard reset TS Block",
         cli_cmd_ts_reset,
-    }
+    },
+    {
+        "ts_flow_dis <port_no> eng_id <eng_idx>",
+        "Disable Tx, RX Classifier and Clock configuration",
+        cli_cmd_ts_flow_disable,
+    },
 
 };
 

@@ -2182,6 +2182,7 @@ static mepa_rc lan8814_ts_tx_ts_get (mepa_device_t *dev)
             sig.has_crc_src = TRUE;
             sig.dmac_sig_supported = FALSE;
             sig.ipv4_sig_supported = FALSE;
+            sig.ipv6_sig_supported = FALSE;
             memset(&sig.dest_ipv4, 0 , sizeof(sig.dest_ipv4));
             memset(&sig.dmac_addr, 0, sizeof(sig.dmac_addr));
 
@@ -2342,6 +2343,7 @@ mepa_rc lan8814_ts_fifo_get(mepa_device_t *dev, mepa_fifo_ts_entry_t ts_list[], 
             ts_list[i].sig.has_crc_src = TRUE;
             ts_list[i].sig.dmac_sig_supported = FALSE;
             ts_list[i].sig.ipv4_sig_supported = FALSE;
+            ts_list[i].sig.ipv6_sig_supported = FALSE;
             memset(&ts_list[i].sig.dest_ipv4, 0 , sizeof(ts_list[i].sig.dest_ipv4));
             memset(&ts_list[i].sig.dmac_addr, 0, sizeof(ts_list[i].sig.dmac_addr));
 

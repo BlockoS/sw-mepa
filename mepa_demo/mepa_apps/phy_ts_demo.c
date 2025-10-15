@@ -510,6 +510,10 @@ static void test_ts_phy_fifo_read( const mepa_port_no_t           port_no,
     if (sig->ipv4_sig_supported == TRUE && is_dmac_zero) {
         cli_printf("PHY Fifo read: Packet : %d -> Dest IPv4 : %d.%d.%d.%d\n", packet_count, sig->dest_ipv4[0], sig->dest_ipv4[1], sig->dest_ipv4[2], sig->dest_ipv4[3]);
     }
+    cli_printf("PHY Fifo read: Packet : %d -> Dest IPv6(hex) : %02x%02x.%02x%02x.%02x%02x.%02x%02x.%02x%02x.%02x%02x.%02x%02x.%02x%02x\n", packet_count, sig->ipv6_dest_addr[15], sig->ipv6_dest_addr[14],
+              sig->ipv6_dest_addr[13], sig->ipv6_dest_addr[12],sig->ipv6_dest_addr[11],sig->ipv6_dest_addr[10],sig->ipv6_dest_addr[9],sig->ipv6_dest_addr[8],sig->ipv6_dest_addr[7],sig->ipv6_dest_addr[6],
+              sig->ipv6_dest_addr[5], sig->ipv6_dest_addr[4],sig->ipv6_dest_addr[3],sig->ipv6_dest_addr[2],sig->ipv6_dest_addr[1],sig->ipv6_dest_addr[0]);
+
     cli_printf("PHY Fifo read: Packet : %d -> tx time:  Sec_Hi:%d, Sec_Low:%u, Nsec: %u, sub-Nsec %u\n", packet_count, fifo_ts->seconds.high, fifo_ts->seconds.low, fifo_ts->nanoseconds, fifo_ts->picoseconds);
 }
 

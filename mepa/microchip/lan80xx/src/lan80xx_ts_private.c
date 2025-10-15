@@ -4624,6 +4624,17 @@ mepa_rc lan80xx_phy_ts_fifo_empty_priv(mepa_device_t           *dev,
 
             pos += LAN80XX_PHY_TS_SIG_TIME_STAMP_LEN; /* 11 Byte Timestamp length */
 
+            if (sig_mask & LAN80XX_PHY_TS_FIFO_SIG_IPV6_DEST_IP) {
+                u8 ipv6_index = 0;
+                for(loop_cnt = (2 + pos); loop_cnt < (pos + 12); loop_cnt++) {
+                    signature.dest_ipv6_addr[ipv6_index++] = sig[loop_cnt];
+                }
+
+                for(loop_cnt = (22 + pos); loop_cnt < (pos + 28); loop_cnt++) {
+                    signature.dest_ipv6_addr[ipv6_index++] = sig[loop_cnt];
+                }
+            }
+
             if (sig_mask & LAN80XX_PHY_TS_FIFO_SIG_SEQ_ID) {
                 MEPA_ASSERT((pos + LAN80XX_PHY_TS_SIG_SEQUENCE_ID_LEN) > (LAN80XX_PTP_SIGNATURE_LEN + LAN80XX_PHY_TS_SIG_TIME_STAMP_LEN)); /* LINT */
                 signature.sequence_id = (sig[pos + 1] << 8) | sig[pos];
@@ -4698,6 +4709,8 @@ mepa_rc lan80xx_phy_ts_fifo_empty_priv(mepa_device_t           *dev,
             mepa_sig.dmac_sig_supported = TRUE;
             memcpy(&mepa_sig.dmac_addr, &signature.dest_mac, sizeof(signature.dest_mac));
             mepa_sig.ipv4_sig_supported = TRUE;
+            memcpy(&mepa_sig.ipv6_dest_addr, &signature.dest_ipv6_addr, sizeof(signature.dest_ipv6_addr));
+            mepa_sig.ipv6_sig_supported = TRUE;
             mepa_sig.dest_ipv4[0] = (signature.dest_ip >> 24) & 0xFF;
             mepa_sig.dest_ipv4[1] = (signature.dest_ip >> 16) & 0xFF;
             mepa_sig.dest_ipv4[2] = (signature.dest_ip >> 8) & 0xFF;
@@ -4738,23 +4751,17 @@ static mepa_rc lan80xx_phy_ts_ip1_sig_mask_set_priv(mepa_device_t               
     sig_mask = data->phy_ts_port_conf.sig_mask;
     flow_conf = &data->phy_ts_port_conf.egress_eng_conf[engine_id].flow_conf;
 
-    if (sig_mask & (LAN80XX_PHY_TS_FIFO_SIG_DEST_IP | LAN80XX_PHY_TS_FIFO_SIG_SRC_IP)) {
+    if (sig_mask & (LAN80XX_PHY_TS_FIFO_SIG_DEST_IP | LAN80XX_PHY_TS_FIFO_SIG_SRC_IP | LAN80XX_PHY_TS_FIFO_SIG_IPV6_DEST_IP)) {
         /* select the offset */
         MEPA_RC(LAN80XX_PHY_TS_READ_CSR(port_no, blk_id, LAN80XX_ANA_IP1_NXT_PROTOCOL_IP1_FRAME_SIG_CFG, &value));
         value = LAN80XX_PHY_TS_CLR_BITS(value, LAN80XX_M_ANA_IP1_NXT_PROTOCOL_IP1_FRAME_SIG_CFG_IP1_FRAME_SIG_OFFSET);
 
         if (flow_conf->flow_conf.ptp.ip1_opt.comm_opt.ip_mode == LAN80XX_PHY_TS_IP_VER_4) {
             value |= LAN80XX_F_ANA_IP1_NXT_PROTOCOL_IP1_FRAME_SIG_CFG_IP1_FRAME_SIG_OFFSET(12);
+
         } else if (flow_conf->flow_conf.ptp.ip1_opt.comm_opt.ip_mode == LAN80XX_PHY_TS_IP_VER_6) {
 
-            if ((sig_mask & LAN80XX_PHY_TS_FIFO_SIG_DEST_IP) && (sig_mask & LAN80XX_PHY_TS_FIFO_SIG_SRC_IP)) {
-                T_D(MEPA_TRACE_GRP_TS, "For IPv6 frames, either source IP or destination IP can be selected but not both, engine_id : %d", engine_id);
-            }
-            if (sig_mask & LAN80XX_PHY_TS_FIFO_SIG_DEST_IP) {
-                value |= LAN80XX_F_ANA_IP1_NXT_PROTOCOL_IP1_FRAME_SIG_CFG_IP1_FRAME_SIG_OFFSET(32);
-            } else if (sig_mask & LAN80XX_PHY_TS_FIFO_SIG_SRC_IP) {
-                value |= LAN80XX_F_ANA_IP1_NXT_PROTOCOL_IP1_FRAME_SIG_CFG_IP1_FRAME_SIG_OFFSET(20);
-            }
+            value |= LAN80XX_F_ANA_IP1_NXT_PROTOCOL_IP1_FRAME_SIG_CFG_IP1_FRAME_SIG_OFFSET(24);
 
             T_D(MEPA_TRACE_GRP_TS, "IPV6 _IP1_FRAME_SIG_OFFSET : %d ipv6 mode=%d", value, flow_conf->flow_conf.ptp.ip1_opt.comm_opt.ip_mode);
         }
@@ -4931,21 +4938,10 @@ static mepa_rc lan80xx_phy_ts_signature_set_priv(mepa_device_t         *dev,
         sig_sel[13] = 26;
     }
 
-    if (sig_mask & (LAN80XX_PHY_TS_FIFO_SIG_DEST_IP | LAN80XX_PHY_TS_FIFO_SIG_SRC_IP)) {
+    if (sig_mask & (LAN80XX_PHY_TS_FIFO_SIG_DEST_IP | LAN80XX_PHY_TS_FIFO_SIG_SRC_IP | LAN80XX_PHY_TS_FIFO_SIG_IPV6_DEST_IP)) {
         /* configure both the IP comparators for all the three engines */
         /* read the auto adjust update value register */
         value = 0;
-        /* Irrespective of the engine configuration just configure signature
-         * bytes for both the IP comparators and the offset is always 12 bytes
-         * that is the location in the ip header where the source and
-         * destination IP address are stored, since 8 bytes are taken from the
-         * starting byte of offset in the ip header for determination of the
-         * signature
-         */
-        /* Signature bytes are always taken from the egress analyzer
-         */
-        /* IP comparater block is only present in engine-1 and engine-2
-         */
         encap_type = data->phy_ts_port_conf.egress_eng_conf[eng_id].encap_type;
         MEPA_RC(lan80xx_phy_ts_ana_blk_id_get(eng_id, FALSE, &blk_id));
 
@@ -4984,26 +4980,26 @@ static mepa_rc lan80xx_phy_ts_signature_set_priv(mepa_device_t         *dev,
             sig_sel[20] = 42;
             sig_sel[21] = 43;
         }
-    }
 
-    if (sig_mask & LAN80XX_PHY_TS_FIFO_SIG_IPV6_DEST_IP) {
+        if (sig_mask & LAN80XX_PHY_TS_FIFO_SIG_IPV6_DEST_IP) {
 
-        sig_sel[12] = 28;
-        sig_sel[13] = 29;
-        sig_sel[14] = 30;
-        sig_sel[15] = 31;
-        sig_sel[16] = 32;
-        sig_sel[17] = 33;
-        sig_sel[18] = 34;
-        sig_sel[19] = 35;
-        sig_sel[20] = 36;
-        sig_sel[21] = 37;
-        sig_sel[22] = 38;
-        sig_sel[23] = 39;
-        sig_sel[24] = 40;
-        sig_sel[25] = 41;
-        sig_sel[26] = 42;
-        sig_sel[27] = 43;
+            sig_sel[2] = 28;
+            sig_sel[3] = 29;
+            sig_sel[4] = 30;
+            sig_sel[5] = 31;
+            sig_sel[6] = 32;
+            sig_sel[7] = 33;
+            sig_sel[8] = 34;
+            sig_sel[9] = 35;
+            sig_sel[10] = 36;
+            sig_sel[11] = 37;
+            sig_sel[22] = 38;
+            sig_sel[23] = 39;
+            sig_sel[24] = 40;
+            sig_sel[25] = 41;
+            sig_sel[26] = 42;
+            sig_sel[27] = 43;
+        }
     }
 
     if (sig_mask & (LAN80XX_PHY_TS_FIFO_SIG_DEST_MAC)) {
@@ -5136,6 +5132,11 @@ mepa_rc lan80xx_phy_ts_fifo_sig_set_priv(mepa_device_t                     *dev,
     u8             len = 0;
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
 
+    if ((sig_mask & LAN80XX_PHY_TS_FIFO_SIG_IPV6_DEST_IP) && ((sig_mask & LAN80XX_PHY_TS_FIFO_SIG_SOURCE_PORT_ID) || (sig_mask & LAN80XX_PHY_TS_FIFO_SIG_DEST_MAC))) {
+        T_E(MEPA_TRACE_GRP_TS, "Invalid Signature configuration on port %d, Source Port ID and Dest MAC can't be selected when IPv6 is selected due to FIFO Length Constrain", port_no);
+        return MEPA_RC_ERROR;
+    }
+
     if (sig_mask & LAN80XX_PHY_TS_FIFO_SIG_MSG_TYPE) {
         len += 1;    /* PTP Msg Type = 1Byte */
     }
@@ -5173,7 +5174,7 @@ mepa_rc lan80xx_phy_ts_fifo_sig_set_priv(mepa_device_t                     *dev,
             /* configure the analyzer to extract the signature bytes from the packet
              */
             /* set the signature timestamp bytes based on the signature mask config */
-
+            T_D(MEPA_TRACE_GRP_TS, "Sig Mask = %d on port %d\n", sig_mask, port_no);
             for (u8 eng_id = LAN80XX_PHY_TS_PTP_ENGINE_ID_0; eng_id <= LAN80XX_PHY_TS_OAM_ENGINE_ID_2A; eng_id++) { 
                 if ((rc = lan80xx_phy_ts_signature_set_priv(dev, port_no, eng_id, sig_mask)) != MEPA_RC_OK) {
                     T_E(MEPA_TRACE_GRP_TS, "Signature set fail, on PTP Engine :%d at port %u\n", eng_id, port_no);

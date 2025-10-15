@@ -1558,6 +1558,7 @@ static void vtss_phy_ts_fifo_read_cb(const vtss_inst_t              inst,
     mep_sig.crc_src_port = 0;
 	mep_sig.dmac_sig_supported = false;
     mep_sig.ipv4_sig_supported = false;
+    mep_sig.ipv6_sig_supported = false;
     memset(&mep_sig.dest_ipv4, 0, sizeof(mep_sig.dest_ipv4));
 	memset(&mep_sig.dmac_addr, 0, sizeof(mep_sig.dmac_addr));
     fifo_cb(port_no, &ts, &mep_sig, (mepa_ts_fifo_status_t)status);
@@ -1600,6 +1601,7 @@ mepa_rc vtss_ts_fifo_get(struct mepa_device *dev, mepa_fifo_ts_entry_t ts_list[]
             ts_list[i].sig.has_crc_src = false;
             ts_list[i].sig.dmac_sig_supported = false;
             ts_list[i].sig.ipv4_sig_supported = false;
+            ts_list[i].sig.ipv6_sig_supported = false;
             memset(&ts_list[i].sig.dest_ipv4, 0, sizeof(ts_list[i].sig.dest_ipv4));
             memset(&ts_list[i].sig.dmac_addr, 0, sizeof(ts_list[i].sig.dmac_addr));
         }

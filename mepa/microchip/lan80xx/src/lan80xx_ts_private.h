@@ -742,7 +742,6 @@ typedef struct {
  * \brief Tx TSFIFO entry signature
  **/
 typedef struct {
-    phy25g_ts_fifo_sig_mask_t  sig_mask;  /**< valid signature fields */
     u8        msg_type;              /**< PTP message type */
     u8        domain_num;            /**< domain number in PTP message */
     u8        src_port_identity[10]; /**< source port identity in PTP message */
@@ -750,8 +749,7 @@ typedef struct {
     u32       dest_ip;               /**< Destination IP */
     u32       src_ip;                /**< Source IP */
     u8        dest_mac[6];           /**< Destination MAC */
-    u32       dest_ipv6_addr[4]; /**< IPv6 Address */
-    u32       src_ipv6_addr[4]; /**<IPv6 Mask */
+    u8        dest_ipv6_addr[16];     /**< IPv6 Address */
 } phy25g_ts_fifo_sig_t;
 
 

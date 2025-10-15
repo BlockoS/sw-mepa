@@ -409,7 +409,9 @@ typedef struct {
     mepa_mac_t                  dmac_addr;             /**< Destination MAC Address in case of ETH-PTP */
     mepa_bool_t                 dmac_sig_supported;    /**< Indicates whether PHY supports DMAC in signature or not */
     uint8_t                     dest_ipv4[4];          /**< Destination IPv4 Address */
-    mepa_bool_t                 ipv4_sig_supported;    /**<Indicates whether PHY supports Dest IPv4 address in signature or not */
+    mepa_bool_t                 ipv4_sig_supported;    /**< Indicates whether PHY supports Dest IPv4 address in signature or not */
+    uint8_t                     ipv6_dest_addr[16];    /**< IPv6 Destination address */
+    mepa_bool_t                 ipv6_sig_supported;    /**< Indicates whether PHY supports Dest IPv6 address in signature or not */
 } mepa_ts_fifo_sig_t;
 
 /** \brief TS FIFO status */

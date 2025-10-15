@@ -76,8 +76,10 @@ static void lan8x8x_read_capabilities(mepa_device_t *const dev)
     //set mac-interface
     priv->mac_if = MESA_PORT_INTERFACE_RGMII_RXID;
     (void) phy_mmd_reg_rd(dev, MDIO_MMD_VEND1, T1_OTP_RO_PART_ID, &val);
+    T_I("PHY port=%u part_id 0x%x!\n", priv->port_no, val);
     if (val == 0x888DU) {
         priv->mac_if = MESA_PORT_INTERFACE_SGMII;
+        T_I("PHY port=%u mac_mode is SGMII!\n", priv->port_no);
     }
 
     //Read STRAPs
@@ -180,7 +182,7 @@ static mepa_rc lan8x8x_sgmii_init(mepa_device_t *dev)
 
     MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
                                       SERDES_TXPLL_REFCLK_CTRL_0,
-                                      0x0018U));
+                                      0x00D8U));
 
     MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
                                       SERDES_TXPLL_CONTROL_0,
@@ -297,11 +299,9 @@ static mepa_rc lan8x8x_sgmii_init(mepa_device_t *dev)
                                     QSGMII_ANEG_EN_REG,
                                     QSGMII_ANEG_CFG));
 
-#if 0
     (void) phy_mmd_reg_poll(dev, MDIO_MMD_VEND1,
                             QSGMII_PCS1G_CONFIG, 0xAF8U, 0xAFFU,
                             0x1U, 4000U, &val);
-#endif
 
     return rc;
 }
@@ -853,7 +853,7 @@ static mepa_rc lan8x8x_phy_setup(mepa_device_t *const dev)
         MEPA_RC_GOTO(rc, lan8x8x_phy_config(dev, data->conf.speed, PHY_FALSE));
     }
 
-    T_D(  "PHY port=%u setup complete!\n", data->port_no);
+    T_I(  "PHY port=%u setup complete!\n", data->port_no);
 
     return MEPA_RC_OK;
 }
@@ -917,6 +917,8 @@ static mepa_rc lan8x8x_config_set(mepa_device_t *dev, const mepa_conf_t *config)
 
         rc = MEPA_RC_OK;
     }
+
+    T_I(  "PHY port=%u config_set complete!\n", data->port_no);
 
     return rc;
 }
@@ -1004,7 +1006,7 @@ static void lan8x8x_fill_probe_data(mepa_driver_t *drv,
     data->conf.admin.enable = PHY_TRUE;
     data->conf.fdx = PHY_TRUE;
     //mac-if aneg must be enabled always
-    data->conf.mac_if_aneg_ena = PHY_TRUE;
+    data->conf.mac_if_aneg_ena = PHY_FALSE;
 
     //Read OTP capabilities
     lan8x8x_read_capabilities(dev);
@@ -1669,7 +1671,7 @@ static mepa_rc lan8x8x_info_get(mepa_device_t *dev,
         MEPA_ENTER(dev);
         phy_info->part_number = data->dev.model;
         phy_info->revision = data->dev.rev;
-        phy_info->cap = ((data->conf.speed == MESA_SPEED_100M) ?
+        phy_info->cap = ((data->conf.speed == MESA_SPEED_1G) ?
                          MEPA_CAP_SPEED_MASK_1G : MEPA_CAP_TS_MASK_NONE);
 
         rc = MEPA_RC_OK;
@@ -1726,7 +1728,6 @@ static mepa_rc lan8x8x_poll_int(mepa_device_t *dev, mepa_status_t *status)
     mepa_rc rc = MEPA_RC_ERROR;
     uint8_t master_slave;
     uint16_t val;
-    uint32_t v32;
 
     //Current link status
     data->link_status = PHY_FALSE;
@@ -1738,8 +1739,9 @@ static mepa_rc lan8x8x_poll_int(mepa_device_t *dev, mepa_status_t *status)
             MEPA_RC_GOTO(rc, phy_reg_rd(dev, MII_BMSR, &val));
             status->link = ((val & BMSR_LSTATUS) != ZERO);
         } else {
-            MEPA_RC_GOTO(rc, phy_mmd_reg_rd32(dev, MDIO_MMD_PMAPMD, T1_1G_E1000T1_PMA, &v32));
-            status->link = ((v32 & T1_PMA_LINK_STATUS) != ZERO);
+            MEPA_RC_GOTO(rc, phy_mmd_reg_rd(dev, MDIO_MMD_PCS, MDIO_PCS_1000BT1_STAT, &val));
+            MEPA_RC_GOTO(rc, phy_mmd_reg_rd(dev, MDIO_MMD_PCS, MDIO_PCS_1000BT1_STAT, &val));
+            status->link = ((val & MDIO_STAT1_LSTATUS) != ZERO);
             data->link_status = status->link;
         }
         status->master = ((data->conf.man_neg == MEPA_MANUAL_NEG_REF) ?
@@ -1768,10 +1770,8 @@ static mepa_rc lan8x8x_poll_int(mepa_device_t *dev, mepa_status_t *status)
             status->link = ((val & BMSR_LSTATUS) != ZERO);
         } else {
             MEPA_RC_GOTO(rc, phy_mmd_reg_rd(dev, MDIO_MMD_AN, MDIO_AN_T1_STAT, &val));
-            status->link = PHY_FALSE;
-            if ((val & MDIO_STAT1_LSTATUS) == MDIO_STAT1_LSTATUS) {
-                status->link = PHY_TRUE;
-            }
+            MEPA_RC_GOTO(rc, phy_mmd_reg_rd(dev, MDIO_MMD_AN, MDIO_AN_T1_STAT, &val));
+            status->link = ((val & MDIO_STAT1_LSTATUS) != ZERO);
         }
     }
 
@@ -1779,6 +1779,14 @@ static mepa_rc lan8x8x_poll_int(mepa_device_t *dev, mepa_status_t *status)
     status->fdx = PHY_TRUE;
     data->link_status =  status->link;
     data->dev.is_master = status->master;
+
+    T_I("PHY port=%u Link=%s, speed=%d, mode=%s!\n",
+        data->port_no,
+        (status->link ? "up" : "down"),
+        (status->speed == MESA_SPEED_100M ? "100" :
+         (status->speed == MESA_SPEED_1G ? "1000" :
+          (status->speed == MESA_SPEED_AUTO ? "auto" : "unknown"))),
+        (status->master ? "master" : "slave"));
 
     return rc;
 }

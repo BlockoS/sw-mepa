@@ -299,9 +299,11 @@ static mepa_rc lan8x8x_sgmii_init(mepa_device_t *dev)
                                     QSGMII_ANEG_EN_REG,
                                     QSGMII_ANEG_CFG));
 
+#if 0
     (void) phy_mmd_reg_poll(dev, MDIO_MMD_VEND1,
                             QSGMII_PCS1G_CONFIG, 0xAF8U, 0xAFFU,
                             0x1U, 4000U, &val);
+#endif
 
     return rc;
 }

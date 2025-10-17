@@ -6026,14 +6026,7 @@ mepa_rc lan80xx_ts_mode_get_priv( mepa_device_t *dev,
     mepa_rc      rc = MEPA_RC_OK;
 
     MEPA_ASSERT(enable == NULL);
-    do {
-        if (data->phy_ts_port_conf.port_ts_init_done == FALSE) {
-            T_E(MEPA_TRACE_GRP_TS, "Init not done, port %u", data->port_no);
-            rc = MEPA_RC_ERROR;
-            break;
-        }
-        *enable = data->phy_ts_port_conf.port_ena;
-    } while (0);
+    *enable = data->phy_ts_port_conf.port_ena;
 
     return rc;
 }

@@ -529,23 +529,16 @@ static void cli_cmd_ts_port_state(cli_req_t *req)
         port_no = iport2uport(iport);
         if ((rc = mepa_dev_check(meba_ts_instance, iport)) != MEPA_RC_OK) {
             status = TXT_NOT_APP;
-            // cli_printf("%-8u%-18s%s\n",
-            //            port_no,
-            //            cli_ts_capable_txt(capable),
-            //            cli_ts_state_txt(status));
             cli_printf("%-8u%s\n",
                        port_no,
                        cli_ts_state_txt(status));
             continue;
         }
-
         if ((rc = mepa_ts_mode_get(meba_ts_instance->phy_devices[iport], &state)) == MEPA_RC_OK) {
             status = state ? TXT_ENABLED : TXT_DISABLED;
+        } else {
+            status = TXT_DISABLED;
         }
-        // cli_printf("%-8u%-18s%s\n",
-        //            port_no,
-        //            cli_ts_capable_txt(capable),
-        //            cli_ts_state_txt(status));
 
         cli_printf("%-8u%s\n",
                    port_no,

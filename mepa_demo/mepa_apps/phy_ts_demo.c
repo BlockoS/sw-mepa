@@ -1676,8 +1676,6 @@ static void update_ptp_clock_conf(mepa_ts_ptp_clock_conf_t *ptp_clock_conf)
     ptp_clock_conf->ptp_class_conf.domain.mode = MEPA_TS_MATCH_MODE_RANGE;
     ptp_clock_conf->ptp_class_conf.domain.match.range.lower = 0;
     ptp_clock_conf->ptp_class_conf.domain.match.range.upper = 255;
-    ptp_clock_conf->ptp_class_conf.domain.match.value.val = 0;
-    ptp_clock_conf->ptp_class_conf.domain.match.value.mask = 0;
 
     // Update sdoid
     ptp_clock_conf->ptp_class_conf.sdoid.mode = MEPA_TS_MATCH_MODE_VALUE;

@@ -12,6 +12,7 @@ struct phy_reg_dbg {
     u16 reg;
     u8 bit_hi;
     u8 bit_lo;
+    u8 is_32bit;
 };
 
 mepa_rc phy_reg_rd(mepa_device_t *const phydev,

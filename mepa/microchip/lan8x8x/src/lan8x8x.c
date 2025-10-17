@@ -169,6 +169,7 @@ static mepa_rc lan8x8x_setup_lpbk(mepa_device_t *const dev,
 
 static mepa_rc lan8x8x_sgmii_init(mepa_device_t *dev)
 {
+    phy_data_t *const data = (phy_data_t *const)dev->data;
     mepa_rc rc;
     //uint16_t val;
 
@@ -176,134 +177,158 @@ static mepa_rc lan8x8x_sgmii_init(mepa_device_t *dev)
                                       SERDES_CLOCK_CONTROL,
                                       SERDES_CLOCK_CTL_EN));
 
+    MEPA_RC_GOTO(rc, phy_mmd_reg_set_bits(dev, MDIO_MMD_VEND1,
+                                          XGMII_GMII_BYPASS,
+                                          XGMII_BYPASS_SEL));
+
     MEPA_RC_GOTO(rc, phy_mmd_reg_wr(dev, MDIO_MMD_VEND1,
                                     QSGMII_PCS1G_CONFIG,
                                     QSGMII_PCS1G_CFG_EN));
 
-    MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
-                                      SERDES_TXPLL_REFCLK_CTRL_0,
-                                      0x00D8U));
+    LAN8X8X_NSLEEP(100U);
 
-    MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
-                                      SERDES_TXPLL_CONTROL_0,
-                                      0xB9E0U));
+    if (data->conf.mac_if_aneg_ena == PHY_TRUE) {
+        MEPA_RC_GOTO(rc, phy_mmd_reg_wr(dev, MDIO_MMD_VEND1,
+                                        QSGMII_ANEG_EN_REG,
+                                        QSGMII_ANEG_CFG | QSGMII_ANEG_CFG));
 
-    MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
-                                      SERDES_LANEA_DATAPATH_0,
-                                      0x82422U));
+        MEPA_RC_GOTO(rc, phy_mmd_reg_wr(dev, MDIO_MMD_VEND1,
+                                        QSGMII_PCS1G_ANEG_CONFIG,
+                                        QSGMII_PCS1G_ANEG_SET));
+    } else {
+        MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
+                                          SERDES_TXPLL_REFCLK_CTRL_0,
+                                          0x0018U));
 
-    MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
-                                      SERDES_TXPLL_DIVIDER_0,
-                                      0x7014014U));
+        MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
+                                          SERDES_TXPLL_CONTROL_0,
+                                          0xB9E0U));
 
-    MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
-                                      SERDES_TXPLL_DIVIDER_1,
-                                      0x19U));
+        MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
+                                          SERDES_LANEA_DATAPATH_0,
+                                          0x82422U));
 
-    MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
-                                      SERDES_TXPLL_DIVIDER_2,
-                                      0x1000000U));
+        MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
+                                          SERDES_TXPLL_DIVIDER_0,
+                                          0x7014014U));
 
-    MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
-                                      SERDES_TXPLL_DIVIDER_0,
-                                      0x6011002U));
+        MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
+                                          SERDES_TXPLL_DIVIDER_1,
+                                          0x19U));
 
-    MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
-                                      SERDES_TXPLL_CONTROL_0,
-                                      0x9800));
+        MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
+                                          SERDES_TXPLL_DIVIDER_2,
+                                          0x1000000U));
 
-    MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
-                                      SERDES_LANEA_TRIM_0, 0xCB3U));
+        MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
+                                          SERDES_TXPLL_DIVIDER_0,
+                                          0x6011002U));
 
-    MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
-                                      SERDES_LANEA_DRIVER_0, 0x25555000U));
+        MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
+                                          SERDES_TXPLL_CONTROL_0,
+                                          0x9800));
 
-    MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
-                                      SERDES_LANEA_DRIVER_1, 0x7FFFU));
+        MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
+                                          SERDES_LANEA_TRIM_0, 0xCB3U));
 
-    MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
-                                      SERDES_LANEA_DRIVER_0, 0x20155000U));
+        MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
+                                          SERDES_LANEA_DRIVER_0, 0x25555000U));
 
-    MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
-                                      SERDES_TXA_DRVR_FSM_0, 0x1F804U));
+        MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
+                                          SERDES_LANEA_DRIVER_1, 0x7FFFU));
 
-    MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
-                                      SERDES_LANEA_DATAPATH_0, 0x82422U));
+        MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
+                                          SERDES_LANEA_DRIVER_0, 0x20155000U));
 
-    MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
-                                      SERDES_LANEA_TEST3_0, 0x0U));
+        MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
+                                          SERDES_TXA_DRVR_FSM_0, 0x1F804U));
 
-    MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
-                                      SERDES_LANEA_DATAPATH_0, 0x82422U));
+        MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
+                                          SERDES_LANEA_DATAPATH_0, 0x82422U));
 
-    MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
-                                      SERDES_LANEA_TXPWR_CTRL_0, 0x0U));
+        MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
+                                          SERDES_LANEA_TEST3_0, 0x0U));
 
-    MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
-                                      SERDES_LANEA_TXPWR_CTRL_0, 0x1U));
+        MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
+                                          SERDES_LANEA_DATAPATH_0, 0x82422U));
 
-    MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
-                                      SERDES_TXPLL_CONTROL_0, 0x9000U));
+        MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
+                                          SERDES_LANEA_TXPWR_CTRL_0, 0x0U));
 
-    MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
-                                      SERDES_TXPLL_CONTROL_0, 0x8000U));
+        MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
+                                          SERDES_LANEA_TXPWR_CTRL_0, 0x1U));
 
-    MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
-                                      SERDES_RXA_CDR_DIVIDERS_0, 0x8019U));
+        MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
+                                          SERDES_TXPLL_CONTROL_0, 0x9000U));
 
-    MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
-                                      SERDES_RXA_FREQUENCY_DET_0, 0x4000U));
+        MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
+                                          SERDES_TXPLL_CONTROL_0, 0x8000U));
 
-    MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
-                                      SERDES_RXA_DESCAL_OVR_0, 0x104007U));
+        MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
+                                          SERDES_RXA_CDR_DIVIDERS_0, 0x8019U));
 
-    MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
-                                      SERDES_LANEA_TRIM_0, 0xCB3U));
+        MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
+                                          SERDES_RXA_FREQUENCY_DET_0, 0x4000U));
 
-    MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
-                                      SERDES_RXA_CTLE_CTRL_0, 0x7EU));
+        MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
+                                          SERDES_RXA_DESCAL_OVR_0, 0x104007U));
 
-    MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
-                                      SERDES_RXA_DFEEM_CTRL_0, 0xFC));
+        MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
+                                          SERDES_LANEA_TRIM_0, 0xCB3U));
 
-    MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
-                                      SERDES_LANEA_POWERDOWN_0, 0x37U));
+        MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
+                                          SERDES_RXA_CTLE_CTRL_0, 0x7EU));
 
-    MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
-                                      SERDES_LANEA_DATAPATH_0, 0x82422U));
+        MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
+                                          SERDES_RXA_DFEEM_CTRL_0, 0xFC));
 
-    MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
-                                      SERDES_RXA_CTLE_CTRL_0, 0x7EU));
+        MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
+                                          SERDES_LANEA_POWERDOWN_0, 0x37U));
 
-    MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
-                                      SERDES_RXA_DFEEM_CTRL_0, 0x0U));
+        MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
+                                          SERDES_LANEA_DATAPATH_0, 0x82422U));
 
-    MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
-                                      SERDES_RXA_DESCAL_OVR_0, 0x104007U));
+        MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
+                                          SERDES_RXA_CTLE_CTRL_0, 0x7EU));
 
-    MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
-                                      SERDES_RXA_PHCTRL_0, 0x0U));
+        MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
+                                          SERDES_RXA_DFEEM_CTRL_0, 0x0U));
 
-    MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
-                                      SERDES_LANEA_DATAPATH_0, 0x82422U));
+        MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
+                                          SERDES_RXA_DESCAL_OVR_0, 0x104007U));
 
-    MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
-                                      SERDES_LANEA_POWERDOWN_0, 0x7U));
+        MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
+                                          SERDES_RXA_PHCTRL_0, 0x0U));
 
-    MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
-                                      SERDES_TOP_PD_RST_0, 0x0U));
+        MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
+                                          SERDES_LANEA_DATAPATH_0, 0x82422U));
 
-    LAN8X8X_NSLEEP(500U);
+        MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
+                                          SERDES_LANEA_POWERDOWN_0, 0x7U));
 
-    MEPA_RC_GOTO(rc, phy_mmd_reg_wr(dev, MDIO_MMD_VEND1,
-                                    QSGMII_ANEG_EN_REG,
-                                    QSGMII_ANEG_CFG));
+        LAN8X8X_NSLEEP(100U);
+
+        MEPA_RC_GOTO(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
+                                          SERDES_TOP_PD_RST_0, 0x0U));
+
+        LAN8X8X_NSLEEP(500U);
+
+        MEPA_RC_GOTO(rc, phy_mmd_reg_wr(dev, MDIO_MMD_VEND1,
+                                        QSGMII_ANEG_EN_REG,
+                                        QSGMII_ANEG_CFG));
+
+        MEPA_RC_GOTO(rc, phy_mmd_reg_wr(dev, MDIO_MMD_VEND1,
+                                        QSGMII_PCS1G_ANEG_CONFIG,
+                                        QSGMII_PCS1G_SW_RESOLVE_PRIORITY));
+
+        LAN8X8X_NSLEEP(500U);
 
 #if 0
-    (void) phy_mmd_reg_poll(dev, MDIO_MMD_VEND1,
-                            QSGMII_PCS1G_CONFIG, 0xAF8U, 0xAFFU,
-                            0x1U, 4000U, &val);
+        (void) phy_mmd_reg_poll(dev, MDIO_MMD_VEND1,
+                                QSGMII_PCS1G_CONFIG, 0xAF8U, 0xAFFU,
+                                0x1U, 4000U, &val);
 #endif
+    }
 
     return rc;
 }
@@ -1689,16 +1714,53 @@ static mepa_rc lan8x8x_debug_info(mepa_device_t *dev,
                                   const mepa_debug_info_t   *const info)
 {
     struct phy_reg_dbg lan8x8x_regs[] = {
-        {"CL22 Control",                0U, 0U, 0U, 0U},
-        {"CL22 Status",                 0U, 1U, 0U, 0U},
-        {"CHIPTOP:MACSEC_STATUS",       MDIO_MMD_VEND1, (CHIPTOP + 0x2U), 0U, 0U},
-        {"CHIPTOP:MAC_NE_LPBK",         MDIO_MMD_VEND1, (CHIPTOP + 0x1FU), 0U, 0U},
-        {"CHIPTOP:T1_PHY_RES_CAL",      MDIO_MMD_VEND1, (CHIPTOP + 0x28U), 0U, 0U},
-        {"CHIPTOP:T1_PHY_COMM_READY",   MDIO_MMD_VEND1, (CHIPTOP + 0x2DU), 0U, 0U},
-        {"CHIPTOP:STRAP_READ_REG",      MDIO_MMD_VEND1, (CHIPTOP + 0x36U), 0U, 0U},
-        {"CHIPTOP:CLKOUT_CONFIG",       MDIO_MMD_VEND1, (CHIPTOP + 0x37U), 0U, 0U},
-        {"CLK_RST_RGMII_RX_DLL_CFG",    MDIO_MMD_VEND1, LAN8X8X_RGMII_RX_DLL_CFG, 0U, 0U},
-        {"CLK_RST_RGMII_TX_DLL_CFG",    MDIO_MMD_VEND1, LAN8X8X_RGMII_TX_DLL_CFG, 0U, 0U},
+        {"CL22 Control",                0U, 0U, 0U, 0U, 0U},
+        {"CL22 Status",                 0U, 1U, 0U, 0U, 0U},
+        {"CHIPTOP:MACSEC_STATUS",       MDIO_MMD_VEND1, (CHIPTOP + 0x2U), 0U, 0U, 0U},
+        {"CHIPTOP:MAC_NE_LPBK",         MDIO_MMD_VEND1, (CHIPTOP + 0x1FU), 0U, 0U, 0U},
+        {"CHIPTOP:T1_PHY_RES_CAL",      MDIO_MMD_VEND1, (CHIPTOP + 0x28U), 0U, 0U, 0U},
+        {"CHIPTOP:T1_PHY_COMM_READY",   MDIO_MMD_VEND1, (CHIPTOP + 0x2DU), 0U, 0U, 0U},
+        {"CHIPTOP:STRAP_READ_REG",      MDIO_MMD_VEND1, (CHIPTOP + 0x36U), 0U, 0U, 0U},
+        {"CHIPTOP:CLKOUT_CONFIG",       MDIO_MMD_VEND1, (CHIPTOP + 0x37U), 0U, 0U, 0U},
+        {"CHIPTOP:OTP_STRAP_REG",   MDIO_MMD_VEND1, (OTP_STRAP_READ_REG), 0U, 0U, 0U},
+        {"T1_1G_TOP_CTRL_CONFIG",   MDIO_MMD_PMAPMD, T1_1G_TOP_CTRL_CONFIG, 0U, 0U, 0U},
+        {"T1_1G_E1000T1_PCS_EN",    MDIO_MMD_PCS, T1_1G_E1000T1_PCS_EN, 0U, 0U, 1U},
+        {"CLK_RST_RGMII_RX_DLL_CFG",    MDIO_MMD_VEND1, LAN8X8X_RGMII_RX_DLL_CFG, 0U, 0U, 0U},
+        {"CLK_RST_RGMII_TX_DLL_CFG",    MDIO_MMD_VEND1, LAN8X8X_RGMII_TX_DLL_CFG, 0U, 0U, 0U},
+        {"OTP:OTP_PRG",         MDIO_MMD_VEND1, (T1_OTP_RO + 0x10), 0U, 0U, 0U},
+        {"OTP:EMU_CONTROL",     MDIO_MMD_VEND1, (T1_OTP_RO + 0x11), 0U, 0U, 0U},
+        {"OTP:PART_ID",         MDIO_MMD_VEND1, (T1_OTP_RO + 0x13), 0U, 0U, 0U},
+        {"OTP:MODEL_REV",       MDIO_MMD_VEND1, (T1_OTP_RO + 0x14), 0U, 0U, 0U},
+        {
+            "OTP:STRAP_OVERRIDE",      MDIO_MMD_VEND1, (T1_OTP_RO + 0x15), 0U, 0U,
+            0U
+        },
+        {"OTP:RGMII0",          MDIO_MMD_VEND1, (T1_OTP_RO + 0x16), 0U, 0U, 0U},
+        {"OTP:RGMII1",          MDIO_MMD_VEND1, (T1_OTP_RO + 0x17), 0U, 0U, 0U},
+        {"OTP:RGMII2",          MDIO_MMD_VEND1, (T1_OTP_RO + 0x18), 0U, 0U, 0U},
+        {"AN:MDIO_AN_T1_ADV_L",   MDIO_MMD_AN, MDIO_AN_T1_ADV_L, 0U, 0U, 0U},
+        {"AN:MDIO_AN_T1_ADV_M",   MDIO_MMD_AN, MDIO_AN_T1_ADV_M, 0U, 0U, 0U},
+        {"AN:MDIO_AN_T1_LP_L",   MDIO_MMD_AN, MDIO_AN_T1_LP_L, 0U, 0U, 0U},
+        {"AN:MDIO_AN_T1_LP_M",   MDIO_MMD_AN, MDIO_AN_T1_LP_M, 0U, 0U, 0U},
+        {"AN:BASE_T1_AN_CONTROL",   MDIO_MMD_AN, MDIO_AN_T1_CTRL, 0U, 0U, 0U},
+        {"AN:BASE_T1_AN_STATUS",    MDIO_MMD_AN, MDIO_AN_T1_STAT, 0U, 0U, 0U},
+        {"AN:AUTONEG_STATUS",       MDIO_MMD_AN, 0x8002, 0U, 0U, 1U},
+        {"SERDES_CLOCK_CONTROL",    MDIO_MMD_VEND1, SERDES_CLOCK_CONTROL, 0U, 0U, 1U},
+        {"QSGMII_PCS1G_CONFIG",     MDIO_MMD_VEND1, QSGMII_PCS1G_CONFIG, 0U, 0U, 0U},
+        {"QSGMII_PCS1G_ANEG_CONFIG",    MDIO_MMD_VEND1, QSGMII_PCS1G_ANEG_CONFIG, 0U, 0U, 0U},
+        {"QSGMII_ANEG_EN_REG",      MDIO_MMD_VEND1, QSGMII_ANEG_EN_REG, 0U, 0U, 0U},
+        {"RX_FIFO_LW_WRCNT",            MDIO_MMD_VEND1, 0xF0AF, 0U, 0U, 0U},
+        {"RX_FIFO_UW_WRCNT",            MDIO_MMD_VEND1, 0xF0B0, 0U, 0U, 0U},
+        {"RX_FIFO_LW_RDCNT",            MDIO_MMD_VEND1, 0xF0B1, 0U, 0U, 0U},
+        {"RX_FIFO_UW_RDCNT",            MDIO_MMD_VEND1, 0xF0B2, 0U, 0U, 0U},
+        {"TX_FIFO_LW_WRCNT",            MDIO_MMD_VEND1, 0xF0B3, 0U, 0U, 0U},
+        {"TX_FIFO_UW_WRCNT",            MDIO_MMD_VEND1, 0xF0B4, 0U, 0U, 0U},
+        {"TX_FIFO_LW_RDCNT",            MDIO_MMD_VEND1, 0xF0B5, 0U, 0U, 0U},
+        {"TX_FIFO_UW_RDCNT",            MDIO_MMD_VEND1, 0xF0B6, 0U, 0U, 0U},
+        {"T1_1G_RF_CRC:STATUS",         MDIO_MMD_PMAPMD, 0x8400, 0U, 0U, 1U},
+        {"T1_1G_RF_CRC:EXPECTED",       MDIO_MMD_PMAPMD, 0x8402, 0U, 0U, 1U},
+        {"T1_1G_RF_CRC:CURRENT",    MDIO_MMD_PMAPMD, 0x8404, 0U, 0U, 1U},
+        {"T1_1G_RF_CRC:AUTO_CTRL",  MDIO_MMD_PMAPMD, 0x8406, 0U, 0U, 1U},
     };
 
     mepa_rc rc = MEPA_RC_ERROR;

@@ -94,14 +94,17 @@
                      QSGMII_SAVE_PREAMBLE_EN)
 
 #define QSGMII_PCS1G_ANEG_CONFIG        (PCS1G_REG + 0x3U)
+#define QSGMII_PCS1G_SW_RESOLVE_PRIORITY   BIT(5)
 #define QSGMII_PCS1G_ANEG_RESTART   BIT(4)
 #define QSGMII_PCS1G_ANEG_ENA       BIT(3)
 #define QSGMII_PCS1G_ANEG_SET       (QSGMII_PCS1G_ANEG_ENA | \
+                     QSGMII_PCS1G_SW_RESOLVE_PRIORITY | \
                      QSGMII_PCS1G_ANEG_RESTART)
 
 #define QSGMII_ANEG_EN_REG                  (PCS1G_REG + 0xBU)
-#define QSGMII_NP_DISABLE               BIT(2)
+#define QSGMII_NP_DISABLE           BIT(2)
 #define QSGMII_SGMII_USGMII_TX_CFG_EN       BIT(1)
+#define QSGMII_ANEG_EN              BIT(0)
 #define QSGMII_ANEG_CFG             (QSGMII_SGMII_USGMII_TX_CFG_EN |\
                          QSGMII_NP_DISABLE)
 

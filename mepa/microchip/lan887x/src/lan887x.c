@@ -48,44 +48,44 @@ static const struct phy_reg_map lan887x_onetime_setup[] = {
  */
 
 static const struct phy_reg_dbg lan887x_regs[] = {
-    { "Basic Control Register", 0, MII_BMCR, 0, 0},
-    { "Basic Status Register", 0, MII_BMSR, 0, 0},
-    { "Device Identifier 1 Register", 0, MII_PHYSID1, 0, 0},
-    { "Device Identifier 2 Register", 0, MII_PHYSID2, 0, 0},
-    { "MMD Access Control Register", 0, MII_MMD_CTRL, 0, 0},
-    { "MMD Access Address/Data Register", 0, MII_MMD_DATA, 0, 0},
+    { "Basic Control Register", 0, MII_BMCR, 0, 0, 0U},
+    { "Basic Status Register", 0, MII_BMSR, 0, 0, 0U},
+    { "Device Identifier 1 Register", 0, MII_PHYSID1, 0, 0, 0U},
+    { "Device Identifier 2 Register", 0, MII_PHYSID2, 0, 0, 0U},
+    { "MMD Access Control Register", 0, MII_MMD_CTRL, 0, 0, 0U},
+    { "MMD Access Address/Data Register", 0, MII_MMD_DATA, 0, 0, 0U},
     {
         "chiptop_regs:PMA_CONTROL_T1", MDIO_MMD_PMAPMD, MDIO_PMA_PMD_BT1_CTRL, 0,
-        0
+        0, 0U
     },
     //SGMII or RGMII configuration
-    { "mis_regs:MIS_CFG_REG0", MDIO_MMD_VEND1, LAN887X_MIS_CFG_REG0, 0, 0},
+    { "mis_regs:MIS_CFG_REG0", MDIO_MMD_VEND1, LAN887X_MIS_CFG_REG0, 0, 0, 0U},
     {
         "mx_chip_top_regs:SGMII_CTL", MDIO_MMD_VEND1,
-        LAN887X_MX_CHIP_TOP_REG_SGMII_CTL, 0, 0
+        LAN887X_MX_CHIP_TOP_REG_SGMII_CTL, 0, 0, 0U
     },
-    { "mx_chip_top_regs:SGMII_MPLL_CTL", MDIO_MMD_VEND1, 0xF028, 0, 0},
-    { "mx_chip_top_regs:SGMII_CTL_STS", MDIO_MMD_VEND1, 0xF02B, 0, 0},
+    { "mx_chip_top_regs:SGMII_MPLL_CTL", MDIO_MMD_VEND1, 0xF028, 0, 0, 0U},
+    { "mx_chip_top_regs:SGMII_CTL_STS", MDIO_MMD_VEND1, 0xF02B, 0, 0, 0U},
     {
         "mx_chip_top_regs:SGMII_PCS_CFG", MDIO_MMD_VEND1,
-        LAN887X_MX_CHIP_TOP_SGMII_PCS_CFG, 0, 0
+        LAN887X_MX_CHIP_TOP_SGMII_PCS_CFG, 0, 0, 0U
     },
-    { "mx_chip_top_regs:PCS_ANEG_CFG", MDIO_MMD_VEND1, 0xF035, 0, 0},
+    { "mx_chip_top_regs:PCS_ANEG_CFG", MDIO_MMD_VEND1, 0xF035, 0, 0, 0U},
     {
         "mx_chip_top_regs:QSGMII_ANEG", MDIO_MMD_VEND1,
-        LAN887X_MX_CHIP_TOP_QSGMII_ANEG_REG, 0, 0
+        LAN887X_MX_CHIP_TOP_QSGMII_ANEG_REG, 0, 0, 0U
     },
     {
         "mx_chip_top_regs:SGMII_MPLL_CTL", MDIO_MMD_VEND1,
-        LAN887X_MX_CHIP_TOP_SGMII_MPLL_CTL, 0, 0
+        LAN887X_MX_CHIP_TOP_SGMII_MPLL_CTL, 0, 0, 0U
     },
     // start - SGMII debugging
-    { "mx_chip_top_regs:SKU_DBG_STS", MDIO_MMD_VEND1, 0xF041, 0, 0},
-    { "mx_chip_top_regs:EFUSE_READ_DAT9", MDIO_MMD_VEND1, 0xF209, 0, 0},
-    { "mx_uvov_regs:UVOV_CFG2_0", MDIO_MMD_VEND1, 0xF22C, 0, 0},
-    { "mx_uvov_regs:UVOV_CFG2_1", MDIO_MMD_VEND1, 0xF22D, 0, 0},
-    { "mx_uvov_regs:UVOV_CFG2_2", MDIO_MMD_VEND1, 0xF22E, 0, 0},
-    { "mx_uvov_regs:UVOV_CFG2_3", MDIO_MMD_VEND1, 0xF22F, 0, 0},
+    { "mx_chip_top_regs:SKU_DBG_STS", MDIO_MMD_VEND1, 0xF041, 0, 0, 0U},
+    { "mx_chip_top_regs:EFUSE_READ_DAT9", MDIO_MMD_VEND1, 0xF209, 0, 0, 0U},
+    { "mx_uvov_regs:UVOV_CFG2_0", MDIO_MMD_VEND1, 0xF22C, 0, 0, 0U},
+    { "mx_uvov_regs:UVOV_CFG2_1", MDIO_MMD_VEND1, 0xF22D, 0, 0, 0U},
+    { "mx_uvov_regs:UVOV_CFG2_2", MDIO_MMD_VEND1, 0xF22E, 0, 0, 0U},
+    { "mx_uvov_regs:UVOV_CFG2_3", MDIO_MMD_VEND1, 0xF22F, 0, 0, 0U},
     // end - SGMII debugging
     // start - Aneg debugging
     {
@@ -2345,9 +2345,7 @@ mepa_drivers_t mepa_lan887x_driver_init(void)
             .mepa_driver_isolate_mode_conf  = lan887x_isolate_mode_set,
             .mepa_driver_cable_diag_start   = lan887x_cable_diag_start,
             .mepa_driver_cable_diag_get     = lan887x_cable_diag_get,
-#ifdef MEPA_OPT_TC10
             .mepa_tc10                      = &lan887x_tc10_drivers,
-#endif
         },
     };
     mepa_drivers_t result;

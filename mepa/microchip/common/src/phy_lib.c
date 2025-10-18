@@ -210,7 +210,7 @@ mepa_rc phy_mmd_reg_wr32(mepa_device_t *const dev, uint8_t const mmd,
 }
 
 mepa_rc phy_mmd_reg_mod32(mepa_device_t *const phydev,
-                          uint32_t const dev, uint32_t const offset,
+                          uint8_t const dev, uint32_t const offset,
                           uint32_t const mask, uint32_t const value)
 {
     uint32_t val = 0;

@@ -67,7 +67,7 @@ mepa_rc phy_mmd_reg_poll32(mepa_device_t *const dev, uint8_t const devad,
                            uint8_t cond, uint32_t to, uint32_t *val);
 
 mepa_rc phy_mmd_reg_mod32(mepa_device_t *const phydev,
-                          uint32_t const dev, uint32_t const offset,
+                          uint8_t const dev, uint32_t const offset,
                           uint32_t const mask, uint32_t const value);
 
 void phy_reg_dump(struct mepa_device *dev,

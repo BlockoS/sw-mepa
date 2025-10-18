@@ -2055,45 +2055,6 @@ static mepa_rc lan8x8x_cable_diag_start_int(mepa_device_t *dev)
     return rc;
 }
 
-static mepa_rc lan8x8x_cable_diag_start(mepa_device_t *dev, int32_t mode)
-{
-    mepa_rc rc = MEPA_RC_ERROR;
-
-    if (dev != NULL) {
-        switch (mode) {
-        case 1:
-            MEPA_ENTER(dev);
-            rc = lan8x8x_cable_diag_start_int(dev);
-            MEPA_EXIT(dev);
-            break;
-        default:
-            rc = MEPA_RC_NOT_IMPLEMENTED;
-            break;
-        }
-    }
-
-    return rc;
-}
-
-static mepa_rc lan8x8x_cable_diag_get(mepa_device_t *dev, mepa_cable_diag_result_t *res)
-{
-    mepa_rc rc = MEPA_RC_ERROR;
-
-    if ((dev != NULL) && (res != NULL)) {
-        phy_data_t *const data = (phy_data_t *const)dev->data;
-
-        rc = MEPA_RC_OK;
-
-        MEPA_ENTER(dev);
-        *res = data->cd_res;
-        data->cd_res.length[TC12_HDD_TDR_PAIR_0] = 0U;
-        data->cd_res.status[TC12_HDD_TDR_PAIR_0] = MESA_VERIPHY_STATUS_UNKNOWN;
-        MEPA_EXIT(dev);
-    }
-
-    return rc;
-}
-
 static void fill_driver_info(uint32_t id, uint32_t mask, mepa_driver_t *drv_inst)
 {
     T_D(  "Fill driver info for phy_id=0x%x\n", id);
@@ -2128,8 +2089,6 @@ static void fill_driver_info(uint32_t id, uint32_t mask, mepa_driver_t *drv_inst
     drv_inst->mepa_driver_event_enable_set   = &lan8x8x_event_enable_set;
     drv_inst->mepa_driver_event_enable_get   = &lan8x8x_event_enable_get;
     drv_inst->mepa_driver_event_poll         = &lan8x8x_event_status_poll;
-    drv_inst->mepa_driver_cable_diag_start   = &lan8x8x_cable_diag_start;
-    drv_inst->mepa_driver_cable_diag_get     = &lan8x8x_cable_diag_get;
 }
 
 mepa_drivers_t mepa_lan8x8x_driver_init(void)

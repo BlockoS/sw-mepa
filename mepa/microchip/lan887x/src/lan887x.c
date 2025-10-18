@@ -2345,7 +2345,9 @@ mepa_drivers_t mepa_lan887x_driver_init(void)
             .mepa_driver_isolate_mode_conf  = lan887x_isolate_mode_set,
             .mepa_driver_cable_diag_start   = lan887x_cable_diag_start,
             .mepa_driver_cable_diag_get     = lan887x_cable_diag_get,
+#ifdef MEPA_OPT_TC10
             .mepa_tc10                      = &lan887x_tc10_drivers,
+#endif //MEPA_OPT_TC10
         },
     };
     mepa_drivers_t result;

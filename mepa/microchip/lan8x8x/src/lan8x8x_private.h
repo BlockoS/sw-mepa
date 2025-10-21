@@ -10,7 +10,7 @@
 #define LAN8X8X_NSLEEP(ns)           MEPA_NSLEEP((ns))
 #define LAN8X8X_MTIMER_START(t, ms)  MEPA_MTIMER_START((t), (ms))
 
-#define MEPA_RC_GOTO(rc, expr) { { (rc) = (expr); }  if ((rc) != 0) { return rc; } }
+#define MEPA_RC(rc, expr) { { (rc) = (expr); }  if ((rc) != 0) { return rc; } }
 
 // Locking Macros
 // The variable 'dev' is passed as macro argument to obtain callback pointers and call actual lock functions. It does not indicate locks per port.

@@ -198,7 +198,7 @@ static mepa_rc lan8x8x_sgmii_init(mepa_device_t *dev)
     } else {
         MEPA_RC(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
                                      SERDES_TXPLL_REFCLK_CTRL_0,
-                                     SERDES_TXPLL_REFCLK_SET));
+                                     0x18U));
 
         MEPA_RC(rc, phy_mmd_reg_wr32(dev, MDIO_MMD_VEND1,
                                      SERDES_TXPLL_CONTROL_0,

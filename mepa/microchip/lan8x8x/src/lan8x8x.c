@@ -322,7 +322,6 @@ static mepa_rc lan8x8x_sgmii_init(mepa_device_t *dev)
                                    QSGMII_PCS1G_SW_RESOLVE_PRIORITY));
 
         LAN8X8X_NSLEEP(500U);
-
 #if 0
         (void) phy_mmd_reg_poll(dev, MDIO_MMD_VEND1,
                                 QSGMII_PCS1G_CONFIG, 0xAF8U, 0xAFFU,
@@ -379,12 +378,21 @@ static mepa_rc lan8x8x_rgmii_init(mepa_device_t *dev)
 static mepa_rc lan8x8x_config_mac(mepa_device_t *dev)
 {
     const phy_data_t *const data = (const phy_data_t *const)dev->data;
+    uint16_t val = 0U;
+    mepa_rc rc;
 
     if (data->mac_if == MESA_PORT_INTERFACE_SGMII) {
-        return lan8x8x_sgmii_init(dev);
+        rc = lan8x8x_sgmii_init(dev);
+        val = MAC_NE_LPBK_ENA;
+    } else {
+        rc = lan8x8x_rgmii_init(dev);
     }
 
-    return lan8x8x_rgmii_init(dev);
+    //UNG_EWOOD-599: set/clear MAC_NE based on mac_ifc
+    MEPA_RC(rc, phy_mmd_reg_wr(dev, MDIO_MMD_VEND1,
+                               MAC_NE_LPBK, val));
+
+    return rc;
 }
 
 static mepa_rc lan8x8x_phy_init(mepa_device_t *const dev)

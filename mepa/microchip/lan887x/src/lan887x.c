@@ -84,7 +84,6 @@ static const struct phy_reg_dbg lan887x_regs[] = {
     { "aneg_regs:ANEG_LP_AB_REG2", MDIO_MMD_AN, 0x206},
     { "aneg_regs:ANEG_LP_AB_REG3", MDIO_MMD_AN, 0x207},
     { "aneg_regs:VEND_DBG_CTRL_STAT_REG", MDIO_MMD_AN, 0x8013},
-#ifdef MEPA_OPT_TC10
     // end - Aneg debugging
     { "tc10_dev30_common:REG15", MDIO_MMD_VEND1, LAN887X_DEV30_COMMON_TC10_REG_REG15},
     { "tc10_dev30_common:TC10_MISC33", MDIO_MMD_VEND1, LAN887X_DEV30_COMMON_TC10_MISC33},
@@ -94,7 +93,6 @@ static const struct phy_reg_dbg lan887x_regs[] = {
     { "tc10_dev30_common:TC10_SENDZ_MINWAIT_TMR_CFG", MDIO_MMD_VEND1, LAN887X_DEV30_COMMON_TC10_SENDZ_MINWAIT_TMR_CFG},
     { "misc_regs:REG16", MDIO_MMD_VEND1, LAN887X_MISC_REGS_REG16},
     { "misc_regs:MISC37", MDIO_MMD_VEND1, LAN887X_MISC_REGS_MISC37},
-#endif // MEPA_OPT_TC10
     { "statistics:TX Good Count", MDIO_MMD_VEND1, LAN887X_MIS_PKT_STAT_REG0},
     { "statistics:RX Good Count", MDIO_MMD_VEND1, LAN887X_MIS_PKT_STAT_REG1},
     { "statistics:RX ERR Count detected by PCS", MDIO_MMD_VEND1, LAN887X_MIS_PKT_STAT_REG3},
@@ -530,10 +528,8 @@ static mepa_rc lan887x_phy_setup(mepa_device_t *const dev)
     }
     data->init_done = PHY_TRUE;
 
-#ifdef MEPA_OPT_TC10
     // Initialize TC10 required config
     MEPA_RC_GOTO(rc, lan887x_phy_tc10_set_config(dev, &data->tc10_cfg));
-#endif // MEPA_OPT_TC10
 
     MEPA_RC_GOTO(rc, lan887x_phy_init(dev));
 
@@ -574,12 +570,10 @@ static mepa_rc lan887x_phy_cfg_clr(mepa_device_t *const dev)
     phy_data_t *data = (phy_data_t *) dev->data;
     mepa_rc rc = MEPA_RC_OK;
 
-#ifdef MEPA_OPT_TC10
     uint16_t reg_val = 0;
 
     //clear tc10 interrupt register
     MEPA_RC_GOTO(rc, phy_mmd_reg_rd(dev, MDIO_MMD_VEND1, 0xc22U, &reg_val));
-#endif // MEPA_OPT_TC10
 
     //clear loopback if it is setup in prev. config
     MEPA_RC_GOTO(rc, lan887x_setup_lpbk(dev, NULL));
@@ -1578,7 +1572,6 @@ static void lan887x_fill_probe_data(mepa_driver_t *drv,
 
     data->led_conf[MEPA_LED2].led_num = MEPA_LED2;
     data->led_conf[MEPA_LED2].mode = MEPA_GPIO_MODE_LED_LINK_ACTIVITY;
-#ifdef MEPA_OPT_TC10
     data->tc10_cfg.sleep_enable = PHY_TRUE;
     data->tc10_cfg.wakeup_mode = MEPA_TC10_WAKEUP_WUP_WAKEIN_ENABLE;
     data->tc10_cfg.wakeup_fwd_mode = MEPA_TC10_WAKEUP_FWD_WUP_WAKEOUT_ENABLE;
@@ -1586,7 +1579,6 @@ static void lan887x_fill_probe_data(mepa_driver_t *drv,
     data->tc10_cfg.wake_out_pol = MEPA_GPIO_MODE_ACTIVE_LOW;
     data->tc10_cfg.wake_out_mode = MEPA_GPIO_MODE_PUSH_PULL;
     data->tc10_cfg.inh_mode = MEPA_GPIO_MODE_OPEN_SOURCE;
-#endif // MEPA_OPT_TC10
 
     //Cable diag data reset
     data->cd_res.link = PHY_LINKDOWN;

@@ -5,15 +5,9 @@
 #define _MICROCHIP_ETHERNET_PHY_API_PHY_DRV_H_
 
 #include <mepa_os.h>
-#ifdef MEPA_OPT_TS
 #include <mepa_ts_driver.h>
-#endif
-#ifdef MEPA_OPT_MACSEC
 #include <mepa_macsec_driver.h>
-#endif
-#ifdef MEPA_OPT_TC10
 #include <mepa_tc10_driver.h>
-#endif
 #include <mepa_t1s_driver.h>
 #include <microchip/ethernet/phy/api.h>
 #include <microchip/ethernet/hdr_start.h>  /**< ALL INCLUDE ABOVE THIS LINE */
@@ -62,8 +56,8 @@ typedef mepa_rc (*mepa_driver_delete_t)(struct mepa_device *dev);
  *   MEPA_RC_OK on success.
  **/
 typedef mepa_rc (*mepa_driver_reset_t)(
-        struct mepa_device *dev,
-        const mepa_reset_param_t *rst_conf);
+    struct mepa_device *dev,
+    const mepa_reset_param_t *rst_conf);
 
 /**
  * \brief Get the current status of the PHY.
@@ -77,8 +71,8 @@ typedef mepa_rc (*mepa_driver_reset_t)(
  *   MEPA_RC_ERROR on error.
  **/
 typedef mepa_rc (*mepa_driver_poll_t)(
-        struct mepa_device *dev,
-        mepa_status_t *status);
+    struct mepa_device *dev,
+    mepa_status_t *status);
 
 /**
  * \brief Set the configuration of the PHY.
@@ -119,8 +113,8 @@ typedef mepa_rc (*mepa_driver_conf_get_t)(struct mepa_device *dev, mepa_conf_t *
  *   MEPA_RC_ERROR on error.
  **/
 typedef mepa_rc (*mepa_driver_if_set_t)(
-        struct mepa_device *dev,
-        mepa_port_interface_t intf);
+    struct mepa_device *dev,
+    mepa_port_interface_t intf);
 
 /**
  * \brief Get the PHY interface based on speed.
@@ -134,9 +128,9 @@ typedef mepa_rc (*mepa_driver_if_set_t)(
  *   MEPA_RC_OK on success.
  **/
 typedef mepa_rc (*mepa_driver_if_get_t)(
-        struct mepa_device *dev,
-        mepa_port_speed_t speed,
-        mepa_port_interface_t *intf);
+    struct mepa_device *dev,
+    mepa_port_speed_t speed,
+    mepa_port_interface_t *intf);
 
 /**
  * \brief Sets the power mode.
@@ -148,8 +142,8 @@ typedef mepa_rc (*mepa_driver_if_get_t)(
  *   MEPA_RC_NOT_IMPLEMENTED when not supported.
  **/
 typedef mepa_rc (*mepa_driver_power_set_t)(
-        struct mepa_device *dev,
-        mepa_power_mode_t power);
+    struct mepa_device *dev,
+    mepa_power_mode_t power);
 
 /**
  * \brief Starts cable diag.
@@ -240,7 +234,7 @@ typedef mepa_rc (*mepa_driver_aneg_status_get_t)(
  *   MEPA_RC_OK on success.\n
  **/
 typedef mepa_rc (*mepa_driver_clause22_read_t)(struct mepa_device *dev,
-                 uint32_t address, uint16_t *const value);
+                                               uint32_t address, uint16_t *const value);
 
 /**
  * \brief  PHY register write access using clause22 format for debugging
@@ -256,7 +250,7 @@ typedef mepa_rc (*mepa_driver_clause22_read_t)(struct mepa_device *dev,
  *   MEPA_RC_OK on success.
  **/
 typedef mepa_rc (*mepa_driver_clause22_write_t)(struct mepa_device *dev,
-                 uint32_t address, uint16_t value);
+                                                uint32_t address, uint16_t value);
 
 /**
  * \brief  PHY register read access using clause45 format for debugging
@@ -272,7 +266,7 @@ typedef mepa_rc (*mepa_driver_clause22_write_t)(struct mepa_device *dev,
  *    MEPA_RC_OK on success.
  **/
 typedef mepa_rc (*mepa_driver_clause45_read_t)(struct mepa_device *dev,
-                 uint32_t address, uint16_t *const value);
+                                               uint32_t address, uint16_t *const value);
 
 /**
  * \brief  PHY register write access using clause45 format for debugging
@@ -288,7 +282,7 @@ typedef mepa_rc (*mepa_driver_clause45_read_t)(struct mepa_device *dev,
  *    MEPA_RC_OK on success.
  **/
 typedef mepa_rc (*mepa_driver_clause45_write_t)(struct mepa_device *dev,
-                 uint32_t address, uint16_t value);
+                                                uint32_t address, uint16_t value);
 
 /**
  * \brief  Enable PHY events.
@@ -302,7 +296,7 @@ typedef mepa_rc (*mepa_driver_clause45_write_t)(struct mepa_device *dev,
  *   MEPA_RC_OK on success.
  **/
 typedef mepa_rc (*mepa_driver_event_enable_set_t)(struct mepa_device *dev,
-                 mepa_event_t event, mesa_bool_t enable);
+                                                  mepa_event_t event, mesa_bool_t enable);
 
 /**
  * \brief  Get the PHY events currently enabled.
@@ -315,7 +309,7 @@ typedef mepa_rc (*mepa_driver_event_enable_set_t)(struct mepa_device *dev,
  *    MEPA_RC_OK on success.
  **/
 typedef mepa_rc (*mepa_driver_event_enable_get_t)(struct mepa_device *dev,
-                 mepa_event_t *const event);
+                                                  mepa_event_t *const event);
 
 /**
  * \brief Poll the status of PHY events.
@@ -340,7 +334,7 @@ typedef mepa_rc (*mepa_driver_event_poll_t)(struct mepa_device *dev, mepa_event_
  *   MEPA_RC_OK on success.
  **/
 typedef mepa_rc (*mepa_driver_phy_fefi_set_t)(struct mepa_device *dev,
-                 const mepa_fefi_mode_t *fefi_conf);
+                                              const mepa_fefi_mode_t *fefi_conf);
 
 /**
  * \breif FEFI Get
@@ -354,7 +348,7 @@ typedef mepa_rc (*mepa_driver_phy_fefi_set_t)(struct mepa_device *dev,
  *
  **/
 typedef mepa_rc (*mepa_driver_phy_fefi_get_t)(struct mepa_device *dev,
-                  mepa_fefi_mode_t *const fefi_conf);
+                                              mepa_fefi_mode_t *const fefi_conf);
 
 /**
  * \breif FEFI detection
@@ -367,7 +361,7 @@ typedef mepa_rc (*mepa_driver_phy_fefi_get_t)(struct mepa_device *dev,
  *   MEPA_RC_OK on success.
  **/
 typedef mepa_rc (*mepa_driver_phy_fefi_detect_t)(struct mepa_device *dev,
-                 mepa_bool_t *const fefi_detect);
+                                                 mepa_bool_t *const fefi_detect);
 
 /**
  * \breif Set EEE Configuration
@@ -466,7 +460,7 @@ typedef mepa_rc (*mepa_driver_gpio_out_set_t)(struct mepa_device *dev, uint8_t g
  *    MEPA_RC_NOT_IMPLEMENTED when not supported.\n
  *    MEPA_RC_OK on success.
  **/
-typedef mepa_rc (*mepa_driver_gpio_in_get_t)(struct mepa_device *dev, uint8_t gpio_no, mepa_bool_t * const value);
+typedef mepa_rc (*mepa_driver_gpio_in_get_t)(struct mepa_device *dev, uint8_t gpio_no, mepa_bool_t *const value);
 
 /**
  * \brief Configure recovered clock
@@ -539,8 +533,8 @@ typedef mepa_rc (*mepa_driver_chip_temp_get_t)(struct mepa_device *dev, i16 *con
  *   MEPA_RC_OK on success.
  **/
 typedef mepa_rc (*mepa_debug_info_dump_t)(struct mepa_device *dev,
-                             const mepa_debug_print_t pr,
-                             const mepa_debug_info_t   *const info);
+                                          const mepa_debug_print_t pr,
+                                          const mepa_debug_info_t   *const info);
 
 /**
  * \brief I2C Read - perform i2C I/O thru PHY for Reading SFP using i2C i/f
@@ -562,12 +556,12 @@ typedef mepa_rc (*mepa_debug_info_dump_t)(struct mepa_device *dev,
  *   MEPA_RC_OK on success.
  **/
 typedef mepa_rc (*mepa_driver_phy_i2c_read_t)(struct mepa_device *dev,
-                             const uint8_t i2c_mux,
-                             const uint8_t i2c_reg_addr,
-                             const uint8_t i2c_dev_addr,
-                             const mepa_bool_t word_access,
-                             uint8_t cnt,
-                             uint8_t *const value);
+                                              const uint8_t i2c_mux,
+                                              const uint8_t i2c_reg_addr,
+                                              const uint8_t i2c_dev_addr,
+                                              const mepa_bool_t word_access,
+                                              uint8_t cnt,
+                                              uint8_t *const value);
 
 /**
  *
@@ -590,12 +584,12 @@ typedef mepa_rc (*mepa_driver_phy_i2c_read_t)(struct mepa_device *dev,
  *   MEPA_RC_OK on success.
  **/
 typedef mepa_rc (*mepa_driver_phy_i2c_write_t)(struct mepa_device *dev,
-                             const uint8_t i2c_mux,
-                             const uint8_t i2c_reg_addr,
-                             const uint8_t i2c_dev_addr,
-                             const mepa_bool_t word_access,
-                             uint8_t cnt,
-                             const uint8_t *value);
+                                               const uint8_t i2c_mux,
+                                               const uint8_t i2c_reg_addr,
+                                               const uint8_t i2c_dev_addr,
+                                               const mepa_bool_t word_access,
+                                               uint8_t cnt,
+                                               const uint8_t *value);
 
 /**
  * \brief I2C clock frequency select
@@ -609,7 +603,7 @@ typedef mepa_rc (*mepa_driver_phy_i2c_write_t)(struct mepa_device *dev,
  *   MEPA_RC_OK on success.
  **/
 typedef mepa_rc (*mepa_driver_phy_i2c_clock_select_t)(struct mepa_device *dev,
-                             mepa_i2c_clk_select_t const *clk_value);
+                                                      mepa_i2c_clk_select_t const *clk_value);
 
 /**
  * \brief PHY get SQI value
@@ -886,15 +880,9 @@ typedef struct mepa_driver {
     mepa_driver_warmrestart_conf_set_t mepa_driver_warmrestart_conf_set;
     mepa_driver_serdes_tx_conf_set_t   mepa_driver_serdes_tx_conf_set;
     mepa_driver_phy_qsgmii_sync_t      mepa_driver_phy_qsgmii_sync;
-#ifdef MEPA_OPT_TS
     mepa_ts_driver_t                   *mepa_ts;
-#endif
-#ifdef MEPA_OPT_MACSEC
     mepa_macsec_driver_t               *mepa_macsec;
-#endif
-#ifdef MEPA_OPT_TC10
     mepa_tc10_driver_t                 *mepa_tc10;
-#endif
     mepa_t1s_driver_t                  *mepa_t1s;
     uint32_t id;                  /**< Id of the driver */
     uint32_t mask;                /**< Mask of the driver */
@@ -932,11 +920,11 @@ void mepa_mem_free_int(const mepa_callout_t    MEPA_SHARED_PTR *callout,
 
 /** \brief Internal function for drivers to use to build mepa_inst structure */
 struct mepa_device *mepa_create_int(
-        mepa_driver_t                           *drv,
-        const mepa_callout_t    MEPA_SHARED_PTR *callout,
-        struct mepa_callout_ctx MEPA_SHARED_PTR *callout_ctx,
-        struct mepa_board_conf                  *conf,
-        int                                      size_of_private_data);
+    mepa_driver_t                           *drv,
+    const mepa_callout_t    MEPA_SHARED_PTR *callout,
+    struct mepa_callout_ctx MEPA_SHARED_PTR *callout_ctx,
+    struct mepa_board_conf                  *conf,
+    int                                      size_of_private_data);
 
 mepa_rc mepa_delete_int(mepa_device_t *dev);
 

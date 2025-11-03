@@ -2467,6 +2467,9 @@ static void cli_cmd_ts_port_stati (cli_req_t *req)
         cli_printf("\n Egress Frame Modification Count: %u", stats.egr_frm_mod_cnt);
         cli_printf("\n Timestamp FIFO Transmit Count: %u", stats.ts_fifo_tx_cnt);
         cli_printf("\n Timestamp FIFO Drop Count: %u", stats.ts_fifo_drop_cnt);
+        cli_printf("\n");
+    } else {
+        cli_printf("\n ...........Failed to get TS Port Stati............\n");
     }
     return;
 }
@@ -2588,7 +2591,7 @@ static void cli_cmd_ts_conf_get(cli_req_t *req)
 
 static void cli_cmd_ts_reset (cli_req_t *req)
 {
-    mepa_ts_reset_conf_t tsreset;
+    mepa_ts_reset_conf_t tsreset = {0};
     tsreset.tsu_hard_reset = 1;
 
     if (MEPA_RC_OK == mepa_ts_reset(meba_ts_instance->phy_devices[req->port_no], &tsreset)) {

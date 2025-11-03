@@ -6993,7 +6993,8 @@ mepa_rc lan80xx_phy_ts_pps_ouput_conf_set(mepa_device_t *dev, const mepa_port_no
             break;
         }
         if (pps_out_conf->lsc_select == LAN80XX_PTP_LSC_PIN_3) {
-            T_E(MEPA_TRACE_GRP_TS, "\nno o/p support in ls ctrl 3");
+            T_E(MEPA_TRACE_GRP_TS, "No o/p support in ls ctrl 3");
+            rc = MEPA_RC_ERROR;
             break;
         }
         base_data->ptp_lsc_output_config.pps_conf = *pps_out_conf;

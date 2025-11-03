@@ -2029,6 +2029,8 @@ static void cli_cmd_ts_ltc_ls(cli_req_t *req)
         } else if (mreq->action == 3) {
             cli_printf("\n ...... TS LTC Action ToD performed on Port : %d......\n", (req->port_no + 1));
         }
+    } else {
+        cli_printf("\n ...... TS LTC Pin Action failed on Port : %d......\n", (req->port_no + 1));
     }
     return;
 }

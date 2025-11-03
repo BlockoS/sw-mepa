@@ -2614,7 +2614,7 @@ static void cli_cmd_ts_cmds()
     cli_printf("\n %-20s| %-80s| %s", "ts_ltc_set", " <port_no> time <sh:sl:ns:ps>", "Set Local Time Counter");
     cli_printf("\n %-20s| %-80s| %s", "ts_pps_incfg", " <port_no> clk_sel <clk_sel> sync_mode <sync_mode>", "Configure LS controller Input pps mode");
     cli_printf("\n %-20s| %-80s| %s", "", "ls_ctrl_sel <ls_ctrl_sel>", "");
-    cli_printf("\n %-20s| %-80s| %s", "ts_pps_outcfg", " <port_no> clk_sel <clk_sel> sync_mode <sync_mode>", "Configure LS controller Output pps mode");
+    cli_printf("\n %-20s| %-80s| %s", "ts_pps_outcfg", " <port_no> clk_sel <clk_sel> out_mode <out_mode_sel>", "Configure LS controller Output pps mode");
     cli_printf("\n %-20s| %-80s| %s", "", "pps_wid <pps_wid> pps_in <pps_in> ls_ctrl_sel <ls_ctrl_sel>", "");
     cli_printf("\n %-20s| %-80s| %s", "ts_sertod_incfg", " <port_no> pin_sel <pin_sel> pol <pol>", "Configure LS controller Input Serial ToD");
     cli_printf("\n %-20s| %-80s| %s", "", " sync_mode <sync_mode> ls_ctrl_sel <ls_ctrl_sel> [load|save]", "");
@@ -2624,18 +2624,14 @@ static void cli_cmd_ts_cmds()
     cli_printf("\n %-20s| %-80s| %s", "ts_epps_conf", " <port_no> clk_sel <clk_sel> sync_mode <sync_mode>", "Configure LS Controller Input EPPS mode");
     cli_printf("\n %-20s| %-80s| %s", "", " ls_ctrl_sel <ls_ctrl_sel> det_cfg <det_cfg>", "");
     cli_printf("\n %-20s| %-80s| %s", "ts_ltc_ls", " <port_no> pin_action <pin_action>", "Select LTC Operation mode");
-    cli_printf("\n %-20s| %-80s| %s", "ts_lsc_sel", " <port_no> ls_ctrl_sel <ls_ctrl_sel>", "LSC Unit Select");
     cli_printf("\n %-20s| %-80s| %s", "ts_fifo_get_empty", " <port_no>", "Get and clear FIFO TS Entry");
     cli_printf("\n %-20s| %-80s| %s", "ts_delay_set", " <port_no> timing_mode <timing_mode> delay <delay>", "Set Time Interval/latency in ns");
     cli_printf("\n %-20s| %-80s| %s", "ts_delay_get", " <port_no> timing_mode <timing_mode>", "Get Time Interval/latency in ns");
-    //cli_printf("\n %-20s| %-80s| %s", "ts_clk_rateadj_set", " <port_no> rateadj <rateadj>", "Set Clock frequency ratio scaled PartsPerBillion");
-    //cli_printf("\n %-20s| %-80s| %s", "ts_clk_rateadj_get", " <port_no>", "Get the clock rate adjustment value in ppb");
     cli_printf("\n %-20s| %-80s| %s", "ts_port_state", "", "Provides TS State of all Ports");
     cli_printf("\n %-20s| %-80s| %s", "ts_conf_get", " <port_no> conf_sel <conf_sel>", "Get TS Configurations");
     cli_printf("\n %-20s| %-80s| %s", "ts_port_stati", " <port_no>", "Get TS Port Statistics");
     cli_printf("\n %-20s| %-80s| %s", "ts_1pps_out_en", " <port_no> ls_ctrl_sel <ls_ctrl_sel>", "Enable 1PPS output signal");
 	cli_printf("\n %-20s| %-80s| %s", "ts_sig_set", "<port_no> sig <sig_val>", "PTP FIFO Signature Configuration");
-    //cli_printf("\n %-20s| %-80s| %s", "ts_reset", " <port_no>", "Perform TS Block Hard Reset");
     cli_printf("\n %-20s| %-80s| %s", "ts_flow_dis", " <port_no> eng_id <eng_idx>", "Disable TX, RX Classifier and Clock config on PTP Engine");
     cli_printf("\n\n");
     return;

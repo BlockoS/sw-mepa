@@ -3,7 +3,6 @@
         "id": "mesa",
         "type": "build-artifact",
         "release-version": "v2025.09",
-        "build-artifact-url": "https://artifacts-aws.devops.microchip.com/artifactory/ung-generic-dev-local/ci/UNGE/sw-mesa/2025.09-soak/13/",
-        "build-artifact-version-string": "mesa-v2025.09-SOAK-15-gb2381e023@2025.09-soak"
+        "build-artifact-url": " https://github.com/microchip-ung/mesa/releases/download/"
     }
 ]

@@ -154,20 +154,12 @@ global = OptionParser.new do |opts|
     $opt[:all] = true
   end
 
-  opts.on("--external", "Assumed running out-side Microchip network (default is auto-detect)") do
-    $opt[:run_external] = true
-  end
-
   opts.on("-f", "--force", "Delete the output folder if it exist already") do
     $opt[:force] = true
   end
 
   opts.on("-i", "--incremental", "Do not clean before building") do
     $opt[:incremental] = true
-  end
-
-  opts.on("--interanl", "Assumed running in-side Microchip network (default is auto-detect)") do
-    $opt[:run_internal] = true
   end
 
   opts.on("-n", "--ninja", "Use ninja generator") do
@@ -180,6 +172,17 @@ global = OptionParser.new do |opts|
 
 end.order!
 
+def url_concat a, b
+  if a[-1] == "/"
+    "#{a}#{b}"
+  else
+    "#{a}/#{b}"
+  end
+end
+
+def render_template(template, arch)
+  template.gsub(/\{\{arch\}\}/, arch.to_s)
+end
 
 $cmake_presents = YAML.load_file("#{$top}/.cmake/cmake-presets_new.yaml")
 $bsp_deps = JSON.load_file("#{$top}/.cmake/deps-bsp.json").filter{|x| x["id"] == "bsp"}
@@ -224,8 +227,9 @@ end
 base = nil
 
 if c[:mesa]
-  mesa_name = "#{$mesa_deps["build-artifact-version-string"]}"
-  mesa_base = "/opt/mchp/#{mesa_name}"
+  mesa_name = "mesa-#{$mesa_deps["release-version"]}"
+  mesa_base = "/opt/mscc/#{mesa_name}"
+  puts "{MESA}: #{mesa_name}"
 
   if File.exist? "sw-mesa"
     puts "Removing old code base..."
@@ -234,64 +238,35 @@ if c[:mesa]
   puts "Fetching latest copy..."
   
   if not File.exist? mesa_base
-    if is_internal?
-      sys "wget -O- #{$mesa_deps["build-artifact-url"]}/#{mesa_name}.tar.gz | tar -xz -C /opt/mchp/"
-    else
-      package = "mesa-#{$mesa_deps["release-version"]}"
-      puts "Please install the latest MESA package: #{mesa_base}"
-      puts ""
-      puts "This may be done by using the following command:"
-      puts "sudo sh -c \"mkdir -p /opt/mchp && wget -O- https://github.com/microchip-ung/mesa/releases/download/#{$mesa_deps["release-version"]}/#{package}.tar.gz | tar -xz -C /opt/mchp/\""
-      exit 1
-    end
+    sys "wget -O- #{$mesa_deps["build-artifact-url"]}/#{$mesa_deps["release-version"]}/#{mesa_name}.tar.gz | sudo tar -xz -C /opt/mscc/"
   end
 
-  run "mkdir -p sw-mesa && cp -r /opt/mchp/#{mesa_name}/* sw-mesa"
+  run "mkdir -p sw-mesa && cp -r /opt/mscc/#{mesa_name}/* sw-mesa"
 end
 
 # Not all presets uses a brsdk, some only uses the toolchain
 if c[:brsdk_arch]
-  if is_internal?
-    brsdk_name = "mchp-brsdk-#{c[:arch]}-#{$bsp_deps["build-artifact-version-string"]}"
-  else
-    brsdk_name = "mchp-brsdk-#{c[:arch]}-#{$bsp_deps["build-artifact-version-string-ext"]}"
-  end
-  brsdk_base = "/opt/mchp/#{brsdk_name}"
+  brsdk_ext_name = $bsp_deps["build-artifact-version-string"]
+  brsdk_name = render_template(brsdk_ext_name, c[:arch])
+  brsdk_base = "/opt/mscc/#{brsdk_name}"
   base = brsdk_base
-  puts brsdk_name
+  puts "{BSP}: #{brsdk_name}"
 
   if not File.exist? brsdk_base
-    if is_internal?
-      sys "wget -O- #{$bsp_deps["build-artifact-url"]}/#{brsdk_name}.tar.gz | tar -xz -C /opt/mchp/"
-    else
-      puts "Please install the BSP: #{brsdk_base}"
-      puts ""
-      puts "This may be done by using the following command:"
-      puts "sudo sh -c \"mkdir -p /opt/mchp && wget -O- http://mscc-ent-open-source.s3-eu-west-1.amazonaws.com/public_root/bsp/#{brsdk_name}.tar.gz | tar -xz -C /opt/mchp/\""
-      exit 1
-    end
+    sys "wget -O- #{$bsp_deps["build-artifact-url"]}/#{brsdk_name}.tar.gz | sudo tar -xz -C /opt/mscc/"
   end
-
-  $tc = JSON.load_file("#{brsdk_base}/.deps.json").find{|x| x["id"] == "toolchain"}
-  $tc_name = "mchp-toolchain-bin-#{$tc["build-artifact-version-string"]}"
-  $tc_path = "/opt/mchp/#{$tc_name}"
-
 else
   raise "not supported"
 end
 
+$tc = JSON.load_file("#{$top}/.cmake/deps-toolchain.json").find{|x| x["id"] == "toolchain"}
+$tc_name = "#{$tc["build-artifact-version-string"]}"
+$tc_path = "/opt/mscc/#{$tc_name}"
+puts "{Toolchain}: #{$tc_name}"
+
 if not File.exist? $tc_path
-  if is_internal?
-    tc_link = "#{$tc["build-artifact-url"]}/#{$tc_name}.tar.gz"
-    sys "wget -O- #{tc_link} | tar -xz -C /opt/mchp/"
-  else
-    raise "not implemented!"
-    puts "Please install the toolchain: #{$tc_name} into /opt/mchp/"
-    puts ""
-    puts "This may be done by using the following command:"
-    puts "sudo sh -c \"mkdir -p /opt/mchp && wget -O- http://mscc-ent-open-source.s3-eu-west-1.amazonaws.com/public_root/toolchain/#{$tc_name}.tar.gz | tar -xz -C /opt/mchp/\""
-    exit 1
-  end
+  tc_link = "#{$tc["build-artifact-url"]}/#{$tc_name}.tar.gz"
+  sys "wget -O- #{tc_link} | sudo tar -xz -C /opt/mscc/"
 end
 
 

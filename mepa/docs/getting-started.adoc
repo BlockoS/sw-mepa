@@ -26,11 +26,18 @@ to another. Here are the instructions on how to do this on Ubuntu 18:
 sudo apt-get install cmake cmake-curses-gui build-essential ruby ruby-parslet libjson-c-dev
 ----
 
-Next we need a folder called `mchp` in `/opt` where the toolchains
+Beside from this, the folder `/opt/mscc` must be created, and the user(s) building MEPA, but have the needed credentials to access this folder.
+This folder is used to store dependent projects such as the BSP and toolchain.
+
+The user which will download and install these dependent proejcts in `/opt/mscc` must have write access to this folder.
+
+The user installing and the user building may be the same or different user/group.
+
+Next we need a folder called `mscc` in `/opt` where the toolchains
 and BSP will be installed as explained later in the guide.
 
 ----
-sudo mkdir -p /opt/mchp
+sudo mkdir -p /opt/mscc
 ----
 
 == Extracting the sources
@@ -71,29 +78,29 @@ Lets prepare a project for arm64 based targets:
 ./.cmake/create_cmake_project.rb arm64
 ----
 
-Once the script is run the appropriate released package will be extracted in /opt/mchp/ folder.
-The BSP source package will be also be installed automatically if not availbale in /opt/mchp/.
+Once the script is run the appropriate released package will be extracted in /opt/mscc/ folder.
+The BSP source package will be also be installed automatically if not availbale in /opt/mscc/.
 
 ----
-
-Removing old code base...
+{MESA}: mesa-v2025.09
 Fetching latest copy...
-mchp-brsdk-arm64-2024.02.6-6-2024.12-soak.jenkins_unge
+{BSP}: mscc-brsdk-arm64-2024.12
+{Toolchain}: mscc-toolchain-bin-2024.02.6-108
 -- The C compiler identification is GNU 13.3.0
 -- The CXX compiler identification is GNU 13.3.0
 -- Detecting C compiler ABI info
 -- Detecting C compiler ABI info - done
--- Check for working C compiler: /opt/mchp/mchp-brsdk-arm64-2024.02.6-6-2024.12-soak.jenkins_unge/arm64-armv8_a-linux-gnu/xstax/release/x86_64-linux/bin/aarch64-linux-gcc - skipped
+-- Check for working C compiler: /opt/mscc/mscc-brsdk-arm64-2024.12/arm64-armv8_a-linux-gnu/xstax/release/x86_64-linux/bin/aarch64-linux-gcc - skipped
 -- Detecting C compile features
 -- Detecting C compile features - done
 -- Detecting CXX compiler ABI info
 -- Detecting CXX compiler ABI info - done
--- Check for working CXX compiler: /opt/mchp/mchp-brsdk-arm64-2024.02.6-6-2024.12-soak.jenkins_unge/arm64-armv8_a-linux-gnu/xstax/release/x86_64-linux/bin/aarch64-linux-g++ - skipped
+-- Check for working CXX compiler: /opt/mscc/mscc-brsdk-arm64-2024.12/arm64-armv8_a-linux-gnu/xstax/release/x86_64-linux/bin/aarch64-linux-g++ - skipped
 -- Detecting CXX compile features
 -- Detecting CXX compile features - done
 -- Project name          = mepa_api
 --   Type                = Release
---   c_flags             = -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -O2 -g0 -Wall -Wlogical-op -Wno-array-bounds -Wno-stringop-overflow -fasynchronous-unwind-tables -std=c99 -D_POSIX_C_SOURCE=200809L -D_BSD_SOURCE -D_DEFAULT_SOURCE -ldl -O3 -DNDEBUG
+--   c_flags             = -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -O2 -g0 -Wall -Wno-unknown-pragmas -Wlogical-op -Wno-array-bounds -Wno-stringop-overflow -fasynchronous-unwind-tables -std=c11 -D_POSIX_C_SOURCE=200809L -D_BSD_SOURCE -D_DEFAULT_SOURCE -ldl -O3 -DNDEBUG
 --   EXE_LINKER_FLAGS    =
 --   shared_linker_flags =
 -- Build mepa including
@@ -101,16 +108,70 @@ mchp-brsdk-arm64-2024.02.6-6-2024.12-soak.jenkins_unge
 -- Looking for include file endian.h - found
 -- Looking for include file asm/byteorder.h
 -- Looking for include file asm/byteorder.h - found
--- Excluding file: /home/administrator/release/sw-mepa/mepa/microchip/lan80xx/src/lan80xx_serdes_config.h
--- Excluding file: /home/administrator/release/sw-mepa/mepa/microchip/lan80xx/src/sha256/platform_util.h
--- Excluding file: /home/administrator/release/sw-mepa/mepa/microchip/lan80xx/src/sha256/sha256.c
--- Excluding file: /home/administrator/release/sw-mepa/mepa/microchip/lan80xx/src/sha256/sha256.h
--- Excluding file: /home/administrator/release/sw-mepa/mepa/microchip/lan80xx/src/sha256/sha256_config.h
--- CMAKE_TOOLCHAIN_FILE='/opt/mchp/mchp-brsdk-arm64-2024.02.6-6-2024.12-soak.jenkins_unge/arm64-armv8_a-linux-gnu/xstax/release/x86_64-linux/share/buildroot/toolchainfile.cmake'
--- Configuring done (0.5s)
--- Generating done (0.2s)
--- Build files have been written to: /home/administrator/release/sw-mepa/build-arm64
+-- Excluding file: /home/administrator/GitHub/sw-mepa/mepa/microchip/lan80xx/src/lan80xx_serdes_config.h
+-- Excluding file: /home/administrator/GitHub/sw-mepa/mepa/microchip/lan80xx/src/sha256/platform_util.h
+-- Excluding file: /home/administrator/GitHub/sw-mepa/mepa/microchip/lan80xx/src/sha256/sha256.c
+-- Excluding file: /home/administrator/GitHub/sw-mepa/mepa/microchip/lan80xx/src/sha256/sha256.h
+-- Excluding file: /home/administrator/GitHub/sw-mepa/mepa/microchip/lan80xx/src/sha256/sha256_config.h
+-- CMAKE_TOOLCHAIN_FILE='/opt/mscc/mscc-brsdk-arm64-2024.12/arm64-armv8_a-linux-gnu/xstax/release/x86_64-linux/share/buildroot/toolchainfile.cmake'
+-- Configuring done (0.3s)
+-- Generating done (0.1s)
+-- Build files have been written to: /home/administrator/GitHub/sw-mepa/build-arm64
 ----
+
+== Using a Custom BSP or Toolchain with MEPA
+
+By default, MEPA will download the Microchip-released BSP and toolchain for the selected architecture. If you wish to use your own custom BSP or toolchain, you can do so by following these steps:
+
+   * Place your extracted custom BSP or toolchain in the `/opt/mscc` directory.
+   * Update the `build-artifact-version-string` argument in the relevant JSON files with name of your custom BSP or toolchain (`.cmake/deps-bsp.json` for BSP and `.cmake/deps-toolchain.json` for toolchain).
+   * Run `create_cmake_project.rb` script
+
+Following sections will provide a example to do so.  
+
+=== Prepare Your Custom BSP or ToolchainCustom
+
+ * BSP: Obtain or build your custom BSP tarball (e.g., `my-bsp.tar.gz`).
+ * Custom Toolchain: Obtain or build your custom toolchain tarball (e.g., `my-toolchain.tar.gz`).
+
+Extract them into `/opt/mscc`
+
+----
+sudo tar -xz -C /opt/mscc -f my-bsp.tar.gz
+sudo tar -xz -C /opt/mscc -f my-toolchain.tar.gz
+----
+
+=== Update the JSON Configuration
+
+Edit the following files to point to your custom BSP and/or toolchain:
+
+ * .cmake/deps-bsp.json
+ * .cmake/deps-toolchain.json
+
+----
+[
+    {
+        "id": "bsp",
+        "type": "build-artifact",
+        "build-artifact-url": "file:///opt/mscc",  // Use file:// for local path
+        "build-artifact-version-string": "my-bsp"
+    }
+]
+
+[
+    {
+        "id": "toolchain",
+        "type": "build-artifact",
+        "build-artifact-url": "file:///opt/mscc",
+        "build-artifact-version-string": "my-toolchain"
+    }
+]
+----
+
+=== Run the CMake Project Creation Script
+
+Now, run the script `./.cmake/create_cmake_project.rb <preset>` as usual.
+
 
 == Selecting the Target and Building the SW
 

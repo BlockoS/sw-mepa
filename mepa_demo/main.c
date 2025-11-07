@@ -862,7 +862,7 @@ static char SPI_DEVICE[512];
 #define SPI_PADDING_MAX 15                 /* Maximum number of optional padding bytes */
 /* SPI_PAD max value shall be SPI_PADDING_MAX*/
 static int  SPI_PAD = 1;
-static int  SPI_FREQ = 8000000;
+static int  SPI_FREQ = 15000000;
 static mesa_rc spidev_opt(char *parm)
 {
     char *s_pad, *s_freq;

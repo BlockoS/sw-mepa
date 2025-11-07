@@ -157,7 +157,11 @@ $machines = {
         :kcomp => "gzip",
         :dt => [
             { :name => "pcb134",        :file => "#{$bsp}/arm64-armv8_a-linux-gnu/xstax/release/sparx5_appl_pcb134.dtb"},
-            { :name => "edsx_emmc",      :file => "#{$bsp}/arm64-armv8_a-linux-gnu/xstax/release/sparx5_appl_edsx_emmc.dtb"},
+            { :name => "edsx_emmc",      :file => "#{$bsp}/arm64-armv8_a-linux-gnu/xstax/release/sparx5_appl_edsx_emmc.dtb",
+              :overlays => [
+              { :name => "edsx_emmc", :file => "#{$p_mepa}/board-configs/dt/sparx5_appl_edsx_emmc.dtso"},
+            ]
+            },
             { :name => "ls1046_pcb134", :file => "#{$bsp}/arm64-armv8_a-linux-gnu/xstax/release/ls1046_pcb134.dtb"},
         ],
         :fw_env => "/dev/mtd1 0x0000 0x2000 0x40000\n/dev/mtd2 0x0000 0x2000 0x40000\n",

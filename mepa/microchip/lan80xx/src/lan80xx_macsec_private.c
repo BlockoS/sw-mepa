@@ -5,16 +5,11 @@
 #include <mepa_driver.h>
 #include "lan80xx_private.h"
 #include "lan80xx_types.h"
-#include "regs_lan80xx_macsec_egr.h"
-#include "regs_lan80xx_macsec_ingr.h"
-#include "regs_lan80xx_host_mac.h"
-#include "regs_lan80xx_line_mac.h"
-#include "regs_lan80xx_line_slice.h"
-#include "regs_lan80xx_line_intr_ctrl.h"
+#include "regs_lan80xx.h"
 #include "lan80xx_macsec_private.h"
 #include "lan80xx_macsec.h"
 #include "lan80xx_regs_util.h"
-#include "regs_lan80xx_mcu_io_mngt_misc.h"
+#include "regs_lan80xx_common.h"
 
 #if defined (MEPA_LAN80XX_MSEC)
 
@@ -162,6 +157,48 @@
 #define LAN80XX_MACSEC_CTRL_WORD_SEQ_BIT             (13U)      /* Bit position of Sequence number update in Rec 0 */
 #define LAN80XX_MACSEC_INGR_REC20_AN_BIT_POS         (29U)      /* 29 and 30 bit position in REC20 of INGR holds the Association Number */
 #define LAN80XX_MACSEC_CTRL_WRD_AN_BIT               (26U)      /* Association Number Bit position in XFORM REC 0 */
+
+
+static const phy25g_reg_dump_t macsec_cp_regs[] = {
+    {"CP_MAC_DA_MATCH_0",        0x1E00},
+    {"CP_MAC_DA_ET_MATCH_0",     0x1E01},
+    {"CP_MAC_DA_MATCH_1",        0x1E02},
+    {"CP_MAC_DA_ET_MATCH_1",     0x1E03},
+    {"CP_MAC_DA_MATCH_2",        0x1E04},
+    {"CP_MAC_DA_ET_MATCH_2",     0x1E05},
+    {"CP_MAC_DA_MATCH_3",        0x1E06},
+    {"CP_MAC_DA_ET_MATCH_3",     0x1E07},
+    {"CP_MAC_DA_MATCH_4",        0x1E08},
+    {"CP_MAC_DA_ET_MATCH_4",     0x1E09},
+    {"CP_MAC_DA_MATCH_5",        0x1E0A},
+    {"CP_MAC_DA_ET_MATCH_5",     0x1E0B},
+    {"CP_MAC_DA_MATCH_6",        0x1E0C},
+    {"CP_MAC_DA_ET_MATCH_6",     0x1E0D},
+    {"CP_MAC_DA_MATCH_7",        0x1E0E},
+    {"CP_MAC_DA_ET_MATCH_7",     0x1E0F},
+    {"CP_MAC_DA_START0_LO",      0x1E18},
+    {"CP_MAC_DA_START0_HI",      0x1E19},
+    {"CP_MAC_DA_END0_LO",        0x1E1A},
+    {"CP_MAC_DA_END0_HI",        0x1E1B},
+    {"CP_MAC_DA_START1_LO",      0x1E1C},
+    {"CP_MAC_DA_START1_HI",      0x1E1D},
+    {"CP_MAC_DA_END1_LO",        0x1E1E},
+    {"CP_MAC_DA_END1_HI",        0x1E1F},
+    {"CP_MAC_DA_START_LO",       0x1E20},
+    {"CP_MAC_DA_START_HI",       0x1E21},
+    {"CP_MAC_DA_END_LO",         0x1E22},
+    {"CP_MAC_DA_END_HI",         0x1E23},
+    {"CP_MAC_DA_44_BITS_LO",     0x1E24},
+    {"CP_MAC_DA_44_BITS_HI",     0x1E25},
+    {"CP_MAC_DA_48_BITS_LO",     0x1E26},
+    {"CP_MAC_DA_48_BITS_HI",     0x1E27},
+    {"SCP_TAG_ENB",              0x1E38},
+    {"SCP_MATCH_MODE",           0x1E3A},
+    {"SCP_MATCH_ENABLE",         0x1E3B},
+    {"CP_TAG_ENB",               0x1E3C},
+    {"CP_MATCH_MODE",            0x1E3E},
+    {"CP_MATCH_ENABLE",          0x1E3F}
+};
 
 /*Function for counting the number of return code errors.*/
 // IN/OUT : dev        - Internal API state containing the error counters
@@ -6594,6 +6631,34 @@ static mepa_rc lan80xx_macsec_dbg_eip62_reg_dump_(mepa_device_t     *dev,
     return MEPA_RC_OK;
 }
 
+static mepa_rc lan80xx_macsec_control_packet_dump(mepa_device_t     *dev,
+                                                  mepa_port_no_t     port_no,
+                                                  mepa_debug_print_t pr)
+{
+    u32 val = 0;
+    u32 mmd = MMD_ID_MACSEC_EGR;
+    pr("\n\n MACSEC EGRESS Control Packet Registers -::--::-- \n\n");
+    pr("%-10s %-35s %-10s %-12s\n", "PORT", "REGISTER NAME", "ADDR", "VALUE");
+    pr("\n");
+    u32 size = sizeof(macsec_cp_regs) / sizeof(macsec_cp_regs[0]);
+
+    for (u32 i = 0; i < size; i++) {
+        MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, TRUE, macsec_cp_regs[i].addr, &val));
+        pr("%-10u %-35s 0x%-10x 0x%-12x\n", port_no, macsec_cp_regs[i].str, macsec_cp_regs[i].addr, val);
+    }
+
+    pr("\n\n MACSEC INGRESS Control Packet Registers -::--::-- \n\n");
+    pr("%-10s %-35s %-10s %-12s\n", "PORT", "REGISTER NAME", "ADDR", "VALUE");
+    pr("\n");
+    mmd = MMD_ID_MACSEC_INGR;
+    for (u32 i = 0; i < size; i++) {
+        MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, TRUE, macsec_cp_regs[i].addr, &val));
+        pr("%-10u %-35s 0x%-10x 0x%-12x\n", port_no, macsec_cp_regs[i].str, macsec_cp_regs[i].addr, val);
+    }
+    return MEPA_RC_OK;
+}
+
+
 static mepa_rc lan80xx_macsec_flow_ctrl_dump(mepa_device_t     *dev,
                                              mepa_port_no_t     port_no,
                                              mepa_debug_print_t pr)
@@ -6780,6 +6845,7 @@ mepa_rc lan80xx_macsec_dbg_reg_dump_priv(mepa_device_t     *dev,
     lan80xx_macsec_flow_ctrl_dump(dev, port_no, pr);
     lan80xx_macsec_tcam_register_dump(dev, port_no, pr);
     lan80xx_macsec_tcam_policy_dump(dev, port_no, pr);
+    lan80xx_macsec_control_packet_dump(dev, port_no, pr);
     lan80xx_macsec_sc_sa_map_dump(dev, port_no, pr);
     lan80xx_macsec_xform_record_dump(dev, port_no, pr);
     pr("\n\n");

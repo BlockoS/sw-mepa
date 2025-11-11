@@ -2477,11 +2477,6 @@ static mepa_rc lan80xx_mode_conf_set(mepa_device_t *dev, mepa_port_no_t port_no,
                             LAN80XX_M_LINE_PCS_CFG_PCS1G_MODE_CFG_SGMII_MODE_ENA);
         }
 
-        if (lan80xx_clause37_conf_set_priv(dev, port_no, &data->conf.cl37_conf) != MEPA_RC_OK) {
-            T_E(MEPA_TRACE_GRP_GEN, "\n Failed to configure Clause37 on port : %d\n", port_no);
-            return MEPA_RC_ERROR;
-        } 
-
         /* Line side configurations */
         /*line pcs enable */
         LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_PCS_CFG_PCS1G_CFG, LAN80XX_M_LINE_PCS_CFG_PCS1G_CFG_PCS_ENA,
@@ -2516,6 +2511,11 @@ static mepa_rc lan80xx_mode_conf_set(mepa_device_t *dev, mepa_port_no_t port_no,
         T_I(MEPA_TRACE_GRP_GEN, "PCS1G Enabled \n");
         if (lan80xx_serdes_configuration(dev, port_no, MESA_SPEED_1G, mode) != MEPA_RC_OK) {
             T_E(MEPA_TRACE_GRP_GEN, "Error in configuring Serdes in 10G Mode on port : %d", port_no);
+            return MEPA_RC_ERROR;
+        }
+
+        if (lan80xx_clause37_conf_set_priv(dev, port_no, &data->conf.cl37_conf) != MEPA_RC_OK) {
+            T_E(MEPA_TRACE_GRP_GEN, "\n Failed to configure Clause37 on port : %d\n", port_no);
             return MEPA_RC_ERROR;
         }
     }
@@ -8338,6 +8338,9 @@ mepa_rc lan80xx_clause37_conf_set_priv(mepa_device_t        *dev,
             val = 0;
         }
         LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_PCS_CFG_PCS1G_ANEG_CFG_0, val, LAN80XX_M_LINE_PCS_CFG_PCS1G_ANEG_CFG_0_SW_RESOLVE_ENA);
+
+        LAN80XX_CSR_WR(dev, port_no, LAN80XX_LINE_SLICE_LINE_PCS1G_RESET, LAN80XX_M_LINE_SLICE_LINE_PCS1G_RESET_LINE_PCS1G_INGR_RST | LAN80XX_M_LINE_SLICE_LINE_PCS1G_RESET_LINE_PCS1G_EGR_RST);
+        LAN80XX_CSR_WR(dev, port_no, LAN80XX_LINE_SLICE_LINE_PCS1G_RESET, 0);
     }
 
     if (cl37_conf->advertise_dir == MEPA_ADV_SIDE_HOST || cl37_conf->advertise_dir == MEPA_ADV_SIDE_HOST_LINE) {
@@ -8358,6 +8361,10 @@ mepa_rc lan80xx_clause37_conf_set_priv(mepa_device_t        *dev,
         LAN80XX_CSR_WRM(port_no, LAN80XX_HOST_PCS_CFG_PCS1G_ANEG_CFG_0,
                         LAN80XX_M_HOST_PCS_CFG_PCS1G_ANEG_CFG_0_ANEG_ENA | LAN80XX_M_HOST_PCS_CFG_PCS1G_ANEG_CFG_0_ANEG_RESTART_ONE_SHOT,
                         LAN80XX_M_HOST_PCS_CFG_PCS1G_ANEG_CFG_0_ANEG_ENA | LAN80XX_M_HOST_PCS_CFG_PCS1G_ANEG_CFG_0_ANEG_RESTART_ONE_SHOT);
+
+        LAN80XX_CSR_WR(dev, port_no, LAN80XX_HOST_SLICE_HOST_PCS1G_RESET, LAN80XX_M_HOST_SLICE_HOST_PCS1G_RESET_HOST_PCS1G_INGR_RST | LAN80XX_M_HOST_SLICE_HOST_PCS1G_RESET_HOST_PCS1G_EGR_RST);
+
+        LAN80XX_CSR_WR(dev, port_no, LAN80XX_HOST_SLICE_HOST_PCS1G_RESET, 0);
     }
     return MEPA_RC_OK;
 }

@@ -491,3 +491,27 @@ mepa_rc meba_phy_ts_pch_mch_error_info_get(meba_inst_t inst, mepa_port_no_t port
 
     return mepa_ts_pch_mch_error_info_get(inst->phy_devices[port_no], info);
 }
+
+mepa_rc meba_phy_ts_csr_reg_read(meba_inst_t inst, mepa_port_no_t port_no, const uint16_t mmd,
+                                 const uint16_t csr_addr, uint32_t *const regvalue)
+{
+    mepa_rc rc = MESA_RC_ERROR;
+
+    if ((rc = meba_dev_chk(inst, port_no)) != MESA_RC_OK) {
+        return rc;
+    }
+
+    return mepa_ts_csr_reg_read(inst->phy_devices[port_no], mmd, csr_addr, regvalue);
+}
+
+mepa_rc meba_phy_ts_csr_reg_write(meba_inst_t inst, mepa_port_no_t port_no, const uint16_t mmd,
+                                  const uint16_t csr_addr, const uint32_t *const regvalue)
+{
+    mepa_rc rc = MESA_RC_ERROR;
+
+    if ((rc = meba_dev_chk(inst, port_no)) != MESA_RC_OK) {
+        return rc;
+    }
+
+    return mepa_ts_csr_reg_write(inst->phy_devices[port_no], mmd, csr_addr, regvalue);
+}

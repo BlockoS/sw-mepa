@@ -90,5 +90,12 @@ mepa_rc meba_phy_ts_pch_mch_error_info_get(meba_inst_t inst, mepa_port_no_t port
 // Sample Test configuration
 mepa_rc meba_ts_test_config(meba_inst_t inst, mepa_port_no_t port_no, uint16_t test_id, mepa_bool_t reg_dump);
 
+// Read TS CSR block registers
+mepa_rc meba_phy_ts_csr_reg_read(meba_inst_t inst, mepa_port_no_t port_no, const uint16_t mmd,
+                                 const uint16_t csr_addr, uint32_t *const regvalue);
+
+// Write TS CSR block registers
+mepa_rc meba_phy_ts_csr_reg_write(meba_inst_t inst, mepa_port_no_t port_no, const uint16_t mmd,
+                                  const uint16_t csr_addr, const uint32_t *const regvalue);
 #include <microchip/ethernet/hdr_end.h>
 #endif // _MICROCHIP_ETHERNET_BOARD_PHY_TS_DRIVER_H_

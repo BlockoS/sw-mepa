@@ -1255,6 +1255,34 @@ mepa_rc mepa_ts_pch_mch_error_info_get(struct mepa_device *dev, mepa_pch_mch_mis
     return dev->drv->mepa_ts->mepa_ts_pch_mch_error_info_get(dev, info);
 }
 
+mepa_rc mepa_ts_csr_reg_read(struct mepa_device *dev, const uint16_t mmd,
+                             const uint16_t csr_address, uint32_t *const regvalue)
+{
+    if (!dev || !dev->drv->mepa_ts) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_ts->mepa_ts_csr_reg_read) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_ts->mepa_ts_csr_reg_read(dev, mmd, csr_address, regvalue);
+}
+
+mepa_rc mepa_ts_csr_reg_write(struct mepa_device *dev, const uint16_t mmd,
+                              const uint16_t csr_address, const uint32_t *const regvalue)
+{
+    if (!dev || !dev->drv->mepa_ts) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    if (!dev->drv->mepa_ts->mepa_ts_csr_reg_write) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_ts->mepa_ts_csr_reg_write(dev, mmd, csr_address, regvalue);
+}
+
 mepa_rc mepa_debug_info_dump(struct mepa_device *dev,
                              const mepa_debug_print_t pr,
                              const mepa_debug_info_t   *const info)

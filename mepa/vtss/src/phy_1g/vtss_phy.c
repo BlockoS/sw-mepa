@@ -9391,7 +9391,6 @@ vtss_rc vtss_phy_1588_csr_wr_private(vtss_state_t         *vtss_state,
     }
 
     actual_tgt_id = target;
-    if (vtss_state->phy_ts_port_conf[port_no].port_ts_init_done != FALSE) {
 #if defined(VTSS_CHIP_CU_PHY) && defined(VTSS_PHY_TS_SPI_CLK_THRU_PPS0)
         BOOL              new_spi_mode = FALSE;
         new_spi_mode = vtss_state->phy_ts_port_conf[port_no].new_spi_conf.enable;
@@ -9421,9 +9420,6 @@ vtss_rc vtss_phy_1588_csr_wr_private(vtss_state_t         *vtss_state,
                 return VTSS_RC_OK;
             }
         }
-    } else {
-        return VTSS_RC_ERROR;
-    }
 
     if (spi_access == TRUE) {
 #if defined(VTSS_CHIP_CU_PHY)
@@ -9514,7 +9510,6 @@ vtss_rc vtss_phy_1588_csr_rd_private(vtss_state_t         *vtss_state,
     }
 
     actual_tgt_id = target;
-    if (vtss_state->phy_ts_port_conf[port_no].port_ts_init_done != FALSE) {
 #if defined(VTSS_CHIP_CU_PHY) && defined(VTSS_PHY_TS_SPI_CLK_THRU_PPS0)
         BOOL              new_spi_mode = FALSE;
         new_spi_mode = vtss_state->phy_ts_port_conf[port_no].new_spi_conf.enable;
@@ -9545,9 +9540,6 @@ vtss_rc vtss_phy_1588_csr_rd_private(vtss_state_t         *vtss_state,
                 return VTSS_RC_OK;
             }
         }
-    } else {
-        return VTSS_RC_ERROR;
-    }
 
     if (spi_access == TRUE) {
 #if defined(VTSS_CHIP_CU_PHY)

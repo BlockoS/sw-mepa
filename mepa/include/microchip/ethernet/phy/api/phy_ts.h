@@ -1010,5 +1010,35 @@ mepa_rc mepa_ts_test_config(struct mepa_device                    *dev,
 mepa_rc mepa_ts_pch_mch_error_info_get(struct mepa_device *dev,
                                        mepa_pch_mch_mismatch_info_t *const info);
 
+/**
+ * \brief Read a value from a CSR at the specified MMD and address.
+ *
+ * \param dev         [IN]  Driver instance.
+ * \param mmd         [IN]  MMD (MDIO Manageable Device) address.
+ * \param csr_address [IN]  CSR register address to read from.
+ * \param regvalue    [OUT] Pointer to store the read value.
+ *
+ * \return
+ *   MEPA_RC_OK on success.\n
+ *   MEPA_RC_ERROR on error.
+ **/
+mepa_rc mepa_ts_csr_reg_read(struct mepa_device *dev, const uint16_t mmd,
+                             const uint16_t csr_address, uint32_t *const regvalue);
+
+/**
+ * \brief Write a value to a CSR at the specified MMD and address.
+ *
+ * \param dev         [IN]  Driver instance.
+ * \param mmd         [IN]  MMD (MDIO Manageable Device) address.
+ * \param csr_address [IN]  CSR register address to write to.
+ * \param regvalue    [IN]  Pointer to the value to write.
+ *
+ * \return
+ *   MEPA_RC_OK on success.\n
+ *   MEPA_RC_ERROR on error.
+ **/
+mepa_rc mepa_ts_csr_reg_write(struct mepa_device *dev, const uint16_t mmd,
+                              const uint16_t csr_address, const uint32_t *const regvalue);
+
 #include <microchip/ethernet/hdr_end.h>
 #endif /**< _MEPA_TS_API_H_ */

@@ -1961,7 +1961,18 @@ extern vtss_rc vtss_phy_1588_csr_reg_read(const vtss_inst_t inst,
                                           const u16 csr_address,
                                           u32 *const value);
 
-
+/**
+ * \brief Get the PHY type for a given port.
+ *
+ * \param inst      [IN]  Handle to an API instance.
+ * \param port_no   [IN]  Port number.
+ * \param phy_type  [OUT] Pointer to store the PHY type.
+ *
+ * \return
+ *   Return code.
+ **/
+extern vtss_rc vtss_phy_type_get(const vtss_inst_t inst, const vtss_port_no_t port_no,
+                                 uint32_t *const phy_type);
 /**
  * \brief Defines the params for FIFO SYNC function
  **/

@@ -719,9 +719,69 @@ user can provide an external clock to any of the LSC pins that is synchronized w
 By selecting "clk_sel" to a mode other than Asynchronous, the 1PPS signal will be sampled using the external synchronous clock provided by the user,
 thereby improving sub-nanosecond accuracy.
 
-=== LSC Pin Output configuration
 
-   * `lan80xx_phy_ts_pps_ouput_conf_set()` -- Configures selected LSC PIN as output pin either to generate PPS signal or square wave
+=== LSC Pin Output Configuration
+
+*Function:* `lan80xx_phy_ts_pps_output_conf_set()` -- Configures a selected LSC pin as an output to generate either a PPS (Pulse Per Second) signal or a square wave.
+
+[source,c]
+----
+mepa_rc lan80xx_phy_ts_pps_output_conf_set(mepa_device_t                  *dev,
+                                           const mepa_port_no_t           port_no,
+                                           const phy25g_pps_output_conf_t *const pps_out_conf);
+----
+
+This API configures the selected LSC pin to output a timing signal using the parameters defined in the `phy25g_pps_output_conf_t` structure.
+
+==== Configuration Parameters
+
+* *Output Modes:*
+** *1PPS* -- Generates a pulse per second.
+** *Square Wave* -- Generates a continuous square wave with configurable high and low periods.
+** *Nsec Bit Out* -- Outputs the nanosecond bit (for advanced timing applications).
+
+* *clk_select* -- Determines the clock source for the output.
+* *pin_inv_pol* -- Sets the output polarity (active high or active low).
+* *pps_pulse_high / pps_pulse_low* -- Configure the high and low durations of the output waveform.
+
+The configuration is written to the appropriate hardware registers. If an unsupported LSC pin is selected, the API returns an error.
+
+==== Waveform Configuration Details
+
+The meaning of `pps_pulse_high` and `pps_pulse_low` depends on the selected output mode:
+
+* *Square Wave Generation:*
+** `pps_pulse_high` -- Duration (in nanoseconds) for which the output remains high.
+** `pps_pulse_low`-- Duration (in nanoseconds) for which the output remains low.
+
+* *1PPS Generation:*
+** `pps_pulse_low` -- Offset time (in nanoseconds) from the start of the second when the 1PPS signal begins.
+** `pps_pulse_high`-- Duration (in nanoseconds) for which the 1PPS signal remains high after it starts.
+
+==== Example
+
+The following example configures *LSC Pin 1* to generate a *1PPS signal* starting at a 0 ns offset, with a high duration of 500 ms (i.e., high from 0 ms -- 500 ms).
+
+[source,c]
+----
+phy25g_pps_output_conf_t pin_conf = {0};
+
+pin_conf.clk_select     = LAN80XX_PTP_ASYNC_NO_CLOCK;
+pin_conf.lsc_select     = LAN80XX_PTP_LSC_PIN_2;
+pin_conf.pin_inv_pol    = LAN80XX_PTP_LSC_ACTIVE_HIGH;
+pin_conf.pin_sync_mode  = LAN80XX_PTP_LSC_1PPS;
+pin_conf.pps_pulse_high = 500000000;  /* 500 ms in nanoseconds */
+pin_conf.pps_pulse_low  = 0;          /* Start 1PPS rising edge from 0 ns offset */
+
+if (MEPA_RC_OK == lan80xx_phy_ts_pps_output_conf_set(dev, port_no, &pin_conf)) {
+    cli_printf("\n ...... 1PPS Enabled for Port : %d ......\n", port_no);
+} else {
+    T_E("\n Error enabling 1PPS for Port : %d \n", (req->port_no + 1));
+    return;
+}
+----
+
+
 
 === TS FIFO Signature Configuration
 

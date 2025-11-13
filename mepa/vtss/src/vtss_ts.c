@@ -1642,36 +1642,19 @@ mepa_rc vtss_phy_1588_csr_read(struct mepa_device *dev, const uint16_t mmd,
 {
     mepa_rc rc = MEPA_RC_ERROR;
     phy_data_t *data = (phy_data_t *)dev->data;
-    uint32_t  phy_type = 0;
+    BOOL isphy10g, isphy_1588_capable;
 
-    if (vtss_phy_type_get(data->vtss_instance, data->port_no, &phy_type) != VTSS_RC_OK) {
+    if (vtss_phy_check_10g_and_1588(data->vtss_instance, data->port_no, &isphy10g, &isphy_1588_capable) != VTSS_RC_OK) {
         T_E(data, MEPA_TRACE_GRP_TS, "Invalid PHY Type at Port:%d", data->port_no);
         return MEPA_RC_ERROR;
     }
 
-    if ((phy_type == VTSS_PHY_TYPE_8487) || (phy_type == VTSS_PHY_TYPE_8488) ||
-            (phy_type == VTSS_PHY_TYPE_8489) || (phy_type == VTSS_PHY_TYPE_8490) ||
-            (phy_type == VTSS_PHY_TYPE_8491) || (phy_type == VTSS_PHY_TYPE_8257) ||
-            (phy_type == VTSS_PHY_TYPE_8254) || (phy_type == VTSS_PHY_TYPE_8258) ||
-            (phy_type == VTSS_PHY_TYPE_8489_15)) {
+    if (isphy10g && isphy_1588_capable) {
         // Hanlde 10G csr_read/write()
-        if (VTSS_RC_OK == vtss_phy_10g_csr_read(data->vtss_instance, data->port_no, mmd, csr_address, value)) {
-            rc = MEPA_RC_OK;
-        } else {
-            rc = MEPA_RC_ERROR;
-        }
-    } else if ((phy_type == VTSS_PHY_TYPE_8574) ||
-            (phy_type == VTSS_PHY_TYPE_8572) ||
-            (phy_type == VTSS_PHY_TYPE_8575) ||
-            (phy_type == VTSS_PHY_TYPE_8582) ||
-            (phy_type == VTSS_PHY_TYPE_8584) ||
-            (phy_type == VTSS_PHY_TYPE_8586)) {
-         // Handle 1G csr_read_write()
-         if (VTSS_RC_OK == vtss_phy_csr_rd(data->vtss_instance, VTSS_PHY_PAGE_1588, data->port_no, mmd, csr_address, value)) {
-             rc = MEPA_RC_OK;
-         } else {
-             rc = MEPA_RC_ERROR;
-         }
+        rc = vtss_phy_10g_csr_read(data->vtss_instance, data->port_no, mmd, csr_address, value);
+    } else if (!isphy10g && isphy_1588_capable) {
+        // Handle 1G csr_read_write()
+        rc = vtss_phy_csr_rd(data->vtss_instance, VTSS_PHY_PAGE_1588, data->port_no, mmd, csr_address, value);
     }
 
     if (rc == MEPA_RC_OK) {
@@ -1688,37 +1671,21 @@ mepa_rc vtss_phy_1588_csr_write(struct mepa_device *dev, const uint16_t mmd,
 {
     mepa_rc rc = MEPA_RC_ERROR;
     phy_data_t *data = (phy_data_t *)dev->data;
-    uint32_t  phy_type = 0;
+    BOOL isphy10g, isphy_1588_capable;
 
-    if (vtss_phy_type_get(data->vtss_instance, data->port_no, &phy_type) != VTSS_RC_OK) {
+    if (vtss_phy_check_10g_and_1588(data->vtss_instance, data->port_no, &isphy10g, &isphy_1588_capable) != VTSS_RC_OK) {
         T_E(data, MEPA_TRACE_GRP_TS, "Invalid PHY Type at Port:%d", data->port_no);
         return MEPA_RC_ERROR;
     }
 
-    if ((phy_type == VTSS_PHY_TYPE_8487) || (phy_type == VTSS_PHY_TYPE_8488) ||
-            (phy_type == VTSS_PHY_TYPE_8489) || (phy_type == VTSS_PHY_TYPE_8490) ||
-            (phy_type == VTSS_PHY_TYPE_8491) || (phy_type == VTSS_PHY_TYPE_8257) ||
-            (phy_type == VTSS_PHY_TYPE_8254) || (phy_type == VTSS_PHY_TYPE_8258) ||
-            (phy_type == VTSS_PHY_TYPE_8489_15)) {
+    if (isphy10g && isphy_1588_capable) {
         // Hanlde 10G csr_read/write()
-        if (VTSS_RC_OK == vtss_phy_10g_csr_write(data->vtss_instance, data->port_no, mmd, csr_address, *value)) {
-            rc = MEPA_RC_OK;
-        } else {
-            rc = MEPA_RC_ERROR;
-        }
-    } else if ((phy_type == VTSS_PHY_TYPE_8574) ||
-            (phy_type == VTSS_PHY_TYPE_8572) ||
-            (phy_type == VTSS_PHY_TYPE_8575) ||
-            (phy_type == VTSS_PHY_TYPE_8582) ||
-            (phy_type == VTSS_PHY_TYPE_8584) ||
-            (phy_type == VTSS_PHY_TYPE_8586)) {
-         // Handle 1G csr_read_write()
-         if (VTSS_RC_OK == vtss_phy_csr_wr(data->vtss_instance, VTSS_PHY_PAGE_1588, data->port_no, mmd, csr_address, *value)) {
-             rc = MEPA_RC_OK;
-         } else {
-             rc = MEPA_RC_ERROR;
-         }
+        rc = vtss_phy_10g_csr_write(data->vtss_instance, data->port_no, mmd, csr_address, *value);
+    } else if (!isphy10g && isphy_1588_capable) {
+        // Handle 1G csr_read_write()
+        rc = vtss_phy_csr_wr(data->vtss_instance, VTSS_PHY_PAGE_1588, data->port_no, mmd, csr_address, *value);
     }
+
     if (rc == MEPA_RC_OK) {
         T_D(data, MEPA_TRACE_GRP_TS, "1588 CSR Write success at Port:%d csr_addr:%x reg_val:%x", data->port_no, csr_address, *value);
     } else {

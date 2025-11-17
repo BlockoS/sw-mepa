@@ -6006,12 +6006,8 @@ vtss_rc vtss_phy_ts_fifo_sig_set(const vtss_inst_t                 inst,
         len += 6;    /* Dest MAC = 6 Bytes */
     }
 
-    if (((sig_mask & VTSS_PHY_TS_FIFO_SIG_SRC_IP) || (sig_mask & VTSS_PHY_TS_FIFO_SIG_DEST_IP)) &&
-        (sig_mask & VTSS_PHY_TS_FIFO_SIG_DEST_MAC)) {
-        return VTSS_RC_ERROR;
-    }
-
     if (len > 16) {
+        VTSS_E("Signature Length: %d exceeds Max Signature lenght of 16 Bytes for port %u", len, port_no);
         return VTSS_RC_ERROR;
     }
 

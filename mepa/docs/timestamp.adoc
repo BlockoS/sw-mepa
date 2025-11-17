@@ -432,6 +432,28 @@ The API `mepa_ts_stats_get()` allows to get timestamping statistics which includ
 
 === TS FIFO Signature Configuration
 
+==== MEPA API
+The API `mepa_ts_fifo_signature_set()` allows to select the fields of the PTP/Header that needs
+to be captured in TS FIFO Signature.
+
+Following are the different fields that can be captured in TS FIFO.
+
+----
+MEPA_TS_PTP_FIFO_SIG_SRC_IP            (0x01U)  /**< IPv4 Src IP address */
+MEPA_TS_PTP_FIFO_SIG_DEST_IP           (0x02U)  /**< IPv4 Dest IP address */
+MEPA_TS_PTP_FIFO_SIG_MSG_TYPE          (0x04U)  /**< PTP Message type */
+MEPA_TS_PTP_FIFO_SIG_DOMAIN_NUM        (0x08U)  /**< PTP Domain number */
+MEPA_TS_PTP_FIFO_SIG_SOURCE_PORT_ID    (0x10U)  /**< Source port identity */
+MEPA_TS_PTP_FIFO_SIG_SEQ_ID            (0x20U)  /**< PTP frame Sequence ID */
+MEPA_TS_PTP_FIFO_SIG_DEST_MAC          (0x40U)  /**< Dest MAC address for ETH-PTP */
+MEPA_TS_PTP_FIFO_SIG_IPV6_DEST_IP      (0x80U)  /**< IPv6 Dest IP */
+----
+
+The API `mepa_ts_fifo_signature_get()` is used to get the signature fields enabled on the port.
+
+NOTE: For VSC Phy's the TS FIFO length that PTP header can be stored is upto 16 Bytes. Also the IPv6 support is not available for VSC Phy's
+
+==== Chip Specific API
 The API `lan80xx_phy_ts_fifo_sig_set()` allows to select the fields of the PTP/Header that needs
 to be captured in TS FIFO Signature, this API is applicable only for LAN80XX PHYs which can support
 28-bytes TS FIFO for PTP Signature
@@ -518,4 +540,6 @@ is generated or not.
 `mepa_ts_fifo_read_install()` +
 `mepa_ts_fifo_read()` +
 `mepa_ts_fifo_empty()` +
-`mepa_ts_test_config()`
+`mepa_ts_test_config()` +
+`mepa_ts_fifo_signature_set()` +
+`mepa_ts_fifo_signature_get()`

@@ -1209,6 +1209,24 @@ mepa_rc mepa_ts_fifo_get(struct mepa_device *dev, mepa_fifo_ts_entry_t ts_list[]
     return dev->drv->mepa_ts->mepa_ts_fifo_get(dev, ts_list, size, num);
 }
 
+mepa_rc mepa_ts_fifo_signature_set(struct mepa_device *dev, const mepa_ts_fifo_sig_mask_t *const sig_mask)
+{
+    if (!dev || !dev->drv->mepa_ts || !dev->drv->mepa_ts->mepa_ts_fifo_signature_set) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_ts->mepa_ts_fifo_signature_set(dev, sig_mask);
+}
+
+mepa_rc mepa_ts_fifo_signature_get(struct mepa_device *dev, mepa_ts_fifo_sig_mask_t *const sig_mask)
+{
+    if (!dev || !dev->drv->mepa_ts || !dev->drv->mepa_ts->mepa_ts_fifo_signature_get) {
+        return MESA_RC_NOT_IMPLEMENTED;
+    }
+
+    return dev->drv->mepa_ts->mepa_ts_fifo_signature_get(dev, sig_mask);
+}
+
 mepa_rc mepa_ts_test_config(struct mepa_device                    *dev,
                             uint16_t                               test_id,
                             mepa_bool_t                            reg_dump)

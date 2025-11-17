@@ -78,6 +78,12 @@ mepa_rc meba_phy_ts_fifo_empty(meba_inst_t inst, mepa_port_no_t port_no);
 
 mepa_rc meba_phy_ts_fifo_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_fifo_ts_entry_t ts_list[], const size_t size, uint32_t *const num);
 
+// Set Fifo Signature mask for TS block
+mepa_rc meba_phy_ts_fifo_signature_set(meba_inst_t inst, mepa_port_no_t port_no, const mepa_ts_fifo_sig_mask_t *const sig_mask);
+
+// Get Fifo Signature mask from TS block
+mepa_rc meba_phy_ts_fifo_signature_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_ts_fifo_sig_mask_t *const sig_mask);
+
 // Get PCH/MCH header error information
 mepa_rc meba_phy_ts_pch_mch_error_info_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_pch_mch_mismatch_info_t *const info);
 

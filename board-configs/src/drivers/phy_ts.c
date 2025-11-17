@@ -459,6 +459,28 @@ mepa_rc meba_phy_ts_fifo_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_fifo
     return mepa_ts_fifo_get(inst->phy_devices[port_no], ts_list, size, num);
 }
 
+mepa_rc meba_phy_ts_fifo_signature_set(meba_inst_t inst, mepa_port_no_t port_no, const mepa_ts_fifo_sig_mask_t *const sig_mask)
+{
+    mepa_rc rc = MESA_RC_ERROR;
+
+    if ((rc = meba_dev_chk(inst, port_no)) != MESA_RC_OK) {
+        return rc;
+    }
+
+    return mepa_ts_fifo_signature_set(inst->phy_devices[port_no], sig_mask);
+}
+
+mepa_rc meba_phy_ts_fifo_signature_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_ts_fifo_sig_mask_t *const sig_mask)
+{
+    mepa_rc rc = MESA_RC_ERROR;
+
+    if ((rc = meba_dev_chk(inst, port_no)) != MESA_RC_OK) {
+        return rc;
+    }
+
+    return mepa_ts_fifo_signature_get(inst->phy_devices[port_no], sig_mask);
+}
+
 mepa_rc meba_phy_ts_pch_mch_error_info_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_pch_mch_mismatch_info_t *const info)
 {
     mepa_rc rc = MESA_RC_ERROR;

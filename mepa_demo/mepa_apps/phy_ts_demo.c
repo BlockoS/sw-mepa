@@ -2268,32 +2268,43 @@ static void cli_cmd_ts_sig_conf(cli_req_t *req)
 {
     mepa_rc rc = MEPA_RC_ERROR;
     ts_configuration *mreq = req->module_req;
-    phy25g_ts_fifo_sig_mask_t   sig_mask = 0;
+    demo_phy_info_t phy_family;
+    mepa_ts_fifo_sig_mask_t phy_sig_mask = 0;
+
+    if ((rc = phy_family_detect(meba_ts_instance, req->port_no, &phy_family)) != MEPA_RC_OK) {
+        T_E("\n Error in Detecting PHY Family on Port %d\n", (req->port_no + 1));
+        return;
+    }
 
     switch (mreq->sig_mask) {
     case 1:
-        sig_mask = (LAN80XX_PHY_TS_FIFO_SIG_SEQ_ID | LAN80XX_PHY_TS_FIFO_SIG_MSG_TYPE | LAN80XX_PHY_TS_FIFO_SIG_DOMAIN_NUM);
+        phy_sig_mask = (MEPA_TS_PTP_FIFO_SIG_SEQ_ID | MEPA_TS_PTP_FIFO_SIG_MSG_TYPE | MEPA_TS_PTP_FIFO_SIG_DOMAIN_NUM);
         break;
     case 2:
-        sig_mask = (LAN80XX_PHY_TS_FIFO_SIG_SEQ_ID | LAN80XX_PHY_TS_FIFO_SIG_MSG_TYPE | LAN80XX_PHY_TS_FIFO_SIG_DOMAIN_NUM | LAN80XX_PHY_TS_FIFO_SIG_SOURCE_PORT_ID);
+        phy_sig_mask = (MEPA_TS_PTP_FIFO_SIG_SEQ_ID | MEPA_TS_PTP_FIFO_SIG_MSG_TYPE | MEPA_TS_PTP_FIFO_SIG_DOMAIN_NUM | MEPA_TS_PTP_FIFO_SIG_SOURCE_PORT_ID);
         break;
     case 3:
-        sig_mask = (LAN80XX_PHY_TS_FIFO_SIG_SEQ_ID | LAN80XX_PHY_TS_FIFO_SIG_MSG_TYPE | LAN80XX_PHY_TS_FIFO_SIG_DOMAIN_NUM | LAN80XX_PHY_TS_FIFO_SIG_DEST_IP | LAN80XX_PHY_TS_FIFO_SIG_SRC_IP);
+        phy_sig_mask = (MEPA_TS_PTP_FIFO_SIG_SEQ_ID | MEPA_TS_PTP_FIFO_SIG_MSG_TYPE | MEPA_TS_PTP_FIFO_SIG_DOMAIN_NUM | MEPA_TS_PTP_FIFO_SIG_DEST_IP | MEPA_TS_PTP_FIFO_SIG_SRC_IP);
         break;
     case 4:
-        sig_mask = (LAN80XX_PHY_TS_FIFO_SIG_SEQ_ID | LAN80XX_PHY_TS_FIFO_SIG_MSG_TYPE | LAN80XX_PHY_TS_FIFO_SIG_DOMAIN_NUM | LAN80XX_PHY_TS_FIFO_SIG_DEST_IP | LAN80XX_PHY_TS_FIFO_SIG_SRC_IP |
-                    LAN80XX_PHY_TS_FIFO_SIG_SOURCE_PORT_ID);
+        phy_sig_mask = (MEPA_TS_PTP_FIFO_SIG_SEQ_ID | MEPA_TS_PTP_FIFO_SIG_MSG_TYPE | MEPA_TS_PTP_FIFO_SIG_DOMAIN_NUM | MEPA_TS_PTP_FIFO_SIG_DEST_IP | MEPA_TS_PTP_FIFO_SIG_SRC_IP |
+                    MEPA_TS_PTP_FIFO_SIG_SOURCE_PORT_ID);
         break;
     case 5:
-        sig_mask = (LAN80XX_PHY_TS_FIFO_SIG_SEQ_ID | LAN80XX_PHY_TS_FIFO_SIG_MSG_TYPE | LAN80XX_PHY_TS_FIFO_SIG_DOMAIN_NUM | LAN80XX_PHY_TS_FIFO_SIG_DEST_MAC);
+        phy_sig_mask = (MEPA_TS_PTP_FIFO_SIG_SEQ_ID | MEPA_TS_PTP_FIFO_SIG_MSG_TYPE | MEPA_TS_PTP_FIFO_SIG_DOMAIN_NUM | MEPA_TS_PTP_FIFO_SIG_DEST_MAC);
         break;
     case 6:
-        sig_mask = (LAN80XX_PHY_TS_FIFO_SIG_SEQ_ID | LAN80XX_PHY_TS_FIFO_SIG_MSG_TYPE | LAN80XX_PHY_TS_FIFO_SIG_DOMAIN_NUM | LAN80XX_PHY_TS_FIFO_SIG_DEST_IP | LAN80XX_PHY_TS_FIFO_SIG_SRC_IP |
-                    LAN80XX_PHY_TS_FIFO_SIG_DEST_MAC);
+        phy_sig_mask = (MEPA_TS_PTP_FIFO_SIG_SEQ_ID | MEPA_TS_PTP_FIFO_SIG_MSG_TYPE | MEPA_TS_PTP_FIFO_SIG_DOMAIN_NUM | MEPA_TS_PTP_FIFO_SIG_DEST_IP | MEPA_TS_PTP_FIFO_SIG_SRC_IP |
+                    MEPA_TS_PTP_FIFO_SIG_DEST_MAC);
         break;
     case 7:
-        sig_mask = (LAN80XX_PHY_TS_FIFO_SIG_SEQ_ID | LAN80XX_PHY_TS_FIFO_SIG_MSG_TYPE | LAN80XX_PHY_TS_FIFO_SIG_DOMAIN_NUM | LAN80XX_PHY_TS_FIFO_SIG_DEST_IP | LAN80XX_PHY_TS_FIFO_SIG_SRC_IP |
+        if (phy_family.family == PHY_FAMILY_MALIBU_25G) {
+            phy_sig_mask = (LAN80XX_PHY_TS_FIFO_SIG_SEQ_ID | LAN80XX_PHY_TS_FIFO_SIG_MSG_TYPE | LAN80XX_PHY_TS_FIFO_SIG_DOMAIN_NUM | LAN80XX_PHY_TS_FIFO_SIG_DEST_IP | LAN80XX_PHY_TS_FIFO_SIG_SRC_IP |
                     LAN80XX_PHY_TS_FIFO_SIG_IPV6_DEST_IP);
+        } else {
+            cli_printf("\n Option Not supported by PHY at port:%d \n", req->port_no);
+            return;
+        }
         break;
     default:
         cli_printf("\n Invalid Signal configuration selected ");
@@ -2301,7 +2312,11 @@ static void cli_cmd_ts_sig_conf(cli_req_t *req)
     }
 
 
-    rc = lan80xx_phy_ts_fifo_sig_set(meba_ts_instance->phy_devices[req->port_no], req->port_no, sig_mask);
+    if (phy_family.family == PHY_FAMILY_MALIBU_25G) {
+        rc = lan80xx_phy_ts_fifo_sig_set(meba_ts_instance->phy_devices[req->port_no], req->port_no,(phy25g_ts_fifo_sig_mask_t)phy_sig_mask);
+    } else {
+        rc = mepa_ts_fifo_signature_set(meba_ts_instance->phy_devices[req->port_no], &phy_sig_mask);
+    }
 
     if (rc != MEPA_RC_OK) {
         cli_printf ("\n Failed to Configure PTP Signature fileds on port : %d\n", req->port_no);
@@ -2539,21 +2554,31 @@ static void cli_cmd_ts_conf_get(cli_req_t *req)
         cli_printf("\n clock_id: %x", flw_idx_clk_id);
     } else if (mreq->config == 5) {
         u8 count = 1;
-        phy25g_ts_fifo_sig_mask_t   sig_mask;
-        lan80xx_phy_ts_fifo_sig_get(meba_ts_instance->phy_devices[req->port_no], req->port_no, &sig_mask);
+        mepa_ts_fifo_sig_mask_t sig_mask;
+        demo_phy_info_t phy_family;
+        if (phy_family_detect(meba_ts_instance, req->port_no, &phy_family) != MEPA_RC_OK) {
+            T_E("\n Error in Detecting PHY Family on Port %d\n", (req->port_no + 1));
+            return;
+        }
+        if (phy_family.family == PHY_FAMILY_MALIBU_25G) {
+            lan80xx_phy_ts_fifo_sig_get(meba_ts_instance->phy_devices[req->port_no], req->port_no, &sig_mask);
+        } else {
+            mepa_ts_fifo_signature_get(meba_ts_instance->phy_devices[req->port_no], &sig_mask);
+        }
+
         if (sig_mask == 0) {
             cli_printf("\n\n None of the PTP fields are enabled in PTP Signature on port %d\n", (req->port_no + 1));
             return;
         }  
         cli_printf("\n\n Following Fields are enabled in FIFO Signature on port :%d -----------------\n", (req->port_no + 1));
 
-        PRINT_SIG_FIELD(LAN80XX_PHY_TS_FIFO_SIG_MSG_TYPE,       "Message Type");
-        PRINT_SIG_FIELD(LAN80XX_PHY_TS_FIFO_SIG_DOMAIN_NUM,     "Domain Number");
-        PRINT_SIG_FIELD(LAN80XX_PHY_TS_FIFO_SIG_SEQ_ID,         "Sequence ID");
-        PRINT_SIG_FIELD(LAN80XX_PHY_TS_FIFO_SIG_SOURCE_PORT_ID, "Source Port ID");
-        PRINT_SIG_FIELD(LAN80XX_PHY_TS_FIFO_SIG_DEST_IP,        "IPv4 Address");
-        PRINT_SIG_FIELD(LAN80XX_PHY_TS_FIFO_SIG_DEST_MAC,       "Dest MAC Address");
-        PRINT_SIG_FIELD(LAN80XX_PHY_TS_FIFO_SIG_IPV6_DEST_IP,   "IPv6 Address");
+        PRINT_SIG_FIELD(MEPA_TS_PTP_FIFO_SIG_MSG_TYPE,       "Message Type");
+        PRINT_SIG_FIELD(MEPA_TS_PTP_FIFO_SIG_DOMAIN_NUM,     "Domain Number");
+        PRINT_SIG_FIELD(MEPA_TS_PTP_FIFO_SIG_SEQ_ID,         "Sequence ID");
+        PRINT_SIG_FIELD(MEPA_TS_PTP_FIFO_SIG_SOURCE_PORT_ID, "Source Port ID");
+        PRINT_SIG_FIELD(MEPA_TS_PTP_FIFO_SIG_DEST_IP,        "IPv4 Address");
+        PRINT_SIG_FIELD(MEPA_TS_PTP_FIFO_SIG_DEST_MAC,       "Dest MAC Address");
+        PRINT_SIG_FIELD(MEPA_TS_PTP_FIFO_SIG_IPV6_DEST_IP,   "IPv6 Address");
         return;
     }
     if (jobj != NULL) { // Check if the JSON object was created successfully

@@ -261,7 +261,9 @@ Following are different Signature options supported
              6 - Seq ID, Message type, Domain Number, DMAC Address, IPv4 Address
              7 - Seq ID, Message type, Domain Number, IPv4 Address, IPv6 Address
 
-NOTE: By default `Seq ID` and `Message Type` are enabled after configuring PTP Classifier block 
+NOTE: By default `Seq ID` and `Message Type` are enabled after configuring PTP Classifier block
+
+NOTE: For VSC Phy's `Seq ID`, `Domain number`, `Source port id`, `Message Type` are enabled in PTP Classifier block by Default. Also the `sig_val` option `7` is not supported by VSC phy's as IPv6 Support is not available.
 
 === Disable PTP Engine Flow
 

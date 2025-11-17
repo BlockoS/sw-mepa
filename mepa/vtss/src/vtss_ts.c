@@ -1556,11 +1556,12 @@ static void vtss_phy_ts_fifo_read_cb(const vtss_inst_t              inst,
     memcpy(mep_sig.src_port_identity, sig->src_port_identity, sizeof(mep_sig.src_port_identity));
     mep_sig.has_crc_src = false;
     mep_sig.crc_src_port = 0;
-	mep_sig.dmac_sig_supported = false;
-    mep_sig.ipv4_sig_supported = false;
+    mep_sig.dmac_sig_supported = true;
+    mep_sig.ipv4_sig_supported = true;
     mep_sig.ipv6_sig_supported = false;
-    memset(&mep_sig.dest_ipv4, 0, sizeof(mep_sig.dest_ipv4));
-	memset(&mep_sig.dmac_addr, 0, sizeof(mep_sig.dmac_addr));
+    memcpy(&mep_sig.dest_ipv4, &(sig->dest_ip), sizeof(mep_sig.dest_ipv4));
+    memset(&mep_sig.ipv6_dest_addr, 0, sizeof(mep_sig.ipv6_dest_addr));
+    memcpy(&mep_sig.dmac_addr, &(sig->dest_mac[0]), sizeof(mep_sig.dmac_addr));
     fifo_cb(port_no, &ts, &mep_sig, (mepa_ts_fifo_status_t)status);
 }
 
@@ -1599,14 +1600,42 @@ mepa_rc vtss_ts_fifo_get(struct mepa_device *dev, mepa_fifo_ts_entry_t ts_list[]
             memcpy(ts_list[i].sig.src_port_identity, vtss_entry[i].sig.src_port_identity, sizeof(ts_list[i].sig.src_port_identity));
             ts_list[i].sig.sequence_id = vtss_entry[i].sig.sequence_id;
             ts_list[i].sig.has_crc_src = false;
-            ts_list[i].sig.dmac_sig_supported = false;
-            ts_list[i].sig.ipv4_sig_supported = false;
+            ts_list[i].sig.dmac_sig_supported = true;
+            ts_list[i].sig.ipv4_sig_supported = true;
             ts_list[i].sig.ipv6_sig_supported = false;
-            memset(&ts_list[i].sig.dest_ipv4, 0, sizeof(ts_list[i].sig.dest_ipv4));
-            memset(&ts_list[i].sig.dmac_addr, 0, sizeof(ts_list[i].sig.dmac_addr));
+            memset(&ts_list[i].sig.ipv6_dest_addr, 0, sizeof(ts_list[i].sig.ipv6_dest_addr));
+            memcpy(&ts_list[i].sig.dest_ipv4, &vtss_entry[i].sig.dest_ip, sizeof(ts_list[i].sig.dest_ipv4));
+            memcpy(&ts_list[i].sig.dmac_addr, &vtss_entry[i].sig.dest_mac, sizeof(ts_list[i].sig.dmac_addr));
         }
     }
     return MEPA_RC_OK;
+}
+
+mepa_rc vtss_ts_fifo_signature_set(struct mepa_device *dev, const mepa_ts_fifo_sig_mask_t *const sig_mask)
+{
+    mepa_rc rc = MEPA_RC_ERROR;
+    phy_data_t *data = (phy_data_t*)dev->data;
+
+    if (sig_mask != NULL) {
+        rc = vtss_phy_ts_fifo_sig_set(data->vtss_instance, data->port_no, (vtss_phy_ts_fifo_sig_mask_t) *sig_mask);
+    }
+
+    return rc;
+}
+
+mepa_rc vtss_ts_fifo_signature_get(struct mepa_device *dev, mepa_ts_fifo_sig_mask_t *const sig_mask)
+{
+    mepa_rc rc = MEPA_RC_ERROR;
+    phy_data_t *data = (phy_data_t*)dev->data;
+    vtss_phy_ts_fifo_sig_mask_t sigmask = 0;
+
+    if (sig_mask != NULL) {
+        *sig_mask = 0;
+        rc = vtss_phy_ts_fifo_sig_get(data->vtss_instance, data->port_no, &sigmask);
+	*sig_mask = (mepa_ts_fifo_sig_mask_t)sigmask;
+    }
+
+    return rc;
 }
 
 mepa_ts_driver_t vtss_ts_drivers = {
@@ -1645,4 +1674,6 @@ mepa_ts_driver_t vtss_ts_drivers = {
     .mepa_ts_fifo_read_install      = vtss_ts_fifo_read_install,
     .mepa_ts_fifo_empty             = vtss_ts_fifo_empty,
     .mepa_ts_fifo_get               = vtss_ts_fifo_get,
+    .mepa_ts_fifo_signature_set     = vtss_ts_fifo_signature_set,
+    .mepa_ts_fifo_signature_get     = vtss_ts_fifo_signature_get,
 };

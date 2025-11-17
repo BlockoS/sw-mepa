@@ -66,6 +66,22 @@ typedef enum {
     MEPA_TS_FIFO_TIMESTAMP_LEN_10BYTE, /**< 10 byte Tx timestamp */
 } mepa_ts_fifo_timestamp_len_t;
 
+/**
+ * \brief FIFO signature mask type used for timestamping operations.
+ *
+ * This enum represents a Signature mask to be used to configure or retrieve
+ * FIFO signature settings in timestamping APIs.
+ */
+typedef enum {
+    MEPA_TS_PTP_FIFO_SIG_SRC_IP         = 0x01,
+    MEPA_TS_PTP_FIFO_SIG_DEST_IP        = 0x02,
+    MEPA_TS_PTP_FIFO_SIG_MSG_TYPE       = 0x04,
+    MEPA_TS_PTP_FIFO_SIG_DOMAIN_NUM     = 0x08,
+    MEPA_TS_PTP_FIFO_SIG_SOURCE_PORT_ID = 0x10,
+    MEPA_TS_PTP_FIFO_SIG_SEQ_ID         = 0x20,
+    MEPA_TS_PTP_FIFO_SIG_DEST_MAC       = 0x40,
+    MEPA_TS_PTP_FIFO_SIG_IPV6_DEST_IP   = 0x80,
+} mepa_ts_fifo_sig_mask_t;
 
 /** \brief PTP Clock operational modes */
 typedef enum {
@@ -940,6 +956,30 @@ mepa_rc mepa_ts_fifo_read_install(struct mepa_device                 *dev,
  *   MEPA_RC_ERROR on error.
  **/
 mepa_rc mepa_ts_fifo_empty(struct mepa_device                     *dev);
+
+/**
+ * \brief Set the FIFO signature mask for timestamping operations.
+ *
+ * \param dev      [IN]  Driver instance.
+ * \param sig_mask [IN]  Pointer to the FIFO signature mask value to set.
+ *
+ * \return
+ *   MEPA_RC_OK on success.\n
+ *   MEPA_RC_ERROR on error.
+ **/
+mepa_rc mepa_ts_fifo_signature_set(struct mepa_device *dev, const mepa_ts_fifo_sig_mask_t *const sig_mask);
+
+/**
+ * \brief Get the FIFO signature mask for timestamping operations.
+ *
+ * \param dev      [IN]  Driver instance.
+ * \param sig_mask [OUT] Pointer to the FIFO signature mask value to retrieve.
+ *
+ * \return
+ *   MEPA_RC_OK on success.\n
+ *   MEPA_RC_ERROR on error.
+ **/
+mepa_rc mepa_ts_fifo_signature_get(struct mepa_device *dev, mepa_ts_fifo_sig_mask_t *const sig_mask);
 
 /**
  * \brief Sample Test configurations.

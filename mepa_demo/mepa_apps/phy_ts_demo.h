@@ -50,6 +50,9 @@
 
 #define KEYWORD_EPPS_DET_CFG    "det_cfg"
 #define KEYWORD_SIG_MASK        "sig"
+#define KEYWORD_TS_MMD_ID       "mmd"
+#define KEYWORD_TS_CSR_ADDR     "csr_addr"
+#define KEYWORD_TS_CSR_VAL      "csr_value"
 
 typedef struct {
     mepa_bool_t     clk_src_parsed;         /* ts_init_conf - Clock source parsed */
@@ -83,6 +86,9 @@ typedef struct {
     mepa_bool_t     delta_adj_parsed;
     mepa_bool_t     epps_det_cfg_parsed;
     mepa_bool_t     output_mode_parsed;
+    mepa_bool_t     mmd;
+    mepa_bool_t     csr_addr;
+    mepa_bool_t     csr_value;
 } ts_keyword_parsed;
 
 
@@ -123,5 +129,8 @@ typedef struct {
     uint32_t    wfl_period;
     uint8_t     epps_det_cfg;
     uint8_t     output_mode;
+    uint16_t    mmd;
+    uint16_t    csr_addr;
+    uint32_t    csr_value;
 } ts_configuration;
 

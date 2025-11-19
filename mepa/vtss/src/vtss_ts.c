@@ -1636,6 +1636,7 @@ mepa_rc vtss_ts_fifo_signature_get(struct mepa_device *dev, mepa_ts_fifo_sig_mas
     }
 
     return rc;
+}
 
 mepa_rc vtss_phy_1588_csr_read(struct mepa_device *dev, const uint16_t mmd,
                                 const uint16_t csr_address, uint32_t *const value)

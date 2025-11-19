@@ -307,7 +307,13 @@ static int cli_cmd_parse_keyword(cli_req_t *req)
         ts_keyword.output_mode_parsed = 1;
     } else if (!strncasecmp(req->cmd, "eng_id", strlen(req->cmd))) {
         ts_keyword.eng_idx_parsed = 1;
-    } else {
+    } else if (!strncasecmp(req->cmd, KEYWORD_TS_MMD_ID, strlen(req->cmd))) {
+        ts_keyword.mmd = 1;
+    } else if (!strncasecmp(req->cmd, KEYWORD_TS_CSR_ADDR, strlen(req->cmd))) {
+        ts_keyword.csr_addr = 1;
+    } else if (!strncasecmp(req->cmd, KEYWORD_TS_CSR_VAL, strlen(req->cmd))) {
+        ts_keyword.csr_value = 1;
+    }else {
         return -1;
     }
 
@@ -385,6 +391,14 @@ static int cli_cmd_parse_u16_param(cli_req_t *req)
         cli_parm_u16(req, &value, 0, MASK_16BIT);
         mreq->sig_mask = value;
         ts_keyword.sig_mask_parsed = 0;
+    } else if (ts_keyword.mmd == 1) {
+        cli_parm_u16(req, &value, 0, MASK_16BIT);
+        mreq->mmd = value;
+        ts_keyword.mmd = 0;
+    } else if (ts_keyword.csr_addr == 1) {
+        cli_parm_u16(req, &value, 0, MASK_16BIT);
+        mreq->csr_addr = value;
+        ts_keyword.csr_addr = 0;
     } else {
         return -1;
     }
@@ -412,6 +426,10 @@ static int cli_cmd_parse_u32_param(cli_req_t *req)
         cli_parm_u32(req, &value, 0, MASK_32BIT);
         mreq->wfl_period = value;
         ts_keyword.wfl_parsed = 0;
+    } else if (ts_keyword.csr_value == 1) {
+        cli_parm_u32(req, &value, 0, MASK_32BIT);
+        mreq->csr_value = value;
+        ts_keyword.csr_value = 0;
     } else {
         return -1;
     }
@@ -2594,6 +2612,34 @@ static void cli_cmd_ts_conf_get(cli_req_t *req)
     }
 }
 
+static void cli_cmd_ts_csr_rd(cli_req_t *req)
+{
+    ts_configuration *mreq = req->module_req;
+
+    mreq->csr_value = 0;
+    if (MEPA_RC_OK == mepa_ts_csr_reg_read(meba_ts_instance->phy_devices[req->port_no], mreq->mmd, mreq->csr_addr, &mreq->csr_value)) {
+        cli_printf("\n");
+        cli_table_header("Port  MMD   Address  31******24*23*******16*15*******8***7*******0    Value");
+        cli_printf("%-6u%-6u0x%04x   ", (req->port_no + 1), mreq->mmd, mreq->csr_addr);
+        for (int i = 31; i >= 0; i--) {
+            cli_printf("%d%s", mreq->csr_value & (1 << i) ? 1 : 0, (i % 4) || i == 0 ? "" : ". ");
+        }
+        cli_printf("   0x%x\n", mreq->csr_value);
+    }
+    else {
+        cli_printf("\n TS csr Read Failed for addr:%x at Port:%d",mreq->csr_addr, req->port_no);
+    }
+}
+
+static void cli_cmd_ts_csr_wr(cli_req_t *req)
+{
+    ts_configuration *mreq = req->module_req;
+
+    if (MEPA_RC_OK != mepa_ts_csr_reg_write(meba_ts_instance->phy_devices[req->port_no], mreq->mmd, mreq->csr_addr, &mreq->csr_value)) {
+        cli_printf("\n TS csr Write Failed for addr:%x at Port:%d", mreq->csr_addr, req->port_no);
+    }
+}
+
 // static void cli_cmd_ts_clk_rateadj_set (cli_req_t *req) {
 //     ts_configuration *mreq = req->module_req;
 //     mepa_ts_scaled_ppb_t rate_adj;
@@ -2667,6 +2713,8 @@ static void cli_cmd_ts_cmds()
     cli_printf("\n %-20s| %-80s| %s", "ts_1pps_out_en", " <port_no> ls_ctrl_sel <ls_ctrl_sel>", "Enable 1PPS output signal");
 	cli_printf("\n %-20s| %-80s| %s", "ts_sig_set", "<port_no> sig <sig_val>", "PTP FIFO Signature Configuration");
     cli_printf("\n %-20s| %-80s| %s", "ts_flow_dis", " <port_no> eng_id <eng_idx>", "Disable TX, RX Classifier and Clock config on PTP Engine");
+    cli_printf("\n %-20s| %-80s| %s", "ts_csr_rd", " <port_no> mmd <dev-id> csr_addr <csraddr>", "TS CSR Register Read Command");
+    cli_printf("\n %-20s| %-80s| %s", "ts_csr_wr", " <port_no> mmd <dev-id> csr_addr <csraddr> csr_value <csrvalue>", "TS CSR Register Write Command");
     cli_printf("\n\n");
     return;
 }
@@ -2856,6 +2904,16 @@ static cli_cmd_t cli_cmd_ts_table[] = {
         "ts_flow_dis <port_no> eng_id <eng_idx>",
         "Disable Tx, RX Classifier and Clock configuration",
         cli_cmd_ts_flow_disable,
+    },
+    {
+        "ts_csr_rd <port_no> mmd <dev-id> csr_addr <csraddr>",
+        "Read TS Block CSR Registers",
+        cli_cmd_ts_csr_rd,
+    },
+    {
+        "ts_csr_wr <port_no> mmd <dev-id> csr_addr <csraddr> csr_value <csrvalue>",
+        "Write TS Block CSR Registers",
+        cli_cmd_ts_csr_wr,
     },
 
 };
@@ -3294,6 +3352,42 @@ static cli_parm_t cli_parm_table[] = {
         "0 - Immediate, 1 - One Shot, 2 - Continuous",
         CLI_PARM_FLAG_NONE,
         cli_cmd_parse_u8_param,
+    },
+    {
+        "mmd",
+        "MMD ID for TS Block Registers",
+        CLI_PARM_FLAG_NO_TXT,
+        cli_cmd_parse_keyword,
+    },
+    {
+        "<dev-id>",
+        "",
+        CLI_PARM_FLAG_NONE,
+        cli_cmd_parse_u16_param,
+    },
+    {
+        "csr_addr",
+        "CSR Register Address for TS Block",
+        CLI_PARM_FLAG_NO_TXT,
+        cli_cmd_parse_keyword,
+    },
+    {
+        "<csraddr>",
+        "",
+        CLI_PARM_FLAG_NONE,
+        cli_cmd_parse_u16_param,
+    },
+    {
+        "csr_value",
+        "",
+        CLI_PARM_FLAG_NO_TXT,
+        cli_cmd_parse_keyword,
+    },
+    {
+        "<csrvalue>",
+        "",
+        CLI_PARM_FLAG_NONE,
+        cli_cmd_parse_u32_param,
     },
 
 };

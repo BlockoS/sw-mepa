@@ -773,3 +773,21 @@ The following command is used get TS Statistics for selected port.
  Timestamp FIFO Transmit Count: 0
  Timestamp FIFO Drop Count: 0
 ----
+
+=== TS CSR Read/Write
+
+The following commands are used to read and write the TS Block CSR Registers for the given Port respectively.
+
+   * mepa-cmd ts_csr_rd <port_no> mmd <dev-id> csr_addr <csr_addr>
+   * mepa-cmd ts_csr_wr <port_no> mmd <dev-id> csr_addr <csr_addr> csr_value <value>
+
+----
+# mepa-cmd ts_csr_rd 1 mmd 14 csr_addr 0
+Port  MMD   Address  31      24 23       16 15       8   7       0    Value
+----  ----  -------  -----------------------------------------------  -----
+1     14    0x0000   0000. 0000. 0000. 0000. 0000. 0000. 0000. 1111   0xf
+#
+#
+# mepa-cmd ts_csr_wr 1 mmd 14 csr_addr 0 csr_value 15
+----
+

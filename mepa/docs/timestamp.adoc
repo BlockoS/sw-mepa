@@ -511,6 +511,16 @@ of a given PHY, provided event mask.
 The API `mepa_ts_event_poll()` helps to poll and see if a interrupt/event
 is generated or not.
 
+=== PHY TS CSR Read and Write
+
+These API's Allows to Read and Write CSR Registers present in PHY TS Block.
+
+The API `mepa_ts_csr_reg_read()` reads the PHY CSR register with MMD and CSR
+address as input arguments.
+
+The API `mepa_ts_csr_reg_write()` writes the PHY CSR register with MMD, CSR
+address and value to be configured as arguments.
+
 === MEPA TS functions.
 `mepa_ts_init_conf_set()` +
 `mepa_ts_init_conf_get()` +
@@ -543,3 +553,5 @@ is generated or not.
 `mepa_ts_test_config()` +
 `mepa_ts_fifo_signature_set()` +
 `mepa_ts_fifo_signature_get()`
+`mepa_ts_csr_reg_read()` +
+`mepa_ts_csr_reg_write()`

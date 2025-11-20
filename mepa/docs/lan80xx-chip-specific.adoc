@@ -767,7 +767,7 @@ The following example configures *LSC Pin 1* to generate a *1PPS signal* startin
 phy25g_pps_output_conf_t pin_conf = {0};
 
 pin_conf.clk_select     = LAN80XX_PTP_ASYNC_NO_CLOCK;
-pin_conf.lsc_select     = LAN80XX_PTP_LSC_PIN_2;
+pin_conf.lsc_select     = LAN80XX_PTP_LSC_PIN_1;
 pin_conf.pin_inv_pol    = LAN80XX_PTP_LSC_ACTIVE_HIGH;
 pin_conf.pin_sync_mode  = LAN80XX_PTP_LSC_1PPS;
 pin_conf.pps_pulse_high = 500000000;  /* 500 ms in nanoseconds */

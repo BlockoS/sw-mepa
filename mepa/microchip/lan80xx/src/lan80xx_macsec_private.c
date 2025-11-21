@@ -6000,7 +6000,7 @@ mepa_rc lan80xx_macsec_csr_read_priv(mepa_device_t               *dev,
 {
     mepa_rc rc = MEPA_RC_OK;
     u32 read;
-    if (lan80xx_phy_csr_read(dev, port_no, mmd, addr, &read) != MEPA_RC_OK) {
+    if (lan80xx_phy_csr_read_priv(dev, port_no, mmd, addr, &read) != MEPA_RC_OK) {
         T_E(MEPA_TRACE_GRP_GEN, "Could not do CSR read, port_no:%d, mmd:%d,  addr:%d", port_no, mmd, addr);
         rc = dbg_counter_incr(dev, port_no, MEPA_RC_ERR_MACSEC_CSR_READ);
     }
@@ -6016,7 +6016,7 @@ mepa_rc lan80xx_macsec_csr_write_priv(mepa_device_t               *dev,
                                       const u32                   value)
 {
     mepa_rc rc = MEPA_RC_OK;
-    if (lan80xx_phy_csr_write(dev, port_no, mmd, addr, value) != MEPA_RC_OK) {
+    if (lan80xx_phy_csr_write_priv(dev, port_no, mmd, addr, value) != MEPA_RC_OK) {
         T_E(MEPA_TRACE_GRP_GEN, "Could not do CSR write, port_no:%d, mmd:%d, addr:%d, value:%d", port_no, mmd, addr, value);
         rc = dbg_counter_incr(dev, port_no, MEPA_RC_ERR_MACSEC_CSR_WRITE);
     }

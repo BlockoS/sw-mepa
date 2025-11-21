@@ -781,30 +781,6 @@ if (MEPA_RC_OK == lan80xx_phy_ts_pps_output_conf_set(dev, port_no, &pin_conf)) {
 }
 ----
 
-
-
-=== TS FIFO Signature Configuration
-
-The API `lan80xx_phy_ts_fifo_sig_set()` allows to select the fields of the PTP/Header that needs
-to be captured in TS FIFO Signature, this API is applicable only for LAN80XX PHYs which can support
-28-bytes TS FIFO for PTP Signature
-
-Following are the different fields that can be captured in TS FIFO.
-
-----
-#define LAN80XX_PHY_TS_FIFO_SIG_SRC_IP            (0x01U)  /**< IPv4 Src IP address */
-#define LAN80XX_PHY_TS_FIFO_SIG_DEST_IP           (0x02U)  /**< IPv4 Dest IP address */
-#define LAN80XX_PHY_TS_FIFO_SIG_MSG_TYPE          (0x04U)  /**< PTP Message type */
-#define LAN80XX_PHY_TS_FIFO_SIG_DOMAIN_NUM        (0x08U)  /**< PTP Domain number */
-#define LAN80XX_PHY_TS_FIFO_SIG_SOURCE_PORT_ID    (0x10U)  /**< Source port identity */
-#define LAN80XX_PHY_TS_FIFO_SIG_SEQ_ID            (0x20U)  /**< PTP frame Sequence ID */
-#define LAN80XX_PHY_TS_FIFO_SIG_DEST_MAC          (0x40U)  /**< Dest MAC address for ETH-PTP */
-#define LAN80XX_PHY_TS_FIFO_SIG_IPV6_DEST_IP      (0x80U)  /**< IPv6 Dest IP */
-----
-
-The API `lan80xx_phy_ts_fifo_sig_get()` is used to get the signature fields enabled on the port.
-
-
 == Frame Preemption PMAC Counters
 LAN80XX PHYs Support Frame Preemption in `MAC_RETIMER` mode of the PHY where the premptable Frames are handled by
 Premptable MAC (PMAC) and Express Frames are Handled by Express MAC. Frame Preemption Feature can be Enabled/Disabled

@@ -667,20 +667,48 @@ static mepa_rc lan80xx_ts_pps_conf_get(mepa_device_t *dev, mepa_ts_pps_conf_t *c
     return rc;
 }
 
-mepa_rc lan80xx_phy_ts_fifo_sig_set(mepa_device_t  *dev, const mepa_port_no_t  port_no, const phy25g_ts_fifo_sig_mask_t   sig_mask)
+mepa_rc lan80xx_phy_ts_fifo_sig_set(mepa_device_t *dev, const mepa_ts_fifo_sig_mask_t  *const sig_mask)
 {
     mepa_rc rc = MEPA_RC_ERROR;
     MEPA_ENTER(dev);
-    rc = lan80xx_phy_ts_fifo_sig_set_priv(dev, port_no, sig_mask);
+	phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
+    rc = lan80xx_phy_ts_fifo_sig_set_priv(dev, data->port_no, *sig_mask);
     MEPA_EXIT(dev);
     return rc;
 }
 
-mepa_rc lan80xx_phy_ts_fifo_sig_get(mepa_device_t  *dev, const mepa_port_no_t  port_no, phy25g_ts_fifo_sig_mask_t   *sig_mask)
+mepa_rc lan80xx_phy_ts_fifo_sig_get(mepa_device_t  *dev, mepa_ts_fifo_sig_mask_t   * const sig_mask)
 {
     mepa_rc rc = MEPA_RC_ERROR;
     MEPA_ENTER(dev);
-    rc = lan80xx_phy_ts_fifo_sig_get_priv(dev, port_no, sig_mask);
+    phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
+    rc = lan80xx_phy_ts_fifo_sig_get_priv(dev, data->port_no, sig_mask);
+    MEPA_EXIT(dev);
+    return rc;
+}
+
+static mepa_rc lan80xx_phy_ts_csr_read(mepa_device_t               *dev,
+                                      const u16                   mmd,
+                                      const u16                   addr,
+                                      u32                         *const value)
+{
+    mepa_rc rc = MEPA_RC_ERROR;
+    MEPA_ENTER(dev);
+	phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
+    rc = lan80xx_phy_csr_read_priv(dev, data->port_no, mmd, addr, value);
+    MEPA_EXIT(dev);
+    return rc;
+}
+
+static mepa_rc lan80xx_phy_ts_csr_write(mepa_device_t               *dev,
+                                        const u16                   mmd,
+                                        const u16                   addr,
+                                        const u32                   *const value)
+{
+    mepa_rc rc = MEPA_RC_ERROR;
+    MEPA_ENTER(dev);
+	phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
+    rc = lan80xx_phy_csr_write_priv(dev, data->port_no, mmd, addr, *value);
     MEPA_EXIT(dev);
     return rc;
 }
@@ -722,4 +750,8 @@ mepa_ts_driver_t lan80xx_ts_drivers = {
     .mepa_ts_event_get                  = lan80xx_ts_event_get,
     .mepa_ts_event_set                  = lan80xx_ts_event_set,
     .mepa_ts_event_poll                 = lan80xx_ts_event_poll,
+    .mepa_ts_fifo_signature_set         = lan80xx_phy_ts_fifo_sig_set,
+    .mepa_ts_fifo_signature_get         = lan80xx_phy_ts_fifo_sig_get,
+    .mepa_ts_csr_reg_read               = lan80xx_phy_ts_csr_read,
+    .mepa_ts_csr_reg_write              = lan80xx_phy_ts_csr_write,
 };

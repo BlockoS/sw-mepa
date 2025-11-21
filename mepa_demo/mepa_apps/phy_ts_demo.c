@@ -2317,8 +2317,8 @@ static void cli_cmd_ts_sig_conf(cli_req_t *req)
         break;
     case 7:
         if (phy_family.family == PHY_FAMILY_MALIBU_25G) {
-            phy_sig_mask = (LAN80XX_PHY_TS_FIFO_SIG_SEQ_ID | LAN80XX_PHY_TS_FIFO_SIG_MSG_TYPE | LAN80XX_PHY_TS_FIFO_SIG_DOMAIN_NUM | LAN80XX_PHY_TS_FIFO_SIG_DEST_IP | LAN80XX_PHY_TS_FIFO_SIG_SRC_IP |
-                    LAN80XX_PHY_TS_FIFO_SIG_IPV6_DEST_IP);
+            phy_sig_mask = (MEPA_TS_PTP_FIFO_SIG_SEQ_ID | MEPA_TS_PTP_FIFO_SIG_MSG_TYPE | MEPA_TS_PTP_FIFO_SIG_DOMAIN_NUM | MEPA_TS_PTP_FIFO_SIG_DEST_IP |  MEPA_TS_PTP_FIFO_SIG_SRC_IP |
+                    MEPA_TS_PTP_FIFO_SIG_IPV6_DEST_IP);
         } else {
             cli_printf("\n Option Not supported by PHY at port:%d \n", req->port_no);
             return;
@@ -2330,11 +2330,7 @@ static void cli_cmd_ts_sig_conf(cli_req_t *req)
     }
 
 
-    if (phy_family.family == PHY_FAMILY_MALIBU_25G) {
-        rc = lan80xx_phy_ts_fifo_sig_set(meba_ts_instance->phy_devices[req->port_no], req->port_no,(phy25g_ts_fifo_sig_mask_t)phy_sig_mask);
-    } else {
-        rc = mepa_ts_fifo_signature_set(meba_ts_instance->phy_devices[req->port_no], &phy_sig_mask);
-    }
+    rc = mepa_ts_fifo_signature_set(meba_ts_instance->phy_devices[req->port_no], &phy_sig_mask);
 
     if (rc != MEPA_RC_OK) {
         cli_printf ("\n Failed to Configure PTP Signature fileds on port : %d\n", req->port_no);
@@ -2578,11 +2574,7 @@ static void cli_cmd_ts_conf_get(cli_req_t *req)
             T_E("\n Error in Detecting PHY Family on Port %d\n", (req->port_no + 1));
             return;
         }
-        if (phy_family.family == PHY_FAMILY_MALIBU_25G) {
-            lan80xx_phy_ts_fifo_sig_get(meba_ts_instance->phy_devices[req->port_no], req->port_no, &sig_mask);
-        } else {
-            mepa_ts_fifo_signature_get(meba_ts_instance->phy_devices[req->port_no], &sig_mask);
-        }
+        mepa_ts_fifo_signature_get(meba_ts_instance->phy_devices[req->port_no], &sig_mask);
 
         if (sig_mask == 0) {
             cli_printf("\n\n None of the PTP fields are enabled in PTP Signature on port %d\n", (req->port_no + 1));

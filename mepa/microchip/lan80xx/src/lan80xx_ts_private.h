@@ -703,7 +703,7 @@ typedef struct {
     phy25g_timeinterval_t               egress_latency;
     phy25g_timeinterval_t               path_delay;
     phy25g_timeinterval_t               delay_asym;
-    phy25g_ts_fifo_sig_mask_t           sig_mask;
+    mepa_ts_fifo_sig_mask_t             sig_mask;
     phy25g_ts_eng_conf_t                egress_eng_conf[4];
     phy25g_ts_eng_conf_t                ingress_eng_conf[4];
     mepa_mch_pch_t                      mch_conf;
@@ -774,12 +774,12 @@ typedef struct {
 */
 mepa_rc lan80xx_phy_ts_fifo_sig_set_priv(mepa_device_t                     *dev,
                                          const mepa_port_no_t              port_no,
-                                         const phy25g_ts_fifo_sig_mask_t   sig_mask);
+                                         const mepa_ts_fifo_sig_mask_t     sig_mask);
 
 
 mepa_rc lan80xx_phy_ts_fifo_sig_get_priv(mepa_device_t                     *dev,
                                          const mepa_port_no_t              port_no,
-                                         phy25g_ts_fifo_sig_mask_t         *sig_mask);
+                                         mepa_ts_fifo_sig_mask_t         *sig_mask);
 
 
 phy25g_phy_ts_tc_op_mode_t mepa_to_lan80xx_tc_opmode(mepa_ts_tc_op_mode_t tc_opmode);

@@ -346,11 +346,11 @@ static void trace_control(char *module_name, char *group_name, mesa_trace_level_
                 group->level = level;
             } else {
                 if (first) {
-                    cli_table_header("Module   Group       Level");
+                    cli_table_header("Module                   Group       Level");
                     first = 0;
                 }
                 level = group->level;
-                cli_printf("%-9s%-12s%s\n",
+                cli_printf("%-25s%-12s%s\n",
                            module->name,
                            group->name,
                            level == MESA_TRACE_LEVEL_NONE ? "off" :

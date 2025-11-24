@@ -1369,44 +1369,6 @@ static mepa_rc lan80xx_macsec_sa_enable(mepa_device_t *dev, mepa_port_no_t port_
     return MEPA_RC_OK;
 }
 
-static mepa_rc lan80xx_macsec_sa_toggle(mepa_device_t *dev, mepa_port_no_t port_no, u32 new_record, u32 old_record, mepa_bool_t egr)
-{
-    phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
-    if (old_record < LAN80XX_MACSEC_SAM_ENTRY_SET1_NUM) {
-        LAN80XX_CSR_WRM(port_no, LAN80XX_EGR_INGR_REG_EXPAN(LAN80XX, egr, CORE_SAM_ENB_CTRL_ENTRY_TOGGLE_1), (1 << old_record), (1 << old_record));
-
-    } else if (old_record >= LAN80XX_MACSEC_SAM_ENTRY_SET1_NUM && old_record < LAN80XX_MACSEC_SAM_ENTRY_SET2_NUM) {
-        LAN80XX_CSR_WRM(port_no, LAN80XX_EGR_INGR_REG_EXPAN(LAN80XX, egr, CORE_SAM_ENB_CTRL_ENTRY_TOGGLE_2), (1 << (old_record - LAN80XX_MACSEC_SAM_ENTRY_SET1_NUM)),
-                        (1 << (old_record - LAN80XX_MACSEC_SAM_ENTRY_SET1_NUM)));
-
-    } else if (old_record >= LAN80XX_MACSEC_SAM_ENTRY_SET2_NUM && old_record < LAN80XX_MACSEC_SAM_ENTRY_SET3_NUM) {
-        LAN80XX_CSR_WRM(port_no, LAN80XX_EGR_INGR_REG_EXPAN(LAN80XX, egr, CORE_SAM_ENB_CTRL_ENTRY_TOGGLE_3), (1 << (old_record - LAN80XX_MACSEC_SAM_ENTRY_SET2_NUM)),
-                        (1 << (old_record - LAN80XX_MACSEC_SAM_ENTRY_SET2_NUM)));
-
-    } else if (old_record >= LAN80XX_MACSEC_SAM_ENTRY_SET3_NUM && old_record < LAN80XX_MACSEC_SAM_ENTRY_SET4_NUM) {
-        LAN80XX_CSR_WRM(port_no, LAN80XX_EGR_INGR_REG_EXPAN(LAN80XX, egr, CORE_SAM_ENB_CTRL_ENTRY_TOGGLE_4), (1 << (old_record - LAN80XX_MACSEC_SAM_ENTRY_SET3_NUM)),
-                        (1 << (old_record - LAN80XX_MACSEC_SAM_ENTRY_SET3_NUM)));
-    }
-
-    if (new_record < LAN80XX_MACSEC_SAM_ENTRY_SET1_NUM) {
-        LAN80XX_CSR_WRM(port_no, LAN80XX_EGR_INGR_REG_EXPAN(LAN80XX, egr, CORE_SAM_ENB_CTRL_ENTRY_TOGGLE_1), (1 << new_record), (1 << new_record));
-
-    } else if (new_record >= LAN80XX_MACSEC_SAM_ENTRY_SET1_NUM && new_record < LAN80XX_MACSEC_SAM_ENTRY_SET2_NUM) {
-        LAN80XX_CSR_WRM(port_no, LAN80XX_EGR_INGR_REG_EXPAN(LAN80XX, egr, CORE_SAM_ENB_CTRL_ENTRY_TOGGLE_2), (1 << (new_record - LAN80XX_MACSEC_SAM_ENTRY_SET1_NUM)),
-                        (1 << (new_record - LAN80XX_MACSEC_SAM_ENTRY_SET1_NUM)));
-
-    } else if (new_record >= LAN80XX_MACSEC_SAM_ENTRY_SET2_NUM && new_record < LAN80XX_MACSEC_SAM_ENTRY_SET3_NUM) {
-        LAN80XX_CSR_WRM(port_no, LAN80XX_EGR_INGR_REG_EXPAN(LAN80XX, egr, CORE_SAM_ENB_CTRL_ENTRY_TOGGLE_3), (1 << (new_record - LAN80XX_MACSEC_SAM_ENTRY_SET2_NUM)),
-                        (1 << (new_record - LAN80XX_MACSEC_SAM_ENTRY_SET2_NUM)));
-
-    } else if (new_record >= LAN80XX_MACSEC_SAM_ENTRY_SET3_NUM && new_record < LAN80XX_MACSEC_SAM_ENTRY_SET4_NUM) {
-        LAN80XX_CSR_WRM(port_no, LAN80XX_EGR_INGR_REG_EXPAN(LAN80XX, egr, CORE_SAM_ENB_CTRL_ENTRY_TOGGLE_4), (1 << (new_record - LAN80XX_MACSEC_SAM_ENTRY_SET3_NUM)),
-                        (1 << (new_record - LAN80XX_MACSEC_SAM_ENTRY_SET3_NUM)));
-    }
-
-    return MEPA_RC_OK;
-}
-
 static mepa_rc lan80xx_macsec_sa_inuse(mepa_device_t *dev, mepa_port_no_t port_no, u32 record, u32 sc, u8 an, mepa_bool_t egr, mepa_bool_t enable)
 {
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
@@ -1605,8 +1567,12 @@ static mepa_rc lan80xx_is_ssci_valid(mepa_device_t *dev,
                     continue;
                 }
                 if (!memcmp(ssci, &secy->tx_sc.sa[an]->ssci, sizeof(mepa_macsec_ssci_t))) {
-                    T_E(MEPA_TRACE_GRP_GEN, "Tx SSCI duplicated for "LAN80XX_SCI_FMT" an:%u", LAN80XX_SCI_ARG(secy->sci), an);
-                    return MEPA_RC_ERROR;
+                    if (!memcmp(sak, &secy->tx_sc.sa[an]->sak, sizeof(mepa_macsec_sak_t))) {
+                        if (!memcmp(sci, &secy->sci, sizeof(mepa_macsec_sci_t))) {
+                            T_E(MEPA_TRACE_GRP_GEN, "Tx SSCI duplicated for "LAN80XX_SCI_FMT" an:%u", LAN80XX_SCI_ARG(secy->sci), an);
+                            return MEPA_RC_ERROR;
+                        }
+                    }
                 }
             }
         } else {
@@ -1619,9 +1585,13 @@ static mepa_rc lan80xx_is_ssci_valid(mepa_device_t *dev,
                         continue;
                     }
                     if (!memcmp(ssci, &secy->rx_sc[sc]->sa[an]->ssci, sizeof(mepa_macsec_ssci_t))) {
-                        T_E(MEPA_TRACE_GRP_GEN, "Rx SSCI duplicated for "LAN80XX_SCI_FMT" an:%u", LAN80XX_SCI_ARG(secy->rx_sc[sc]->sci), an);
-                        return MEPA_RC_ERROR;
-                    }
+                        if (!memcmp(sci, &secy->rx_sc[sc]->sci, sizeof(mepa_macsec_sci_t))) {
+                            if (!memcmp(sak, &secy->rx_sc[sc]->sa[an]->sak, sizeof(mepa_macsec_sak_t))) {
+                               T_E(MEPA_TRACE_GRP_GEN, "Rx SSCI duplicated for "LAN80XX_SCI_FMT" an:%u", LAN80XX_SCI_ARG(secy->rx_sc[sc]->sci), an);
+                               return MEPA_RC_ERROR;
+                           }
+                       }
+                   }
                 }
             }
         }
@@ -3558,36 +3528,31 @@ static mepa_rc lan80xx_macsec_tx_sa_activate_(mepa_device_t *dev, const u32  sec
     if (secy->tx_sc.sa[old_an] != NULL) {
         an_in_use = secy->tx_sc.sa[old_an]->enabled;
     }
-    /* Activate chip SA Flow */
-    if (an_in_use && (old_an < MEPA_MACSEC_SA_PER_SC_MAX) && (old_an != an)) {
-        if (MACSEC_RC_COLD(lan80xx_macsec_sa_inuse(dev, port.port_no, secy->tx_sc.sa[an]->record, secy_id, an, EGRESS, MACSEC_ENABLE)) != MEPA_RC_OK) {
-            T_E(MEPA_TRACE_GRP_GEN, "Could not set SA:%u to 'in_use'", secy->tx_sc.sa[an]->record);
-            return dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_COULD_NOT_SET_SA);
-        }
-        if (MACSEC_RC_COLD(lan80xx_macsec_sa_toggle(dev, port.port_no, secy->tx_sc.sa[an]->record, secy->tx_sc.sa[old_an]->record, EGRESS)) != MEPA_RC_OK) {
-            T_E(MEPA_TRACE_GRP_GEN, "Could not toggle SA:%u -> %u", an, old_an);
-            return dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_COULD_NOT_TOGGLE_SA);
-        }
-    } else {
-        if (MACSEC_RC_COLD(lan80xx_macsec_sa_inuse(dev, port.port_no, secy->tx_sc.sa[an]->record, secy_id, an, EGRESS, MACSEC_ENABLE)) != MEPA_RC_OK) {
-            T_E(MEPA_TRACE_GRP_GEN, "Could not set SA:%u to 'in_use'", secy->tx_sc.sa[an]->record);
-            return dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_COULD_NOT_SET_SA);
-        }
-        /* Enable chip SA Flow */
-        if (lan80xx_macsec_sa_enable(dev, port.port_no, secy->tx_sc.sa[an]->record, EGRESS, MACSEC_ENABLE) != MEPA_RC_OK) {
-            T_E(MEPA_TRACE_GRP_GEN, "Could not enable the SA, record:%d, port_no:%d, port_id:%d, secy_id:%d", secy->tx_sc.sa[an]->record, port.port_no,
-                port.port_id, secy_id);
-            return dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_COULD_NOT_ENA_SA);
-        }
+    if (MACSEC_RC_COLD(lan80xx_macsec_sa_inuse(dev, port.port_no, secy->tx_sc.sa[an]->record, secy_id, an, EGRESS, MACSEC_ENABLE)) != MEPA_RC_OK) {
+        T_E(MEPA_TRACE_GRP_GEN, "Could not set SA:%u to 'in_use'", secy->tx_sc.sa[an]->record);
+        return dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_COULD_NOT_SET_SA);
     }
-    if (lan80xx_macsec_sam_entry_ctrl(dev, port.port_no, secy->tx_sc.sa[an]->record, 1, 1) != MEPA_RC_OK) {
-        T_E(MEPA_TRACE_GRP_GEN, "Could not enable the TCAM entry, record:%d, port_no:%d, port_id:%d, secy_id:%d", secy->tx_sc.sa[an]->record, port.port_no,
-            port.port_id, secy_id);
+
+    if (lan80xx_sa_sam_in_flight(dev, port.port_no, EGRESS) != MEPA_RC_OK) {
+        T_E(MEPA_TRACE_GRP_GEN, "Could not empty the egress pipeline");
+        return dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_COULD_NOT_EMPTY_EGRESS);
+
+    }
+    /* Enable chip SA Flow */
+    if (lan80xx_macsec_sa_enable(dev, port.port_no, secy->tx_sc.sa[an]->record, EGRESS, MACSEC_ENABLE) != MEPA_RC_OK) {
+        T_E(MEPA_TRACE_GRP_GEN, "Could not enable the SA, record:%d, port_no:%d, port_id:%d, secy_id:%d", secy->tx_sc.sa[an]->record, port.port_no, port.port_id, secy_id);
         return dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_COULD_NOT_ENA_SA);
     }
 
     /* Disable Old record */
     if (an_in_use && (old_an < MEPA_MACSEC_SA_PER_SC_MAX)) {
+
+        /* Disable chip SA Flow */
+        if (lan80xx_macsec_sa_enable(dev, port.port_no, secy->tx_sc.sa[old_an]->record, EGRESS, MACSEC_DISABLE) != MEPA_RC_OK) {
+            T_E(MEPA_TRACE_GRP_GEN, "Could not Enable the SA:%u", an);
+            return dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_COULD_NOT_ENA_SA);
+        }
+
         secy->tx_sc.sa[old_an]->enabled = 0;
         secy->tx_sc.sa[old_an]->status.in_use = 0;
         an_in_use = 0;

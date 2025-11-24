@@ -1,0 +1,188 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+= MACsec Key Rollover Demo Application
+
+== Overview
+The MACsec Key Rollover Demo is an application designed to demonstrate the management and rollover of MACsec Secure Association (SA) 
+keys for both outgoing (egress/TX) and incoming (ingress/RX) network traffic using MEPA APIs. This guide provides step-by-step
+instructions and best practices for using the demo to ensure robust, uninterrupted MACsec security operations on MEPA-based ethernet
+PHY platforms.This Demo is intended for testing, validation and illustrating how to use MEPA APIs for MACsec functionality.
+
+== Features of Key Rollover application
+
+* `Automated Egress Key Rollover`
+The application monitors the Packet Number (PN) for each egress SA and automatically initiates a key rollover when predefined PN
+thresholds are reached, ensuring compliance with MACsec security standards. Pre-created SAs gets activated after the threshold reach
+which ensures seamless transmission without any packet loss.
+
+* `Automated Ingress Key Rollover`
+Ingress key rollover is triggered by the reception of MKPDU messages from network peers, allowing seamless synchronization of key
+changes across devices.
+
+* `Event Logging and Monitoring`
+All key rollover events are logged for audit, troubleshooting, and compliance purposes. Users can review logs to verify successful
+rollovers and diagnose issues.
+
+* `Seamless Security Operations`
+The demo supports pre-creation of new SAs and timed deletion of old SAs, minimizing downtime and maintaining continuous protection
+during key transitions.
+
+* `Extended Packet Number (XPN) Support`
+Full compatibility with XPN cipher suites enables enhanced security for high-throughput environments.
+
+== Demo Application Restrictions
+
+As this is a demonstration application and not production-level code, the following restrictions apply:
+
+* *Single SecY per Port*
+The demo manages only one MACsec Secure Entity (SecY) per port. Multiple SecYs per port are not supported.
+
+* *ANs of the SecY are reused*
+Each SecY can have a maximum of four Association Numbers (ANs) as per MACsec standard. After a key rollover, old ANs are deleted
+and will be reused after three more rollovers.
+
+* *Fixed Thresholds for Key Rollover*
+The rollover of keys is triggered at fixed, pre-configured PN thresholds. These thresholds cannot be changed dynamically during
+operation.
+
+* *No Key Exchange Protocol*
+The demo uses fixed static keys for each AN. There is no dynamic key exchange mechanism implemented. Each AN will have unique key and
+its corresponding HASH key.
+
+* *Single Egress and Ingress Port Support*
+The application is restricted to managing only one egress and one ingress port. The software context is maintained only for two
+ports, as the application is single threaded and its polling based.
+
+These limitations are intentional to keep the demo simple and focused on illustrating the key rollover process.
+
+== Rollover Thresholds
+The demo application supports both XPN (Extended Packet Number) and Non-XPN (Standard Packet Number) MACsec modes.
+To trigger seamless key rollover before packet number reaches to its max value, threshold values are configured as follows:
+
+. *Non XPN Mode*
+
+ * Threshold: 0xFFF00000UL (~2^32 - near to max value supported)
+
+ * At 10G line rate, the TX Sequence Number may reach this threshold in approximately 3 to 4 minutes of continuous traffic.
+
+. *XPN Mode*
+
+ * Threshold: 0x1000000000ULL (~2^36)
+
+ * A lower threshold than 2^64 is used deliberately, because at 10G line rate reaching 2^64 packets would take several days, which is
+   impractical for a demo.This threshold is set higher than 2^32 to clearly differentiate XPN from Non XPN mode.
+
+These thresholds allow the demo to continuously send traffic, while performing seamless key rollover, without packet loss or traffic interruption.
+
+== Demo Application CLI Commands
+
+=== Enable Key Rollover Demo
+
+	* `mepa-cmd key rollover demo <port_no> <egress|ingress> [xpn]`
+
+This command enables the MACsec Key Rollover Demo for a specific port, specifying whether to apply it to egress or ingress traffic,
+and optionally enabling XPN mode cipher suite.
+
+[cols="1,3", options="header"]
+|===
+| Parameter | Description
+
+| <port_no>
+| Port number on which MACsec is configured.
+
+| egress/ingress
+| Specifies the direction: egress (TX) or ingress (RX).
+
+| [xpn]
+| Optional flag to enable XPN cipher suite.
+|===
+
+
+*Example Commands*
+. mepa-cmd key rollover demo 2 egress      - Enables Key Rollover Demo in Egress direction on port 2 with NON XPN Cipher suite +
+. mepa-cmd key rollover demo 2 egress xpn  - Enables Key Rollover Demo in Egress direction on port 2 with XPN Cipher suite +
+
+=== Key Rollover History Logs
+
+	* `mepa-cmd key rollover log`
+
+The log provides a chronological history of key rollover events, including the following details for each event:
+
+. *Timestamp* (in seconds.milliseconds): When the rollover occurred.
+. *Port number*: The port on which the event took place.
+. *Direction*: Indicates whether the event was for egress (TX) or ingress (RX) traffic.
+. *AN transition*: Shows the change from the old Association Number (AN) to the new AN.
+. *PN value at rollover*: Displays the Packet Number (PN) at the time when rollover gets triggered.
+. *Out Packets Encrypted*: Indicates the number of packets encrypted by AN, This value is typically greater than the PN at the trigger point because packets already in the pipeline continue to be encrypted,
+                           This field in valid only for Egress direction.
+
+
+----
+
+#
+# mepa-cmd key rollover log
+
+================== MACsec RX SA Status ==================
+Active AN              : 0
+
+================ MACsec Rollover History ================
+[000] Time=15739.923 s | Port=1 | RX | AN 0 --> 1 | PN=4293922094 | OutPktsEnc=N/A
+[001] Time=16152.947 s | Port=1 | RX | AN 1 --> 2 | PN=4293920498 | OutPktsEnc=N/A
+[002] Time=16565.971 s | Port=1 | RX | AN 2 --> 3 | PN=4293919306 | OutPktsEnc=N/A
+[003] Time=16978.995 s | Port=1 | RX | AN 3 --> 0 | PN=4293919918 | OutPktsEnc=N/A
+[004] Time=17392.022 s | Port=1 | RX | AN 0 --> 1 | PN=4293921953 | OutPktsEnc=N/A
+[005] Time=17805.043 s | Port=1 | RX | AN 1 --> 2 | PN=4293919466 | OutPktsEnc=N/A
+[006] Time=18218.067 s | Port=1 | RX | AN 2 --> 3 | PN=4293919383 | OutPktsEnc=N/A
+[007] Time=18631.092 s | Port=1 | RX | AN 3 --> 0 | PN=4293920109 | OutPktsEnc=N/A
+#
+#
+
+----
+
+NOTE: Application can log upto 128 key rollovers.
+
+
+=== Rollover Demo Disable
+
+	* `mepa-cmd key rollover disable`
+
+This command disables the MACsec Key Rollover Demo for all configured ports, deletes active Secure Associations (SAs),
+and disables the MACsec block on the hardware port.
+
+== MACsec Key Rollover Operation
+
+This section explains the internal procedure of the MACsec Key Rollover Demo application, detailing how key rollover is managed      for both egress (TX) and ingress (RX) directions.
+
+=== Egress (TX) Rollover
+The egress rollover process is triggered when the Packet Number (PN) of the active Secure Association (SA) exceeds a configured      threshold. The steps are as follows:
+
+. Read the current PN of the active SA (`mepa_macsec_tx_sa_status_get()`).
+. Check if the PN exceeds the configured rollover_threshold, if not directly goes to step 8.
+. Send MKPDU to peer indicating the new AN.
+. Create the new SA if not already created (`mepa_macsec_tx_sa_set()` - For Non XPN mode and `mepa_macsec_tx_seca_set()` - For XPN mode).
+. Activate the new SA and store the rollover event in the log (`mepa_macsec_tx_sa_activate()`).
+. Pre-create the next SA for future rollover.
+. Schedule deletion of the oldest SA after RETIRE_DELAY_MS.
+. Delete any expired SAs whose timers have expired (`mepa_macsec_tx_sa_del()`).
+
+
+=== Ingress (RX) Rollover
+This subsection describes how the application handles key rollover for incoming (ingress) traffic:
+
+. *Poll for MKPDU*
+The application continuously polls for MKPDU (MACsec Key Proposal Data Unit) messages from the peer device.
+
+. *If MKPDU is received*
+
+* The pre-created new Secure Association (SA) is activated immediately (`mepa_macsec_rx_sa_activate()`).
+* The next SA is pre-created in preparation for future rollovers (`mepa_macsec_rx_sa_set()` For Non XPN mode and `mepa_macsec_rx_seca_set()` - For XPN mode).
+* The oldest SA is scheduled for deletion.
+
+. *If no MKPDU is received*
+Expired RX SAs are deleted based on their scheduled deletion times (`mepa_macsec_rx_sa_del()`).
+
+== Demo Application Reference
+
+The application source code is available here:
+link:#mepa_demo/mepa_apps/phy_macsec_rollover_demo.c[MACsec Key Rollover Demo]

@@ -76,6 +76,7 @@ void mscc_appl_m25gdiag_demo(mscc_appl_init_t *init);
 void mscc_appl_phy_restart(mscc_appl_init_t *init);
 void mscc_appl_phy_kr_init(mscc_appl_init_t *init);
 void mepa_demo_appl_ts_demo(mscc_appl_init_t *init);
+void mepa_demo_appl_macsec_rollover_demo(mscc_appl_init_t *init);
 
 typedef enum {
     SPI_USER_REG,  // Switch register access

@@ -980,6 +980,7 @@ static void init_modules(mscc_appl_init_t *init)
     mscc_appl_phy_restart(init);
     mscc_appl_phy_kr_init(init);
     mepa_demo_appl_ts_demo(init);
+    mepa_demo_appl_macsec_rollover_demo(init);
 #ifdef MEPA_HAS_LAN80XX
     mscc_appl_m25gdiag_demo(init);
     mscc_appl_mcu_fw_init(init);

@@ -1209,7 +1209,7 @@ mepa_rc mepa_ts_fifo_get(struct mepa_device *dev, mepa_fifo_ts_entry_t ts_list[]
     return dev->drv->mepa_ts->mepa_ts_fifo_get(dev, ts_list, size, num);
 }
 
-mepa_rc mepa_ts_fifo_signature_set(struct mepa_device *dev, const mepa_ts_fifo_sig_mask_t *const sig_mask)
+mepa_rc mepa_ts_fifo_signature_set(struct mepa_device *dev, const mepa_ts_fifo_sig_mask_t sig_mask)
 {
     if (!dev || !dev->drv->mepa_ts || !dev->drv->mepa_ts->mepa_ts_fifo_signature_set) {
         return MESA_RC_NOT_IMPLEMENTED;

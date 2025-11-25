@@ -436,7 +436,7 @@ typedef mepa_rc (*mepa_ts_fifo_entry_get_t)(struct mepa_device *dev, mepa_fifo_t
  *   MEPA_RC_OK on success.\n
  *   MEPA_RC_ERROR on error.
  **/
-typedef mepa_rc (*mepa_ts_fifo_signature_set_t) (struct mepa_device *dev, const mepa_ts_fifo_sig_mask_t *const sigmask);
+typedef mepa_rc (*mepa_ts_fifo_signature_set_t) (struct mepa_device *dev, const mepa_ts_fifo_sig_mask_t sigmask);
 
 /**
  * \brief Get the FIFO signature mask for timestamping.

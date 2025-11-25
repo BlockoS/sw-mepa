@@ -2330,7 +2330,7 @@ static void cli_cmd_ts_sig_conf(cli_req_t *req)
     }
 
 
-    rc = mepa_ts_fifo_signature_set(meba_ts_instance->phy_devices[req->port_no], &phy_sig_mask);
+    rc = mepa_ts_fifo_signature_set(meba_ts_instance->phy_devices[req->port_no], phy_sig_mask);
 
     if (rc != MEPA_RC_OK) {
         cli_printf ("\n Failed to Configure PTP Signature fileds on port : %d\n", req->port_no);

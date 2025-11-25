@@ -967,7 +967,7 @@ mepa_rc mepa_ts_fifo_empty(struct mepa_device                     *dev);
  *   MEPA_RC_OK on success.\n
  *   MEPA_RC_ERROR on error.
  **/
-mepa_rc mepa_ts_fifo_signature_set(struct mepa_device *dev, const mepa_ts_fifo_sig_mask_t *const sig_mask);
+mepa_rc mepa_ts_fifo_signature_set(struct mepa_device *dev, const mepa_ts_fifo_sig_mask_t sig_mask);
 
 /**
  * \brief Get the FIFO signature mask for timestamping operations.

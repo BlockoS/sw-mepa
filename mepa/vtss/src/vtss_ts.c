@@ -1611,15 +1611,11 @@ mepa_rc vtss_ts_fifo_get(struct mepa_device *dev, mepa_fifo_ts_entry_t ts_list[]
     return MEPA_RC_OK;
 }
 
-mepa_rc vtss_ts_fifo_signature_set(struct mepa_device *dev, const mepa_ts_fifo_sig_mask_t *const sig_mask)
+mepa_rc vtss_ts_fifo_signature_set(struct mepa_device *dev, const mepa_ts_fifo_sig_mask_t sig_mask)
 {
     mepa_rc rc = MEPA_RC_ERROR;
     phy_data_t *data = (phy_data_t*)dev->data;
-
-    if (sig_mask != NULL) {
-        rc = vtss_phy_ts_fifo_sig_set(data->vtss_instance, data->port_no, (vtss_phy_ts_fifo_sig_mask_t) *sig_mask);
-    }
-
+    rc = vtss_phy_ts_fifo_sig_set(data->vtss_instance, data->port_no, (vtss_phy_ts_fifo_sig_mask_t)sig_mask);
     return rc;
 }
 
@@ -1632,7 +1628,7 @@ mepa_rc vtss_ts_fifo_signature_get(struct mepa_device *dev, mepa_ts_fifo_sig_mas
     if (sig_mask != NULL) {
         *sig_mask = 0;
         rc = vtss_phy_ts_fifo_sig_get(data->vtss_instance, data->port_no, &sigmask);
-	*sig_mask = (mepa_ts_fifo_sig_mask_t)sigmask;
+	    *sig_mask = (mepa_ts_fifo_sig_mask_t)sigmask;
     }
 
     return rc;

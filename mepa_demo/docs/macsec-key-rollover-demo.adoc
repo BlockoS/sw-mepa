@@ -54,6 +54,9 @@ its corresponding HASH key.
 The application is restricted to managing only one egress and one ingress port. The software context is maintained only for two
 ports, as the application is single threaded and its polling based.
 
+* *Only IPv4 packet matching Supported*
+For the application in the egress direction, Ether-type pattern matching is enabled. The Ether-type of the packet must be `0x800`.
+
 These limitations are intentional to keep the demo simple and focused on illustrating the key rollover process.
 
 == Rollover Thresholds

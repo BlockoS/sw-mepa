@@ -2991,33 +2991,29 @@ static vtss_rc macsec_sa_enable(vtss_state_t *vtss_state, vtss_port_no_t p, u32 
     if (enable) {
         if (egr) {
             if (record < 32) {
-                CSR_COLD_WR(p, VTSS_MACSEC_EGR_SA_MATCH_CTL_PARAMS_SAM_ENTRY_SET1, (1 << record));
+                CSR_COLD_WRM(p, VTSS_MACSEC_EGR_SA_MATCH_CTL_PARAMS_SAM_ENTRY_SET1, (1 << record), (1 << record));
             } else {
-                CSR_COLD_WR(p, VTSS_MACSEC_EGR_SA_MATCH_CTL_PARAMS_SAM_ENTRY_SET2, (1 << (record - 32)));
-                CSR_COLD_WR(p, VTSS_MACSEC_EGR_SA_MATCH_CTL_PARAMS_SAM_ENTRY_SET1, 0); // SAs above 31 requires 2 writes
+                CSR_COLD_WRM(p, VTSS_MACSEC_EGR_SA_MATCH_CTL_PARAMS_SAM_ENTRY_SET2, (1 << (record - 32)), (1 << (record - 32)));
             }
         } else {
             if (record < 32) {
-                CSR_COLD_WR(p, VTSS_MACSEC_INGR_SA_MATCH_CTL_PARAMS_SAM_ENTRY_SET1, (1 << record));
+                CSR_COLD_WRM(p, VTSS_MACSEC_INGR_SA_MATCH_CTL_PARAMS_SAM_ENTRY_SET1, (1 << record), (1 << record));
             } else {
-                CSR_COLD_WR(p, VTSS_MACSEC_INGR_SA_MATCH_CTL_PARAMS_SAM_ENTRY_SET2, (1 << (record - 32)));
-                CSR_COLD_WR(p, VTSS_MACSEC_INGR_SA_MATCH_CTL_PARAMS_SAM_ENTRY_SET1, 0); // SAs above 31 requires 2 writes
+                CSR_COLD_WRM(p, VTSS_MACSEC_INGR_SA_MATCH_CTL_PARAMS_SAM_ENTRY_SET2, (1 << (record - 32)), (1 << (record - 32)));
             }
         }
     } else {
         if (egr) {
             if (record < 32) {
-                CSR_COLD_WR(p, VTSS_MACSEC_EGR_SA_MATCH_CTL_PARAMS_SAM_ENTRY_CLEAR1, (1 << record));
+                CSR_COLD_WRM(p, VTSS_MACSEC_EGR_SA_MATCH_CTL_PARAMS_SAM_ENTRY_CLEAR1, (1 << record), (1 << record));
             } else {
-                CSR_COLD_WR(p, VTSS_MACSEC_EGR_SA_MATCH_CTL_PARAMS_SAM_ENTRY_CLEAR2, (1 << (record - 32)));
-                CSR_COLD_WR(p, VTSS_MACSEC_EGR_SA_MATCH_CTL_PARAMS_SAM_ENTRY_CLEAR1, 0); // SAs above 31 requires 2 writes
+                CSR_COLD_WRM(p, VTSS_MACSEC_EGR_SA_MATCH_CTL_PARAMS_SAM_ENTRY_CLEAR2, (1 << (record - 32)), (1 << (record - 32)));
             }
         } else {
             if (record < 32) {
-                CSR_COLD_WR(p, VTSS_MACSEC_INGR_SA_MATCH_CTL_PARAMS_SAM_ENTRY_CLEAR1, (1 << record));
+                CSR_COLD_WRM(p, VTSS_MACSEC_INGR_SA_MATCH_CTL_PARAMS_SAM_ENTRY_CLEAR1, (1 << record), (1 << record));
             } else {
-                CSR_COLD_WR(p, VTSS_MACSEC_INGR_SA_MATCH_CTL_PARAMS_SAM_ENTRY_CLEAR2, (1 << (record - 32)));
-                CSR_COLD_WR(p, VTSS_MACSEC_INGR_SA_MATCH_CTL_PARAMS_SAM_ENTRY_CLEAR1, 0); // SAs above 31 requires 2 writes
+                CSR_COLD_WRM(p, VTSS_MACSEC_INGR_SA_MATCH_CTL_PARAMS_SAM_ENTRY_CLEAR2, (1 << (record - 32)), (1 << (record - 32)));
             }
         }
     }
@@ -5239,31 +5235,25 @@ static vtss_rc vtss_macsec_tx_sa_activate_priv(vtss_state_t                  *vt
         an_in_use = secy->tx_sc.sa[old_an]->enabled;
     }
     /* Activate chip SA Flow */
-    if (an_in_use && (old_an < VTSS_MACSEC_SA_PER_SC_MAX) && (old_an != an)) {
-        if (VTSS_RC_COLD(macsec_sa_inuse(vtss_state, port.port_no, secy->tx_sc.sa[an]->record, EGRESS, MACSEC_ENABLE)) != VTSS_RC_OK) {
-            VTSS_E("Could not set SA:%u to 'in_use'", secy->tx_sc.sa[an]->record);
-            return dbg_counter_incr(vtss_state, port.port_no, VTSS_RC_ERR_MACSEC_COULD_NOT_SET_SA);
-        }
-        if (VTSS_RC_COLD(macsec_sa_toggle(vtss_state, port.port_no, secy->tx_sc.sa[an]->record, secy->tx_sc.sa[old_an]->record, EGRESS)) != VTSS_RC_OK) {
-            VTSS_E("Could not toggle SA:%u -> %u", an, old_an);
-            return dbg_counter_incr(vtss_state, port.port_no, VTSS_RC_ERR_MACSEC_COULD_NOT_TOGGLE_SA);
-        }
-    } else {
-        if (VTSS_RC_COLD(macsec_sa_inuse(vtss_state, port.port_no, secy->tx_sc.sa[an]->record, EGRESS, MACSEC_ENABLE)) != VTSS_RC_OK) {
-            VTSS_E("Could not set SA:%u to 'in_use'", secy->tx_sc.sa[an]->record);
-            return dbg_counter_incr(vtss_state, port.port_no, VTSS_RC_ERR_MACSEC_COULD_NOT_SET_SA);
-        }
-        /* Enable chip SA Flow */
-        if (macsec_sa_enable(vtss_state, port.port_no, secy->tx_sc.sa[an]->record, EGRESS, MACSEC_ENABLE) != VTSS_RC_OK) {
-            VTSS_E("Could not enable the SA, record:%d, port_no:%d, port_id:%d, secy_id:%d", secy->tx_sc.sa[an]->record, port.port_no, port.port_id, secy_id);
-            return dbg_counter_incr(vtss_state, port.port_no, VTSS_RC_ERR_MACSEC_COULD_NOT_ENA_SA);
-        }
-
+    if (VTSS_RC_COLD(macsec_sa_inuse(vtss_state, port.port_no, secy->tx_sc.sa[an]->record, EGRESS, MACSEC_ENABLE)) != VTSS_RC_OK) {
+        VTSS_E("Could not set SA:%u to 'in_use'", secy->tx_sc.sa[an]->record);
+        return dbg_counter_incr(vtss_state, port.port_no, VTSS_RC_ERR_MACSEC_COULD_NOT_SET_SA);
+    }
+    /* Enable chip SA Flow */
+    if (macsec_sa_enable(vtss_state, port.port_no, secy->tx_sc.sa[an]->record, EGRESS, MACSEC_ENABLE) != VTSS_RC_OK) {
+        VTSS_E("Could not enable the SA, record:%d, port_no:%d, port_id:%d, secy_id:%d", secy->tx_sc.sa[an]->record, port.port_no, port.port_id, secy_id);
+        return dbg_counter_incr(vtss_state, port.port_no, VTSS_RC_ERR_MACSEC_COULD_NOT_ENA_SA);
     }
     if (vtss_state->sync_calling_private) {
         return VTSS_RC_OK;
     }
     if (an_in_use && (old_an < VTSS_MACSEC_SA_PER_SC_MAX)) {
+
+        /* Enable chip SA Flow */
+        if (macsec_sa_enable(vtss_state, port.port_no, secy->tx_sc.sa[old_an]->record, EGRESS, MACSEC_DISABLE) != VTSS_RC_OK) {
+            VTSS_E("Could not enable the SA, record:%d, port_no:%d, port_id:%d, secy_id:%d", secy->tx_sc.sa[an]->record, port.port_no, port.port_id, secy_id);
+            return dbg_counter_incr(vtss_state, port.port_no, VTSS_RC_ERR_MACSEC_COULD_NOT_ENA_SA);
+        }
         secy->tx_sc.sa[old_an]->enabled = 0;
         secy->tx_sc.sa[old_an]->status.in_use = 0;
     }

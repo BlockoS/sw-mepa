@@ -166,6 +166,10 @@ mepa_rc lan867x_init_conf(mepa_device_t *const dev, const mepa_t1s_plca_cfg_t cf
         MEPA_RC(rc, lan867x_mmd_reg_wr(dev, MMD_MISC, 0x00F9, 0x4E53));
         MEPA_RC(rc, lan867x_mmd_reg_wr(dev, MMD_MISC, 0x0081, 0x0080));
         MEPA_RC(rc, lan867x_mmd_reg_wr(dev, MMD_MISC, 0x0091, 0x9660));
+
+        if (data->dev.rev >= LAN867X_REVD) {
+            MEPA_RC(rc, lan867x_mmd_modify(dev, MMD_MISC, MISC_LSCTRL, MISC_LSCTRL_LSCFG_ACTIVITY, MISC_LSCTRL_LSCFG_ACTIVITY));
+        }
     } else {
         // misra_c_2023_rule_15_6_violation
         // taken care by > if (data->dev.rev > LAN867X_REVB)

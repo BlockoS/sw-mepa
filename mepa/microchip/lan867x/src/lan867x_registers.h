@@ -22,6 +22,7 @@
 #define LAN867X_MODEL(x)                (((x) & 0x03F0U) >> 4U)
 #define LAN867X_OUI(x, y)               (((x) << 2U) & 0x0003FFFCU) | (((y) & 0x0000FC00U) << 18U)
 #define LAN867X_REVB                    (0x02U)
+#define LAN867X_REVD                    (0x06U)
 
 #define MMDCTRL_ADDRESS                 ((uint16_t)0x0U << 14U)
 #define MMDCTRL_NO_POST_INC             ((uint16_t)0x1U << 14U)
@@ -82,6 +83,9 @@
 #define ACMA_POLARITY_S                 (uint16_t)0U
 #define POLARITY_FALLING_EDGE           (uint16_t)1U
 #define POLARITY_RISING_EDGE            (uint16_t)0U
+
+#define MISC_LSCTRL                     (uint16_t)0x0012U
+#define MISC_LSCTRL_LSCFG_ACTIVITY      (uint16_t)0x1800U
 
 #define MISC_STAT_1                     (uint16_t)0x0018
 /* 0184; 0080, 0180 */

@@ -498,6 +498,20 @@ address as input arguments.
 The API `mepa_ts_csr_reg_write()` writes the PHY CSR register with MMD, CSR
 address and value to be configured as arguments.
 
+[NOTE]
+====
+For VSC 1G PHYs:
+
+* The Target_Id and the MMD are the same.
+* The MMD ID will be the Target ID.
+* The CSR register is the register address.
+
+For 10G PHYs:
+
+* The MMD ID will be the Device ID.
+* The CSR register is the register address.
+====
+
 === MEPA TS functions.
 `mepa_ts_init_conf_set()` +
 `mepa_ts_init_conf_get()` +

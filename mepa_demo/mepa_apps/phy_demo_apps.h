@@ -52,6 +52,7 @@ typedef enum {
 
 typedef struct {
     phy_family_t family;
+    const char   *family_name;
 } demo_phy_info_t;
 
 

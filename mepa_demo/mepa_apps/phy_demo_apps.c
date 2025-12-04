@@ -33,11 +33,13 @@ mepa_rc phy_family_detect(meba_inst_t meba_instance, mepa_port_no_t port_no, dem
     case PHY_TYPE_8263:
     case PHY_TYPE_8262:
         phy_info->family = PHY_FAMILY_MALIBU_25G;
+        phy_info->family_name = "Malibu25G";
         break;
     case PHY_TYPE_8256:
     case PHY_TYPE_8257:
     case PHY_TYPE_8258:
         phy_info->family = PHY_FAMILY_MALIBU_10G;
+        phy_info->family_name = "Malibu10G";
         break;
     case PHY_TYPE_8582:
     case PHY_TYPE_8584:
@@ -46,15 +48,18 @@ mepa_rc phy_family_detect(meba_inst_t meba_instance, mepa_port_no_t port_no, dem
     case PHY_TYPE_8562:
     case PHY_TYPE_8586:
         phy_info->family = PHY_FAMILY_VIPER;
+        phy_info->family_name = "Viper";
         break;
     case PHY_TYPE_8574:
     case PHY_TYPE_8504:
     case PHY_TYPE_8572:
     case PHY_TYPE_8552:
         phy_info->family = PHY_FAMILY_TESLA;
+        phy_info->family_name = "Tesla";
         break;
     case PHY_TYPE_8814:
         phy_info->family = PHY_FAMILY_LAN8814;
+        phy_info->family_name = "Indy";
         break;
     default:
         cli_printf("\nPHY Connected is not supported in application\n");

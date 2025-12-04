@@ -3,97 +3,235 @@
 
 = SyncE Demo Application
 
-== SyncE Demo Application Description
-Synchronous Ethernet(SyncE) is an ITU-T standard which provides facilitates the transference of
-clock signals over the Ethernet physical layer. Any network element (NE) should have at least two
-reference clocks, and in addition, Ethernet interfaces must be able to generate their own
-synchronization signal in case they lose their external reference.
+== Overview
 
-SyncE Demo Application is used to configure the SyncE Block of PHYs for generating recovered clock A
-and recovered clock B with the corresponding recovered clockout frequency achieved by utilizing
-MEPA/Chip specfic APIs tailored for the respective PHY.
+Synchronous Ethernet (SyncE) is an ITU-T standardized clock distribution technology that enables
+the transmission of frequency synchronization over Ethernet physical links. Unlike ordinary Ethernet,
+SyncE ensures that all network elements (NEs) participating in the network operate using a common frequency,
+significantly enhancing stability and timing accuracy.
 
-Following methods used for SyncE-Demo Application.
+The SyncE Demo Configuration Application provides a command-line interface (CLI) that allows users to configure, enable, disable,
+and monitor SyncE clock settings on supported PHY devices. This demo illustrates how to select recovered clock sources, output destinations,
+frequencies, and squelch controls based on the PHY family.
 
-* Generic SyncE Demo for all the PHY's
+The SyncE Demo Application is designed to:
 
-* Chip Specific SyncE demo for specific PHY's
+* Demonstrate how SyncE configuration is applied on various PHY families
+* Only valid options for the detected PHY and port mode are presented in the CLI
+* Allow users to interactively choose:
+** Clock source (e.g., recovered line/host clocks, copper/serdes, srefclk)
+** Clock destination (SCKOUT, CKOUTx, RCVRCLKx)
+** Output frequency (based on destination and hardware restrictions)
+** Squelch configuration (if supported)
 
-== Directory
-* `./mepa_demo/mepa_apps/phy_synce.c` - Source File for Generic and chip specific SyncE Demo Application
-* `./mepa_demo/mepa_scripts/synce_config.json` - JSON file for Chip specific Sync-E config, application will take configuration from this File
+== Directory Structure
 
-== Prerequisites
-SyncE Demo Application to run on EDSx Platform User needs to flash `ext4` image on
-eMMC flash, the application will not work with `.itb` image because it doesn't have the Linux File System.
-To Configure the Chip specific SyncE we have a JSON file.
+* `./mepa_demo/mepa_apps/phy_synce.c` - Source File for SyncE Demo Config Application
 
-== Generic SyncE Demo Application
+== Supported Devices and Capabilities
 
-To Run SyncE Demo Application the 'mepa-demo-edsx' application needs to be running.
-Reffer Section link:#mepa_demo/docs/getting-started[Getting-Started] to know about the procedure
-to run 'mepa-demo' Application.
+Different PHY families support different clock outputs and frequencies.
 
-Once 'mepa-demo-edsx' application is started the Generic SyncE Demo Application can be configured with the command
-'mepa-cmd synce_conf_set'.
+[width="80%",options="header"]
+|===
+| Device   | Supported Outputs        | Frequency Support (MHz)
 
-=== Generic SyncE Demo Application Arguments
+| VSC8258
+| SCKOUT
+| 125, 156.25
 
-To List the all available arguments in the Generic SyncE Demo Application run the below mentioned command.
+| VSC8258
+| CKOUT0-3 (1G source)
+| 125, 62.5
 
+| VSC8258
+| CKOUT0-3 (10G LAN source, 10.3125 GHz)
+| 322.27, 161.13
+
+| VSC8258
+| CKOUT0-3 (10G WAN source, 9.95328 GHz)
+| 311.04, 155.52
+
+| VSC8584
+| RCVRDCLK1, RCVRDCLK2
+| 25, 31.25, 125
+
+| LAN8814
+| RCVRDCLK1, RCVRDCLK2
+| 25, 31.25, 125
+|===
+
+== Clock Output Destinations
+
+[width="80%",options="header"]
+|===
+| Destination                  | VSC8258         | VSC8584 | LAN8814
+
+| MEPA_SYNCE_CLOCK_DST_1       | Yes (CKOUT0)    | Yes     | Yes
+| MEPA_SYNCE_CLOCK_DST_2       | Yes (CKOUT1)    | Yes     | Yes
+| MEPA_SYNCE_CLOCK_DST_3       | Yes (CKOUT2)    | No      | No
+| MEPA_SYNCE_CLOCK_DST_4       | Yes (CKOUT3)    | No      | No
+| MEPA_SYNCE_CLOCK_DST_SCKOUT  | Yes             | No      | No
+|===
+
+== Source Selection Support
+
+[width="90%",options="header"]
+|===
+| Source                      | VSC8258 | VSC8584 | LAN8814
+
+| DISABLED                    | Yes     | Yes     | Yes
+| SERDES_MEDIA                | No      | Yes     | No
+| COPPER_MEDIA                | No      | Yes     | Yes
+| CLOCK_IN_1 / CLOCK_IN_2     | No      | No      | Yes
+| LINE0-3                     | Yes     | No      | No
+| HOST0-3                     | Yes     | No      | No
+| SREFCLK                     | Yes     | No      | No
+|===
+
+== CLI Command and Usage
 
 ----
-# mepa-cmd  synce_conf_set ?
-Description:
-------------
-syncE configuration set for particular port number.
-
-Syntax:
--------
-synce_conf_set <port_no> [disableclk|serdes|coppermedia|clk1|clk2] [25mhz|31.25mhz|125mhz|156.25mhz] [clkouta|clkoutb]
-
-Parameters:
------------
-<port_no>                              : Port number or zero
-disableclk|serdes|coppermedia|clk1|clk2:
-         DISABLECLK     : Disable clock source
-         SERDES         : Serdes clock source
-         COPPERMEDIA    : Coppermedia clock source
-         CLK1           : Clock source1
-         CLK2           : Clock source2
-
-25mhz|31.25mhz|125mhz|156.25mhz        :
-         25MHZ          : 25mhz expected clock frequency
-         31.25MHZ       : 31.25mhz expected clock frequency
-         125MHZ         : 125mhz expected clock frequency
-         156.25MHZ      : 156.25mhz expected clock frequency
-
-clkouta|clkoutb                        :
-         CLKOUTA        : Recovered clock output A
-         CLKOUTB        : Recovered clock output B
+mepa-cmd phy synce_conf <port_no> <enable|disable>
 ----
 
-== Chip-Specific SyncE Demo Appplication
+[cols="1,3",options="header"]
+|===
+| Argument   | Description
+| <port_no>  | PHY port index (0-based)
+| enable     | Enables SyncE output configuration
+| disable    | Disables the selected SyncE destination
+|===
 
-Configure all the options in the chip specific JSON file. Chip specific synce application will read the populated structure from JSON file
-and configure the SyncE by calling API's.
+== Supported PHY Families and Their Options
 
-=== Procedure to execute Chip specific Sync-E
+=== VSC8258
+
+*Sources*: `line0`, `line1`, `line2`, `line3`, `host0`, `host1`, `host2`, `host3`, `srefclk` +
+*Destinations*: `sckout`, `ckout0`, `ckout1`, `ckout2`, `ckout3`
+
+*Frequency based on operating mode*: +
+* SCKOUT: 125, 156.25 MHz +
+* CKOUT (1G): 125, 62.5 MHz +
+* CKOUT (10G LAN): 322.27, 161.13 MHz +
+* CKOUT (10G WAN): 311.04, 155.52 MHz +
+
+*Squelch options*: `none`, `link_line0`, `link_line1`, `link_line2`, `link_line3`
+
+=== VSC8584
+
+*Sources*: `copper`, `serdes` +
+*Destinations*: `rcvrclk1`, `rcvrclk2` +
+*Frequencies*: 25, 31.25, 125 (MHz)
+
+=== LAN8814
+
+*Sources*: `copper`, `serdes`, `clock_in_1`, `clock_in_2` +
+*Destinations*: `rcvrclk1`, `rcvrclk2` +
+*Frequencies*: 25, 31.25, 125 (MHz)
+
+== Examples
+
+=== VSC8258: Get 156.25 MHz clock recovered from LINE2 on SCKOUT Pin with Squelch enabled
+
 ----
-#cd mepa-scripts
-# mepa-cmd chip_specific_synce <port_no> -f synce_config.json
+# mepa-cmd phy synce_conf 1 enable
+
+Select recovered clock source:
+  1) line0
+  2) line1
+  3) line2
+  4) line3
+  5) host0
+  6) host1
+  7) host2
+  8) host3
+  9) srefclk
+Enter choice [1-9]: 3
+
+Select output destination:
+  1) none
+  2) sckout
+  3) ckout0
+  4) ckout1
+  5) ckout2
+  6) ckout3
+Enter choice [1-6]: 2
+
+Select output frequency (MHz):
+  1) 125.00
+  2) 156.25
+
+Enter choice [1-2]: 2
+
+Select squelch source:
+  1) none
+  2) link_line0
+  3) link_line1
+  4) link_line2
+  5) link_line3
+Enter choice [1-5]: 4
+
+SyncE configuration applied successfully!
 ----
 
-Note: For VSC8258 PHY, in the synce_config.json file when 'mode' option is configured with VTSS_CKOUT_SQUELCH_SRC_LINK_LINE0/1/2/3 or HOST0/1/2/3
-squelch-inverse should be configured as '1'.
+=== VSC8258: Get 322.27 MHz clock recovered from LINE2 on CKOUT0 Pin with squelch disabled
 
-== Recovered clock frequency measurement
+----
+# mepa-cmd phy synce_conf 1 enable
 
-Once the above mentioned parameters got configured, generated recovered clock frequency from the syncE
-can be measured using oscilloscope from RCKOUTA/B pins (Refer schematics for the respective PHY for probing pins).
+Select recovered clock source:
+  1) line0
+  2) line1
+  3) line2
+  4) line3
+  5) host0
+  6) host1
+  7) host2
+  8) host3
+  9) srefclk
+Enter choice [1-9]: 3
 
-== Known Issues
+Select output destination:
+  1) none
+  2) sckout
+  3) ckout0
+  4) ckout1
+  5) ckout2
+  6) ckout3
+Enter choice [1-6]: 3
 
-MEPA-643: Recovered clock1 not working in VIPER
+Select output frequency (MHz):
+  1) 322.27
+  2) 161.13
 
-MEPA-644: syncE disable not working in M10G
+Enter choice [1-2]: 1
+
+Select squelch source:
+  1) none
+  2) link_line0
+  3) link_line1
+  4) link_line2
+  5) link_line3
+Enter choice [1-5]: 1
+
+SyncE configuration applied successfully!
+----
+
+=== VSC8258: Disable Clock generated on CKOUT0
+
+----
+# mepa-cmd phy synce_conf 1 disable
+
+Select output destination:
+  1) none
+  2) sckout
+  3) ckout0
+  4) ckout1
+  5) ckout2
+  6) ckout3
+Enter choice [1-6]: 3
+
+SyncE configuration applied successfully!
+----
+

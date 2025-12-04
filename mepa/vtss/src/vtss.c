@@ -1764,37 +1764,29 @@ static mepa_rc mepa_to_vtss_synce_conf(mepa_synce_clock_conf_t conf, vtss_phy_10
 static mepa_rc mepa_to_vtss_sckout_conf(mepa_synce_clock_conf_t conf, vtss_phy_10g_sckout_conf_t *sckout)
 {
     mepa_rc rc = MEPA_RC_OK;
-    switch(conf.squelch.squelch_src) {
-    case MEPA_SYNCE_SQUELCH_LINK_LINE0:
-        sckout->src = VTSS_CKOUT_SQUELCH_SRC_LINK_LINE0;
-        break;
-    case MEPA_SYNCE_SQUELCH_LINK_LINE1:
-        sckout->src = VTSS_CKOUT_SQUELCH_SRC_LINK_LINE1;
-        break;
-    case MEPA_SYNCE_SQUELCH_LINK_LINE2:
-        sckout->src = VTSS_CKOUT_SQUELCH_SRC_LINK_LINE2;
-        break;
-    case MEPA_SYNCE_SQUELCH_LINK_LINE3:
-        sckout->src = VTSS_CKOUT_SQUELCH_SRC_LINK_LINE3;
-        break;
-    case MEPA_SYNCE_SQUELCH_LINK_HOST0:
-        sckout->src = VTSS_CKOUT_SQUELCH_SRC_LINK_HOST0;
-        break;
-    case MEPA_SYNCE_SQUELCH_LINK_HOST1:
-        sckout->src = VTSS_CKOUT_SQUELCH_SRC_LINK_HOST1;
-        break;
-    case MEPA_SYNCE_SQUELCH_LINK_HOST2:
-        sckout->src = VTSS_CKOUT_SQUELCH_SRC_LINK_HOST2;
-        break;
-    case MEPA_SYNCE_SQUELCH_LINK_HOST3:
-        sckout->src = VTSS_CKOUT_SQUELCH_SRC_LINK_HOST3;
-        break;
-    case MEPA_SYNCE_NO_SQUELCH:
-        sckout->src = VTSS_CKOUT_NO_SQUELCH;
-        break;
-    default:
-        rc = MEPA_RC_ERROR;
-        break;
+    switch (conf.squelch.squelch_src) {
+        case MEPA_SYNCE_NO_SQUELCH:           sckout->src = VTSS_CKOUT_NO_SQUELCH; break;
+        // LINE link squelch
+        case MEPA_SYNCE_SQUELCH_LINK_LINE0:   sckout->src = VTSS_CKOUT_SQUELCH_SRC_LINK_LINE0; break;
+        case MEPA_SYNCE_SQUELCH_LINK_LINE1:   sckout->src = VTSS_CKOUT_SQUELCH_SRC_LINK_LINE1; break;
+        case MEPA_SYNCE_SQUELCH_LINK_LINE2:   sckout->src = VTSS_CKOUT_SQUELCH_SRC_LINK_LINE2; break;
+        case MEPA_SYNCE_SQUELCH_LINK_LINE3:   sckout->src = VTSS_CKOUT_SQUELCH_SRC_LINK_LINE3; break;
+        // LINE LOS squelch
+        case MEPA_SYNCE_SQUELCH_LOS_LINE0:    sckout->src = VTSS_CKOUT_SQUELCH_SRC_LOS_LINE0; break;
+        case MEPA_SYNCE_SQUELCH_LOS_LINE1:    sckout->src = VTSS_CKOUT_SQUELCH_SRC_LOS_LINE1; break;
+        case MEPA_SYNCE_SQUELCH_LOS_LINE2:    sckout->src = VTSS_CKOUT_SQUELCH_SRC_LOS_LINE2; break;
+        case MEPA_SYNCE_SQUELCH_LOS_LINE3:    sckout->src = VTSS_CKOUT_SQUELCH_SRC_LOS_LINE3; break;
+        // HOST link squelch
+        case MEPA_SYNCE_SQUELCH_LINK_HOST0:   sckout->src = VTSS_CKOUT_SQUELCH_SRC_LINK_HOST0; break;
+        case MEPA_SYNCE_SQUELCH_LINK_HOST1:   sckout->src = VTSS_CKOUT_SQUELCH_SRC_LINK_HOST1; break;
+        case MEPA_SYNCE_SQUELCH_LINK_HOST2:   sckout->src = VTSS_CKOUT_SQUELCH_SRC_LINK_HOST2; break;
+        case MEPA_SYNCE_SQUELCH_LINK_HOST3:   sckout->src = VTSS_CKOUT_SQUELCH_SRC_LINK_HOST3; break;
+        // HOST LOS squelch
+        case MEPA_SYNCE_SQUELCH_LOS_HOST0:    sckout->src = VTSS_CKOUT_SQUELCH_SRC_LOS_HOST0; break;
+        case MEPA_SYNCE_SQUELCH_LOS_HOST1:    sckout->src = VTSS_CKOUT_SQUELCH_SRC_LOS_HOST1; break;
+        case MEPA_SYNCE_SQUELCH_LOS_HOST2:    sckout->src = VTSS_CKOUT_SQUELCH_SRC_LOS_HOST2; break;
+        case MEPA_SYNCE_SQUELCH_LOS_HOST3:    sckout->src = VTSS_CKOUT_SQUELCH_SRC_LOS_HOST3; break;
+        default:                              rc = MEPA_RC_ERROR; break;
     }
 
     return rc;
@@ -1820,13 +1812,30 @@ static mepa_rc mepa_to_vtss_ckout_conf(const mepa_synce_clock_conf_t *conf, vtss
 
     // Map squelch source
     switch (conf->squelch.squelch_src) {
-        case MEPA_SYNCE_NO_SQUELCH: ckout->src = VTSS_CKOUT_NO_SQUELCH; break;
-        case MEPA_SYNCE_SQUELCH_LINK_LINE0: ckout->src = VTSS_CKOUT_SQUELCH_SRC_LINK_LINE0; break;
-        case MEPA_SYNCE_SQUELCH_LINK_LINE1: ckout->src = VTSS_CKOUT_SQUELCH_SRC_LINK_LINE1; break;
-        case MEPA_SYNCE_SQUELCH_LINK_LINE2: ckout->src = VTSS_CKOUT_SQUELCH_SRC_LINK_LINE2; break;
-        case MEPA_SYNCE_SQUELCH_LINK_LINE3: ckout->src = VTSS_CKOUT_SQUELCH_SRC_LINK_LINE3; break;
-        default: ckout->src = VTSS_CKOUT_NO_SQUELCH; break;
+        // LINE link squelch
+        case MEPA_SYNCE_NO_SQUELCH:           ckout->src = VTSS_CKOUT_NO_SQUELCH; break;
+        case MEPA_SYNCE_SQUELCH_LINK_LINE0:   ckout->src = VTSS_CKOUT_SQUELCH_SRC_LINK_LINE0; break;
+        case MEPA_SYNCE_SQUELCH_LINK_LINE1:   ckout->src = VTSS_CKOUT_SQUELCH_SRC_LINK_LINE1; break;
+        case MEPA_SYNCE_SQUELCH_LINK_LINE2:   ckout->src = VTSS_CKOUT_SQUELCH_SRC_LINK_LINE2; break;
+        case MEPA_SYNCE_SQUELCH_LINK_LINE3:   ckout->src = VTSS_CKOUT_SQUELCH_SRC_LINK_LINE3; break;
+        // LINE LOS squelch
+        case MEPA_SYNCE_SQUELCH_LOS_LINE0:    ckout->src = VTSS_CKOUT_SQUELCH_SRC_LOS_LINE0; break;
+        case MEPA_SYNCE_SQUELCH_LOS_LINE1:    ckout->src = VTSS_CKOUT_SQUELCH_SRC_LOS_LINE1; break;
+        case MEPA_SYNCE_SQUELCH_LOS_LINE2:    ckout->src = VTSS_CKOUT_SQUELCH_SRC_LOS_LINE2; break;
+        case MEPA_SYNCE_SQUELCH_LOS_LINE3:    ckout->src = VTSS_CKOUT_SQUELCH_SRC_LOS_LINE3; break;
+        // HOST link squelch
+        case MEPA_SYNCE_SQUELCH_LINK_HOST0:   ckout->src = VTSS_CKOUT_SQUELCH_SRC_LINK_HOST0; break;
+        case MEPA_SYNCE_SQUELCH_LINK_HOST1:   ckout->src = VTSS_CKOUT_SQUELCH_SRC_LINK_HOST1; break;
+        case MEPA_SYNCE_SQUELCH_LINK_HOST2:   ckout->src = VTSS_CKOUT_SQUELCH_SRC_LINK_HOST2; break;
+        case MEPA_SYNCE_SQUELCH_LINK_HOST3:   ckout->src = VTSS_CKOUT_SQUELCH_SRC_LINK_HOST3; break;
+        // HOST LOS squelch
+        case MEPA_SYNCE_SQUELCH_LOS_HOST0:    ckout->src = VTSS_CKOUT_SQUELCH_SRC_LOS_HOST0; break;
+        case MEPA_SYNCE_SQUELCH_LOS_HOST1:    ckout->src = VTSS_CKOUT_SQUELCH_SRC_LOS_HOST1; break;
+        case MEPA_SYNCE_SQUELCH_LOS_HOST2:    ckout->src = VTSS_CKOUT_SQUELCH_SRC_LOS_HOST2; break;
+        case MEPA_SYNCE_SQUELCH_LOS_HOST3:    ckout->src = VTSS_CKOUT_SQUELCH_SRC_LOS_HOST3; break;
+        default:                              ckout->src = VTSS_CKOUT_NO_SQUELCH; break;
     }
+
 
     // Map frequency
     switch (conf->freq) {

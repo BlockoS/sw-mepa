@@ -3109,7 +3109,8 @@ vtss_rc vtss_phy_10g_ckout_conf_set (const vtss_inst_t inst,
 
     VTSS_ENTER();
     if ((rc = vtss_inst_phy_10G_no_check_private(inst, &vtss_state, port_no)) == VTSS_RC_OK) {
-        vtss_state->phy_10g_state[port_no].ckout = *ckout;
+        vtss_state->phy_10g_state[port_no].ckout[ckout->ckout_sel] = *ckout;
+        vtss_state->phy_10g_state[port_no].ckout_sel = ckout->ckout_sel;
         rc = VTSS_RC_COLD(vtss_phy_10g_ckout_set_private(vtss_state, port_no));
     }
     VTSS_EXIT();

@@ -583,28 +583,66 @@ typedef enum {
     MEPA_SYNCE_CLOCK_SRC_SERDES_MEDIA,
     MEPA_SYNCE_CLOCK_SRC_COPPER_MEDIA,
     MEPA_SYNCE_CLOCK_SRC_CLOCK_IN_1,
-    MEPA_SYNCE_CLOCK_SRC_CLOCK_IN_2
+    MEPA_SYNCE_CLOCK_SRC_CLOCK_IN_2,
+    MEPA_SYNCE_CLOCK_SRC_LINE0,
+    MEPA_SYNCE_CLOCK_SRC_LINE1,
+    MEPA_SYNCE_CLOCK_SRC_LINE2,
+    MEPA_SYNCE_CLOCK_SRC_LINE3,
+    MEPA_SYNCE_CLOCK_SRC_HOST0,
+    MEPA_SYNCE_CLOCK_SRC_HOST1,
+    MEPA_SYNCE_CLOCK_SRC_HOST2,
+    MEPA_SYNCE_CLOCK_SRC_HOST3,
+    MEPA_SYNCE_CLOCK_SRC_SREFCLK,
+    MEPA_SYNCE_CLOCK_SRC_PTP_LTC,
 } mepa_synce_clock_src_t;
 
 /** \brief synce recovered clock */
 typedef enum {
-    MEPA_SYNCE_CLOCK_DST_1 = 0,
+    MEPA_SYNCE_CLOCK_DST_NONE = 0,
+    MEPA_SYNCE_CLOCK_DST_1,
     MEPA_SYNCE_CLOCK_DST_2,
+    MEPA_SYNCE_CLOCK_DST_3,
+    MEPA_SYNCE_CLOCK_DST_4,
+    MEPA_SYNCE_CLOCK_DST_SCKOUT,
     MEPA_SYNCE_CLOCK_DST_MAX,
 } mepa_synce_clock_dst_t;
 
 /** \brief recovered clock frequencies */
 typedef enum {
-    MEPA_FREQ_25M,    /**< 25Mhz recovered clock */
-    MEPA_FREQ_31_25M, /**< 31.25Mhz receovered clock */
-    MEPA_FREQ_125M,   /**< 125Mhz recovered clock */
+    MEPA_FREQ_25M,       /**< 25Mhz     recovered clock */
+    MEPA_FREQ_31_25M,    /**< 31.25Mhz  receovered clock */
+    MEPA_FREQ_62_5M,
+    MEPA_FREQ_125M,      /**< 125Mhz    recovered clock */
+    MEPA_FREQ_155_52M,
+    MEPA_FREQ_156_25M,   /**< 156.25Mhz recovered clock */
+    MEPA_FREQ_161_13M,
+    MEPA_FREQ_311_04M,
+    MEPA_FREQ_322_27M,
 } mepa_freq_t;
+
+typedef enum {
+    MEPA_SYNCE_NO_SQUELCH = 0,
+    MEPA_SYNCE_SQUELCH_LINK_LINE0,
+    MEPA_SYNCE_SQUELCH_LINK_LINE1,
+    MEPA_SYNCE_SQUELCH_LINK_LINE2,
+    MEPA_SYNCE_SQUELCH_LINK_LINE3,
+    MEPA_SYNCE_SQUELCH_LINK_HOST0,
+    MEPA_SYNCE_SQUELCH_LINK_HOST1,
+    MEPA_SYNCE_SQUELCH_LINK_HOST2,
+    MEPA_SYNCE_SQUELCH_LINK_HOST3
+} mepa_squelch_src_t;
+
+typedef struct {
+    mepa_squelch_src_t          squelch_src;
+    mepa_bool_t                 squelch_inv;
+} mepa_rcvrd_clock_squelch_t;	
 
 /** \brief Synce recovered clock configuration */
 typedef struct {
-    mepa_synce_clock_src_t src; /**< source type */
-    mepa_synce_clock_dst_t dst; /**< recovered clock number */
-    mepa_freq_t            freq;/**< recovered clock frequency */
+    mepa_synce_clock_src_t      src; /**< source type */
+    mepa_synce_clock_dst_t      dst; /**< recovered clock number */
+    mepa_freq_t                 freq;/**< recovered clock frequency */
+    mepa_rcvrd_clock_squelch_t  squelch;
 } mepa_synce_clock_conf_t;
 
 /** \brief mepa trace groups */

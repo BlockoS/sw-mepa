@@ -601,18 +601,15 @@ static vtss_rc malibu_phy_10g_global_reset(struct vtss_state_s *vtss_state,
 static vtss_rc malibu_phy_10g_lane_sync_set(vtss_state_t *vtss_state,
         vtss_port_no_t port_no)
 {
-    u8 ch_id = vtss_state->phy_10g_state[port_no].channel_id;
-    vtss_phy_10g_lane_sync_conf_t lane_sync = vtss_state->phy_10g_state[port_no].lane_sync;
     u8 lane_sync_sel = VTSS_PHY_10G_SYNC_DISABLE;
     u32 rd_val;
     vtss_port_no_t base_port_no = PHY_BASE_PORT(port_no);
 
-    /*
-     * Set rx_ch and tx_ch to ch_id as of now. This can be made generic by setting
-     * any line's tx_clock to any line's recovered clock, in this case rx_ch & tx_ch
-     * should be supplied by user
-     */
-    lane_sync.tx_ch = lane_sync.rx_ch = ch_id;
+    vtss_phy_10g_lane_sync_conf_t lane_sync = vtss_state->phy_10g_state[port_no].lane_sync;
+    if (lane_sync.rx_ch > 3 || lane_sync.tx_ch > 3) {
+        VTSS_E("Invalid rx_ch (%d) or tx_ch (%d). Must be 0–3.",  lane_sync.rx_ch, lane_sync.tx_ch);
+        return VTSS_RC_ERROR;
+    }
 
     VTSS_D("Malibu lane_sync_set rx_ch:%d tx_ch:%d rx_macro:%d tx_macro:%d enable:%s\n", lane_sync.rx_ch,
             lane_sync.tx_ch, lane_sync.rx_macro, lane_sync.tx_macro, (lane_sync.enable ? "Enable" : "Disable"));
@@ -980,7 +977,7 @@ static BOOL malibu_rev_a(vtss_state_t *vtss_state, vtss_port_no_t port_no)
 static vtss_rc malibu_phy_10g_ckout_set(struct vtss_state_s *vtss_state,
                                    vtss_port_no_t port_no)
 {
-    vtss_phy_10g_ckout_conf_t ckout = vtss_state->phy_10g_state[port_no].ckout;
+    vtss_phy_10g_ckout_conf_t ckout = vtss_state->phy_10g_state[port_no].ckout[vtss_state->phy_10g_state[port_no].ckout_sel];
     vtss_port_no_t base_port_no = PHY_BASE_PORT(port_no);
 
     VTSS_D("Set CKOUT%d  base_port_no:%d port_no:%d enable:%d mode:%d ckout_freq:%d", ckout.ckout_sel, base_port_no,

@@ -1727,6 +1727,274 @@ static mepa_rc phy_10g_warmrestart_conf_get(struct mepa_device *dev, mepa_restar
     return rc;
 }
 
+static mepa_rc mepa_to_vtss_synce_conf(mepa_synce_clock_conf_t conf, vtss_phy_10g_lane_sync_conf_t *lane_sync)
+{
+    mepa_rc rc = MEPA_RC_OK;
+    switch(conf.src) {
+    case MEPA_SYNCE_CLOCK_SRC_LINE0:
+    case MEPA_SYNCE_CLOCK_SRC_LINE1:
+    case MEPA_SYNCE_CLOCK_SRC_LINE2:
+    case MEPA_SYNCE_CLOCK_SRC_LINE3:
+        lane_sync->rx_macro = VTSS_PHY_10G_RX_MACRO_LINE;
+        lane_sync->tx_macro = VTSS_PHY_10G_TX_MACRO_LINE;
+        lane_sync->rx_ch = lane_sync->tx_ch = (uint8_t)(conf.src - MEPA_SYNCE_CLOCK_SRC_LINE0);
+        break;
+    case MEPA_SYNCE_CLOCK_SRC_HOST0:
+    case MEPA_SYNCE_CLOCK_SRC_HOST1:
+    case MEPA_SYNCE_CLOCK_SRC_HOST2:
+    case MEPA_SYNCE_CLOCK_SRC_HOST3:
+        lane_sync->rx_macro = VTSS_PHY_10G_RX_MACRO_HOST;
+        lane_sync->tx_macro = VTSS_PHY_10G_TX_MACRO_HOST;
+        lane_sync->rx_ch = lane_sync->tx_ch = (uint8_t)(conf.src - MEPA_SYNCE_CLOCK_SRC_HOST0);
+        break;
+    case MEPA_SYNCE_CLOCK_SRC_SREFCLK:
+        lane_sync->rx_macro = VTSS_PHY_10G_RX_MACRO_SREFCLK;
+        lane_sync->tx_macro = VTSS_PHY_10G_TX_MACRO_LINE;
+        lane_sync->rx_ch = lane_sync->tx_ch = 0;
+        break;
+    case MEPA_SYNCE_CLOCK_SRC_DISABLED:
+        break;
+    default:
+        rc = MEPA_RC_ERROR;
+        break;
+    }
+    return rc;
+}
+
+static mepa_rc mepa_to_vtss_sckout_conf(mepa_synce_clock_conf_t conf, vtss_phy_10g_sckout_conf_t *sckout)
+{
+    mepa_rc rc = MEPA_RC_OK;
+    switch(conf.squelch.squelch_src) {
+    case MEPA_SYNCE_SQUELCH_LINK_LINE0:
+        sckout->src = VTSS_CKOUT_SQUELCH_SRC_LINK_LINE0;
+        break;
+    case MEPA_SYNCE_SQUELCH_LINK_LINE1:
+        sckout->src = VTSS_CKOUT_SQUELCH_SRC_LINK_LINE1;
+        break;
+    case MEPA_SYNCE_SQUELCH_LINK_LINE2:
+        sckout->src = VTSS_CKOUT_SQUELCH_SRC_LINK_LINE2;
+        break;
+    case MEPA_SYNCE_SQUELCH_LINK_LINE3:
+        sckout->src = VTSS_CKOUT_SQUELCH_SRC_LINK_LINE3;
+        break;
+    case MEPA_SYNCE_SQUELCH_LINK_HOST0:
+        sckout->src = VTSS_CKOUT_SQUELCH_SRC_LINK_HOST0;
+        break;
+    case MEPA_SYNCE_SQUELCH_LINK_HOST1:
+        sckout->src = VTSS_CKOUT_SQUELCH_SRC_LINK_HOST1;
+        break;
+    case MEPA_SYNCE_SQUELCH_LINK_HOST2:
+        sckout->src = VTSS_CKOUT_SQUELCH_SRC_LINK_HOST2;
+        break;
+    case MEPA_SYNCE_SQUELCH_LINK_HOST3:
+        sckout->src = VTSS_CKOUT_SQUELCH_SRC_LINK_HOST3;
+        break;
+    case MEPA_SYNCE_NO_SQUELCH:
+        sckout->src = VTSS_CKOUT_NO_SQUELCH;
+        break;
+    default:
+        rc = MEPA_RC_ERROR;
+        break;
+    }
+
+    return rc;
+}
+
+static mepa_rc mepa_to_vtss_ckout_conf(const mepa_synce_clock_conf_t *conf, vtss_phy_10g_ckout_conf_t *ckout)
+{
+    // Map source
+    switch (conf->src) {
+        case MEPA_SYNCE_CLOCK_SRC_LINE0: ckout->mode = VTSS_CKOUT_LINE0_RECVRD_CLOCK; break;
+        case MEPA_SYNCE_CLOCK_SRC_LINE1: ckout->mode = VTSS_CKOUT_LINE1_RECVRD_CLOCK; break;
+        case MEPA_SYNCE_CLOCK_SRC_LINE2: ckout->mode = VTSS_CKOUT_LINE2_RECVRD_CLOCK; break;
+        case MEPA_SYNCE_CLOCK_SRC_LINE3: ckout->mode = VTSS_CKOUT_LINE3_RECVRD_CLOCK; break;
+        case MEPA_SYNCE_CLOCK_SRC_HOST0: ckout->mode = VTSS_CKOUT_HOST0_RECVRD_CLOCK; break;
+        case MEPA_SYNCE_CLOCK_SRC_HOST1: ckout->mode = VTSS_CKOUT_HOST1_RECVRD_CLOCK; break;
+        case MEPA_SYNCE_CLOCK_SRC_HOST2: ckout->mode = VTSS_CKOUT_HOST2_RECVRD_CLOCK; break;
+        case MEPA_SYNCE_CLOCK_SRC_HOST3: ckout->mode = VTSS_CKOUT_HOST3_RECVRD_CLOCK; break;
+        case MEPA_SYNCE_CLOCK_SRC_DISABLED: break;
+        default:
+            T_E(data, MEPA_TRACE_GRP_GEN, "Invalid CKOUT Source selected\n");
+            return MEPA_RC_ERROR;
+    }
+
+    // Map squelch source
+    switch (conf->squelch.squelch_src) {
+        case MEPA_SYNCE_NO_SQUELCH: ckout->src = VTSS_CKOUT_NO_SQUELCH; break;
+        case MEPA_SYNCE_SQUELCH_LINK_LINE0: ckout->src = VTSS_CKOUT_SQUELCH_SRC_LINK_LINE0; break;
+        case MEPA_SYNCE_SQUELCH_LINK_LINE1: ckout->src = VTSS_CKOUT_SQUELCH_SRC_LINK_LINE1; break;
+        case MEPA_SYNCE_SQUELCH_LINK_LINE2: ckout->src = VTSS_CKOUT_SQUELCH_SRC_LINK_LINE2; break;
+        case MEPA_SYNCE_SQUELCH_LINK_LINE3: ckout->src = VTSS_CKOUT_SQUELCH_SRC_LINK_LINE3; break;
+        default: ckout->src = VTSS_CKOUT_NO_SQUELCH; break;
+    }
+
+    // Map frequency
+    switch (conf->freq) {
+        case MEPA_FREQ_125M:      ckout->freq = VTSS_PHY_10G_CLK_FULL_RATE;   break;   // 1G: 125MHz
+        case MEPA_FREQ_62_5M:     ckout->freq = VTSS_PHY_10G_CLK_DIVIDE_BY_2; break;   // 1G: 62.5MHz
+        case MEPA_FREQ_161_13M:   ckout->freq = VTSS_PHY_10G_CLK_DIVIDE_BY_2; break;   // 10G LAN: 161.13MHz
+        case MEPA_FREQ_155_52M:   ckout->freq = VTSS_PHY_10G_CLK_DIVIDE_BY_2; break;   // 10G WAN: 155.52MHz
+        case MEPA_FREQ_311_04M:   ckout->freq = VTSS_PHY_10G_CLK_FULL_RATE;   break;   // 10G WAN: 311.04MHz
+        case MEPA_FREQ_322_27M:   ckout->freq = VTSS_PHY_10G_CLK_FULL_RATE;   break;   // 10G LAN: 322.27MHz
+        default: ckout->freq = VTSS_PHY_10G_CLK_FULL_RATE; break;
+    }
+
+    ckout->squelch_inv = conf->squelch.squelch_inv;
+
+    // CKOUT selector
+    switch (conf->dst) {
+        case MEPA_SYNCE_CLOCK_DST_1: ckout->ckout_sel = VTSS_CKOUT0; break;
+        case MEPA_SYNCE_CLOCK_DST_2: ckout->ckout_sel = VTSS_CKOUT1; break;
+        case MEPA_SYNCE_CLOCK_DST_3: ckout->ckout_sel = VTSS_CKOUT2; break;
+        case MEPA_SYNCE_CLOCK_DST_4: ckout->ckout_sel = VTSS_CKOUT3; break;
+        default: return MEPA_RC_ERROR;
+    }
+
+    return MEPA_RC_OK;
+}
+
+
+static mepa_rc phy_10g_synce_clk_conf_set(mepa_device_t *dev, const mepa_synce_clock_conf_t *conf)
+{
+    phy_data_t *data =(phy_data_t*)dev->data;
+
+    T_D(data, MEPA_TRACE_GRP_GEN, "phy_10g_synce_clk_conf_set : conf->src : %d, conf->freq : %d, conf->dst : %d\n", conf->src, conf->freq, conf->dst);
+    vtss_phy_10g_lane_sync_conf_t lane_sync = {0};
+    lane_sync.enable = TRUE;
+
+    if (mepa_to_vtss_synce_conf(*conf, &lane_sync) != VTSS_RC_OK) {
+        T_E(data, MEPA_TRACE_GRP_GEN, "Invalid SyncE clock source on port : %d\n", data->port_no);
+        return MEPA_RC_ERROR;
+    }
+
+    if (conf->src == MEPA_SYNCE_CLOCK_SRC_SREFCLK) {
+        vtss_phy_10g_srefclk_mode_t sref_clk = {0};
+        sref_clk.enable = TRUE;
+
+        if (conf->freq == MEPA_FREQ_156_25M) {
+            sref_clk.freq = VTSS_PHY_10G_SREFCLK_156_25;
+        } else if (conf->freq == MEPA_FREQ_125M) {
+            sref_clk.freq = VTSS_PHY_10G_SREFCLK_125_00;
+        } else {
+            T_E(data, MEPA_TRACE_GRP_GEN, "Invalid SREFCLK frequency selected on port : %d\n", data->port_no);
+            return MEPA_RC_ERROR;
+        }
+
+        if(vtss_phy_10g_srefclk_conf_set(data->vtss_instance, data->port_no, &sref_clk) != VTSS_RC_OK) {
+            T_E(data, MEPA_TRACE_GRP_GEN, "Error in configuring SREFCLK on port : %d\n", data->port_no);
+            return MEPA_RC_ERROR;
+        }
+    }
+
+    T_D(data, MEPA_TRACE_GRP_GEN, "lane_sync.tx_macro : %d, lane_sync.rx_macro : %d, lane_sync.rx_ch : %d, lane_sync.tx_ch : %d\n",
+        lane_sync.tx_macro, lane_sync.rx_macro, lane_sync.rx_ch, lane_sync.tx_ch);
+
+    if (conf->src != MEPA_SYNCE_CLOCK_SRC_DISABLED) {
+        if (vtss_phy_10g_lane_sync_set(data->vtss_instance, data->port_no, &lane_sync) != VTSS_RC_OK) {
+            T_E(data, MEPA_TRACE_GRP_GEN, "vtss_phy_10g_lane_sync_set failed on port : %d\n", data->port_no);
+            return MEPA_RC_ERROR;
+        }
+    }
+
+    // SCKOUT configuration
+    if (conf->dst == MEPA_SYNCE_CLOCK_DST_SCKOUT) {
+
+        T_D(data, MEPA_TRACE_GRP_GEN, "SCKOUT Configuration on port : %d\n", data->port_no);
+        vtss_phy_10g_sckout_conf_t sckout = {0};
+
+        sckout.enable = TRUE;
+
+        // Map source
+        if (conf->src >= MEPA_SYNCE_CLOCK_SRC_LINE0 && conf->src <= MEPA_SYNCE_CLOCK_SRC_LINE3) {
+            sckout.mode = VTSS_PHY_10G_LINE0_RECVRD_CLOCK + (conf->src - MEPA_SYNCE_CLOCK_SRC_LINE0);
+        } else if (conf->src >= MEPA_SYNCE_CLOCK_SRC_HOST0 && conf->src <= MEPA_SYNCE_CLOCK_SRC_HOST3) {
+            sckout.mode = VTSS_PHY_10G_HOST0_RECVRD_CLOCK + (conf->src - MEPA_SYNCE_CLOCK_SRC_HOST0);
+        } else if (conf->src == MEPA_SYNCE_CLOCK_SRC_SREFCLK) {
+            sckout.mode = VTSS_PHY_10G_SREFCLK;
+        } else if (conf->src == MEPA_SYNCE_CLOCK_SRC_DISABLED) {
+            sckout.mode = VTSS_PHY_10G_SYNC_DISABLE;
+            sckout.enable = FALSE;
+        } else {
+            /* Unsupported source for SCKOUT output */
+            T_E(data, MEPA_TRACE_GRP_GEN, "Invalid SyncE clock source for SCKOUT on port : %d\n", data->port_no);
+            return MEPA_RC_ERROR;
+        }
+
+        // Map frequency
+        if (sckout.enable) {
+            if (conf->freq == MEPA_FREQ_156_25M) {
+                sckout.freq = VTSS_PHY_10G_SCKOUT_156_25;
+            } else if (conf->freq == MEPA_FREQ_125M) {
+                sckout.freq = VTSS_PHY_10G_SCKOUT_125_00;
+            } else {
+                T_E(data, MEPA_TRACE_GRP_GEN, "Invalid SyncE frequency for SCKOUT on port : %d\n", data->port_no);
+                return MEPA_RC_ERROR;
+            }
+        } else {
+            // No frequency required when disabled
+            sckout.freq = 0;
+        }
+
+        // Squelch
+        if (mepa_to_vtss_sckout_conf(*conf, &sckout) != VTSS_RC_OK) {
+            T_E(data, MEPA_TRACE_GRP_GEN, "Invalid SyncE squelch source on port : %d\n", data->port_no);
+            return MEPA_RC_ERROR;
+        }
+
+        sckout.squelch_inv = conf->squelch.squelch_inv;
+
+        T_D(data, MEPA_TRACE_GRP_GEN, "SCKOUT Config : sckout.mode : %d, sckout.src : %d, sckout.freq : %d, sckout.squelch_inv : %d, sckout.enable : %d\n",
+            sckout.mode, sckout.src, sckout.freq, sckout.squelch_inv, sckout.enable);
+
+        // Configure SCKOUT
+        if (vtss_phy_10g_sckout_conf_set(data->vtss_instance, data->port_no, &sckout) != VTSS_RC_OK) {
+            T_E(data, MEPA_TRACE_GRP_GEN, "vtss_phy_10g_sckout_set failed  on port : %d\n", data->port_no);
+            return MEPA_RC_ERROR;
+
+        }
+
+        if (sckout.enable == FALSE) {
+            //Lane Sync is NOT required when disabling SCKOUT
+            return MEPA_RC_OK;
+        }
+
+        // Lane Sync for SCKOUT
+        vtss_phy_10g_lane_sync_conf_t lane_sync = {0};
+        lane_sync.enable = TRUE;
+        if (mepa_to_vtss_synce_conf(*conf, &lane_sync) != VTSS_RC_OK) {
+            return MEPA_RC_ERROR;
+        }
+
+        lane_sync.tx_macro = VTSS_PHY_10G_TX_MACRO_SCKOUT;
+        if (vtss_phy_10g_lane_sync_set(data->vtss_instance, data->port_no, &lane_sync) != VTSS_RC_OK) {
+            T_E(data, MEPA_TRACE_GRP_GEN, "SCKOUT: vtss_phy_10g_lane_sync_set failed on port : %d\n", data->port_no);
+            return MEPA_RC_ERROR;
+        }
+        return MEPA_RC_OK;
+    }
+
+    // CKOUT configuration
+    if (conf->dst >= MEPA_SYNCE_CLOCK_DST_1 && conf->dst <= MEPA_SYNCE_CLOCK_DST_4) {
+        vtss_phy_10g_ckout_conf_t ckout = {0};
+        if (mepa_to_vtss_ckout_conf(conf, &ckout) != MEPA_RC_OK) {
+            T_E(data, MEPA_TRACE_GRP_GEN, "Invalid CKOUT Parameter selected on port : %d\n", data->port_no);
+            return MEPA_RC_ERROR;
+        }
+        if (conf->src == MEPA_SYNCE_CLOCK_SRC_DISABLED) {
+            ckout.enable = FALSE;
+        } else {
+            ckout.enable = TRUE;
+        }
+
+        if (vtss_phy_10g_ckout_conf_set(data->vtss_instance, data->port_no, &ckout) != VTSS_RC_OK) {
+           T_E(data, MEPA_TRACE_GRP_GEN, "vtss_phy_10g_ckout_conf_set failed  on port : %d\n", data->port_no);
+            return MEPA_RC_ERROR;
+        }
+    }
+    return MEPA_RC_OK;
+}
+
+
 mepa_drivers_t mepa_mscc_driver_init()
 {
     static const int nr_mscc_phy = 5;
@@ -1966,6 +2234,7 @@ mepa_drivers_t mepa_malibu_driver_init()
             .mepa_driver_warmrestart_conf_get = phy_10g_warmrestart_conf_get,
             .mepa_driver_warmrestart_conf_end = phy_10g_warmrestart_conf_end,
             .mepa_driver_warmrestart_conf_set = phy_10g_warmrestart_conf_set,
+            .mepa_driver_synce_clock_conf_set = phy_10g_synce_clk_conf_set,
             .mepa_debug_info_dump = phy_debug_info_dump,
             .mepa_ts = &vtss_ts_drivers,
             .mepa_macsec = &vtss_macsec_drivers,

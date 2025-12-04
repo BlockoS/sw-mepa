@@ -1,0 +1,260 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+= Synchronous Ethernet
+
+== Synchronous Ethernet
+
+SyncE ensures a stable frequency reference for network equipment by 
+recovering clock signals from a physical interface or an external source.
+
+The MEPA SyncE API configures recovered Ethernet timing clocks on 
+supported PHY devices. The API controls:
+
+  - Clock source selection
+  - Clock output destination
+  - Output frequency
+  - Optional squelch (on/off gating)
+  - Enable/disable control
+
+API:
+
+----
+mepa_rc mepa_synce_clock_conf_set(mepa_device                   *dev,
+                                  const mepa_synce_clock_conf_t *conf);
+----
+
+Configuration structure (`mepa_synce_clock_conf_t`):
+
+  - `src`     -> selects where the recovered clock comes from (Enable/Disable)
+  - `dst`     -> selects which output pin the clock drives
+  - `freq`    -> sets the output frequency
+  - `squelch` -> optional clock gating control (device-dependent)
+
+== Supported Devices and Capabilities
+
+Different PHY families support different clock outputs and frequencies.
+
+[width="80%",options="header"]
+|===
+| Device   | Supported Outputs        | Frequency Support (MHz)
+
+| VSC8258
+| SCKOUT
+| 125, 156.25
+
+| VSC8258
+| CKOUT0-3 (1G source)
+| 125, 62.5
+
+| VSC8258
+| CKOUT0-3 (10G LAN source, 10.3125 GHz)
+| 322.27, 161.13
+
+| VSC8258
+| CKOUT0-3 (10G WAN source, 9.95328 GHz)
+| 311.04, 155.52
+
+| VSC8584
+| RCVRDCLK1, RCVRDCLK2
+| 25, 31.25, 125
+
+| LAN8814
+| RCVRDCLK1, RCVRDCLK2
+| 25, 31.25, 125
+|===
+
+
+== Clock Output Destinations
+
+[width="80%",options="header"]
+|===
+| Destination                  | VSC8258         | VSC8584 | LAN8814
+
+| MEPA_SYNCE_CLOCK_DST_1       | Yes (CKOUT0)    | Yes     | Yes
+| MEPA_SYNCE_CLOCK_DST_2       | Yes (CKOUT1)    | Yes     | Yes
+| MEPA_SYNCE_CLOCK_DST_3       | Yes (CKOUT2)    | No      | No
+| MEPA_SYNCE_CLOCK_DST_4       | Yes (CKOUT3)    | No      | No
+| MEPA_SYNCE_CLOCK_DST_SCKOUT  | Yes             | No      | No
+|===
+
+== Source Selection Support
+
+[width="90%",options="header"]
+|===
+| Source                      | VSC8258 | VSC8584 | LAN8814
+
+| DISABLED                    | Yes     | Yes     | Yes
+| SERDES_MEDIA                | No      | Yes     | No
+| COPPER_MEDIA                | No      | Yes     | Yes
+| CLOCK_IN_1 / CLOCK_IN_2     | No      | No      | Yes
+| LINE0-3                     | Yes     | No      | No
+| HOST0-3                     | Yes     | No      | No
+| SREFCLK                     | Yes     | No      | No
+|===
+
+== Frequency Rules per Device
+
+=== VSC8258
+
+  - SCKOUT supports: 125, 156.25 MHz
+
+  - CKOUT0-3 supports:
+      * For 1G sources (1.25 GHz): 125, 62.5 MHz
+      * For 10G LAN sources (10.3125 GHz): 322.27, 161.13 MHz
+      * For 10G WAN sources (9.95328 GHz): 311.04, 155.52 MHz
+
+=== VSC8584
+  - Supported frequencies: 25, 31.25, 125 MHz
+  - Any other frequency is treated as 125 MHz.
+
+=== LAN8814
+  - Internal base is 125 MHz
+  - Output frequencies:
+    * 25 MHz      -> divide by 5
+    * 31.25 MHz   -> divide by 4
+    * 125 MHz     -> divide by 1
+  - Any other frequency defaults to 125 MHz
+
+NOTE: Frequency selection must match the PHY capabilities. Using 
+unsupported frequencies may result in invalid clock outputs or errors.
+
+== Squelch Behavior
+
+Squelch allows gating of the recovered clock. It can be used for
+signal loss detection or clock integrity monitoring.
+
+[width="80%",options="header"]
+|===
+| Device   | Squelch Support
+
+| VSC8258  | Full support (enable/disable + invert)
+| VSC8584  | Limited: enabled when source is valid, otherwise off
+| LAN8814  | No squelch; settings are ignored
+|===
+
+
+== Common Usage Examples
+
+=== VSC8258: Output 156.25 MHz on SCKOUT from LINE0 with Squelch Control
+
+[source,c]
+----
+mepa_synce_clock_conf_t conf = {
+    .src    = MEPA_SYNCE_CLOCK_SRC_LINE0,
+    .dst    = MEPA_SYNCE_CLOCK_DST_SCKOUT,
+    .freq   = MEPA_FREQ_156_25M,
+    .squelch = { 
+        .squelch_src = MEPA_SYNCE_SQUELCH_LINK_LINE0,  // Monitor LINE0 for squelch
+        .squelch_inv = true                             // Invert squelch output if needed
+    },
+};
+
+mepa_synce_clock_conf_set(dev, &conf);
+----
+
+=== VSC8258: Output 161.13 MHz on CKOUT0 from LINE1 with Squelch Control
+
+[source,c]
+----
+mepa_synce_clock_conf_t conf = {
+    .src    = MEPA_SYNCE_CLOCK_SRC_LINE1,
+    .dst    = MEPA_SYNCE_CLOCK_DST_CKOUT0,
+    .freq   = MEPA_FREQ_161_13M,
+    .squelch = {
+        .squelch_src = MEPA_SYNCE_SQUELCH_LINK_LINE1,  // Monitor LINE1 for squelch
+        .squelch_inv = false                           // No inversion
+    },
+};
+
+mepa_synce_clock_conf_set(dev, &conf);
+----
+
+=== VSC8258: Internal Master, No Output on SCKOUT or CKOUT
+
+[source,c]
+----
+mepa_synce_clock_conf_t conf = {
+    .src    = MEPA_SYNCE_CLOCK_SRC_LINE0,           // Use Line0 recovered clock as internal reference
+    .dst    = MEPA_SYNCE_CLOCK_DST_NONE,            // Internal sync only, no output
+    .freq   = MEPA_FREQ_156_25M,                   // Frequency for internal synchronization
+    .squelch = {
+         .squelch_src = MEPA_SYNCE_NO_SQUELCH,
+         .squelch_inv = false
+    },
+};
+
+mepa_synce_clock_conf_set(dev, &conf);
+----
+
+=== VSC8584: 125 MHz from Copper to RCVRDCLK1
+
+[source,c]
+----
+mepa_synce_clock_conf_t conf = {
+    .src    = MEPA_SYNCE_CLOCK_SRC_COPPER_MEDIA,
+    .dst    = MEPA_SYNCE_CLOCK_DST_1,
+    .freq   = MEPA_FREQ_125M,
+    .squelch = { .squelch_src = MEPA_SYNCE_NO_SQUELCH,
+                 .squelch_inv = false },
+};
+
+mepa_synce_clock_conf_set(dev, &conf);
+----
+
+=== LAN8814: 25 MHz Clock on RCVRDCLK2 from Clock-In 2
+
+[source,c]
+----
+mepa_synce_clock_conf_t conf = {
+    .src    = MEPA_SYNCE_CLOCK_SRC_CLOCK_IN_2,
+    .dst    = MEPA_SYNCE_CLOCK_DST_2,
+    .freq   = MEPA_FREQ_25M,
+    .squelch = { .squelch_src = MEPA_SYNCE_NO_SQUELCH, .squelch_inv = false },
+};
+
+mepa_synce_clock_conf_set(dev, &conf);
+----
+
+== Disabling a Clock Output
+
+=== Generic Example (All Devices)
+
+[source,c]
+----
+mepa_synce_clock_conf_t conf = {
+    .src    = MEPA_SYNCE_CLOCK_SRC_DISABLED,
+    .dst    = MEPA_SYNCE_CLOCK_DST_1,
+    .freq   = MEPA_FREQ_125M,
+};
+
+mepa_synce_clock_conf_set(dev, &conf);
+----
+
+=== VSC8258 Example: Disable SCKOUT0
+
+[source,c]
+----
+mepa_synce_clock_conf_t conf = {
+    .src    = MEPA_SYNCE_CLOCK_SRC_DISABLED,
+    .dst    = MEPA_SYNCE_CLOCK_DST_SCKOUT,
+    .freq   = MEPA_FREQ_156_25M, /* Frequency doesn't matter when Disabling */
+    .squelch = { .squelch_src = MEPA_SYNCE_NO_SQUELCH, .squelch_inv = false },
+};
+
+mepa_synce_clock_conf_set(dev, &conf);
+----
+
+=== VSC8258 Example: Disable CKOUT1
+
+[source,c]
+----
+mepa_synce_clock_conf_t conf = {
+    .src    = MEPA_SYNCE_CLOCK_SRC_DISABLED,
+    .dst    = MEPA_SYNCE_CLOCK_DST_CKOUT1,
+    .freq   = MEPA_FREQ_125M, /* Frequency doesn't matter when Disabling */
+    .squelch = { .squelch_src = MEPA_SYNCE_NO_SQUELCH, .squelch_inv = false },
+};
+
+mepa_synce_clock_conf_set(dev, &conf);
+----

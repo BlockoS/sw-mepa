@@ -396,6 +396,20 @@ static mepa_ts_ip_match_select_t get_mepa_ip_match_mode(uint8_t match)
     }
     return ret;
 }
+
+static uint8_t get_vs_ip_match_mode(const mepa_ts_ip_match_select_t match)
+{
+    uint8_t ret = VTSS_PHY_TS_IP_MATCH_SRC;
+    if (match == MEPA_TS_IP_MATCH_SRC) {
+        ret = VTSS_PHY_TS_IP_MATCH_SRC;
+    } else if (match == MEPA_TS_IP_MATCH_DEST) {
+        ret = VTSS_PHY_TS_IP_MATCH_DEST;
+    } else if (match == MEPA_TS_IP_MATCH_SRC_OR_DEST) {
+        ret = VTSS_PHY_TS_IP_MATCH_SRC_OR_DEST;
+    }
+    return ret;
+}
+
 static uint8_t get_vs_mac_type(mepa_ts_mac_match_select_t mac_type)
 {
     uint8_t ret;
@@ -1275,7 +1289,7 @@ static mepa_rc phy_ts_rx_classifier_conf_set(struct mepa_device *dev, uint16_t i
         // ip flow conf
         if (encap == VTSS_PHY_TS_ENCAP_ETH_IP_PTP) {
             ip_flow->flow_en = true;
-            ip_flow->match_mode = ip_in->ip_match_mode; // mepa_ts_ip_match_select_t uses same order as vsc constants.
+            ip_flow->match_mode = get_vs_ip_match_mode(ip_in->ip_match_mode);
             if (ip_in->ip_ver == MEPA_TS_IP_VER_6) {
                 memcpy(&ip_flow->ip_addr.ipv6.addr, &ip_in->ip_addr.ipv6.addr, sizeof(ip_flow->ip_addr.ipv6.addr));
                 memcpy(&ip_flow->ip_addr.ipv6.mask, &ip_in->ip_addr.ipv6.mask, sizeof(ip_flow->ip_addr.ipv6.mask));
@@ -1474,7 +1488,7 @@ static mepa_rc phy_ts_tx_classifier_conf_set(struct mepa_device *dev, uint16_t i
         // ip flow conf
         if (encap == VTSS_PHY_TS_ENCAP_ETH_IP_PTP) {
             ip_flow->flow_en = true;
-            ip_flow->match_mode = ip_in->ip_match_mode; // mepa_ts_ip_match_select_t uses same order as vsc constants.
+            ip_flow->match_mode = get_vs_ip_match_mode(ip_in->ip_match_mode);
             if (ip_in->ip_ver == MEPA_TS_IP_VER_6) {
                 memcpy(&ip_flow->ip_addr.ipv6.addr, &ip_in->ip_addr.ipv6.addr, sizeof(ip_flow->ip_addr.ipv6.addr));
                 memcpy(&ip_flow->ip_addr.ipv6.mask, &ip_in->ip_addr.ipv6.mask, sizeof(ip_flow->ip_addr.ipv6.mask));

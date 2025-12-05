@@ -917,6 +917,7 @@ typedef enum ckout_sel_ {
     VTSS_CKOUT1,
     VTSS_CKOUT2,
     VTSS_CKOUT3,
+    VTSS_CKOUT_MAX
 } vtss_ckout_sel_t;
 
 #define CKOUT0 VTSS_CKOUT0 /**< Backward compatibility */

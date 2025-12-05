@@ -49,8 +49,8 @@ typedef struct _vtss_phy_10g_port_state_info_t {
     vtss_phy_10g_rxckout_conf_t  rxckout;   /* RXCKOUT configuration */
     vtss_phy_10g_txckout_conf_t  txckout;   /* TXCKOUT configuration */
     vtss_phy_10g_srefclk_mode_t  srefclk; /* SREFCLK configuration for venice/Malibu family */
-    vtss_phy_10g_ckout_conf_t    ckout[3];  /*  CKOUT configuration for Malibu family */
-	vtss_ckout_sel_t            ckout_sel;
+    vtss_phy_10g_ckout_conf_t    ckout[VTSS_CKOUT_MAX];  /*  CKOUT configuration for Malibu family */
+    vtss_ckout_sel_t             ckout_sel;
     vtss_phy_10g_sckout_conf_t   sckout;  /*  SCKOUT configuration for Malibu family */
     vtss_phy_10g_line_clk_conf_t line_clk;  /*  Line clk configuration for Malibu family */
     vtss_phy_10g_host_clk_conf_t host_clk;  /*  Host clk configuration for Malibu family */

@@ -46,26 +46,6 @@ mepa_rc lan80xx_rckout_conf_get(mepa_device_t     *dev,
     return rc;
 }
 
-mepa_rc lan80xx_rckout_conf_set(mepa_device_t *dev,
-                                const mepa_port_no_t port_no,
-                                const phy_25g_rckout_conf_t *rckout_conf)
-{
-    mepa_rc rc = MEPA_RC_ERROR;
-    if (dev == NULL) {
-        T_E(MEPA_TRACE_GRP_GEN, "\nPort instance not created in port : %d", port_no);
-        return MEPA_RC_ERROR;
-    }
-    if (!lan80xx_driver_check(dev)) {
-        T_E(MEPA_TRACE_GRP_GEN, "\nAPI not supported for PHY in port : %d", port_no);
-        return MEPA_RC_ERROR;
-    }
-    MEPA_ENTER(dev);
-    rc = lan80xx_rckout_conf_set_priv(dev, port_no, rckout_conf);
-    MEPA_EXIT(dev);
-    return rc;
-}
-
-
 mepa_rc lan80xx_status_get(const mepa_device_t     *dev,
                            const mepa_port_no_t    port_no,
                            phy25g_status_t         *const status)

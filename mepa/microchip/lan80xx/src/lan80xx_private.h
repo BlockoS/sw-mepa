@@ -139,6 +139,8 @@
 #define LAN80XX_POST1_SLICE0_BIST_RESULT_ADDR  (0x85U)
 #define LAN80XX_POST1_STATUS_P1_POST_DONE      (0x1U)
 
+#define ARRAY_LEN(x) (sizeof(x) / sizeof((x)[0]))
+
 extern mepa_ts_driver_t lan80xx_ts_drivers;
 extern mepa_macsec_driver_t lan80xx_macsec_drivers;
 
@@ -706,4 +708,7 @@ mepa_rc lan80xx_clause37_conf_set_priv(mepa_device_t        *dev,
                                        mepa_port_no_t       port_no,
                                        mepa_cl37_conf_t     *cl37_conf);
 
+mepa_rc lan80xx_rckout_conf_set(mepa_device_t                    *dev,
+                                mepa_port_no_t                   port_no,
+                                const mepa_synce_clock_conf_t    *conf);
 #endif //_MEPA_LAN80XX_PRIVATE_H_

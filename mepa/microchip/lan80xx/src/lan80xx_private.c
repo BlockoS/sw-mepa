@@ -4657,6 +4657,8 @@ mepa_rc lan80xx_rckout_conf_get_priv(mepa_device_t *dev, const mepa_port_no_t po
         } else {
             T_E(MEPA_TRACE_GRP_GEN, "Invalid Divider value\n");
         }
+    } else if (rckout_conf_a->src == LAN80XX_NONE) {
+       rckout_conf_a->freq = LAN80XX_RCKOUT_75_00;
     } else {
         if (data->port_state.speed == SPEED_1G) {
             if (clk_div == LAN80XX_PHY_DIVIDER_1) {
@@ -4721,6 +4723,8 @@ mepa_rc lan80xx_rckout_conf_get_priv(mepa_device_t *dev, const mepa_port_no_t po
         } else {
             T_E(MEPA_TRACE_GRP_GEN, "Invalid Divider value\n");
         }
+    } else if (rckout_conf_b->src == LAN80XX_NONE) {
+       rckout_conf_b->freq = LAN80XX_RCKOUT_75_00;
     } else {
         if (data->port_state.speed == SPEED_1G) {
             if (clk_div == LAN80XX_PHY_DIVIDER_1) {
@@ -4853,6 +4857,10 @@ static mepa_rc lan80xx_frequency_divider(phy25g_phy_state_t *data,
             }
         }
         break;
+    case LAN80XX_NONE:
+        /* NONE Case is used to disable SyncE output, divider value is not considered when disabling */
+        *divider = LAN80XX_PHY_DIVIDER_1;
+        break; 
     default:
         T_E(MEPA_TRACE_GRP_GEN, "Invalid clock source %d", src);
         rc = MEPA_RC_ERROR;
@@ -4872,24 +4880,40 @@ mepa_rc lan80xx_rckout_conf_set_priv(mepa_device_t *dev, const mepa_port_no_t po
     uint8_t gpio_no[4] = {LAN80XX_GPIO_6, LAN80XX_GPIO_14, LAN80XX_GPIO_22, LAN80XX_GPIO_30};
 
     if (rckout_conf->rckout_sel == LAN80XX_RCKOUTA) {
-        /* Clock source select */
-        LAN80XX_CSR_WRM(port_no, LAN80XX_CLK_CFG_RCVRD_CLKA_CFG, \
-                        LAN80XX_F_CLK_CFG_RCVRD_CLKA_CFG_CLKA_RCVRD_CLK_SEL(rckout_conf->src), \
-                        LAN80XX_M_CLK_CFG_RCVRD_CLKA_CFG_CLKA_RCVRD_CLK_SEL);
         /* Clock Divider select */
         rc = lan80xx_frequency_divider(data, rckout_conf->src, rckout_conf->freq, &divider);
         if (rc != MEPA_RC_OK) {
             T_E(MEPA_TRACE_GRP_GEN, "%s Invalid configuration for clock divider", __FUNCTION__);
             return rc;
         }
+
+        /* Clock source select */
+        LAN80XX_CSR_WRM(port_no, LAN80XX_CLK_CFG_RCVRD_CLKA_CFG, \
+                        LAN80XX_F_CLK_CFG_RCVRD_CLKA_CFG_CLKA_RCVRD_CLK_SEL(rckout_conf->src), \
+                        LAN80XX_M_CLK_CFG_RCVRD_CLKA_CFG_CLKA_RCVRD_CLK_SEL);
+
         LAN80XX_CSR_WRM(port_no, LAN80XX_CLK_CFG_RCVRD_CLKA_CFG, \
                         LAN80XX_F_CLK_CFG_RCVRD_CLKA_CFG_CLKA_RCVRD_CLK_DIV(divider), \
                         LAN80XX_M_CLK_CFG_RCVRD_CLKA_CFG_CLKA_RCVRD_CLK_DIV);
         /* LOS Squelch Enable*/
         if (rckout_conf->los_squelch_enable) {
+            int channel_no = -1;
+            switch(rckout_conf->src) {
+                case LAN80XX_LINE0_RECVRD_CLOCK: channel_no = 0; break;
+                case LAN80XX_LINE1_RECVRD_CLOCK: channel_no = 1; break;
+                case LAN80XX_LINE2_RECVRD_CLOCK: channel_no = 2; break;
+                case LAN80XX_LINE3_RECVRD_CLOCK: channel_no = 3; break;
+                default: break; // For HOSTx, PTP_LTC, SREFCLK or disabled
+            }
+
+            if (channel_no == -1) {
+                T_E(MEPA_TRACE_GRP_GEN, "LOS Squelch supported only for LINE Side\n");
+                return MEPA_RC_ERROR;
+            }
+
             LAN80XX_CSR_RD(dev, port_no, LAN80XX_GPIO_CTRL_GPIO_FUN_SEL0, &value);
-            if (value & LAN80XX_BIT(gpio_no[data->channel_id])) {
-                T_E(MEPA_TRACE_GRP_GEN, "GPIO No-%d should held in alternate mode for LOS squelch", gpio_no[data->channel_id]);
+            if (value & LAN80XX_BIT(gpio_no[channel_no])) {
+                T_E(MEPA_TRACE_GRP_GEN, "GPIO No-%d should held in alternate mode for LOS squelch", gpio_no[channel_no]);
                 return MEPA_RC_ERROR;
             }
             LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_SLICE_SERDES_LOS, \
@@ -4949,24 +4973,40 @@ mepa_rc lan80xx_rckout_conf_set_priv(mepa_device_t *dev, const mepa_port_no_t po
                             LAN80XX_M_CLK_CFG_RCVRD_CLKA_CFG_CLKA_ENABLE);
         }
     } else if (rckout_conf->rckout_sel == LAN80XX_RCKOUTB) {
-        /* Clock source select */
-        LAN80XX_CSR_WRM(port_no, LAN80XX_CLK_CFG_RCVRD_CLKB_CFG, \
-                        LAN80XX_F_CLK_CFG_RCVRD_CLKB_CFG_CLKB_RCVRD_CLK_SEL(rckout_conf->src), \
-                        LAN80XX_M_CLK_CFG_RCVRD_CLKB_CFG_CLKB_RCVRD_CLK_SEL);
         /* Clock Divider select */
         rc = lan80xx_frequency_divider(data, rckout_conf->src, rckout_conf->freq, &divider);
         if (rc != MEPA_RC_OK) {
             T_E(MEPA_TRACE_GRP_GEN, "%s Invalid configuration for clock divider", __FUNCTION__);
             return rc;
         }
+
+        /* Clock source select */
+        LAN80XX_CSR_WRM(port_no, LAN80XX_CLK_CFG_RCVRD_CLKB_CFG, \
+                        LAN80XX_F_CLK_CFG_RCVRD_CLKB_CFG_CLKB_RCVRD_CLK_SEL(rckout_conf->src), \
+                        LAN80XX_M_CLK_CFG_RCVRD_CLKB_CFG_CLKB_RCVRD_CLK_SEL);
+
         LAN80XX_CSR_WRM(port_no, LAN80XX_CLK_CFG_RCVRD_CLKB_CFG, \
                         LAN80XX_F_CLK_CFG_RCVRD_CLKB_CFG_CLKB_RCVRD_CLK_DIV(divider), \
                         LAN80XX_M_CLK_CFG_RCVRD_CLKB_CFG_CLKB_RCVRD_CLK_DIV);
         /* LOS Squelch Enable*/
         if (rckout_conf->los_squelch_enable) {
+            int channel_no = -1;
+            switch(rckout_conf->src) {
+                case LAN80XX_LINE0_RECVRD_CLOCK: channel_no = 0; break;
+                case LAN80XX_LINE1_RECVRD_CLOCK: channel_no = 1; break;
+                case LAN80XX_LINE2_RECVRD_CLOCK: channel_no = 2; break;
+                case LAN80XX_LINE3_RECVRD_CLOCK: channel_no = 3; break;
+                default: break; // For HOSTx, PTP_LTC, SREFCLK or disabled
+            }
+
+            if (channel_no == -1) {
+                T_E(MEPA_TRACE_GRP_GEN, "LOS Squelch supported only for LINE Side\n");
+                return MEPA_RC_ERROR;
+            }
+
             LAN80XX_CSR_RD(dev, port_no, LAN80XX_GPIO_CTRL_GPIO_FUN_SEL0, &value);
-            if (value & LAN80XX_BIT(gpio_no[data->channel_id])) {
-                T_E(MEPA_TRACE_GRP_GEN, "GPIO No-%d should held in alternate mode for LOS squelch", gpio_no[data->channel_id]);
+            if (value & LAN80XX_BIT(gpio_no[channel_no])) {
+                T_E(MEPA_TRACE_GRP_GEN, "GPIO No-%d should held in alternate mode for LOS squelch", gpio_no[channel_no]);
                 return MEPA_RC_ERROR;
             }
             LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_SLICE_SERDES_LOS, \
@@ -8368,3 +8408,177 @@ mepa_rc lan80xx_clause37_conf_set_priv(mepa_device_t        *dev,
     }
     return MEPA_RC_OK;
 }
+
+static const phy_25g_clk_sel_t mepa_to_lan80xx_clk_sel[] = {
+    [MEPA_SYNCE_CLOCK_SRC_DISABLED]     = LAN80XX_NONE,
+    [MEPA_SYNCE_CLOCK_SRC_SERDES_MEDIA] = LAN80XX_RESERVED,
+    [MEPA_SYNCE_CLOCK_SRC_COPPER_MEDIA] = LAN80XX_RESERVED,
+    [MEPA_SYNCE_CLOCK_SRC_CLOCK_IN_1]   = LAN80XX_RESERVED,
+    [MEPA_SYNCE_CLOCK_SRC_CLOCK_IN_2]   = LAN80XX_RESERVED,
+    [MEPA_SYNCE_CLOCK_SRC_LINE0]        = LAN80XX_LINE0_RECVRD_CLOCK,
+    [MEPA_SYNCE_CLOCK_SRC_LINE1]        = LAN80XX_LINE1_RECVRD_CLOCK,
+    [MEPA_SYNCE_CLOCK_SRC_LINE2]        = LAN80XX_LINE2_RECVRD_CLOCK,
+    [MEPA_SYNCE_CLOCK_SRC_LINE3]        = LAN80XX_LINE3_RECVRD_CLOCK,
+    [MEPA_SYNCE_CLOCK_SRC_HOST0]        = LAN80XX_HOST0_RECVRD_CLOCK,
+    [MEPA_SYNCE_CLOCK_SRC_HOST1]        = LAN80XX_HOST1_RECVRD_CLOCK,
+    [MEPA_SYNCE_CLOCK_SRC_HOST2]        = LAN80XX_HOST2_RECVRD_CLOCK,
+    [MEPA_SYNCE_CLOCK_SRC_HOST3]        = LAN80XX_HOST3_RECVRD_CLOCK,
+    [MEPA_SYNCE_CLOCK_SRC_SREFCLK]      = LAN80XX_SREFCLK,
+    [MEPA_SYNCE_CLOCK_SRC_PTP_LTC]      = LAN80XX_PTP_LTC,
+};
+
+static const phy_25g_rckout_freq_t mepa_to_lan80xx_rckout_freq[] = {
+    [MEPA_FREQ_25M]             = LAN80XX_RCKOUT_INVALID,         // Not supported
+    [MEPA_FREQ_31_25M]          = LAN80XX_RCKOUT_31_25,
+    [MEPA_FREQ_62_5M]           = LAN80XX_RCKOUT_62_50,
+    [MEPA_FREQ_125M]            = LAN80XX_RCKOUT_125_00,
+    [MEPA_FREQ_155_52M]         = LAN80XX_RCKOUT_INVALID,         // Not supported
+    [MEPA_FREQ_156_25M]         = LAN80XX_RCKOUT_INVALID,         // Not supported
+    [MEPA_FREQ_161_13M]         = LAN80XX_RCKOUT_INVALID,         // Not supported
+    [MEPA_FREQ_311_04M]         = LAN80XX_RCKOUT_INVALID,         // Not supported
+    [MEPA_FREQ_322_27M]         = LAN80XX_RCKOUT_INVALID,         // Not supported
+    [MEPA_FREQ_75M]             = LAN80XX_RCKOUT_75_00,
+    [MEPA_FREQ_37_50M]          = LAN80XX_RCKOUT_37_50,
+    [MEPA_FREQ_79_58M]          = LAN80XX_RCKOUT_79_58,
+    [MEPA_FREQ_39_79M]          = LAN80XX_RCKOUT_39_79,
+    [MEPA_FREQ_15_62M]          = LAN80XX_RCKOUT_15_625,
+    [MEPA_FREQ_128_90M]         = LAN80XX_RCKOUT_128_90625,
+    [MEPA_FREQ_64_45M]          = LAN80XX_RCKOUT_64_453125,
+    [MEPA_FREQ_32_22M]          = LAN80XX_RCKOUT_32_2265625,
+    [MEPA_FREQ_80_56M]          = LAN80XX_RCKOUT_80_56640625,
+};
+
+
+static mepa_bool_t lan80xx_is_valid_squelch_for_src(mepa_synce_clock_src_t src, mepa_squelch_src_t squelch_src) {
+
+    if (squelch_src == MEPA_SYNCE_NO_SQUELCH) {
+        return TRUE;
+    }
+
+    // For each clock source, only allow the matching LINK or LOS squelch
+    switch (src) {
+        case MEPA_SYNCE_CLOCK_SRC_LINE0:
+            return (squelch_src == MEPA_SYNCE_SQUELCH_LINK_LINE0 || squelch_src == MEPA_SYNCE_SQUELCH_LOS_LINE0);
+        case MEPA_SYNCE_CLOCK_SRC_LINE1:
+            return (squelch_src == MEPA_SYNCE_SQUELCH_LINK_LINE1 || squelch_src == MEPA_SYNCE_SQUELCH_LOS_LINE1);
+        case MEPA_SYNCE_CLOCK_SRC_LINE2:
+            return (squelch_src == MEPA_SYNCE_SQUELCH_LINK_LINE2 || squelch_src == MEPA_SYNCE_SQUELCH_LOS_LINE2);
+        case MEPA_SYNCE_CLOCK_SRC_LINE3:
+            return (squelch_src == MEPA_SYNCE_SQUELCH_LINK_LINE3 || squelch_src == MEPA_SYNCE_SQUELCH_LOS_LINE3);
+        case MEPA_SYNCE_CLOCK_SRC_HOST0:
+            return (squelch_src == MEPA_SYNCE_SQUELCH_LINK_HOST0 || squelch_src == MEPA_SYNCE_SQUELCH_LOS_HOST0);
+        case MEPA_SYNCE_CLOCK_SRC_HOST1:
+            return (squelch_src == MEPA_SYNCE_SQUELCH_LINK_HOST1 || squelch_src == MEPA_SYNCE_SQUELCH_LOS_HOST1);
+        case MEPA_SYNCE_CLOCK_SRC_HOST2:
+            return (squelch_src == MEPA_SYNCE_SQUELCH_LINK_HOST2 || squelch_src == MEPA_SYNCE_SQUELCH_LOS_HOST2);
+        case MEPA_SYNCE_CLOCK_SRC_HOST3:
+            return (squelch_src == MEPA_SYNCE_SQUELCH_LINK_HOST3 || squelch_src == MEPA_SYNCE_SQUELCH_LOS_HOST3);
+        default:
+            return FALSE;
+    }
+}
+
+mepa_rc lan80xx_rckout_conf_set(mepa_device_t                    *dev,
+                                mepa_port_no_t                   port_no,
+                                const mepa_synce_clock_conf_t    *conf)
+{
+    phy_25g_rckout_conf_t rckout_conf = {0};
+    phy25g_phy_state_t *data = (phy25g_phy_state_t *) dev->data;
+    phy25g_phy_state_t *base_data;
+    mepa_device_t *base_dev;
+    LAN80XX_BASE_DEV(data, base_dev, base_data);
+    int channel_no = 0;
+
+    T_D(MEPA_TRACE_GRP_GEN, "%s function on port : %d\n",  __FUNCTION__, port_no);
+
+    if ((base_data->max_port_cnt == 2) && (conf->src == MEPA_SYNCE_CLOCK_SRC_LINE2 || conf->src == MEPA_SYNCE_CLOCK_SRC_LINE3 ||
+                                           conf->src == MEPA_SYNCE_CLOCK_SRC_HOST2 || conf->src == MEPA_SYNCE_CLOCK_SRC_HOST3)) {
+        T_D(MEPA_TRACE_GRP_GEN, "PHY is Dual channel, it doesn't support Channel 2 and Channel 3\n");
+        return MEPA_RC_ERROR;
+   }
+
+    if (conf->src < ARRAY_LEN(mepa_to_lan80xx_clk_sel)) {
+        rckout_conf.src = mepa_to_lan80xx_clk_sel[conf->src];
+        if (rckout_conf.src == LAN80XX_RESERVED) {
+            T_E(MEPA_TRACE_GRP_GEN, "SyncE Clock source not supported by PHY\n");
+            return MEPA_RC_ERROR;
+        }
+    } else {
+        T_E(MEPA_TRACE_GRP_GEN, "Invalid clock source, exeeds the expected source\n");
+        return MEPA_RC_ERROR;
+    }
+
+    if (conf->dst == MEPA_SYNCE_CLOCK_DST_1) {
+        rckout_conf.rckout_sel = LAN80XX_RCKOUTA;
+    } else if (conf->dst == MEPA_SYNCE_CLOCK_DST_2) {
+        rckout_conf.rckout_sel = LAN80XX_RCKOUTB;
+    } else {
+        T_E(MEPA_TRACE_GRP_GEN, "Invalid SyncE clock destination\n");
+        return MEPA_RC_ERROR;
+    }
+
+    rckout_conf.freq = LAN80XX_RCKOUT_INVALID;
+
+    if (conf->freq < ARRAY_LEN(mepa_to_lan80xx_rckout_freq)) {
+        rckout_conf.freq = mepa_to_lan80xx_rckout_freq[conf->freq];
+    }
+    if ((rckout_conf.freq == LAN80XX_RCKOUT_INVALID) && (rckout_conf.src != LAN80XX_NONE)) {
+        T_E(MEPA_TRACE_GRP_GEN, "Invalid SyncE clock frequency\n");
+        return MEPA_RC_ERROR;
+    }
+
+    // Validate squelch source for the selected clock source
+    if (!lan80xx_is_valid_squelch_for_src(conf->src, conf->squelch.squelch_src)) {
+        T_E(MEPA_TRACE_GRP_GEN, "Clock source and squelch source must be same, invalid squelch source\n");
+        return MEPA_RC_ERROR;
+    }
+    rckout_conf.auto_squelch_enable = 1;
+
+    if (conf->squelch.squelch_src >= MEPA_SYNCE_SQUELCH_LOS_LINE0 && conf->squelch.squelch_src <= MEPA_SYNCE_SQUELCH_LOS_HOST3) {
+        rckout_conf.los_squelch_enable = 1;
+        rckout_conf.link_sts_enable = 0;
+        channel_no = (conf->squelch.squelch_src - MEPA_SYNCE_SQUELCH_LOS_LINE0);
+    } else if (conf->squelch.squelch_src >= MEPA_SYNCE_SQUELCH_LINK_LINE0 && conf->squelch.squelch_src <= MEPA_SYNCE_SQUELCH_LINK_HOST3) {
+        rckout_conf.los_squelch_enable = 0;
+        rckout_conf.link_sts_enable = 1;
+        channel_no = (conf->squelch.squelch_src - MEPA_SYNCE_SQUELCH_LINK_LINE0);
+    } else {
+        rckout_conf.los_squelch_enable = 0;
+        rckout_conf.link_sts_enable = 0;
+        rckout_conf.auto_squelch_enable = 0;
+    }
+
+    if (conf->src == MEPA_SYNCE_CLOCK_SRC_DISABLED) {
+        rckout_conf.rcvd_clk_enable = FALSE;
+    } else {
+        rckout_conf.rcvd_clk_enable = TRUE;
+    }
+    mepa_device_t *channel_dev = NULL;
+
+    for (u8 i = 0; i < LAN80XX_MAX_PORTS_PER_PHY; i++) {
+        if (base_data->other_port_dev[i] == NULL)
+            continue;
+
+        phy25g_phy_state_t *ch_data = (phy25g_phy_state_t *)base_data->other_port_dev[i]->data;
+        if (ch_data == NULL)
+            continue;
+
+        if (channel_no == ch_data->channel_id) {
+            T_D(MEPA_TRACE_GRP_GEN, "Detected Dev of index : %d, channel_id : %d, speed : %d\n", i, ch_data->channel_id, ch_data->port_state.speed);
+            channel_dev = base_data->other_port_dev[i];
+            break;
+        }
+    }
+
+    if (channel_dev == NULL) {
+        T_E(MEPA_TRACE_GRP_GEN, "Error: Couldn't find the Dev pointer for the selected channel\n");
+        return MEPA_RC_ERROR;
+    }
+ 
+    if (lan80xx_rckout_conf_set_priv(channel_dev, port_no, &rckout_conf) != MEPA_RC_OK) {
+        T_E(MEPA_TRACE_GRP_GEN, "Failed to configure SyncE on port : %d\n", port_no);
+        return MEPA_RC_ERROR;
+    }
+
+    return MEPA_RC_OK;
+} 

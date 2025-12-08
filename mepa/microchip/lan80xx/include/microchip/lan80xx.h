@@ -266,22 +266,6 @@ mepa_rc lan80xx_rckout_conf_get(mepa_device_t     *dev,
                                 phy_25g_rckout_conf_t *const rckout_conf_a,
                                 phy_25g_rckout_conf_t *const rckout_conf_b);
 
-/**
- * \brief Set the configuration for SyncE
- *
- * \param dev [IN]             mepa driver
- * \param port_no [IN]         port number
- * \param rckout_conf          SyncE configuration
- *
- * \return Return code.
- *  MEPA_RC_OK  on Sucess
- *  MEPA_RC_ERROR on Fail
- **/
-
-mepa_rc lan80xx_rckout_conf_set(mepa_device_t *dev,
-                                const mepa_port_no_t port_no,
-                                const phy_25g_rckout_conf_t *rckout_conf);
-
 /**<SYNCE>**/
 
 /** \brief Malibu25G Packet Monitor counters reset */

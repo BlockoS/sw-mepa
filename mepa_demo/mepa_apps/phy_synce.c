@@ -96,8 +96,14 @@ static const char * const dst_viper[] =
 static const char * const dst_lan8814[] =
     {"rcvrclk1","rcvrclk2"};
 
+static const char * const lan80xx_dst[] =
+    {"rcvrclk1","rcvrclk2"};
+
 static const float freq_malibu[] =
     {62.5,125,156.25,161.13,322.27};
+
+static const float freq_lan80xx[] =
+    {75.0f, 37.50f, 79.58f, 39.79f, 125.0f, 62.50f, 31.25f, 15.62f, 128.90f, 64.45f, 32.22f, 80.56f};
 
 static const float freq_viper[] =
     {25,31.25,125};
@@ -140,18 +146,27 @@ mepa_synce_clock_dst_t str_to_dst_enum(const char *dst) {
 }
 
 mepa_freq_t float_to_freq_enum(float freq) {
-    if (freq == 25.0f) return MEPA_FREQ_25M;
-    if (freq == 31.25f) return MEPA_FREQ_31_25M;
-    if (freq == 62.5f) return MEPA_FREQ_62_5M;
-    if (freq == 125.0f) return MEPA_FREQ_125M;
-    if (freq == 155.52f) return MEPA_FREQ_155_52M;
-    if (freq == 156.25f) return MEPA_FREQ_156_25M;
-    if (freq == 161.13f) return MEPA_FREQ_161_13M;
-    if (freq == 311.04f) return MEPA_FREQ_311_04M;
-    if (freq == 322.27f) return MEPA_FREQ_322_27M;
-    // Add more as needed
+    if (freq == 25.0f)         return MEPA_FREQ_25M;
+    if (freq == 31.25f)        return MEPA_FREQ_31_25M;
+    if (freq == 62.5f)         return MEPA_FREQ_62_5M;
+    if (freq == 125.0f)        return MEPA_FREQ_125M;
+    if (freq == 155.52f)       return MEPA_FREQ_155_52M;
+    if (freq == 156.25f)       return MEPA_FREQ_156_25M;
+    if (freq == 161.13f)       return MEPA_FREQ_161_13M;
+    if (freq == 311.04f)       return MEPA_FREQ_311_04M;
+    if (freq == 322.27f)       return MEPA_FREQ_322_27M;
+    if (freq == 75.0f)         return MEPA_FREQ_75M;
+    if (freq == 37.50f)        return MEPA_FREQ_37_50M;
+    if (freq == 79.58f)        return MEPA_FREQ_79_58M;
+    if (freq == 39.79f)        return MEPA_FREQ_39_79M;
+    if (freq == 15.62f)        return MEPA_FREQ_15_62M;
+    if (freq == 128.90f)       return MEPA_FREQ_128_90M;
+    if (freq == 64.45f)        return MEPA_FREQ_64_45M;
+    if (freq == 32.22f)        return MEPA_FREQ_32_22M;
+    if (freq == 80.56f)        return MEPA_FREQ_80_56M;
     return MEPA_FREQ_125M; // Default/fallback
 }
+
 
 mepa_squelch_src_t str_to_squelch_enum(const char *squelch) {
     if (strcmp(squelch, "none") == 0) return MEPA_SYNCE_NO_SQUELCH;
@@ -255,6 +270,16 @@ static void cli_cmd_synce_configure(cli_req_t *req)
         freq_count = ARRAY_LEN(freq_malibu);
         break;
 
+    case PHY_FAMILY_MALIBU_25G:
+        src_options  = src_options_malibu;
+        dst_options  = lan80xx_dst;
+        freq_options = freq_lan80xx;
+
+        src_count  = ARRAY_LEN(src_options_malibu);
+        dst_count  = ARRAY_LEN(lan80xx_dst);
+        freq_count = ARRAY_LEN(freq_lan80xx);
+        break;
+
     case PHY_FAMILY_VIPER:
         src_options  = src_options_viper;
         dst_options  = dst_viper;
@@ -281,9 +306,10 @@ static void cli_cmd_synce_configure(cli_req_t *req)
 
     if (enable_input == 0) {
         int dst_sel = menu_select_string("Select output destination:", dst_options, dst_count);
-        if (dst_sel < 1) { T_E("\nInvalid selection\n"); return; }
+        if (dst_sel < 0) { T_E("\nInvalid selection\n"); return; }
         conf.src = MEPA_SYNCE_CLOCK_SRC_DISABLED;
         conf.dst    = str_to_dst_enum(dst_options[dst_sel]);
+
         goto synce_disable;
     }
 
@@ -331,7 +357,7 @@ static void cli_cmd_synce_configure(cli_req_t *req)
     // --- Squelch selection ----------------------------------------------
     const char *squelch_str = "none";
 
-    if (phy_type.family == PHY_FAMILY_MALIBU_10G) {
+    if (phy_type.family == PHY_FAMILY_MALIBU_10G || phy_type.family == PHY_FAMILY_MALIBU_25G) {
 
         int sq_sel = menu_select_string("Select squelch source:", sq_opt, ARRAY_LEN(sq_opt));
         if (sq_sel < 0) { T_E("Invalid squelch source\n"); return; }

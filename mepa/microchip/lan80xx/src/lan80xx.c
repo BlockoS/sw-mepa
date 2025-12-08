@@ -520,6 +520,16 @@ static mepa_rc lan80xx_framepreempt_get(mepa_device_t *dev, mepa_bool_t *const e
     return MEPA_RC_OK;
 }
 
+static mepa_rc lan80xx_synce_clk_conf_set(mepa_device_t *dev, const mepa_synce_clock_conf_t *conf)
+{
+    phy25g_phy_state_t *data = (phy25g_phy_state_t *) dev->data;
+    mepa_rc rc = MEPA_RC_OK;
+    MEPA_ENTER(dev);
+    rc = lan80xx_rckout_conf_set(dev, data->port_no, conf);
+    MEPA_EXIT(dev);
+    return rc;
+}
+
 //  //////////////  MEPA driver_init_structure//////
 mepa_bool_t lan80xx_driver_check(const mepa_device_t   *dev)
 {
@@ -577,6 +587,7 @@ static void lan80xx_driver_create(uint32_t id, mepa_driver_t *drv)
     drv->mepa_driver_warmrestart_conf_set = lan80xx_restart_conf_set;
     drv->mepa_capability                  = lan80xx_phy_capability;
     drv->mepa_debug_info_dump             = lan80xx_debug_info_dump;
+    drv->mepa_driver_synce_clock_conf_set = lan80xx_synce_clk_conf_set;
     drv->mepa_driver_framepreempt_set     = lan80xx_framepreempt_set;
     drv->mepa_driver_framepreempt_get     = lan80xx_framepreempt_get;
 

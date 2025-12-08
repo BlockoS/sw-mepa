@@ -62,6 +62,26 @@ Different PHY families support different clock outputs and frequencies.
 | LAN8814
 | RCVRDCLK1, RCVRDCLK2
 | 25, 31.25, 125
+
+| LAN80XX
+| RCKOUTA, RCKOUTB
+| *From SREFCLK source* +
+  - 75.00 MHz +
+  - 37.50 MHz +
+  *From PTP LTC source* +
+  - 79.58 MHz +
+  - 39.79 MHz +
+  *From 1G Recovered Clock* +
+  - 125.000 MHz +
+  - 62.500 MHz +
+  - 31.250 MHz +
+  - 15.625 MHz +
+  *From 10G Recovered Clock* +
+  - 128.90625 MHz +
+  - 64.453125 MHz +
+  - 32.2265625 MHz +
+  *From 25G Recovered Clock* +
+  - 80.56640625 MHz +
 |===
 
 
@@ -69,36 +89,38 @@ Different PHY families support different clock outputs and frequencies.
 
 [width="80%",options="header"]
 |===
-| Destination                  | VSC8258         | VSC8584 | LAN8814
+| Destination                  | VSC8258         | VSC8584 | LAN8814 | LAN80XX
 
-| MEPA_SYNCE_CLOCK_DST_1       | Yes (CKOUT0)    | Yes     | Yes
-| MEPA_SYNCE_CLOCK_DST_2       | Yes (CKOUT1)    | Yes     | Yes
-| MEPA_SYNCE_CLOCK_DST_3       | Yes (CKOUT2)    | No      | No
-| MEPA_SYNCE_CLOCK_DST_4       | Yes (CKOUT3)    | No      | No
-| MEPA_SYNCE_CLOCK_DST_SCKOUT  | Yes             | No      | No
+| MEPA_SYNCE_CLOCK_DST_1       | Yes (CKOUT0)    | Yes     | Yes     | Yes (RCKOUTA)
+| MEPA_SYNCE_CLOCK_DST_2       | Yes (CKOUT1)    | Yes     | Yes     | Yes (RCKOUTB)
+| MEPA_SYNCE_CLOCK_DST_3       | Yes (CKOUT2)    | No      | No      | No
+| MEPA_SYNCE_CLOCK_DST_4       | Yes (CKOUT3)    | No      | No      | No
+| MEPA_SYNCE_CLOCK_DST_SCKOUT  | Yes             | No      | No      | No
 |===
+
 
 == Source Selection Support
 
 [width="90%",options="header"]
 |===
-| Source                      | VSC8258 | VSC8584 | LAN8814
+| Source                      | VSC8258 | VSC8584 | LAN8814 | LAN80XX
 
-| DISABLED                    | Yes     | Yes     | Yes
-| SERDES_MEDIA                | No      | Yes     | No
-| COPPER_MEDIA                | No      | Yes     | Yes
-| CLOCK_IN_1 / CLOCK_IN_2     | No      | No      | Yes
-| LINE0-3                     | Yes     | No      | No
-| HOST0-3                     | Yes     | No      | No
-| SREFCLK                     | Yes     | No      | No
+| DISABLED                    | Yes     | Yes     | Yes     | Yes
+| SERDES_MEDIA                | No      | Yes     | No      | No
+| COPPER_MEDIA                | No      | Yes     | Yes     | No
+| CLOCK_IN_1 / CLOCK_IN_2     | No      | No      | Yes     | No
+| LINE0-3                     | Yes     | No      | No      | Yes
+| HOST0-3                     | Yes     | No      | No      | Yes
+| SREFCLK                     | Yes     | No      | No      | Yes
+| PTP_LTC                     | Yes     | No      | No      | Yes
 |===
+
 
 == Frequency Rules per Device
 
 === VSC8258
 
   - SCKOUT supports: 125, 156.25 MHz
-
   - CKOUT0-3 supports:
       * For 1G sources (1.25 GHz): 125, 62.5 MHz
       * For 10G LAN sources (10.3125 GHz): 322.27, 161.13 MHz
@@ -111,18 +133,26 @@ Different PHY families support different clock outputs and frequencies.
 === LAN8814
   - Internal base is 125 MHz
   - Output frequencies:
-    * 25 MHz      -> divide by 5
-    * 31.25 MHz   -> divide by 4
-    * 125 MHz     -> divide by 1
+      * 25 MHz      -> divide by 5
+      * 31.25 MHz   -> divide by 4
+      * 125 MHz     -> divide by 1
   - Any other frequency defaults to 125 MHz
 
-NOTE: Frequency selection must match the PHY capabilities. Using 
-unsupported frequencies may result in invalid clock outputs or errors.
+=== LAN80XX
+  - Supported frequencies (MHz) per clock source and port speed:
+      * **SREFCLK**: 75, 37.5
+      * **PTP_LTC**: 79.58, 39.79
+      * **LINE0-3, HOST0-3**:
+          - 1G: 125, 62.5, 31.25, 15.625
+          - 10G: 128.90625, 64.453125, 32.2265625
+          - 25G: 80.56640625
+      * **Disabled**: clock output off
+
+NOTE: Frequency selection must match the PHY capabilities. Using unsupported frequencies may result in invalid clock outputs or errors.
 
 == Squelch Behavior
 
-Squelch allows gating of the recovered clock. It can be used for
-signal loss detection or clock integrity monitoring.
+Squelch allows gating of the recovered clock. It can be used for signal loss detection or clock integrity monitoring.
 
 [width="80%",options="header"]
 |===
@@ -131,6 +161,7 @@ signal loss detection or clock integrity monitoring.
 | VSC8258  | Full support (enable/disable + invert)
 | VSC8584  | Limited: enabled when source is valid, otherwise off
 | LAN8814  | No squelch; settings are ignored
+| LAN80XX  | Supported for LOS (LINE0-3) and PCS link status; can be auto-enabled or disabled per configuration
 |===
 
 

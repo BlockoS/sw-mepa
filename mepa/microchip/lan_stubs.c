@@ -27,14 +27,6 @@ mepa_rc lan80xx_flow_control_set(const mepa_device_t     *dev,
     return MEPA_RC_NOT_IMPLEMENTED;
 }
 
-mepa_rc lan80xx_rckout_conf_set(mepa_device_t *dev,
-                                const mepa_port_no_t port_no,
-                                const phy_25g_rckout_conf_t *rckout_conf)
-{
-
-    return MEPA_RC_NOT_IMPLEMENTED;
-}
-
 mepa_rc lan80xx_rckout_conf_get(mepa_device_t *dev,
                                 const mepa_port_no_t port_no,
                                 phy_25g_rckout_conf_t *const rckout_conf_a,

@@ -59,35 +59,58 @@ Different PHY families support different clock outputs and frequencies.
 | LAN8814
 | RCVRDCLK1, RCVRDCLK2
 | 25, 31.25, 125
+
+| LAN80XX
+| RCKOUTA, RCKOUTB
+| *From SREFCLK source* +
+  - 75.00 MHz +
+  - 37.50 MHz +
+  *From PTP LTC source* +
+  - 79.58 MHz +
+  - 39.79 MHz +
+  *From 1G Recovered Clock* +
+  - 125.000 MHz +
+  - 62.500 MHz +
+  - 31.250 MHz +
+  - 15.625 MHz +
+  *From 10G Recovered Clock* +
+  - 128.90625 MHz +
+  - 64.453125 MHz +
+  - 32.2265625 MHz +
+  *From 25G Recovered Clock* +
+  - 80.56640625 MHz +
 |===
 
 == Clock Output Destinations
 
 [width="80%",options="header"]
 |===
-| Destination                  | VSC8258         | VSC8584 | LAN8814
+| Destination                  | VSC8258         | VSC8584 | LAN8814 | LAN80XX
 
-| MEPA_SYNCE_CLOCK_DST_1       | Yes (CKOUT0)    | Yes     | Yes
-| MEPA_SYNCE_CLOCK_DST_2       | Yes (CKOUT1)    | Yes     | Yes
-| MEPA_SYNCE_CLOCK_DST_3       | Yes (CKOUT2)    | No      | No
-| MEPA_SYNCE_CLOCK_DST_4       | Yes (CKOUT3)    | No      | No
-| MEPA_SYNCE_CLOCK_DST_SCKOUT  | Yes             | No      | No
+| MEPA_SYNCE_CLOCK_DST_1       | Yes (CKOUT0)    | Yes     | Yes     | Yes (RCKOUTA)
+| MEPA_SYNCE_CLOCK_DST_2       | Yes (CKOUT1)    | Yes     | Yes     | Yes (RCKOUTB)
+| MEPA_SYNCE_CLOCK_DST_3       | Yes (CKOUT2)    | No      | No      | No
+| MEPA_SYNCE_CLOCK_DST_4       | Yes (CKOUT3)    | No      | No      | No
+| MEPA_SYNCE_CLOCK_DST_SCKOUT  | Yes             | No      | No      | No
 |===
+
 
 == Source Selection Support
 
 [width="90%",options="header"]
 |===
-| Source                      | VSC8258 | VSC8584 | LAN8814
+| Source                      | VSC8258 | VSC8584 | LAN8814 | LAN80XX
 
-| DISABLED                    | Yes     | Yes     | Yes
-| SERDES_MEDIA                | No      | Yes     | No
-| COPPER_MEDIA                | No      | Yes     | Yes
-| CLOCK_IN_1 / CLOCK_IN_2     | No      | No      | Yes
-| LINE0-3                     | Yes     | No      | No
-| HOST0-3                     | Yes     | No      | No
-| SREFCLK                     | Yes     | No      | No
+| DISABLED                    | Yes     | Yes     | Yes     | Yes
+| SERDES_MEDIA                | No      | Yes     | No      | No
+| COPPER_MEDIA                | No      | Yes     | Yes     | No
+| CLOCK_IN_1 / CLOCK_IN_2     | No      | No      | Yes     | No
+| LINE0-3                     | Yes     | No      | No      | Yes
+| HOST0-3                     | Yes     | No      | No      | Yes
+| SREFCLK                     | Yes     | No      | No      | Yes
+| PTP_LTC                     | Yes     | No      | No      | Yes
 |===
+
 
 == CLI Command and Usage
 
@@ -108,7 +131,7 @@ mepa-cmd phy synce_conf <port_no> <enable|disable>
 === VSC8258
 
 *Sources*: `line0`, `line1`, `line2`, `line3`, `host0`, `host1`, `host2`, `host3`, `srefclk` +
-*Destinations*: `sckout`, `ckout0`, `ckout1`, `ckout2`, `ckout3`
+*Destinations*: `sckout`, `ckout0`, `ckout1`, `ckout2`, `ckout3` +
 
 *Frequency based on operating mode*: +
 * SCKOUT: 125, 156.25 MHz +
@@ -122,13 +145,29 @@ mepa-cmd phy synce_conf <port_no> <enable|disable>
 
 *Sources*: `copper`, `serdes` +
 *Destinations*: `rcvrclk1`, `rcvrclk2` +
-*Frequencies*: 25, 31.25, 125 (MHz)
+*Frequencies*: 25, 31.25, 125 (MHz) +
 
 === LAN8814
 
 *Sources*: `copper`, `serdes`, `clock_in_1`, `clock_in_2` +
 *Destinations*: `rcvrclk1`, `rcvrclk2` +
-*Frequencies*: 25, 31.25, 125 (MHz)
+*Frequencies*: 25, 31.25, 125 (MHz) +
+
+=== LAN80XX
+
+*Sources*: `srefclk`, `ptp_ltc`, `line0`, `line1`, `line2`, `line3`, `host0`, `host1`, `host2`, `host3`, `disabled` +
+*Destinations*: `rckoutA`, `rckoutB` +
+
+*Frequency based on source and port speed*: +
+* SREFCLK: 75, 37.5 MHz +
+* PTP_LTC: 79.58, 39.79 MHz +
+* LINE0-3 / HOST0-3: +
+  - 1G: 125, 62.5, 31.25, 15.625 MHz +
+  - 10G: 128.90625, 64.453125, 32.2265625 MHz +
+  - 25G: 80.56640625 MHz +
+* DISABLED: clock output off
+
+NOTE: For LAN80XX, the **clock source and squelch source must be the same**. Selecting a mismatched squelch source will result in an error.
 
 == Examples
 

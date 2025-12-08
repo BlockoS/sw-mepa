@@ -577,6 +577,11 @@ typedef struct {
     mepa_bool_t qsgmii_serdes_ena;   /**< QSGMII serdes loopback where traffic is looped towards link partner from QSGMII serdes. This would affect all the 4 ports of PHY. */
 } mepa_loopback_t;
 
+/* =========================================================================
+ *  If any new enum value needs to be added, always add it at the bottom.
+ *  Do NOT insert new values in between existing enums to preserve binary compatibility.
+ * ========================================================================= */
+
 /** \brief phy clock source */
 typedef enum {
     MEPA_SYNCE_CLOCK_SRC_DISABLED,
@@ -608,37 +613,60 @@ typedef enum {
 } mepa_synce_clock_dst_t;
 
 /** \brief recovered clock frequencies */
+/* =========================================================================
+ *  If any new enum value needs to be added, always add it at the bottom.
+ *  Do NOT insert new values in between existing enums to preserve binary compatibility.
+ * ========================================================================= */
+
+/** \brief recovered clock frequencies */
 typedef enum {
-    MEPA_FREQ_25M,       /**< 25Mhz     recovered clock */
-    MEPA_FREQ_31_25M,    /**< 31.25Mhz  receovered clock */
-    MEPA_FREQ_62_5M,
-    MEPA_FREQ_125M,      /**< 125Mhz    recovered clock */
-    MEPA_FREQ_155_52M,
-    MEPA_FREQ_156_25M,   /**< 156.25Mhz recovered clock */
-    MEPA_FREQ_161_13M,
-    MEPA_FREQ_311_04M,
-    MEPA_FREQ_322_27M,
+    MEPA_FREQ_25M,            /**< 25 MHz     recovered clock */
+    MEPA_FREQ_31_25M,         /**< 31.25 MHz  recovered clock */
+    MEPA_FREQ_62_5M,          /**< 62.5 MHz   recovered clock */
+    MEPA_FREQ_125M,           /**< 125 MHz    recovered clock */
+    MEPA_FREQ_155_52M,        /**< 155.52 MHz recovered clock */
+    MEPA_FREQ_156_25M,        /**< 156.25 MHz recovered clock */
+    MEPA_FREQ_161_13M,        /**< 161.13 MHz recovered clock */
+    MEPA_FREQ_311_04M,        /**< 311.04 MHz recovered clock */
+    MEPA_FREQ_322_27M,        /**< 322.27 MHz recovered clock */
+    MEPA_FREQ_75M,            /**< 75 MHz     recovered clock */
+    MEPA_FREQ_37_50M,         /**< 37.50 MHz  recovered clock */
+    MEPA_FREQ_79_58M,         /**< 79.58 MHz  recovered clock */
+    MEPA_FREQ_39_79M,         /**< 39.79 MHz  recovered clock */
+    MEPA_FREQ_15_62M,         /**< 15.62 MHz  recovered clock */
+    MEPA_FREQ_128_90M,        /**< 128.90 MHz recovered clock */
+    MEPA_FREQ_64_45M,         /**< 64.45 MHz  recovered clock */
+    MEPA_FREQ_32_22M,         /**< 32.22 MHz  recovered clock */
+    MEPA_FREQ_80_56M,         /**< 80.56 MHz  recovered clock */
+    // Add new frequencies here, at the bottom only!
 } mepa_freq_t;
 
+/* =========================================================================
+ *  If any new enum value needs to be added, always add it at the bottom.
+ *  Do NOT insert new values in between existing enums to preserve binary compatibility.
+ * ========================================================================= */
+/** \brief recovered clock squelch sources */
 typedef enum {
-    MEPA_SYNCE_NO_SQUELCH = 0,
-    MEPA_SYNCE_SQUELCH_LINK_LINE0,
-    MEPA_SYNCE_SQUELCH_LINK_LINE1,
-    MEPA_SYNCE_SQUELCH_LINK_LINE2,
-    MEPA_SYNCE_SQUELCH_LINK_LINE3,
-    MEPA_SYNCE_SQUELCH_LINK_HOST0,
-    MEPA_SYNCE_SQUELCH_LINK_HOST1,
-    MEPA_SYNCE_SQUELCH_LINK_HOST2,
-    MEPA_SYNCE_SQUELCH_LINK_HOST3,
-    MEPA_SYNCE_SQUELCH_LOS_LINE0,
-    MEPA_SYNCE_SQUELCH_LOS_LINE1,
-    MEPA_SYNCE_SQUELCH_LOS_LINE2,
-    MEPA_SYNCE_SQUELCH_LOS_LINE3,
-    MEPA_SYNCE_SQUELCH_LOS_HOST0,
-    MEPA_SYNCE_SQUELCH_LOS_HOST1,
-    MEPA_SYNCE_SQUELCH_LOS_HOST2,
-    MEPA_SYNCE_SQUELCH_LOS_HOST3 
+    MEPA_SYNCE_NO_SQUELCH = 0,         /**< No squelch */
+    MEPA_SYNCE_SQUELCH_LINK_LINE0,     /**< Link status squelch for LINE0 */
+    MEPA_SYNCE_SQUELCH_LINK_LINE1,     /**< Link status squelch for LINE1 */
+    MEPA_SYNCE_SQUELCH_LINK_LINE2,     /**< Link status squelch for LINE2 */
+    MEPA_SYNCE_SQUELCH_LINK_LINE3,     /**< Link status squelch for LINE3 */
+    MEPA_SYNCE_SQUELCH_LINK_HOST0,     /**< Link status squelch for HOST0 */
+    MEPA_SYNCE_SQUELCH_LINK_HOST1,     /**< Link status squelch for HOST1 */
+    MEPA_SYNCE_SQUELCH_LINK_HOST2,     /**< Link status squelch for HOST2 */
+    MEPA_SYNCE_SQUELCH_LINK_HOST3,     /**< Link status squelch for HOST3 */
+    MEPA_SYNCE_SQUELCH_LOS_LINE0,      /**< LOS squelch for LINE0 */
+    MEPA_SYNCE_SQUELCH_LOS_LINE1,      /**< LOS squelch for LINE1 */
+    MEPA_SYNCE_SQUELCH_LOS_LINE2,      /**< LOS squelch for LINE2 */
+    MEPA_SYNCE_SQUELCH_LOS_LINE3,      /**< LOS squelch for LINE3 */
+    MEPA_SYNCE_SQUELCH_LOS_HOST0,      /**< LOS squelch for HOST0 */
+    MEPA_SYNCE_SQUELCH_LOS_HOST1,      /**< LOS squelch for HOST1 */
+    MEPA_SYNCE_SQUELCH_LOS_HOST2,      /**< LOS squelch for HOST2 */
+    MEPA_SYNCE_SQUELCH_LOS_HOST3,      /**< LOS squelch for HOST3 */
+    // Add new squelch sources here, at the bottom only!
 } mepa_squelch_src_t;
+
 
 typedef struct {
     mepa_squelch_src_t          squelch_src;

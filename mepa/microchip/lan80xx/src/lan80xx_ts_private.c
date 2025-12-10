@@ -4418,6 +4418,8 @@ mepa_rc lan80xx_ts_csr_ptptime_set_priv( mepa_device_t *dev,
     if (rc != MEPA_RC_OK) {
         return rc;
     }
+    /* Configure LOAD/STORE LSC Pin to IDLE mode to perform LOAD Operation, this is needed when continous mode is selected */
+    LAN80XX_CSR_WRM(base_port, LAN80XX_PTP_LTC_PTP_PIN_CFG(base_data->lsc_select), LAN80XX_F_PTP_LTC_PTP_PIN_CFG_PTP_PIN_ACTION(LAN80XX_TS_CMD_IDLE), LAN80XX_M_PTP_LTC_PTP_PIN_CFG_PTP_PIN_ACTION);
 
     /* Write the timestamp in the phy*/
     value = (ts->seconds.high & 0xffff);
@@ -5896,6 +5898,7 @@ mepa_rc lan80xx_phy_ts_pps_input_confset(mepa_device_t *dev, const mepa_port_no_
             T_D(MEPA_TRACE_GRP_TS, "\n PPS Input conf set fail, port %u", port_no);
         } else {
             base_data->lsc_select = pin_conf->lsc_select;
+            base_data->lsc_input_mode = pin_conf->pin_sync_mode;
         }
     } while (0);
 
@@ -6053,12 +6056,21 @@ static mepa_rc lan80xx_phy_ts_ltc_ls_action_set_priv(mepa_device_t *dev, const m
 
     switch (ls_action) {
     case  LAN80XX_TS_CMD_LOAD:
-        LAN80XX_CSR_WRM(base_port, LAN80XX_PTP_LTC_PTP_PIN_CFG(base_data->lsc_select), LAN80XX_F_PTP_LTC_PTP_PIN_CFG_PTP_PIN_ACTION(LAN80XX_TS_CMD_LOAD), LAN80XX_M_PTP_LTC_PTP_PIN_CFG_PTP_PIN_ACTION);
+        /* Configure PIN Action to Single shot Mode for Load operation */
+        LAN80XX_CSR_WRM(base_port, LAN80XX_PTP_LTC_PTP_PIN_CFG(base_data->lsc_select),
+                        LAN80XX_F_PTP_LTC_PTP_PIN_CFG_PTP_PIN_SYNC(LAN80XX_PTP_ACTION_ONE_SHOT_ON_ACTIVE_EDGE) |
+                        LAN80XX_F_PTP_LTC_PTP_PIN_CFG_PTP_PIN_ACTION(LAN80XX_TS_CMD_LOAD),
+                        LAN80XX_M_PTP_LTC_PTP_PIN_CFG_PTP_PIN_SYNC |
+                        LAN80XX_M_PTP_LTC_PTP_PIN_CFG_PTP_PIN_ACTION);
         break;
 
-
     case LAN80XX_TS_CMD_STORE:
-        LAN80XX_CSR_WRM(base_port, LAN80XX_PTP_LTC_PTP_PIN_CFG(base_data->lsc_select), LAN80XX_F_PTP_LTC_PTP_PIN_CFG_PTP_PIN_ACTION(LAN80XX_TS_CMD_STORE), LAN80XX_M_PTP_LTC_PTP_PIN_CFG_PTP_PIN_ACTION);
+        /* Revert back to old Pin mode for SAVE Operation */
+        LAN80XX_CSR_WRM(base_port, LAN80XX_PTP_LTC_PTP_PIN_CFG(base_data->lsc_select),
+                        LAN80XX_F_PTP_LTC_PTP_PIN_CFG_PTP_PIN_SYNC(base_data->lsc_input_mode) |
+                        LAN80XX_F_PTP_LTC_PTP_PIN_CFG_PTP_PIN_ACTION(LAN80XX_TS_CMD_STORE),
+                        LAN80XX_M_PTP_LTC_PTP_PIN_CFG_PTP_PIN_SYNC |
+                        LAN80XX_M_PTP_LTC_PTP_PIN_CFG_PTP_PIN_ACTION);
         break;
 
     case LAN80XX_TS_CMD_DELTA:

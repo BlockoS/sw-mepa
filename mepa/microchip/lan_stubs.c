@@ -12,9 +12,9 @@
 #include "microchip/lan80xx_ts.h"
 
 #ifndef MEPA_HAS_LAN80XX
-mepa_rc lan80xx_operating_mode_set(const mepa_device_t *dev,
-                                   const mepa_port_no_t port_no,
-                                   phy25g_mode_conf_t   phy_mode)
+mepa_rc lan80xx_operating_mode_set(const mepa_device_t        *dev,
+                                   const mepa_port_no_t       port_no,
+                                   const phy25g_mode_conf_t   phy_mode)
 {
 
     return MEPA_RC_NOT_IMPLEMENTED;

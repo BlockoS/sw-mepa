@@ -253,9 +253,9 @@ typedef struct {
  *  MEPA_RC_OK  on Sucess
  *  MEPA_RC_ERROR on Fail
  **/
-mepa_rc lan80xx_operating_mode_set(const mepa_device_t *dev,
-                                   const mepa_port_no_t port_no,
-                                   phy25g_mode_conf_t   phy_mode);
+mepa_rc lan80xx_operating_mode_set(const mepa_device_t        *dev,
+                                   const mepa_port_no_t       port_no,
+                                   const phy25g_mode_conf_t   phy_mode);
 
 
 /**

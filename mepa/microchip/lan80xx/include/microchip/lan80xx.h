@@ -30,6 +30,14 @@ typedef enum {
     MAC_RETIMER,     /* Support both MACSEC (optional) and 1588 and MAC(speed 1G / 10G/25G)*/
 } phy25g_oper_mode_t;
 
+typedef struct {
+    phy25g_oper_mode_t   oper_mode;            /* PCS or MAC-RETIMER Mode */
+    mepa_bool_t          terminate_lfs_in_phy; /* Terminate Link Fault signaling inside PHY, by default this will be passed to HOST MAC */
+    mepa_bool_t          host_mac_tx_pad;      /* Enable zero padding in HOST MAC Tx for frames less than 64 bytes, if 0 then it will pass the frame as undersized */
+    mepa_bool_t          line_mac_tx_pad;      /* Enable zero padding in LINE MAC Tx for frames less than 64 bytes, if 0 then it will pass the frame as undersized */
+} phy25g_mode_conf_t;
+
+
 /** \brief malibu25g Phy link and fault status */
 typedef struct {
     mepa_bool_t         rx_link;    /**< The rx link status  */
@@ -239,7 +247,7 @@ typedef struct {
  *
  * \param dev [IN]             mepa driver
  * \param port_no [IN]         port number
- * \param phy_mode [IN]        PCS/MAC Retimer Mode
+ * \param phy_mode [IN]        PCS/MAC Retimer Mode and MAC Retimer mode config
  *
  * \return Return code.
  *  MEPA_RC_OK  on Sucess
@@ -247,7 +255,7 @@ typedef struct {
  **/
 mepa_rc lan80xx_operating_mode_set(const mepa_device_t *dev,
                                    const mepa_port_no_t port_no,
-                                   phy25g_oper_mode_t phy_mode);
+                                   phy25g_mode_conf_t   phy_mode);
 
 
 /**

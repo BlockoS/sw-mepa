@@ -14,7 +14,7 @@
 #ifndef MEPA_HAS_LAN80XX
 mepa_rc lan80xx_operating_mode_set(const mepa_device_t *dev,
                                    const mepa_port_no_t port_no,
-                                   phy25g_oper_mode_t phy_mode)
+                                   phy25g_mode_conf_t   phy_mode)
 {
 
     return MEPA_RC_NOT_IMPLEMENTED;

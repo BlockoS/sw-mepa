@@ -8,7 +8,7 @@
 
 mepa_rc lan80xx_operating_mode_set(const mepa_device_t *dev,
                                    const mepa_port_no_t port_no,
-                                   phy25g_oper_mode_t phy_mode)
+                                   phy25g_mode_conf_t   phy_mode)
 {
     mepa_rc rc = MEPA_RC_ERROR;
     if (dev == NULL) {
@@ -20,7 +20,14 @@ mepa_rc lan80xx_operating_mode_set(const mepa_device_t *dev,
         return MEPA_RC_ERROR;
     }
     MEPA_ENTER(dev);
-    rc = lan80xx_operating_mode_set_priv(dev, port_no, phy_mode);
+    phy25g_phy_state_t *data = (phy25g_phy_state_t *) dev->data;
+
+    if (phy_mode.oper_mode == MAC_RETIMER) {
+        data->terminate_lfs_in_phy = phy_mode.terminate_lfs_in_phy;
+        data->host_mac_tx_pad = phy_mode.host_mac_tx_pad;
+        data->line_mac_tx_pad = phy_mode.line_mac_tx_pad;
+    }
+    rc = lan80xx_operating_mode_set_priv(dev, port_no, phy_mode.oper_mode);
     MEPA_EXIT(dev);
     return rc;
 }

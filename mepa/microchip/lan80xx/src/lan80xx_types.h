@@ -244,6 +244,9 @@ typedef struct phy25g_state_s {
     phy25g_gpio_read_t              ft_gpio_read;
     mepa_port_no_t                  krlog_en_ports;
     phy25g_features_t               features;
+    mepa_bool_t                     terminate_lfs_in_phy;
+    mepa_bool_t                     host_mac_tx_pad;
+    mepa_bool_t                     line_mac_tx_pad;
 } phy25g_phy_state_t;
 
 

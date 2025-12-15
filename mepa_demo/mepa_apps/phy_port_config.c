@@ -585,7 +585,9 @@ static void cli_cmd_oper_mode_set(cli_req_t *req)
         T_E("\n Command Supported only for LAN80XX PHY \n", req->port_no);
         return;
     }
-    if (lan80xx_operating_mode_set(meba_phy_inst->phy_devices[req->port_no], req->port_no, mreq->phy_mode) != MEPA_RC_OK) {
+    phy25g_mode_conf_t mode = {0};
+    mode.oper_mode = mreq->phy_mode;
+    if (lan80xx_operating_mode_set(meba_phy_inst->phy_devices[req->port_no], req->port_no, mode) != MEPA_RC_OK) {
         T_E("\n Error in Configuring Operating Mode on Port :%d \n", req->port_no);
         return;
     }

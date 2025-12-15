@@ -5271,6 +5271,12 @@ mepa_rc lan80xx_macsec_pattern_set_priv(mepa_device_t                      *dev,
     phy25g_macsec_internal_secy_t *secy;
     u32 secy_id = 0;
 
+    /* TCAM DROP config will lead to drop all the packets even it is not matching with the DROP match configuration -- RTL Bug */
+    if ((data->dev.rev == LAN80XX_REV_A0 || data->dev.rev == LAN80XX_REV_A1) && (action == MEPA_MACSEC_MATCH_ACTION_DROP)) {
+        T_E(MEPA_TRACE_GRP_GEN, "MACsec Action DROP is not supported by the PHY on port %d", port.port_no);
+        return MEPA_RC_ERROR;
+    }
+
     if (pattern->match & MEPA_MACSEC_MATCH_SMAC) {
         T_E(MEPA_TRACE_GRP_GEN, "Source MAC Address matching is not supported ");
         return MEPA_RC_ERROR;

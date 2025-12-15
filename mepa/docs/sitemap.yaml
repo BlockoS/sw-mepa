@@ -33,6 +33,8 @@ pages:
           src:  "mepa/docs/release-notes/mepa-2025.06.adoc"
         - name: "MEPA-2025.09"
           src:  "mepa/docs/release-notes/mepa-2025.09.adoc"
+        - name: "MEPA-2025.12"
+          src:  "mepa/docs/release-notes/mepa-2025.12.adoc"
 
     - name: "Introduction"
       src:  "mepa/docs/introduction.adoc"

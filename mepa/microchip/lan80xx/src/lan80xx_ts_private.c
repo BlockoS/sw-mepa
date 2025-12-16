@@ -7479,7 +7479,7 @@ mepa_rc lan80xx_ptp_reg_dump(mepa_device_t            *dev,
         MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32, (dump_ptp_ana[i + 1].addr + LAN80XX_PTP_ANA0_EGR_BASE), &val2));
         pr("%-40s: 0x%08X     %-40s: 0x%08X\n", dump_ptp_ana[i].str, val1, dump_ptp_ana[i + 1].str, val2);
     }
-    MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32, (dump_ptp_ana[LAN80XX_PTP_ANA_REG_NUM - 1].addr + LAN80XX_PTP_ANA0_INGR_BASE), &val1));
+    MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32, (dump_ptp_ana[LAN80XX_PTP_ANA_REG_NUM - 1].addr + LAN80XX_PTP_ANA0_EGR_BASE), &val1));
     pr("%-40s: 0x%08X\n", dump_ptp_ana[LAN80XX_PTP_ANA_REG_NUM - 1].str, val1);
 
 
@@ -7489,7 +7489,7 @@ mepa_rc lan80xx_ptp_reg_dump(mepa_device_t            *dev,
         MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32, (dump_ptp_ana[i + 1].addr + LAN80XX_PTP_ANA1_INGR_BASE), &val2));
         pr("%-40s: 0x%08X     %-40s: 0x%08X\n", dump_ptp_ana[i].str, val1, dump_ptp_ana[i + 1].str, val2);
     }
-    MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32, (dump_ptp_ana[LAN80XX_PTP_ANA_REG_NUM - 1].addr + LAN80XX_PTP_ANA0_INGR_BASE), &val1));
+    MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32, (dump_ptp_ana[LAN80XX_PTP_ANA_REG_NUM - 1].addr + LAN80XX_PTP_ANA1_INGR_BASE), &val1));
     pr("%-40s: 0x%08X\n", dump_ptp_ana[LAN80XX_PTP_ANA_REG_NUM - 1].str, val1);
 
     pr("\n\n\t\t:-:-:-:  PTP_ANA1_EGR_CFG  :-:-:-:\n\n\n");
@@ -7498,26 +7498,22 @@ mepa_rc lan80xx_ptp_reg_dump(mepa_device_t            *dev,
         MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32, (dump_ptp_ana[i + 1].addr + LAN80XX_PTP_ANA1_EGR_BASE), &val2));
         pr("%-40s: 0x%08X     %-40s: 0x%08X\n", dump_ptp_ana[i].str, val1, dump_ptp_ana[i + 1].str, val2);
     }
-    MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32, (dump_ptp_ana[LAN80XX_PTP_ANA_REG_NUM - 1].addr + LAN80XX_PTP_ANA0_INGR_BASE), &val1));
+    MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32, (dump_ptp_ana[LAN80XX_PTP_ANA_REG_NUM - 1].addr + LAN80XX_PTP_ANA1_EGR_BASE), &val1));
     pr("%-40s: 0x%08X\n", dump_ptp_ana[LAN80XX_PTP_ANA_REG_NUM - 1].str, val1);
 
     pr("\n\n\t\t:-:-:-:  PTP_ANA2_INGR_CFG  :-:-:-:\n\n\n");
-    for (u32 i = 0; i < (LAN80XX_PTP_ANA_REG_NUM - 1); i = i + 2) {
-        MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32, (dump_ptp_ana[i].addr + LAN80XX_PTP_ANA2_INGR_BASE), &val1));
-        MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32, (dump_ptp_ana[i + 1].addr + LAN80XX_PTP_ANA2_INGR_BASE), &val2));
-        pr("%-40s: 0x%08X     %-40s: 0x%08X\n", dump_ptp_ana[i].str, val1, dump_ptp_ana[i + 1].str, val2);
+    for (u32 i = 0; i + 1 < LAN80XX_DUMP_PTP_ANA2_SIZE; i += 2) {
+        MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32, (dump_ptp_ana2[i].addr + LAN80XX_PTP_ANA2_INGR_BASE), &val1));
+        MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32, (dump_ptp_ana2[i + 1].addr + LAN80XX_PTP_ANA2_INGR_BASE), &val2));
+        pr("%-40s: 0x%08X     %-40s: 0x%08X\n", dump_ptp_ana2[i].str, val1, dump_ptp_ana2[i + 1].str, val2);
     }
-    MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32, (dump_ptp_ana[LAN80XX_PTP_ANA_REG_NUM - 1].addr + LAN80XX_PTP_ANA0_INGR_BASE), &val1));
-    pr("%-40s: 0x%08X\n", dump_ptp_ana[LAN80XX_PTP_ANA_REG_NUM - 1].str, val1);
 
     pr("\n\n\t\t:-:-:-:  PTP_ANA2_EGR_CFG  :-:-:-:\n\n\n");
-    for (u32 i = 0; i < (LAN80XX_PTP_ANA_REG_NUM - 1); i = i + 2) {
-        MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32, (dump_ptp_ana[i].addr + LAN80XX_PTP_ANA2_EGR_BASE), &val1));
-        MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32, (dump_ptp_ana[i + 1].addr + LAN80XX_PTP_ANA2_EGR_BASE), &val2));
-        pr("%-40s: 0x%08X     %-40s: 0x%08X\n", dump_ptp_ana[i].str, val1, dump_ptp_ana[i + 1].str, val2);
+    for (u32 i = 0; i + 1 < LAN80XX_DUMP_PTP_ANA2_SIZE; i += 2) {
+        MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32, (dump_ptp_ana2[i].addr + LAN80XX_PTP_ANA2_EGR_BASE), &val1));
+        MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32, (dump_ptp_ana2[i + 1].addr + LAN80XX_PTP_ANA2_EGR_BASE), &val2));
+        pr("%-40s: 0x%08X     %-40s: 0x%08X\n", dump_ptp_ana2[i].str, val1, dump_ptp_ana2[i + 1].str, val2);
     }
-    MEPA_RC(lan80xx_csr_rd(dev, port_no, mmd, is_32, (dump_ptp_ana[LAN80XX_PTP_ANA_REG_NUM - 1].addr + LAN80XX_PTP_ANA0_INGR_BASE), &val1));
-    pr("%-40s: 0x%08X\n", dump_ptp_ana[LAN80XX_PTP_ANA_REG_NUM - 1].str, val1);
 
     return MEPA_RC_OK;
 }

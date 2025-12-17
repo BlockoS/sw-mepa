@@ -238,6 +238,7 @@ if c[:mesa]
   puts "Fetching latest copy..."
   
   if not File.exist? mesa_base
+    sys "sudo -v"
     sys "wget -O- #{$mesa_deps["build-artifact-url"]}/#{$mesa_deps["release-version"]}/#{mesa_name}.tar.gz | sudo tar -xz -C /opt/mscc/"
   end
 
@@ -253,6 +254,7 @@ if c[:brsdk_arch]
   puts "{BSP}: #{brsdk_name}"
 
   if not File.exist? brsdk_base
+    sys "sudo -v"
     sys "wget -O- #{$bsp_deps["build-artifact-url"]}/#{brsdk_name}.tar.gz | sudo tar -xz -C /opt/mscc/"
   end
 else
@@ -266,6 +268,7 @@ puts "{Toolchain}: #{$tc_name}"
 
 if not File.exist? $tc_path
   tc_link = "#{$tc["build-artifact-url"]}/#{$tc_name}.tar.gz"
+  sys "sudo -v"
   sys "wget -O- #{tc_link} | sudo tar -xz -C /opt/mscc/"
 end
 

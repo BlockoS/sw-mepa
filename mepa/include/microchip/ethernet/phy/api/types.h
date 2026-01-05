@@ -729,6 +729,7 @@ typedef struct {
     const char          *manufactor_name; /**< Manufactor name */
     const char          *model_name;      /**< Model name */
     const char          *firmware_rev;    /**< Firmware revision */
+    char                 serial_number[16];  /**< Serial number */
 } mepa_phy_info_t;
 
 /** \brief Debug layer */

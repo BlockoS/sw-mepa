@@ -58,6 +58,7 @@ mesa_rc json_rpc_add_name_json_string(json_rpc_req_t *req, json_object *obj, con
 // Integer
 mesa_rc json_rpc_get_idx_uint8_t(json_rpc_req_t *req, json_object *obj, int *idx, uint8_t *value);
 mesa_rc json_rpc_get_idx_int8_t(json_rpc_req_t *req, json_object *obj, int *idx, int8_t *value);
+mesa_rc json_rpc_get_idx_char(json_rpc_req_t *req, json_object *obj, int *idx, char *value);
 mesa_rc json_rpc_get_idx_uint16_t(json_rpc_req_t *req, json_object *obj, int *idx, uint16_t *value);
 mesa_rc json_rpc_get_idx_int16_t(json_rpc_req_t *req, json_object *obj, int *idx, int16_t *value);
 mesa_rc json_rpc_get_idx_uint32_t(json_rpc_req_t *req, json_object *obj, int *idx, uint32_t *value);
@@ -82,6 +83,7 @@ mesa_rc json_rpc_get_uint64_t(json_rpc_req_t *req, json_object *obj, uint64_t *v
 mesa_rc json_rpc_get_int64_t(json_rpc_req_t *req, json_object *obj, int64_t *value);
 mesa_rc json_rpc_add_uint8_t(json_rpc_req_t *req, json_object *obj, uint8_t *value);
 mesa_rc json_rpc_add_int8_t(json_rpc_req_t *req, json_object *obj, int8_t *value);
+mesa_rc json_rpc_add_char(json_rpc_req_t *req, json_object *obj, char *value);
 mesa_rc json_rpc_add_uint16_t(json_rpc_req_t *req, json_object *obj, uint16_t *value);
 mesa_rc json_rpc_add_int16_t(json_rpc_req_t *req, json_object *obj, int16_t *value);
 mesa_rc json_rpc_add_uint32_t(json_rpc_req_t *req, json_object *obj, uint32_t *value);

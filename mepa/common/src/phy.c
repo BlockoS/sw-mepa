@@ -589,6 +589,8 @@ mepa_rc mepa_phy_info_get(struct mepa_device *dev,
         return MESA_RC_NOT_IMPLEMENTED;
     }
 
+    memset(phy_info, 0, sizeof(mepa_phy_info_t));
+
     return dev->drv->mepa_driver_phy_info_get(dev, phy_info);
 }
 

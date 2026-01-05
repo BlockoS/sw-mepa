@@ -2170,6 +2170,9 @@ static mepa_rc lan887x_info_get(mepa_device_t *dev, mepa_phy_info_t *const phy_i
             phy_info->cap = (data->conf.speed == MESA_SPEED_100M ?
                              MEPA_CAP_SPEED_MASK_1G : MEPA_CAP_TS_MASK_NONE);
 
+            phy_info->manufactor_name = "Microchip";
+            phy_info->model_name = "LAN887X";
+
             rc = MEPA_RC_OK;
         }
         MEPA_EXIT(dev);

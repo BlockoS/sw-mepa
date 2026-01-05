@@ -253,6 +253,8 @@ static mepa_rc lan867x_info_get(mepa_device_t *dev, mepa_phy_info_t *const phy_i
         phy_info->part_number = data->dev.model;
         phy_info->revision = data->dev.rev;
         phy_info->cap = MEPA_CAP_TS_MASK_NONE;
+        phy_info->manufactor_name = "Microchip";
+        phy_info->model_name = "LAN867x";
         MEPA_EXIT(dev);
         rc = MEPA_RC_OK;
     }

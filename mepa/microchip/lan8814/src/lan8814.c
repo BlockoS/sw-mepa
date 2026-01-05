@@ -2029,14 +2029,18 @@ static mepa_rc lan8814_info_get(mepa_device_t *dev, mepa_phy_info_t *const phy_i
     phy_data_t *data = (phy_data_t *)(dev->data);
     phy_data_t *base_data = data->base_dev ? ((phy_data_t *)(data->base_dev->data)) : NULL;
 
+    phy_info->manufactor_name = "Microchip";
+
     phy_info->cap = 0;
     // Read SKU ID and assign Part no
     if (dev->drv->id == LAN8814_DEF_DRV_ID || dev->drv->id == LAN8814_INT_PHY_DRV_ID) {
         // For LAN8814 inside lan9668 the driver id is different and the SKU No is 0 upon read.
         // Assigning part No based on Driver
         phy_info->part_number = 8814;
+        phy_info->model_name = "LAN8814";
     } else if (dev->drv->id == LAN8804_SKU) {
         phy_info->part_number = 8804;
+        phy_info->model_name = "LAN8804";
     }
     phy_info->revision = data->dev.rev;
     phy_info->cap |= (data->dev.model == 0x26) ? MEPA_CAP_TS_MASK_GEN_3 : MEPA_CAP_TS_MASK_NONE;

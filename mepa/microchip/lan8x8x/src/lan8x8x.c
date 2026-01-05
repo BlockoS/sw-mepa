@@ -1718,6 +1718,8 @@ static mepa_rc lan8x8x_info_get(mepa_device_t *dev,
         phy_info->revision = data->dev.rev;
         phy_info->cap = ((data->conf.speed == MESA_SPEED_1G) ?
                          MEPA_CAP_SPEED_MASK_1G : MEPA_CAP_TS_MASK_NONE);
+        phy_info->manufactor_name = "Microchip";
+        phy_info->model_name = "LAN8X8X";
 
         rc = MEPA_RC_OK;
         MEPA_EXIT(dev);

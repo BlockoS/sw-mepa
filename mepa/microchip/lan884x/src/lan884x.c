@@ -263,6 +263,9 @@ static mepa_rc pfe_info_get(mepa_device_t *dev, mepa_phy_info_t *const phy_info)
     phy_info->revision = data->dev.rev;
     phy_info->cap = MEPA_CAP_SPEED_MASK_1G;
 
+    phy_info->manufactor_name = "Microchip";
+    phy_info->model_name = "LAN884X";
+
     return MEPA_RC_OK;
 }
 

@@ -282,6 +282,46 @@ static mepa_rc lan867x_info_get(mepa_device_t *dev, mepa_phy_info_t *const phy_i
     return rc;
 }
 
+static mepa_rc lan867x_debug_info(struct mepa_device *dev,
+                                  const mepa_debug_print_t pr,
+                                  const mepa_debug_info_t   *const info)
+{
+    mepa_rc rc = MEPA_RC_ERROR;
+
+    if (dev != NULL && pr != NULL && info != NULL) {
+        phy_data_t *data = (phy_data_t *)dev->data;
+        mepa_t1s_plca_cfg_t *p;
+
+        if (data == NULL) {
+            goto out;
+        }
+
+        // PHY Debugging
+        switch (info->group) {
+        case MEPA_DEBUG_GROUP_ALL:
+        case MEPA_DEBUG_GROUP_PHY:
+            MEPA_ENTER(dev);
+            data = (phy_data_t *)dev->data;
+            p = &data->t1s_cfg.plca_cfg;
+            pr("PLCA mode  : %s\n", p->plca_enable ? "Enabled" : "Disabled");
+            pr("Node count : %u\n", p->node_count);
+            pr("Node id    : %u\n", p->node_id);
+            pr("TO timer   : %u\n", p->tx_oppr_timer);
+            pr("Max burst  : %u\n", p->max_burst_cnt);
+            pr("Burst timer: %u\n", p->burst_timer);
+            MEPA_EXIT(dev);
+            rc = MEPA_RC_OK;
+            break;
+        default:
+            rc = MEPA_RC_OK;
+            break;
+        }
+    }
+
+out:
+    return rc;
+}
+
 mepa_drivers_t mepa_lan867x_driver_init(void)
 {
     mepa_drivers_t result;
@@ -307,6 +347,7 @@ mepa_drivers_t mepa_lan867x_driver_init(void)
     drv->mepa_driver_clause45_write     = lan867x_mmd_reg_write;
     drv->mepa_capability                = lan867x_capability;
     drv->mepa_driver_phy_info_get       = lan867x_info_get;
+    drv->mepa_debug_info_dump           = lan867x_debug_info;
     drv->mepa_t1s                       = &lan867x_t1s_driver;
 
     result.phy_drv = &lan867x_driver[0];

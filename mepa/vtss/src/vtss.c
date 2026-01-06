@@ -175,9 +175,6 @@ static vtss_rc vtss_macsec_port_mem_free(const mepa_callout_t    *callout,
     return MEPA_RC_OK;
 }
 
-
-
-
 static vtss_rc vtss_macsec_port_mem_alloc(const mepa_callout_t    *callout,
         struct mepa_callout_ctx *callout_ctx,
         vtss_inst_t             *inst,
@@ -654,7 +651,7 @@ static mepa_rc mscc_1g_conf_set(mepa_device_t *dev, const mepa_conf_t *config)
         if (rc != MEPA_RC_OK) {
             T_E(data, MEPA_TRACE_GRP_GEN, "Failed to confiured speed\n");
             return MEPA_RC_ERROR;
-        }   
+        }
         phy_config.forced.speed = config->speed;
         phy_config.forced.fdx = config->fdx;
 
@@ -934,6 +931,7 @@ static mepa_rc phy_1g_gpio_set(mepa_device_t *dev, uint8_t gpio_no, mepa_bool_t 
     }
     return vtss_phy_gpio_set(data->vtss_instance, data->port_no, gpio_no, enable);
 }
+
 // Enable/Disable Isolate mode
 static mepa_rc phy_isolate_mode_conf(mepa_device_t *dev, const mepa_bool_t iso_en)
 {
@@ -951,6 +949,7 @@ static mepa_rc phy_1g_gpio_get(mepa_device_t *dev, uint8_t gpio_no, mepa_bool_t 
     }
     return vtss_phy_gpio_get(data->vtss_instance, data->port_no, gpio_no, enable);
 }
+
 static mepa_rc phy_1g_synce_clk_conf_set(mepa_device_t *dev, const mepa_synce_clock_conf_t *conf)
 {
     phy_data_t *data = (phy_data_t *)(dev->data);
@@ -965,7 +964,8 @@ static mepa_rc phy_1g_synce_clk_conf_set(mepa_device_t *dev, const mepa_synce_cl
 
     return vtss_phy_clock_conf_set(data->vtss_instance, data->port_no, clk_port, &phy_conf);
 }
-// store base_dev info in dev and store dev info in base_dev.
+
+// Store base_dev info in dev and store dev info in base_dev.
 static mepa_rc phy_1g_link_base_port(mepa_device_t *dev, mepa_device_t *base_dev, uint8_t packet_idx)
 {
     phy_data_t *base_data = (phy_data_t *)(base_dev->data);
@@ -1082,7 +1082,6 @@ static mepa_rc venice_10g_reset(mepa_device_t *dev,
     oper_mode.l_media = VTSS_MEDIA_TYPE_SR;
     return vtss_phy_10g_mode_set(data->vtss_instance, data->port_no, &oper_mode);
 }
-
 
 static mepa_rc phy_10g_poll(mepa_device_t *dev,
                             mepa_status_t *status)
@@ -1435,7 +1434,7 @@ static mepa_rc phy_eee_status_get(mepa_device_t *dev, u8 *const advertisement, B
     return MEPA_RC_OK;
 }
 
-//To get PHY capability
+// To get PHY capability
 static uint32_t phy_1g_capability(struct mepa_device *dev , uint32_t capability)
 {
     uint32_t c = 0;
@@ -1719,7 +1718,6 @@ static mepa_rc phy_10g_warmrestart_conf_set(struct mepa_device *dev, const mepa_
     return MEPA_RC_OK;
 }
 
-
 static mepa_rc phy_10g_warmrestart_conf_get(struct mepa_device *dev, mepa_restart_t *const restart) {
     mepa_rc rc = MEPA_RC_OK;
     phy_data_t *data =(phy_data_t*)dev->data;
@@ -1862,7 +1860,6 @@ static mepa_rc mepa_to_vtss_ckout_conf(const mepa_synce_clock_conf_t *conf, vtss
     return MEPA_RC_OK;
 }
 
-
 static mepa_rc phy_10g_synce_clk_conf_set(mepa_device_t *dev, const mepa_synce_clock_conf_t *conf)
 {
     phy_data_t *data =(phy_data_t*)dev->data;
@@ -2002,7 +1999,6 @@ static mepa_rc phy_10g_synce_clk_conf_set(mepa_device_t *dev, const mepa_synce_c
     }
     return MEPA_RC_OK;
 }
-
 
 mepa_drivers_t mepa_mscc_driver_init()
 {
@@ -2167,7 +2163,7 @@ mepa_drivers_t mepa_mscc_driver_init()
             .mepa_driver_phy_info_get = phy_1g_info_get,
             .mepa_driver_isolate_mode_conf = phy_isolate_mode_conf,
             .mepa_debug_info_dump = phy_debug_info_dump,
-	    .mepa_driver_phy_qsgmii_sync = phy_1g_qsgmii_sync,
+            .mepa_driver_phy_qsgmii_sync = phy_1g_qsgmii_sync,
         },
         {
             // Cicada (all models)
@@ -2326,4 +2322,3 @@ mepa_drivers_t mepa_default_phy_driver_init()
 
     return result;
 }
-

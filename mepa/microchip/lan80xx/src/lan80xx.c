@@ -395,16 +395,21 @@ static mepa_rc lan80xx_phy_info_get(mepa_device_t *dev, mepa_phy_info_t *const p
         return MEPA_RC_ERROR;
     }
 
-    /* 1588 Capability */
-    if ((data->dev.devid == LAN80XX_DEV_ID_8022) || (data->dev.devid == LAN80XX_DEV_ID_8042)) {
-        phy_info->cap = MEPA_CAP_TS_MASK_NONE;
-    } else {
-        phy_info->cap = MEPA_CAP_TS_MASK_GEN_2;
+    /* This is just to support backwards compatibility.
+     * It is required to use the lan80xx_phy_capability_priv and not
+     * mepa_capability functionc because that will take also the MEPA lock
+     */
+    phy_info->cap = 0;
+    if (lan80xx_phy_capability_priv(dev, MEPA_CAP_TS_NONE)) {
+        phy_info->cap |= MEPA_CAP_TS_MASK_NONE;
     }
-    /* Speed Capability */
-    if (base_data->features.speed_25g_disable) {
+    if (lan80xx_phy_capability_priv(dev, MEPA_CAP_TS_GEN_2)) {
+        phy_info->cap |= MEPA_CAP_TS_MASK_GEN_2;
+    }
+    if (lan80xx_phy_capability_priv(dev, MEPA_CAP_SPEED_10G)) {
         phy_info->cap |= MEPA_CAP_SPEED_MASK_10G;
-    } else {
+    }
+    if (lan80xx_phy_capability_priv(dev, MEPA_CAP_SPEED_25G)) {
         phy_info->cap |= MEPA_CAP_SPEED_MASK_25G;
     }
     phy_info->ts_base_port = base_data->port_no;

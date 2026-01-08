@@ -5828,7 +5828,10 @@ mepa_rc lan80xx_mamcsec_mem_free(mepa_device_t *dev)
 
 uint32_t lan80xx_phy_capability_priv(struct mepa_device *dev, uint32_t capability)
 {
-    uint32_t c = 0;
+    phy25g_phy_state_t *data = (phy25g_phy_state_t *) dev->data;
+    phy25g_phy_state_t *base_data = data->base_dev ? ((phy25g_phy_state_t *)(data->base_dev->data)) : NULL;
+    uint32_t c;
+
     switch (capability) {
     case MEPA_CAP_MACSEC_SECY_CNT:
         c = LAN80XX_MACSEC_MAX_SA / 2;
@@ -5839,7 +5842,33 @@ uint32_t lan80xx_phy_capability_priv(struct mepa_device *dev, uint32_t capabilit
     case MEPA_CAP_MACSEC_MAX_SC:
         c = LAN80XX_MACSEC_MAX_SA / 2;
         break;
+    case MEPA_CAP_TS_NONE:
+        c = data->dev.devid == LAN80XX_DEV_ID_8022 || data->dev.devid == LAN80XX_DEV_ID_8042;
+        break;
+    case MEPA_CAP_TS_GEN_2:
+        c = !(data->dev.devid == LAN80XX_DEV_ID_8022 || data->dev.devid == LAN80XX_DEV_ID_8042);
+        break;
+    case MEPA_CAP_SPEED_10G:
+        if (!base_data) {
+            c = 0;
+            goto out;
+        }
+
+        c = base_data->features.speed_25g_disable;
+        break;
+    case MEPA_CAP_SPEED_25G:
+        if (!base_data) {
+            c = 0;
+            goto out;
+        }
+
+        c = !(base_data->features.speed_25g_disable);
+        break;
+    default:
+        c = 0;
     }
+
+out:
     return c;
 }
 

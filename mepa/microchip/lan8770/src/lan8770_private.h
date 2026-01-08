@@ -153,4 +153,6 @@ mepa_rc phy_tc10_send_wake_request(struct mepa_device *dev);
 
 mepa_rc phy_tc10_set_config(struct mepa_device *dev, phy_tc10_data_t *cfg);
 
+uint32_t lan8770_capability_priv(mepa_device_t *const dev, uint32_t capability);
+
 #endif //LAN8770_PRIVATE_H

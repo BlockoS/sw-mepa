@@ -494,3 +494,22 @@ error:
     return rc;
 }
 
+uint32_t lan8770_capability_priv(mepa_device_t *const dev, uint32_t capability)
+{
+    phy_data_t *data = (phy_data_t *)(dev->data);
+    uint32_t c;
+
+    switch (capability) {
+    case MEPA_CAP_SPEED_1G:
+        c = data->conf.speed == MESA_SPEED_100M;
+        break;
+    case MEPA_CAP_TS_NONE:
+        c = data->conf.speed != MESA_SPEED_100M;
+        break;
+    default:
+        c = 0;
+        break;
+    }
+
+    return c;
+}

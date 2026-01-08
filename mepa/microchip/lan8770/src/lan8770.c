@@ -1053,7 +1053,15 @@ static mepa_rc lan8770_info_get(mepa_device_t *dev, mepa_phy_info_t *const phy_i
         MEPA_ENTER(dev);
         phy_info->part_number = data->dev.model;
         phy_info->revision = data->dev.rev;
-        phy_info->cap = (data->conf.speed == MESA_SPEED_100M ? MEPA_CAP_SPEED_MASK_1G : MEPA_CAP_TS_MASK_NONE);
+
+        phy_info->cap = 0;
+        if (lan8770_capability_priv(dev, MEPA_CAP_SPEED_1G)) {
+            phy_info->cap |= MEPA_CAP_SPEED_MASK_1G;
+        }
+
+        if (lan8770_capability_priv(dev, MEPA_CAP_TS_NONE)) {
+            phy_info->cap |= MEPA_CAP_TS_MASK_NONE;
+        }
 
         MEPA_EXIT(dev);
         rc = MEPA_RC_OK;
@@ -1122,6 +1130,17 @@ static mepa_rc lan8770_sqi_read(mepa_device_t *const dev, uint32_t *const value)
     return rc;
 }
 
+static uint32_t lan8770_capability(mepa_device_t *const dev, uint32_t capability)
+{
+    uint32_t c;
+
+    MEPA_ENTER(dev);
+    c = lan8770_capability_priv(dev, capability);
+    MEPA_EXIT(dev);
+
+    return c;
+}
+
 mepa_drivers_t mepa_lan8770_driver_init()
 {
     mepa_drivers_t result = {0};
@@ -1153,6 +1172,7 @@ mepa_drivers_t mepa_lan8770_driver_init()
             .mepa_driver_isolate_mode_conf  = lan8770_isolate_mode_set,
             .mepa_debug_info_dump           = lan8770_debug_info,
             .mepa_driver_sqi_read           = lan8770_sqi_read,
+            .mepa_capability                = lan8770_capability,
             .mepa_tc10                      = &lan8770_tc10_drivers
         },
         {
@@ -1181,6 +1201,7 @@ mepa_drivers_t mepa_lan8770_driver_init()
             .mepa_driver_isolate_mode_conf  = lan8770_isolate_mode_set,
             .mepa_debug_info_dump           = lan8770_debug_info,
             .mepa_driver_sqi_read           = lan8770_sqi_read,
+            .mepa_capability                = lan8770_capability,
             .mepa_tc10                      = &lan8770_tc10_drivers
         },
         {
@@ -1209,6 +1230,7 @@ mepa_drivers_t mepa_lan8770_driver_init()
             .mepa_driver_isolate_mode_conf  = lan8770_isolate_mode_set,
             .mepa_debug_info_dump           = lan8770_debug_info,
             .mepa_driver_sqi_read           = lan8770_sqi_read,
+            .mepa_capability                = lan8770_capability,
             .mepa_tc10                      = &lan8770_tc10_drivers
         },
         {
@@ -1237,6 +1259,7 @@ mepa_drivers_t mepa_lan8770_driver_init()
             .mepa_driver_isolate_mode_conf  = lan8770_isolate_mode_set,
             .mepa_debug_info_dump           = lan8770_debug_info,
             .mepa_driver_sqi_read           = lan8770_sqi_read,
+            .mepa_capability                = lan8770_capability,
             .mepa_tc10                      = &lan8770_tc10_drivers
         },
     };

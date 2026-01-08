@@ -241,6 +241,22 @@ static mepa_rc lan867x_poll(mepa_device_t *dev, mepa_status_t *status)
     return rc;
 }
 
+static uint32_t lan867x_capability(mepa_device_t *dev, uint32_t capability)
+{
+    uint32_t c;
+
+    switch (capability) {
+    case MEPA_CAP_TS_NONE:
+        c = 1;
+        break;
+    default:
+        c = 0;
+        break;
+    }
+
+    return c;
+}
+
 static mepa_rc lan867x_info_get(mepa_device_t *dev, mepa_phy_info_t *const phy_info)
 {
     mepa_rc rc = MEPA_RC_ERROR;
@@ -252,9 +268,13 @@ static mepa_rc lan867x_info_get(mepa_device_t *dev, mepa_phy_info_t *const phy_i
         MEPA_ENTER(dev);
         phy_info->part_number = data->dev.model;
         phy_info->revision = data->dev.rev;
-        phy_info->cap = MEPA_CAP_TS_MASK_NONE;
         phy_info->manufactor_name = "Microchip";
         phy_info->model_name = "LAN867x";
+        /* This is just to support backwards compatibility */
+        if (lan867x_capability(dev, MEPA_CAP_TS_NONE)) {
+            phy_info->cap = MEPA_CAP_TS_MASK_NONE;
+        }
+
         MEPA_EXIT(dev);
         rc = MEPA_RC_OK;
     }
@@ -285,6 +305,7 @@ mepa_drivers_t mepa_lan867x_driver_init(void)
     drv->mepa_driver_clause22_write     = lan867x_reg_write;
     drv->mepa_driver_clause45_read      = lan867x_mmd_reg_read;
     drv->mepa_driver_clause45_write     = lan867x_mmd_reg_write;
+    drv->mepa_capability                = lan867x_capability;
     drv->mepa_driver_phy_info_get       = lan867x_info_get;
     drv->mepa_t1s                       = &lan867x_t1s_driver;
 

@@ -255,13 +255,31 @@ static mepa_rc pfe_if_set(mepa_device_t *dev,
     return rc;
 }
 
+static uint32_t pfe_capability(mepa_device_t *dev, uint32_t capability)
+{
+    uint32_t c;
+
+    switch (capability) {
+    case MEPA_CAP_SPEED_1G:
+        c = 1;
+        break;
+    default:
+        c = 0;
+        break;
+    }
+
+    return c;
+}
+
 static mepa_rc pfe_info_get(mepa_device_t *dev, mepa_phy_info_t *const phy_info)
 {
     phy_data_t *data = (phy_data_t *)dev->data;
 
     phy_info->part_number = 8841;
     phy_info->revision = data->dev.rev;
-    phy_info->cap = MEPA_CAP_SPEED_MASK_1G;
+    if (pfe_capability(dev, MEPA_CAP_SPEED_1G)) {
+        phy_info->cap = MEPA_CAP_SPEED_MASK_1G;
+    }
 
     phy_info->manufactor_name = "Microchip";
     phy_info->model_name = "LAN884X";
@@ -538,6 +556,7 @@ mepa_drivers_t mepa_lan884x_driver_init()
             .mepa_driver_clause22_write = pfe_direct_reg_write,
             .mepa_driver_clause45_read  = pfe_ext_mmd_reg_read,
             .mepa_driver_clause45_write = pfe_ext_mmd_reg_write,
+            .mepa_capability = pfe_capability,
             .mepa_driver_phy_info_get = pfe_info_get,
             .mepa_debug_info_dump = pfe_debug_info_dump,
         },

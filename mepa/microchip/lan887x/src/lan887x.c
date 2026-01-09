@@ -2156,6 +2156,48 @@ static mepa_rc lan887x_loopback_get(mepa_device_t *dev, mepa_loopback_t *const l
     return rc;
 }
 
+static uint32_t lan887x_capability_priv(mepa_device_t *dev, uint32_t capability)
+{
+    phy_data_t *data = (phy_data_t *)(dev->data);
+    uint32_t c;
+
+    switch (capability) {
+    case MEPA_CAP_SPEED_1G:
+        c = data->conf.speed == MESA_SPEED_100M;
+        break;
+    case MEPA_CAP_TS_NONE:
+        c = data->conf.speed != MESA_SPEED_100M;
+        break;
+    default:
+        c = 0;
+        break;
+    }
+
+    return c;
+}
+
+static uint32_t lan887x_capability(mepa_device_t *dev, uint32_t capability)
+{
+    phy_data_t *data = (phy_data_t *)(dev->data);
+    uint32_t c;
+
+    /* For some reason the capabilities in the lan887x_info_get they were
+     * returned only if the initialization was done. So to keep for now
+     * backwards compatibility lets do the same
+     */
+    if (!data->init_done) {
+        c = 0;
+        goto out;
+    }
+
+    MEPA_ENTER(dev);
+    c = lan887x_capability_priv(dev, capability);
+    MEPA_EXIT(dev);
+
+out:
+    return c;
+}
+
 static mepa_rc lan887x_info_get(mepa_device_t *dev, mepa_phy_info_t *const phy_info)
 {
     mepa_rc rc = MEPA_RC_ERROR;
@@ -2167,8 +2209,15 @@ static mepa_rc lan887x_info_get(mepa_device_t *dev, mepa_phy_info_t *const phy_i
         if (data->init_done == PHY_TRUE) {
             phy_info->part_number = data->dev.model;
             phy_info->revision = data->dev.rev;
-            phy_info->cap = (data->conf.speed == MESA_SPEED_100M ?
-                             MEPA_CAP_SPEED_MASK_1G : MEPA_CAP_TS_MASK_NONE);
+
+            phy_info->cap = 0;
+            if (lan887x_capability_priv(dev, MEPA_CAP_SPEED_1G)) {
+                phy_info->cap |= MEPA_CAP_SPEED_MASK_1G;
+            }
+
+            if (lan887x_capability_priv(dev, MEPA_CAP_TS_NONE)) {
+                phy_info->cap |= MEPA_CAP_TS_MASK_NONE;
+            }
 
             phy_info->manufactor_name = "Microchip";
             phy_info->model_name = "LAN887X";
@@ -2338,6 +2387,7 @@ mepa_drivers_t mepa_lan887x_driver_init(void)
             .mepa_driver_gpio_in_get        = lan887x_gpio_in_get,
             .mepa_driver_loopback_set       = lan887x_loopback_set,
             .mepa_driver_loopback_get       = lan887x_loopback_get,
+            .mepa_capability                = lan887x_capability,
             .mepa_driver_phy_info_get       = lan887x_info_get,
             .mepa_debug_info_dump           = lan887x_debug_info,
             .mepa_driver_clause22_read      = lan887x_reg_read,

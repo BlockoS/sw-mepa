@@ -1705,6 +1705,37 @@ static mepa_rc lan8x8x_isolate_mode_set(mepa_device_t *dev, mepa_bool_t const va
     return rc;
 }
 
+static uint32_t lan8x8x_capability_priv(mepa_device_t *dev, uint32_t capability)
+{
+    phy_data_t *data = (phy_data_t *)(dev->data);
+    uint32_t c;
+
+    switch (capability) {
+    case MEPA_CAP_SPEED_1G:
+        c = data->conf.speed == MESA_SPEED_1G;
+        break;
+    case MEPA_CAP_TS_NONE:
+        c = data->conf.speed != MESA_SPEED_1G;
+        break;
+    default:
+        c = 0;
+        break;
+    }
+
+    return c;
+}
+
+static uint32_t lan8x8x_capability(mepa_device_t *dev, uint32_t capability)
+{
+    uint32_t c;
+
+    MEPA_ENTER(dev);
+    c = lan8x8x_capability_priv(dev, capability);
+    MEPA_EXIT(dev);
+
+    return c;
+}
+
 static mepa_rc lan8x8x_info_get(mepa_device_t *dev,
                                 mepa_phy_info_t *const phy_info)
 {
@@ -1716,8 +1747,15 @@ static mepa_rc lan8x8x_info_get(mepa_device_t *dev,
         MEPA_ENTER(dev);
         phy_info->part_number = data->dev.model;
         phy_info->revision = data->dev.rev;
-        phy_info->cap = ((data->conf.speed == MESA_SPEED_1G) ?
-                         MEPA_CAP_SPEED_MASK_1G : MEPA_CAP_TS_MASK_NONE);
+        phy_info->cap = 0;
+        if (lan8x8x_capability_priv(dev, MEPA_CAP_SPEED_1G)) {
+            phy_info->cap |= MEPA_CAP_SPEED_MASK_1G;
+        }
+
+        if (lan8x8x_capability_priv(dev, MEPA_CAP_TS_NONE)) {
+            phy_info->cap |= MEPA_CAP_TS_MASK_NONE;
+        }
+
         phy_info->manufactor_name = "Microchip";
         phy_info->model_name = "LAN8X8X";
 
@@ -2099,6 +2137,7 @@ static void fill_driver_info(uint32_t id, uint32_t mask, mepa_driver_t *drv_inst
     drv_inst->mepa_driver_sqi_read           = &lan8x8x_sqi_read;
     drv_inst->mepa_driver_loopback_set       = &lan8x8x_loopback_set;
     drv_inst->mepa_driver_loopback_get       = &lan8x8x_loopback_get;
+    drv_inst->mepa_capability                = &lan8x8x_capability;
     drv_inst->mepa_driver_phy_info_get       = &lan8x8x_info_get;
     drv_inst->mepa_debug_info_dump           = &lan8x8x_debug_info;
     drv_inst->mepa_driver_clause22_read      = &lan8x8x_reg_read;

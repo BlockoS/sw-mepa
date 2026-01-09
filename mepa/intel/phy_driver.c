@@ -377,12 +377,30 @@ static mesa_rc intl_status_1g_get(mepa_device_t    *dev,
     return MEPA_RC_OK;
 }
 
+static uint32_t intl_capability(mepa_device_t *dev, uint32_t capability)
+{
+    uint32_t c;
+
+    switch (capability) {
+    case MEPA_CAP_SPEED_2G5:
+        c = 1;
+        break;
+    default:
+        c = 0;
+        break;
+    }
+
+    return c;
+}
+
 static mepa_rc intl_info_get(mepa_device_t *dev, mepa_phy_info_t *const phy_info)
 {
     phy_info->cap = 0;
     phy_info->part_number = dev->drv->id;
     phy_info->revision = dev->drv->id & 0xF;
-    phy_info->cap |= MEPA_CAP_SPEED_MASK_2G5;
+    if (intl_capability(dev, MEPA_CAP_SPEED_2G5)) {
+        phy_info->cap |= MEPA_CAP_SPEED_MASK_2G5;
+    }
     return MEPA_RC_OK;
 }
 
@@ -514,6 +532,7 @@ mepa_drivers_t mepa_intel_driver_init()
     intl_drivers[0].mepa_driver_media_set = NULL;
     intl_drivers[0].mepa_driver_probe = intl_probe;
     intl_drivers[0].mepa_driver_aneg_status_get = intl_status_1g_get;
+    intl_drivers[0].mepa_capability = intl_capability;
     intl_drivers[0].mepa_driver_phy_info_get = intl_info_get,
     intl_drivers[0].mepa_driver_clause22_read = intl_miim_read,
     intl_drivers[0].mepa_driver_clause22_write = intl_miim_write,

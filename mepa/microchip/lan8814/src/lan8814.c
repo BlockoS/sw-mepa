@@ -2024,6 +2024,39 @@ static mepa_rc lan8814_link_base_port(mepa_device_t *dev, mepa_device_t *base_de
     return MEPA_RC_OK;
 }
 
+static uint32_t lan8814_capability_priv(mepa_device_t *dev, uint32_t capability)
+{
+    phy_data_t *data = (phy_data_t *)(dev->data);
+    uint32_t c;
+
+    switch (capability) {
+    case MEPA_CAP_TS_NONE:
+        c = data->dev.model != 0x26;
+        break;
+    case MEPA_CAP_TS_GEN_3:
+        c = data->dev.model == 0x26;
+        break;
+    case MEPA_CAP_SPEED_1G:
+        c = 1;
+        break;
+    default:
+        c = 0;
+        break;
+    }
+
+    return c;
+}
+
+static uint32_t lan8814_capability(mepa_device_t *dev, uint32_t capability)
+{
+    uint32_t c;
+
+    MEPA_ENTER(dev);
+    c = lan8814_capability_priv(dev, capability);
+    MEPA_EXIT(dev);
+    return c;
+}
+
 static mepa_rc lan8814_info_get(mepa_device_t *dev, mepa_phy_info_t *const phy_info)
 {
     phy_data_t *data = (phy_data_t *)(dev->data);
@@ -2043,8 +2076,17 @@ static mepa_rc lan8814_info_get(mepa_device_t *dev, mepa_phy_info_t *const phy_i
         phy_info->model_name = "LAN8804";
     }
     phy_info->revision = data->dev.rev;
-    phy_info->cap |= (data->dev.model == 0x26) ? MEPA_CAP_TS_MASK_GEN_3 : MEPA_CAP_TS_MASK_NONE;
-    phy_info->cap |= MEPA_CAP_SPEED_MASK_1G;
+
+    if (lan8814_capability_priv(dev, MEPA_CAP_TS_GEN_3)) {
+        phy_info->cap |= MEPA_CAP_TS_MASK_GEN_3;
+    }
+    if (lan8814_capability_priv(dev, MEPA_CAP_TS_NONE)) {
+        phy_info->cap |= MEPA_CAP_TS_MASK_NONE;
+    }
+    if (lan8814_capability_priv(dev, MEPA_CAP_SPEED_1G)) {
+        phy_info->cap |= MEPA_CAP_SPEED_MASK_1G;
+    }
+
     if (dev->drv->id == LAN8804_SKU) {
         phy_info->ts_base_port = 0;
         phy_info->ts_base = 0;
@@ -2751,6 +2793,7 @@ mepa_drivers_t mepa_lan8814_driver_init()
             .mepa_driver_gpio_out_set = lan8814_gpio_out_set,
             .mepa_driver_gpio_in_get = lan8814_gpio_in_get,
             .mepa_driver_link_base_port = lan8814_link_base_port,
+            .mepa_capability = lan8814_capability,
             .mepa_driver_phy_info_get = lan8814_info_get,
             .mepa_driver_eee_mode_conf_set = lan8814_eee_mode_conf_set,
             .mepa_driver_eee_mode_conf_get = lan8814_eee_mode_conf_get,
@@ -2801,6 +2844,7 @@ mepa_drivers_t mepa_lan8814_driver_init()
             .mepa_driver_gpio_out_set = lan8814_gpio_out_set,
             .mepa_driver_gpio_in_get = lan8814_gpio_in_get,
             .mepa_driver_link_base_port = lan8814_link_base_port,
+            .mepa_capability = lan8814_capability,
             .mepa_driver_phy_info_get = lan8814_info_get,
             .mepa_driver_eee_mode_conf_set = lan8814_eee_mode_conf_set,
             .mepa_driver_eee_mode_conf_get = lan8814_eee_mode_conf_get,
@@ -2848,6 +2892,7 @@ mepa_drivers_t mepa_lan8814_driver_init()
             .mepa_driver_gpio_mode_set = lan8814_gpio_mode_set,
             .mepa_driver_gpio_out_set = lan8814_gpio_out_set,
             .mepa_driver_gpio_in_get = lan8814_gpio_in_get,
+            .mepa_capability = lan8814_capability,
             .mepa_driver_phy_info_get = lan8814_info_get,
             .mepa_driver_eee_mode_conf_set = lan8814_eee_mode_conf_set,
             .mepa_driver_eee_mode_conf_get = lan8814_eee_mode_conf_get,

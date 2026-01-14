@@ -111,7 +111,6 @@ pipeline {
                             steps {
                                 container('pod-mepa-base') {
                                     warnError(message: "License error") {
-                                        sh "chmod +x -R ${env.top}"
                                         sh "./.cmake/build-licenses.rb"
                                     }
                                 }

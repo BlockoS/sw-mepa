@@ -57,5 +57,4 @@ run "cp ./mepa/mepa-doc.html #{$ws}/." if File.exist? "#{$ws}"
 run "cd mepa_demo/docs/scripts; ./dg.rb -r #{rev} -s #{git_sha}"
 run "cp ./mepa_demo/mepa-app-doc.html images/." if File.exist? "./images"
 run "cp ./mepa_demo/mepa-app-doc.html #{$ws}/." if File.exist? "#{$ws}"
-run "ls"
 

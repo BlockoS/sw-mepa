@@ -49,15 +49,13 @@ end
 
 #MEPA-Doc
 run "cd mepa/docs/scripts; ./dg.rb -r #{rev} -s #{git_sha}"
-run "cp ./mepa/mepa-doc.html images/."
-#run "cp #{$ws}/mepa/mepa-doc.html images/."
-#run "cp #{$ws}/mepa/mepa-doc.html #{$ws}/."
-run "cp ./mepa/mepa-doc.html #{$ws}/."
+run "cp ./mepa/mepa-doc.html images/." if File.exist? "./images"
+run "cp ./mepa/mepa-doc.html #{$ws}/." if File.exist? "#{$ws}"
 
 
 #MEPA-APP-Doc
 run "cd mepa_demo/docs/scripts; ./dg.rb -r #{rev} -s #{git_sha}"
-run "cp ./mepa_demo/mepa-app-doc.html images/."
-run "cp ./mepa_demo/mepa-app-doc.html #{$ws}/."
+run "cp ./mepa_demo/mepa-app-doc.html images/." if File.exist? "./images"
+run "cp ./mepa_demo/mepa-app-doc.html #{$ws}/." if File.exist? "#{$ws}"
 run "ls"
 

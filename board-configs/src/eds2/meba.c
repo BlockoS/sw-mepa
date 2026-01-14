@@ -211,6 +211,38 @@ static mesa_rc eds2_phy_addr_map(meba_inst_t inst, const int mux)
     return valid;
 }
 
+static void eds2_port_reorder(const int mux, port_map_t *const eds2_port_table)
+{
+    port_map_t tmp;
+
+    switch (mux) {
+    case SLOT1_LAN8814_SLOT2_LAN8814:
+        tmp = eds2_port_table[0];
+        eds2_port_table[0] = eds2_port_table[2];
+        eds2_port_table[2] = tmp;
+        tmp = eds2_port_table[1];
+        eds2_port_table[1] = eds2_port_table[3];
+        eds2_port_table[3] = tmp;
+        tmp = eds2_port_table[4];
+        eds2_port_table[4] = eds2_port_table[6];
+        eds2_port_table[6] = tmp;
+        tmp = eds2_port_table[5];
+        eds2_port_table[5] = eds2_port_table[7];
+        eds2_port_table[7] = tmp;
+        break;
+    case SLOT1_LAN8814_SLOT2_VSC8574:
+        tmp = eds2_port_table[0];
+        eds2_port_table[0] = eds2_port_table[2];
+        eds2_port_table[2] = tmp;
+        tmp = eds2_port_table[1];
+        eds2_port_table[1] = eds2_port_table[3];
+        eds2_port_table[3] = tmp;
+        break;
+    default:
+        break;
+    }
+}
+
 static mesa_rc eds2_port_table_fill(meba_inst_t inst, uint32_t *const port_cnt, const int mux, port_map_t *const eds2_port_table)
 {
     memset(eds2_port_table, 0, 8 * sizeof(port_map_t));
@@ -281,45 +313,13 @@ static mesa_rc eds2_port_table_fill(meba_inst_t inst, uint32_t *const port_cnt, 
         break;
     }
 
+    eds2_port_reorder(mux, eds2_port_table);
+
     for (int i = 0; i < *port_cnt; ++i) {
         T_D(inst, " eds2_port_table[%d]:%d, MAC_IF:%d, miim_addr:%d", i, eds2_port_table[i].chip_port, eds2_port_table[i].mac_if, eds2_port_table[i].miim_addr);
     }
 
     return MESA_RC_OK;
-}
-
-static void eds2_port_reorder(const eds2_phy_options_t options, const uint32_t port_cnt, port_map_t *const eds2_port_table)
-{
-    port_map_t temp[4];
-    int port_start = 0;
-    int port_end = port_cnt;
-
-    if (!((options == SLOT1_LAN8814_SLOT2_LAN8814) || (options == SLOT1_LAN89x1_SLOT2_LAN8814) || (options == SLOT1_LAN8814_SLOT2_VSC8574))) {
-        return;
-    }
-
-    switch (options) {
-    case SLOT1_LAN8814_SLOT2_LAN8814:
-        break;
-    case SLOT1_LAN89x1_SLOT2_LAN8814:
-        port_start = 4;
-        break;
-    case SLOT1_LAN8814_SLOT2_VSC8574:
-        port_end = port_cnt - 4;
-        break;
-    default:
-        break;
-    }
-
-    for (int i = port_start; i < port_end; i++) {
-        for (int j = 0, k = i; j < 4; j++, k++) {
-            temp[(j + 2) % 4] = eds2_port_table[k];
-        }
-        memcpy(&eds2_port_table[i], temp, 4 * sizeof(port_map_t));
-        i = i + 3;
-    }
-
-    return;
 }
 
 static mesa_rc eds2_ptp_rs422_conf_get(meba_inst_t inst,
@@ -880,7 +880,6 @@ meba_inst_t meba_initialize(size_t callouts_size,
         fprintf(stderr, "Port table fill failure\n");
         goto error_out;
     }
-    eds2_port_reorder((eds2_phy_options_t)mux_mode, board->port_cnt, eds2_port_table);
     eds2_init_port_table(inst, board->port_cnt, eds2_port_table);
     inst->props.board_type = board->type;
 

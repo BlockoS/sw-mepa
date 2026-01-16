@@ -260,7 +260,8 @@ static mesa_rc eds2_port_table_fill(meba_inst_t inst, uint32_t *const port_cnt, 
             eds2_port_table[i].mac_if = MESA_PORT_INTERFACE_SGMII;
             eds2_port_table[i].miim_addr = i == 0 ? 1 : 2;
             eds2_port_table[i].poe_support = 1;
-            eds2_port_table[i].cap = MEBA_EDS2_CAP;
+            eds2_port_table[i].cap = MEBA_PORT_CAP_COPPER |
+                                     MEBA_PORT_CAP_TRI_SPEED;
         }
         break;
     case SLOT1_LAN8814_SLOT2_LAN8814:
@@ -272,7 +273,9 @@ static mesa_rc eds2_port_table_fill(meba_inst_t inst, uint32_t *const port_cnt, 
             eds2_port_table[i].mac_if = MESA_PORT_INTERFACE_QSGMII;
             eds2_port_table[i].miim_addr = ((i < 4) ? 7 : 15) + (i % 4);
             eds2_port_table[i].poe_support = 1;
-            eds2_port_table[i].cap = MEBA_EDS2_CAP;
+            eds2_port_table[i].cap = MEBA_PORT_CAP_COPPER |
+                                     MEBA_PORT_CAP_TRI_SPEED |
+                                     MEBA_PORT_CAP_SERDES_TX_INVERT;
         }
         break;
     case SLOT1_LAN884x_SLOT2_LAN884x:
@@ -284,7 +287,8 @@ static mesa_rc eds2_port_table_fill(meba_inst_t inst, uint32_t *const port_cnt, 
             eds2_port_table[i].mac_if = (i < 2) ? MESA_PORT_INTERFACE_SGMII : MESA_PORT_INTERFACE_RGMII;
             eds2_port_table[i].miim_addr = (i < 2) ? (i + 1) : (i == 2) ? 1 : 3;
             eds2_port_table[i].poe_support = 1;
-            eds2_port_table[i].cap = MEBA_EDS2_CAP;
+            eds2_port_table[i].cap = MEBA_PORT_CAP_COPPER |
+                                     MEBA_PORT_CAP_TRI_SPEED;
         }
         break;
     case SLOT1_VSC8574_SLOT2_VSC8574:
@@ -296,7 +300,8 @@ static mesa_rc eds2_port_table_fill(meba_inst_t inst, uint32_t *const port_cnt, 
             eds2_port_table[i].mac_if = MESA_PORT_INTERFACE_QSGMII;
             eds2_port_table[i].miim_addr = ((i < 4) ? 16 : 20) + (i % 4);
             eds2_port_table[i].poe_support = 1;
-            eds2_port_table[i].cap = MEBA_EDS2_CAP;
+            eds2_port_table[i].cap = MEBA_PORT_CAP_COPPER |
+                                     MEBA_PORT_CAP_TRI_SPEED;
         }
         break;
     case SLOT1_LAN8814_SLOT2_VSC8574:
@@ -308,7 +313,9 @@ static mesa_rc eds2_port_table_fill(meba_inst_t inst, uint32_t *const port_cnt, 
             eds2_port_table[i].mac_if = MESA_PORT_INTERFACE_QSGMII;
             eds2_port_table[i].miim_addr = ((i < 4) ? 7 : 20) + (i % 4);
             eds2_port_table[i].poe_support = 1;
-            eds2_port_table[i].cap = MEBA_EDS2_CAP;
+            eds2_port_table[i].cap = MEBA_PORT_CAP_COPPER |
+                                     MEBA_PORT_CAP_TRI_SPEED |
+                                     (i < 4) ? MEBA_PORT_CAP_SERDES_TX_INVERT : 0;
         }
         break;
     }

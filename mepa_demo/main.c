@@ -200,8 +200,9 @@ static mesa_bool_t int_from_str(const char *s, int *res)
     }
     local[i] = '\n';
 
+    errno = 0;
     tmp = strtol(local, 0, 10);
-    if (tmp < 1 || tmp > 99999) {
+    if (errno != 0) {
         return 0;
     }
     *res = tmp;

@@ -126,6 +126,8 @@ $machines = {
             ]
           },
         ],
+        :fw_env => "/dev/mtd1 0x0000 0x40000 0x40000\n/dev/mtd2 0x0000 0x40000 0x40000\n",
+        :fw_env_mmc => "/dev/mmcblock0p3 0x0000 0x40000 0x40000\n/dev/mmcblock0p4 0x0000 0x40000 0x40000\n",
         :fdtaddr => "<0x67e00000>",
         :rootfs => "#{$bsp}/arm-cortex_a8-linux-gnu/xstax/release/rootfs.tar",
       },
@@ -417,6 +419,7 @@ def basic_rootfs install_dir
     tar("#{$m[:rootfs]}", install_dir)
 
     IO.write("#{install_dir}/etc/fw_env.config", $m[:fw_env]) if $m[:fw_env]
+    IO.write("#{install_dir}/etc/fw_env_mmc.config", $m[:fw_env_mmc]) if $m[:fw_env_mmc]
 
     sys "mkdir -p #{install_dir}/etc/init.pool"
     sys "mv #{install_dir}/etc/init.d/*             #{install_dir}/etc/init.pool/."

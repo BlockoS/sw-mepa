@@ -228,7 +228,7 @@ base = nil
 
 if c[:mesa]
   mesa_name = "mesa-#{$mesa_deps["release-version"]}"
-  mesa_base = "/opt/mscc/#{mesa_name}"
+  mesa_base = "/opt/mchp/#{mesa_name}"
   puts "{MESA}: #{mesa_name}"
 
   if File.exist? "sw-mesa"
@@ -239,37 +239,37 @@ if c[:mesa]
   
   if not File.exist? mesa_base
     sys "sudo -v"
-    sys "wget -O- #{$mesa_deps["build-artifact-url"]}/#{$mesa_deps["release-version"]}/#{mesa_name}.tar.gz | sudo tar -xz -C /opt/mscc/"
+    sys "wget -O- #{$mesa_deps["build-artifact-url"]}/#{$mesa_deps["release-version"]}/#{mesa_name}.tar.gz | sudo tar -xz -C /opt/mchp/"
   end
 
-  run "mkdir -p sw-mesa && cp -r /opt/mscc/#{mesa_name}/* sw-mesa"
+  run "mkdir -p sw-mesa && cp -r /opt/mchp/#{mesa_name}/* sw-mesa"
 end
 
 # Not all presets uses a brsdk, some only uses the toolchain
 if c[:brsdk_arch]
-  brsdk_ext_name = $bsp_deps["build-artifact-version-string"]
-  brsdk_name = render_template(brsdk_ext_name, c[:arch])
-  brsdk_base = "/opt/mscc/#{brsdk_name}"
+  brsdk_name = "mchp-brsdk-#{c[:arch]}-#{$bsp_deps["build-artifact-version-string"]}"
+  brsdk_base = "/opt/mchp/#{brsdk_name}"
   base = brsdk_base
   puts "{BSP}: #{brsdk_name}"
 
   if not File.exist? brsdk_base
+    bsp_link = url_concat($bsp_deps["build-artifact-url"], "#{brsdk_name}.tar.gz")
     sys "sudo -v"
-    sys "wget -O- #{$bsp_deps["build-artifact-url"]}/#{brsdk_name}.tar.gz | sudo tar -xz -C /opt/mscc/"
+    sys "wget -O- #{bsp_link} | sudo tar -xz -C /opt/mchp/"
   end
 else
   raise "not supported"
 end
 
 $tc = JSON.load_file("#{$top}/.cmake/deps-toolchain.json").find{|x| x["id"] == "toolchain"}
-$tc_name = "#{$tc["build-artifact-version-string"]}"
-$tc_path = "/opt/mscc/#{$tc_name}"
+$tc_name = "mchp-toolchain-bin-#{$tc["build-artifact-version-string"]}"
+$tc_path = "/opt/mchp/#{$tc_name}"
 puts "{Toolchain}: #{$tc_name}"
 
 if not File.exist? $tc_path
-  tc_link = "#{$tc["build-artifact-url"]}/#{$tc_name}.tar.gz"
+  tc_link = url_concat($tc["build-artifact-url"], "#{$tc_name}.tar.gz")
   sys "sudo -v"
-  sys "wget -O- #{tc_link} | sudo tar -xz -C /opt/mscc/"
+  sys "wget -O- #{tc_link} | sudo tar -xz -C /opt/mchp/"
 end
 
 

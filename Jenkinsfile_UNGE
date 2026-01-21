@@ -88,9 +88,9 @@ pipeline {
                     steps {
                         container('pod-mepa-build') {
                             unstash name: "src"
-                                    sh "tar -xf ws.tar && rm ws.tar"
-                                    sh "./.cmake/create_cmake_project.rb -vfnp arm arm"
-                                    stash name: "bin-arm", includes: "arm.tar"
+                            sh "tar -xf ws.tar && rm ws.tar"
+                            sh "./.cmake/create_cmake_project.rb -vfnp arm arm"
+                            stash name: "bin-arm", includes: "arm.tar"
                         }
                     }
                 }
@@ -100,9 +100,9 @@ pipeline {
                     steps {
                         container('pod-mepa-build') {
                             unstash name: "src"
-                                    sh "tar -xf ws.tar && rm ws.tar"
-                                    sh "./.cmake/create_cmake_project.rb -vfnp mipsel mipsel"
-                                    stash name: "bin-mipsel", includes: "mipsel.tar"
+                            sh "tar -xf ws.tar && rm ws.tar"
+                            sh "./.cmake/create_cmake_project.rb -vfnp mipsel mipsel"
+                            stash name: "bin-mipsel", includes: "mipsel.tar"
                         }
                     }
                 }

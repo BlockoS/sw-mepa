@@ -95,6 +95,18 @@ pipeline {
                     }
                 }
 
+                stage("mipsel") {
+                    agent { kubernetes { yamlFile '.cmake/pod-build.yaml' } }
+                    steps {
+                        container('pod-mepa-build') {
+                            unstash name: "src"
+                                    sh "tar -xf ws.tar && rm ws.tar"
+                                    sh "./.cmake/create_cmake_project.rb -vfnp mipsel mipsel"
+                                    stash name: "bin-mipsel", includes: "mipsel.tar"
+                        }
+                    }
+                }
+
                 stage("misc") {
                     stages {
                         stage("Copyright") {
@@ -137,6 +149,7 @@ pipeline {
                     container('pod-mepa-base') {
                         unstash name: "bin-arm64"
                         unstash name: "bin-arm"
+                        unstash name: "bin-mipsel"
                         unstash name: "ana-report"
                         sh ".cmake/aggr-artifacts.rb"
                     }

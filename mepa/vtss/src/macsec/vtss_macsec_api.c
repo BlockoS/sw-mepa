@@ -4743,7 +4743,8 @@ static vtss_rc vtss_macsec_rx_sa_set_priv(vtss_state_t                  *vtss_st
             secy_tmp.rx_sc[sc]->sa[an]->status.pn_status.lowest_pn = lowest_pn;
             if ((secy->conf.current_cipher_suite == VTSS_MACSEC_CIPHER_SUITE_GCM_AES_XPN_128) ||
                 (secy->conf.current_cipher_suite == VTSS_MACSEC_CIPHER_SUITE_GCM_AES_XPN_256)) {
-                memcpy(secy_tmp.rx_sc[sc]->sa[an]->ssci.buf, ssci->buf, sizeof(vtss_macsec_ssci_t));
+                if (ssci != NULL)
+                    memcpy(secy->rx_sc[sc]->sa[an]->ssci.buf, ssci->buf, sizeof(vtss_macsec_ssci_t));
             }
             if (record_inuse_get(vtss_state, port.port_no, INGRESS, &secy_tmp, an, sc, &record) != VTSS_RC_OK) {
                 vtss_state->macsec_conf[port.port_no].glb.warm_start_reg_changed = TRUE; // Signaling that a register for this port has changed.
@@ -4768,7 +4769,8 @@ static vtss_rc vtss_macsec_rx_sa_set_priv(vtss_state_t                  *vtss_st
             secy->rx_sc[sc]->sa[an]->sak = *sak;
             if ((secy->conf.current_cipher_suite == VTSS_MACSEC_CIPHER_SUITE_GCM_AES_XPN_128) ||
                 (secy->conf.current_cipher_suite == VTSS_MACSEC_CIPHER_SUITE_GCM_AES_XPN_256)) {
-                memcpy(secy->rx_sc[sc]->sa[an]->ssci.buf, ssci->buf, sizeof(vtss_macsec_ssci_t));
+                if (ssci != NULL)
+                    memcpy(secy->rx_sc[sc]->sa[an]->ssci.buf, ssci->buf, sizeof(vtss_macsec_ssci_t));
             }
         }
         secy->rx_sc[sc]->sa[an]->status.lowest_pn = lowest_pn.pn;

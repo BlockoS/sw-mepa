@@ -12,6 +12,7 @@ presets:
         :toolchainfile:    "mipsel-mips32r2-linux-gnu/xstax/release/x86_64-linux/share/buildroot/toolchainfile.cmake"
         :cmake:            "mipsel-mips32r2-linux-gnu/xstax/release/x86_64-linux/bin/cmake"
         :legal:            "mipsel-mips32r2-linux-gnu/xstax/release/legal-info"
+        :mesa:             "v2025.09"
         :release_artifact: true
         :package_list:
         - "./licenses.txt"

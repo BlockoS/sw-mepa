@@ -180,10 +180,6 @@ def url_concat a, b
   end
 end
 
-def render_template(template, arch)
-  template.gsub(/\{\{arch\}\}/, arch.to_s)
-end
-
 $cmake_presents = YAML.load_file("#{$top}/.cmake/cmake-presets_new.yaml")
 $bsp_deps = JSON.load_file("#{$top}/.cmake/deps-bsp.json").filter{|x| x["id"] == "bsp"}
 $mesa_deps = JSON.load_file("#{$top}/.cmake/deps-mesa.json").filter{|x| x["id"] == "mesa"}

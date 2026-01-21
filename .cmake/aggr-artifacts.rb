@@ -116,6 +116,7 @@ sys "cp -r ws #{out_name}"
 sys "mkdir #{out_name}/bin"
 sys "tar -C #{out_name}/bin -f arm64.tar -x"
 sys "tar -C #{out_name}/bin -f arm.tar -x"
+sys "tar -C #{out_name}/bin -f mipsel.tar -x"
 run "tar -czvf #{out_name}.tar.gz #{out_name}"
 
 if File.exist? "./images"

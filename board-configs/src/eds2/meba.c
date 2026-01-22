@@ -217,6 +217,16 @@ static void eds2_port_reorder(const int mux, port_map_t *const eds2_port_table)
 
     switch (mux) {
     case SLOT1_LAN8814_SLOT2_LAN8814:
+        // The ports on the EVB LAN8814 daughter card are swapped. The left down
+        // port is connected to chip port 2, the left up port is connected to
+        // chip port 3, right down is connected to chip port 0 and right up is
+        // connected to chip port 1. So instead of having the wrong order of the
+        // front ports we swap them here such to follow the logical order.
+        // Here to do the change on both slots because in each slot we have a
+        // lan8814
+        // It would be better to remove this function and set correctly the
+        // ports in eds2_port_table_fill but then I think the logic is to hard
+        // to follow.
         tmp = eds2_port_table[0];
         eds2_port_table[0] = eds2_port_table[2];
         eds2_port_table[2] = tmp;
@@ -231,6 +241,7 @@ static void eds2_port_reorder(const int mux, port_map_t *const eds2_port_table)
         eds2_port_table[7] = tmp;
         break;
     case SLOT1_LAN8814_SLOT2_VSC8574:
+        // See the comment from the previous case statement.
         tmp = eds2_port_table[0];
         eds2_port_table[0] = eds2_port_table[2];
         eds2_port_table[2] = tmp;
@@ -252,6 +263,8 @@ static mesa_rc eds2_port_table_fill(meba_inst_t inst, uint32_t *const port_cnt, 
 
     switch (mux) {
     case SLOT1_EMPTY_SLOT2_EMPTY:
+        // Even that both slots are empty the ports that are on the EDS2 board
+        // are in used, therefore the port_cnt has a value of 2.
         *port_cnt = 2;
         for (int i = 0; i < *port_cnt; ++i) {
             eds2_port_table[i].chip_port = i;
@@ -279,6 +292,8 @@ static mesa_rc eds2_port_table_fill(meba_inst_t inst, uint32_t *const port_cnt, 
         }
         break;
     case SLOT1_LAN884x_SLOT2_LAN884x:
+        // Also the ports found on EDS2 board are used in this case. And each
+        // LAN884X is a single PHY therefore the port_cnt is 4.
         *port_cnt = 4;
         for (int i = 0; i < *port_cnt; ++i) {
             eds2_port_table[i].chip_port = i;

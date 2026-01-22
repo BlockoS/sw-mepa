@@ -152,6 +152,7 @@ pipeline {
                         unstash name: "bin-mipsel"
                         unstash name: "ana-report"
                         sh ".cmake/aggr-artifacts.rb"
+                        sh "tar -czf images/et.tar.gz -C mepa_demo test"
                     }
                 }
             }

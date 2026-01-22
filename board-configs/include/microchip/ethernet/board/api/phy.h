@@ -183,6 +183,9 @@ mepa_rc meba_prbs_monitor_set(meba_inst_t inst, mepa_port_no_t port_no, const me
 //To get error status of PRBS
 mepa_rc meba_prbs_monitor_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_phy_prbs_monitor_conf_t *const value);
 
+// To get the PHY capability
+uint32_t meba_capability(meba_inst_t inst, mepa_port_no_t port_no, uint32_t capability);
+
 //Warmstart PHY
 mepa_rc meba_warmrestart_conf_end(meba_inst_t inst, mepa_port_no_t port_no);
 

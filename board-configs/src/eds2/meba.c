@@ -842,18 +842,11 @@ static mesa_rc eds2_event_enable(meba_inst_t inst,
     case MEBA_EVENT_EGR_FIFO_OVERFLOW:
         mepa_ts_event_t event = meba_generic_phy_ts_source_to_event(inst, event_id);
         for (port_no = 0; port_no < board->port_cnt; port_no++) {
-            mepa_phy_info_t info = {};
-
             // Get the PHY capabilities and if it doesn't support timestamping
             // then don't enable events
-            rc = meba_phy_info_get(inst, port_no, &info);
-            if (rc != MESA_RC_OK) {
-                continue;
-            }
-
-            if (!(info.cap & MEPA_CAP_TS_MASK_GEN_1 &
-                             MEPA_CAP_TS_MASK_GEN_2 &
-                             MEPA_CAP_TS_MASK_GEN_3)) {
+            if (meba_capability(inst, port_no, MEPA_CAP_TS_GEN_1) == 0 &&
+                meba_capability(inst, port_no, MEPA_CAP_TS_GEN_2) == 0 &&
+                meba_capability(inst, port_no, MEPA_CAP_TS_GEN_3) == 0) {
                 continue;
             }
 

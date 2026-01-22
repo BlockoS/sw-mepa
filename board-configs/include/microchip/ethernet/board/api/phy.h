@@ -171,33 +171,34 @@ mepa_rc meba_selftest_read(meba_inst_t inst, mepa_port_no_t port_no,
 // Delete the phy instance
 mepa_rc meba_phy_delete(meba_inst_t inst, mepa_port_no_t port_no);
 
-// To Set PRBS
+// To set PRBS
 mepa_rc meba_prbs_set(meba_inst_t inst, mepa_port_no_t port_no, mepa_phy_prbs_type_t type, mepa_phy_prbs_direction_t direction, const mepa_phy_prbs_generator_conf_t *const conf);
 
-// To Get PRBS
+// To get PRBS
 mepa_rc meba_prbs_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_phy_prbs_type_t type, mepa_phy_prbs_direction_t direction, mepa_phy_prbs_generator_conf_t *const conf);
 
 // To inject an error to PRBS
 mepa_rc meba_prbs_monitor_set(meba_inst_t inst, mepa_port_no_t port_no, const mepa_phy_prbs_monitor_conf_t *const value);
 
-//To get error status of PRBS
+// To get error status of PRBS
 mepa_rc meba_prbs_monitor_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_phy_prbs_monitor_conf_t *const value);
 
 // To get the PHY capability
 uint32_t meba_capability(meba_inst_t inst, mepa_port_no_t port_no, uint32_t capability);
 
-//Warmstart PHY
+// Warmstart PHY
 mepa_rc meba_warmrestart_conf_end(meba_inst_t inst, mepa_port_no_t port_no);
 
-//Warmstart conf get
+// Warmstart conf get
 mepa_rc meba_warmrestart_conf_get(meba_inst_t inst, mepa_port_no_t port_no, mepa_restart_t *const restart);
 
-//set PHY for warmstart
+// Set PHY for warmstart
 mepa_rc meba_warmrestart_conf_set(meba_inst_t inst, mepa_port_no_t port_no, const mepa_restart_t restart);
 
-//To sync QSGMII interface
+// To sync QSGMII interface
 mepa_rc meba_phy_qsgmii_sync(meba_inst_t inst, const mepa_port_no_t port_no);
 
+// To get chip temperature
 mepa_rc meba_chip_temp_get(meba_inst_t inst, mepa_port_no_t port_no, int16_t *const temp);
 
 #include <microchip/ethernet/hdr_end.h>

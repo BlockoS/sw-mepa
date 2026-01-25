@@ -492,7 +492,9 @@ static mepa_rc lan80xx_debug_info_dump(mepa_device_t *dev,
     lan80xx_gpio_glb_slice_reg_dump(dev, data->port_no, pr);
     lan80xx_mac_reg_dump(dev, data->port_no, pr);
     lan80xx_ptp_reg_dump(dev, data->port_no, pr);
+#ifdef MEPA_LAN80XX_MSEC
     lan80xx_macsec_dbg_reg_dump_priv(dev, data->port_no, pr);
+#endif
     MEPA_EXIT(dev);
     return MEPA_RC_OK;
 }
@@ -549,12 +551,7 @@ mepa_bool_t lan80xx_driver_check(const mepa_device_t   *dev)
 static void lan80xx_driver_create(uint32_t id, mepa_driver_t *drv)
 {
     T_D(MEPA_TRACE_GRP_GEN, "\n Driver assign for phy id : 0x%x", id);
-    mepa_bool_t macsec_supported = TRUE;
     mepa_bool_t ts_supported = TRUE;
-
-    if (id == LAN80XX_DEV_ID_8263 || id == LAN80XX_DEV_ID_8267 || id == LAN80XX_DEV_ID_8023 || id == LAN80XX_DEV_ID_8043) {
-        macsec_supported = FALSE;
-    }
 
     if (id == LAN80XX_DEV_ID_8262 || id == LAN80XX_DEV_ID_8022 || id == LAN80XX_DEV_ID_8042) {
         ts_supported = FALSE;
@@ -599,9 +596,15 @@ static void lan80xx_driver_create(uint32_t id, mepa_driver_t *drv)
     if (ts_supported == TRUE) {
         drv->mepa_ts                      = &lan80xx_ts_drivers;
     }
-    if (macsec_supported == TRUE) {
-        drv->mepa_macsec                  = &lan80xx_macsec_drivers;
+
+#ifdef MEPA_LAN80XX_MSEC
+    if (id == LAN80XX_DEV_ID_8263 ||
+        id == LAN80XX_DEV_ID_8267 ||
+        id == LAN80XX_DEV_ID_8023 ||
+        id == LAN80XX_DEV_ID_8043) {
+        drv->mepa_macsec = &lan80xx_macsec_drivers;
     }
+#endif
 }
 
 

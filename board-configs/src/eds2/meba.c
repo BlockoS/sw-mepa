@@ -190,7 +190,7 @@ static mesa_rc eds2_phy_addr_map(meba_inst_t inst, const int mux)
 
     switch (options) {
     case SLOT1_EMPTY_SLOT2_EMPTY:
-        inst->props.mux_mode = MESA_PORT_MUX_MODE_2;
+        inst->props.mux_mode = MESA_PORT_MUX_MODE_1;
         break;
     case SLOT1_LAN8814_SLOT2_LAN8814:
         inst->props.mux_mode = MESA_PORT_MUX_MODE_0;

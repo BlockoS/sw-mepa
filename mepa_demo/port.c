@@ -388,7 +388,6 @@ static void port_setup(mesa_port_no_t port_no, mesa_bool_t aneg, mesa_bool_t ini
             conf.speed = pc->speed;
         }
     }
-    conf.speed = pc->speed; // Update the speed always irespective of the media type
     if (port_no == loop_port) { // This port is the active loop port
         conf.loop = 1;
     }

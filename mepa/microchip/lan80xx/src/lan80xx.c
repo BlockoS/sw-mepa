@@ -598,10 +598,13 @@ static void lan80xx_driver_create(uint32_t id, mepa_driver_t *drv)
     }
 
 #ifdef MEPA_LAN80XX_MSEC
-    if (id == LAN80XX_DEV_ID_8263 ||
-        id == LAN80XX_DEV_ID_8267 ||
-        id == LAN80XX_DEV_ID_8023 ||
-        id == LAN80XX_DEV_ID_8043) {
+    if (id == LAN80XX_DEV_ID_8044 ||
+        id == LAN80XX_DEV_ID_8042 ||
+        id == LAN80XX_DEV_ID_8024 ||
+        id == LAN80XX_DEV_ID_8022 ||
+        id == LAN80XX_DEV_ID_8268 ||
+        id == LAN80XX_DEV_ID_8264 ||
+        id == LAN80XX_DEV_ID_8262) {
         drv->mepa_macsec = &lan80xx_macsec_drivers;
     }
 #endif

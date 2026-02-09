@@ -43,10 +43,10 @@ static phy25g_reg_dump_t dump_rsfec_reg[LAN80XX_RSFEC_REG_NUM] = {
     {"RS_FEC_NCCW_HI",             0xCD},
     {"RS_FEC_LANEMAP",             0xCE},
     {"RS_FEC_SYMBLERR0_LO",        0xD2},
-    {"RS_FEC_SYMBLERR0_HI",        0x8200},
-    {"RS_FEC_VENDOR_CONTROL",      0x8201},
-    {"RS_FEC_VENDOR_INFO1",        0x8202},
-    {"RS_FEC_VENDOR_INFO2",        0x8203},
+    {"RS_FEC_SYMBLERR0_HI",        0xD3},
+    {"RS_FEC_VENDOR_CONTROL",      0x8200},
+    {"RS_FEC_VENDOR_INFO1",        0x8201},
+    {"RS_FEC_VENDOR_INFO2",        0x8202},
 };
 
 /* MAC Block Registers */
@@ -161,7 +161,7 @@ static phy25g_reg_dump_t dump_fc_buf[LAN80XX_FC_BUFFER_RG_NUM] = {
     {"TX_CTRL_UNCORRECTED_FRM_DROP_CNT",        0xF00D},
     {"TX_DATA_QUEUE_OVERFLOW_DROP_CNT",         0xF00E},
     {"TX_DATA_QUEUE_UNDERFLOW_DROP_CNT",        0xF00F},
-    {"TX_DATA_UNCORRECTED_FRM_DROP_CNT",        0xF000},
+    {"TX_DATA_UNCORRECTED_FRM_DROP_CNT",        0xF010},
     {"RX_OVERFLOW_DROP_CNT",                    0xF011},
     {"RX_UNDERFLOW_DROP_CNT",                   0xF012},
     {"RX_UNCORRECTED_FRM_DROP_CNT",             0xF013},

@@ -118,6 +118,9 @@
 #define LAN80XX_LINE_MAC_TX_FRM_CTRL_2         (0xFFFFU)
 #define LAN80XX_HOST_MAC_TX_FRM_CTRL           (0x34C60000UL)
 #define LAN80XX_HOST_MAC_TX_FRM_CTRL_2         (0xFFFFU)
+/* TX_FRM_GAP_COMP value for MAC_RETIMER mode with MACsec bypass and flow control disabled */
+#define LAN80XX_TX_FRM_GAP_COMP_MACSEC_BYPASS         (0x18U)
+
 
 #define LAN80XX_PMA_DATA_WIDTH_10BIT           (0U)
 #define LAN80XX_PMA_DATA_WIDTH_40BIT           (4U)
@@ -401,6 +404,8 @@ mepa_rc _lan80xx_csr_warm_wr(const mepa_device_t *dev,
 
 
 mepa_rc lan80xx_phy_mac_conf_set(const mepa_device_t  *dev, mepa_port_no_t port_no, mepa_bool_t enable);
+
+mepa_rc lan80xx_dic_config(const mepa_device_t *dev, mepa_port_no_t port_no);
 
 mepa_bool_t lan80xx_target_reg_width(uint16_t target, uint32_t addr);
 

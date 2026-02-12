@@ -849,6 +849,8 @@ mepa_rc lan80xx_macsec_init_set_priv(mepa_device_t *dev, const mepa_macsec_init_
             LAN80XX_CSR_COLD_WR(port_no, LAN80XX_MACSEC_EGR_MACSEC_EGR_MACSEC_ENA_CFG, reg_val);
             data->macsec_conf.glb.init.enable = 1;
         }
+        /* Configure DISABLE_DIC and TX_FRM_GAP_COMP based on updated MACsec state */
+        MEPA_RC(lan80xx_dic_config(dev, port_no));
         return MEPA_RC_OK;
     } else {
         if ((data->macsec_conf.glb.init.enable != init->enable)) {
@@ -858,6 +860,9 @@ mepa_rc lan80xx_macsec_init_set_priv(mepa_device_t *dev, const mepa_macsec_init_
             rc = lan80xx_macsec_init_set_(dev, port_no, init);
             if (rc != MEPA_RC_OK) {
                 data->macsec_conf.glb.init = state_init;
+            } else {
+                /* MACsec initialization successful. Configure DISABLE_DIC based on MACsec state */
+                MEPA_RC(lan80xx_dic_config(dev, port_no));
             }
             data->macsec_conf.glb.mac_block_mtu = LAN80XX_MAC_MAXLEN; /* Default MAC Block MTU */
         }

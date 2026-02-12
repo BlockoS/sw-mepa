@@ -1011,6 +1011,59 @@ mepa_rc lan80xx_ptp_block_preempt_conf(mepa_device_t *dev, mepa_port_no_t port_n
     return MEPA_RC_OK;
 }
 
+/* configure DISABLE_DIC and TX_FRM_GAP_COMP based on current state.
+ *
+ * DISABLE_DIC and TX_FRM_GAP_COMP configuration rules:
+ *
+ * If flow control is enabled:
+ *   - DISABLE_DIC = 0 (always, regardless of mode)
+ *
+ * If flow control is disabled:
+ *   - PCS_RETIMER MODE: DISABLE_DIC = 0 (no effect, LMAC not used)
+ *   - MAC_RETIMER MODE with MACsec enabled (not bypassed): DISABLE_DIC = 0
+ *   - MAC_RETIMER MODE with MACsec bypass/disabled:
+ *       - TX_FRM_GAP_COMP = 0x14 (to disable DIC in FC buffer)
+ *       - DISABLE_DIC = 1 (disable DIC in LMAC)
+ */
+mepa_rc lan80xx_dic_config(const mepa_device_t *dev, mepa_port_no_t port_no)
+{
+    phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
+
+    if (data->flow_control_ena ||
+        data->port_state.port_mode.oper_mode == PCS_RETIMER ||
+        data->macsec_conf.glb.init.enable) {
+        /* DISABLE_DIC = 0 when:
+         * - Flow control is enabled, OR
+         * - PCS_RETIMER mode (LMAC not used), OR
+         * - MACsec is enabled (not bypassed)
+         */
+        LAN80XX_CSR_WRM(port_no, LAN80XX_HOST_MAC_HOST_MAC_MAC_MODE_CFG, 0,
+                        LAN80XX_M_HOST_MAC_HOST_MAC_MAC_MODE_CFG_DISABLE_DIC);
+
+        LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_MAC_LINE_MAC_MAC_MODE_CFG, 0,
+                        LAN80XX_M_LINE_MAC_LINE_MAC_MAC_MODE_CFG_DISABLE_DIC);
+    } else {
+        /* DISABLE_DIC = 1 and TX_FRM_GAP_COMP = 0x14 when:
+         * - Flow control is disabled, AND
+         * - MAC_RETIMER mode, AND
+         * - MACsec is bypassed or disabled
+         */
+        LAN80XX_CSR_WRM(port_no, LAN80XX_HOST_MAC_HOST_MAC_MAC_MODE_CFG,
+                        LAN80XX_M_HOST_MAC_HOST_MAC_MAC_MODE_CFG_DISABLE_DIC,
+                        LAN80XX_M_HOST_MAC_HOST_MAC_MAC_MODE_CFG_DISABLE_DIC);
+
+        LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_MAC_LINE_MAC_MAC_MODE_CFG,
+                        LAN80XX_M_LINE_MAC_LINE_MAC_MAC_MODE_CFG_DISABLE_DIC,
+                        LAN80XX_M_LINE_MAC_LINE_MAC_MAC_MODE_CFG_DISABLE_DIC);
+
+        /* Configure TX_FRM_GAP_COMP to disable DIC in FC buffer */
+        LAN80XX_CSR_WRM(port_no, LAN80XX_MAC_FC_BUFFER_MAC_FC_BUFFER_TX_FRM_GAP_COMP,
+                        LAN80XX_F_MAC_FC_BUFFER_MAC_FC_BUFFER_TX_FRM_GAP_COMP_TX_FRM_GAP_COMP(LAN80XX_TX_FRM_GAP_COMP_MACSEC_BYPASS),
+                        LAN80XX_M_MAC_FC_BUFFER_MAC_FC_BUFFER_TX_FRM_GAP_COMP_TX_FRM_GAP_COMP);
+    }
+    return MEPA_RC_OK; 
+}
+
 /* 'enable' is used for Mac enable or disable */
 mepa_rc lan80xx_phy_mac_conf_set(const mepa_device_t  *dev, mepa_port_no_t port_no, mepa_bool_t enable)
 {
@@ -1272,19 +1325,19 @@ mepa_rc lan80xx_phy_mac_conf_set(const mepa_device_t  *dev, mepa_port_no_t port_
     /* JIRA "UNG_MALIBU_25G-2457" Fix */
     LAN80XX_CSR_WRM(port_no, LAN80XX_HOST_MAC_HOST_MAC_MAC_MODE_CFG,
                     LAN80XX_F_HOST_MAC_HOST_MAC_MAC_MODE_CFG_FORCE_CW_UPDATE_INTERVAL(64) |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_MODE_CFG_DISABLE_DIC |
                     LAN80XX_M_HOST_MAC_HOST_MAC_MAC_MODE_CFG_UNDERSIZED_FRAME_DROP_DIS,
                     LAN80XX_M_HOST_MAC_HOST_MAC_MAC_MODE_CFG_FORCE_CW_UPDATE_INTERVAL |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_MODE_CFG_UNDERSIZED_FRAME_DROP_DIS |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_MODE_CFG_DISABLE_DIC);
+                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_MODE_CFG_UNDERSIZED_FRAME_DROP_DIS);
 
     LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_MAC_LINE_MAC_MAC_MODE_CFG,
                     LAN80XX_F_LINE_MAC_LINE_MAC_MAC_MODE_CFG_FORCE_CW_UPDATE_INTERVAL(64) |
-                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_MODE_CFG_DISABLE_DIC |
                     LAN80XX_M_LINE_MAC_LINE_MAC_MAC_MODE_CFG_UNDERSIZED_FRAME_DROP_DIS,
                     LAN80XX_M_LINE_MAC_LINE_MAC_MAC_MODE_CFG_FORCE_CW_UPDATE_INTERVAL |
-                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_MODE_CFG_UNDERSIZED_FRAME_DROP_DIS |
-                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_MODE_CFG_DISABLE_DIC);
+                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_MODE_CFG_UNDERSIZED_FRAME_DROP_DIS);
+
+
+    /* Configure DISABLE_DIC and TX_FRM_GAP_COMP based on current state */
+    MEPA_RC(lan80xx_dic_config(dev, port_no));
 
     MEPA_RC(lan80xx_pmac_config(dev, port_no, data->frame_preempt_ena));
 
@@ -2445,12 +2498,19 @@ static mepa_rc lan80xx_fec_configuration(mepa_device_t *dev, mepa_port_no_t port
 mepa_rc lan80xx_operating_mode_set_priv(const mepa_device_t *dev, const mepa_port_no_t port_no, phy25g_oper_mode_t phy_mode)
 {
     phy25g_phy_state_t *data = (phy25g_phy_state_t *) dev->data;
+    phy25g_oper_mode_t old_mode = data->port_state.port_mode.oper_mode;
+
     if (phy_mode == PCS_RETIMER) {
         /* Configuring PHY in PCS Retimer Mode */
         LAN80XX_CSR_COLD_WRM(port_no, LAN80XX_LINE_SLICE_SLICE_CONFIG, 0, LAN80XX_M_LINE_SLICE_SLICE_CONFIG_MAC_RETIMING_MODE);
+
+        /* Update oper_mode before lan80xx_phy_mac_conf_set() so lan80xx_dic_config() reads correct mode */
+        data->port_state.port_mode.oper_mode = PCS_RETIMER;
+
         /* Disabling MAC Block */
         if (lan80xx_phy_mac_conf_set(dev, port_no, FALSE) != MEPA_RC_OK) {
             T_E(MEPA_TRACE_GRP_GEN, "Error is disabling MAC block in port : %d", port_no);
+            data->port_state.port_mode.oper_mode = old_mode;  /* Restore on failure */
             return MEPA_RC_ERROR;
         }
 
@@ -2460,8 +2520,6 @@ mepa_rc lan80xx_operating_mode_set_priv(const mepa_device_t *dev, const mepa_por
 
         LAN80XX_CSR_WRM(port_no, LAN80XX_PTP_PROC_INGR_CFG_OPERATION_MODE, LAN80XX_M_PTP_PROC_INGR_CFG_OPERATION_MODE_INGR_CFG_RETIMING_MODE,
                         LAN80XX_M_PTP_PROC_INGR_CFG_OPERATION_MODE_INGR_CFG_RETIMING_MODE);
-
-        data->port_state.port_mode.oper_mode = PCS_RETIMER;
 
         if (data->flow_control_ena) {
             if (lan80xx_flow_control_set_priv(dev, port_no, FALSE) != MEPA_RC_OK) {
@@ -2474,17 +2532,19 @@ mepa_rc lan80xx_operating_mode_set_priv(const mepa_device_t *dev, const mepa_por
         LAN80XX_CSR_COLD_WRM(port_no, LAN80XX_LINE_SLICE_SLICE_CONFIG, LAN80XX_M_LINE_SLICE_SLICE_CONFIG_MAC_RETIMING_MODE,
                              LAN80XX_M_LINE_SLICE_SLICE_CONFIG_MAC_RETIMING_MODE);
 
+        /* Update oper_mode before lan80xx_phy_mac_conf_set() so lan80xx_dic_config() reads correct mode */
+        data->port_state.port_mode.oper_mode = MAC_RETIMER;
+
         /* In MAC Retimer Mode MAC block needs to be configured */
         if (lan80xx_phy_mac_conf_set(dev, port_no, TRUE) != MEPA_RC_OK) {
             T_E(MEPA_TRACE_GRP_GEN, "Error is configuring MAC block in port : %d", port_no);
+            data->port_state.port_mode.oper_mode = old_mode;  /* Restore on failure */
             return MEPA_RC_ERROR;
         }
         /* 1588 EGR and INGR in MAC Retimer Mode */
         LAN80XX_CSR_WRM(port_no, LAN80XX_PTP_PROC_EGR_CFG_OPERATION_MODE, 0, LAN80XX_M_PTP_PROC_EGR_CFG_OPERATION_MODE_EGR_CFG_RETIMING_MODE);
 
         LAN80XX_CSR_WRM(port_no, LAN80XX_PTP_PROC_INGR_CFG_OPERATION_MODE, 0, LAN80XX_M_PTP_PROC_INGR_CFG_OPERATION_MODE_INGR_CFG_RETIMING_MODE);
-
-        data->port_state.port_mode.oper_mode = MAC_RETIMER;
     }
     T_I(MEPA_TRACE_GRP_GEN, "PHY is in %s mode on port_no : %d\n", data->port_state.port_mode.oper_mode ? "MAC-RETIMER" : "PCS-RETIMER", port_no);
     return MEPA_RC_OK;
@@ -5904,6 +5964,7 @@ mepa_rc lan80xx_flow_control_set_priv(const mepa_device_t     *dev,
                         LAN80XX_M_HOST_MAC_HOST_MAC_PAUSE_RX_FRAME_CONTROL_MAC_RX_PAUSE_FRAME_DROP_ENA);
 
         data->flow_control_ena = 1;
+        MEPA_RC(lan80xx_dic_config(dev, port_no));
         return MEPA_RC_OK;
     }
 
@@ -5927,6 +5988,7 @@ mepa_rc lan80xx_flow_control_set_priv(const mepa_device_t     *dev,
                     LAN80XX_M_HOST_MAC_HOST_MAC_PAUSE_RX_FRAME_CONTROL_MAC_RX_PAUSE_FRAME_DROP_ENA);
 
     data->flow_control_ena = 0;
+    MEPA_RC(lan80xx_dic_config(dev, port_no));
     return MEPA_RC_OK;
 }
 

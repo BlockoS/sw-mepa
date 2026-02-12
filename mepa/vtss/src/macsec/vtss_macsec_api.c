@@ -5100,15 +5100,14 @@ static vtss_rc vtss_macsec_tx_sa_set_priv(vtss_state_t                   *vtss_s
     vtss_macsec_internal_secy_t *secy = &vtss_state->macsec_conf[port.port_no].secy[secy_id];
     vtss_macsec_match_pattern_t *match = &secy->pattern[VTSS_MACSEC_MATCH_ACTION_CONTROLLED_PORT][VTSS_MACSEC_DIRECTION_EGRESS];
     u32 record = 0;
-    BOOL create_record = 1;
+    BOOL create_record = 1, is_xpn = secy->conf.current_cipher_suite == VTSS_MACSEC_CIPHER_SUITE_GCM_AES_XPN_128 || secy->conf.current_cipher_suite == VTSS_MACSEC_CIPHER_SUITE_GCM_AES_XPN_256;
     vtss_macsec_internal_secy_t secy_tmp;
     vtss_macsec_internal_tx_sa_t sa_tmp;
 
     VTSS_MACSEC_ASSERT(an >= VTSS_MACSEC_SA_PER_SC_MAX, "AN is invalid");
     VTSS_MACSEC_ASSERT(!secy->tx_sc.in_use,             "No TxSC installed");
 
-    if ((secy->conf.current_cipher_suite == VTSS_MACSEC_CIPHER_SUITE_GCM_AES_XPN_128) ||
-        (secy->conf.current_cipher_suite == VTSS_MACSEC_CIPHER_SUITE_GCM_AES_XPN_256)) {
+    if (is_xpn) {
         if ( (!vtss_state->sync_calling_private) &&
              (!vtss_state->macsec_conf[port.port_no].glb.spd_change_macsec_recfg)) {
             VTSS_RC(is_ssci_valid(vtss_state, port.port_no, TRUE, &secy->sci, ssci, sak));
@@ -5139,8 +5138,7 @@ static vtss_rc vtss_macsec_tx_sa_set_priv(vtss_state_t                   *vtss_s
             secy_tmp.tx_sc.sa[an] = &sa_tmp;
             secy_tmp.tx_sc.sa[an]->sak = *sak;
             secy_tmp.tx_sc.sa[an]->status.pn_status.next_pn = next_pn;
-            if ((secy->conf.current_cipher_suite == VTSS_MACSEC_CIPHER_SUITE_GCM_AES_XPN_128) ||
-                (secy->conf.current_cipher_suite == VTSS_MACSEC_CIPHER_SUITE_GCM_AES_XPN_256)) {
+            if (is_xpn) {
                 memcpy(secy_tmp.tx_sc.sa[an]->ssci.buf, ssci->buf, sizeof(vtss_macsec_ssci_t));
             }
             if (record_inuse_get(vtss_state, port.port_no, EGRESS, &secy_tmp, an, 0, &record) != VTSS_RC_OK) {
@@ -5163,8 +5161,7 @@ static vtss_rc vtss_macsec_tx_sa_set_priv(vtss_state_t                   *vtss_s
         if (!vtss_state->macsec_conf[port.port_no].glb.spd_change_macsec_recfg) {
             secy->tx_sc.sa[an]->sak = *sak;
             secy->tx_sc.sa[an]->confidentiality = confidentiality;
-            if ((secy->conf.current_cipher_suite == VTSS_MACSEC_CIPHER_SUITE_GCM_AES_XPN_128) ||
-                (secy->conf.current_cipher_suite == VTSS_MACSEC_CIPHER_SUITE_GCM_AES_XPN_256)) {
+            if (is_xpn) {
                 memcpy(secy->tx_sc.sa[an]->ssci.buf, ssci->buf, sizeof(vtss_macsec_ssci_t));
             }
         }
@@ -5172,6 +5169,11 @@ static vtss_rc vtss_macsec_tx_sa_set_priv(vtss_state_t                   *vtss_s
         if (vtss_state->warm_start_cur ||
             vtss_state->macsec_conf[port.port_no].glb.spd_change_macsec_recfg) {
             secy->tx_sc.sa[an]->status.next_pn = next_pn.pn;
+        } else if (is_xpn) {
+            // XPN cipher suites may have 32 LSbits set to 0 as long as the 32
+            // MSBits are non-zero.
+            VTSS_MACSEC_ASSERT(next_pn.xpn < 1, "NextPN should not be zero (0)");
+            secy->tx_sc.sa[an]->status.next_pn = next_pn.xpn - 1;
         } else {
             VTSS_MACSEC_ASSERT(next_pn.pn < 1, "NextPN should not be zero (0)");
             secy->tx_sc.sa[an]->status.next_pn = next_pn.pn - 1;

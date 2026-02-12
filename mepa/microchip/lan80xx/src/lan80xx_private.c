@@ -1152,8 +1152,10 @@ mepa_rc lan80xx_phy_mac_conf_set(const mepa_device_t  *dev, mepa_port_no_t port_
                    LAN80XX_M_MAC_FC_BUFFER_MAC_FC_BUFFER_FC_ENA_CFG_RX_ENA);
 
 
+    /* Specifies FC buffer to insert FCS error or /E/ charcter for frames aborted by BUFFER. Must always be configured to the default value (0 = /E/ character insertion) 
+     * as per design team suggestion */
     LAN80XX_CSR_WRM(port_no, LAN80XX_MAC_FC_BUFFER_MAC_FC_BUFFER_FC_MODE_CFG,
-                    LAN80XX_M_MAC_FC_BUFFER_MAC_FC_BUFFER_FC_MODE_CFG_DROP_BEHAVIOUR,
+                    0,
                     LAN80XX_M_MAC_FC_BUFFER_MAC_FC_BUFFER_FC_MODE_CFG_DROP_BEHAVIOUR);
 
     /* PPM_RATE_ADAPT_THRESH is configured with (READ_THRESH + 2) */

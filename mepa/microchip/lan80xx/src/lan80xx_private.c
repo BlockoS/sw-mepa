@@ -1071,7 +1071,29 @@ mepa_rc lan80xx_phy_mac_conf_set(const mepa_device_t  *dev, mepa_port_no_t port_
 
     if (!enable) {
         T_I(MEPA_TRACE_GRP_GEN, "Disabling the MAC Block on port : %d\n", port_no);
-        // Disable TX
+
+        /* Disable RX on LINE_MAC and HOST_MAC (stop receiving new packets) */
+        LAN80XX_CSR_WR(dev, port_no, LAN80XX_LINE_MAC_LINE_MAC_MAC_ENA_CFG,
+                       LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_RX_CLK_ENA |
+                       LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_TX_CLK_ENA |
+                       LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_TX_ENA);
+
+        LAN80XX_CSR_WR(dev, port_no, LAN80XX_HOST_MAC_HOST_MAC_MAC_ENA_CFG,
+                       LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_RX_CLK_ENA |
+                       LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_TX_CLK_ENA |
+                       LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_TX_ENA);
+
+        /* Disable FC buffer RX (stop ingress to FC buffer) */
+        LAN80XX_CSR_WR(dev, port_no, LAN80XX_MAC_FC_BUFFER_MAC_FC_BUFFER_FC_ENA_CFG,
+                       LAN80XX_M_MAC_FC_BUFFER_MAC_FC_BUFFER_FC_ENA_CFG_TX_ENA);
+
+        /* Wait for FC buffer to drain */
+        MEPA_MSLEEP(2);
+
+        /* Disable FC buffer TX */
+        LAN80XX_CSR_WR(dev, port_no, LAN80XX_MAC_FC_BUFFER_MAC_FC_BUFFER_FC_ENA_CFG, 0);
+
+        /* Disable TX on LINE_MAC and HOST_MAC */
         LAN80XX_CSR_WR(dev, port_no, LAN80XX_LINE_MAC_LINE_MAC_MAC_ENA_CFG,
                        LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_RX_CLK_ENA |
                        LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_TX_CLK_ENA);
@@ -1080,7 +1102,7 @@ mepa_rc lan80xx_phy_mac_conf_set(const mepa_device_t  *dev, mepa_port_no_t port_
                        LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_RX_CLK_ENA |
                        LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_TX_CLK_ENA);
 
-        // Assert Resets
+        /* Assert Resets on LINE_MAC and HOST_MAC */
         LAN80XX_CSR_WR(dev, port_no, LAN80XX_LINE_MAC_LINE_MAC_MAC_ENA_CFG,
                        LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_RX_CLK_ENA |
                        LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_TX_CLK_ENA |
@@ -1120,37 +1142,24 @@ mepa_rc lan80xx_phy_mac_conf_set(const mepa_device_t  *dev, mepa_port_no_t port_
         break;
     }
     LAN80XX_CSR_WR(dev, port_no, LAN80XX_LINE_MAC_LINE_MAC_MAC_ENA_CFG,
-                   (LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_RX_CLK_ENA |
-                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_TX_CLK_ENA |
-                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_RX_SW_RST |
-                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_TX_SW_RST |
-                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_RX_ENA |
-                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_TX_ENA));
+                   LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_RX_CLK_ENA |
+                   LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_TX_CLK_ENA |
+                   LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_RX_SW_RST |
+                   LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_TX_SW_RST);
 
     LAN80XX_CSR_WR(dev, port_no, LAN80XX_LINE_MAC_LINE_MAC_MAC_ENA_CFG,
-                   (LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_RX_CLK_ENA |
-                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_TX_CLK_ENA |
-                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_RX_ENA |
-                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_TX_ENA));
+                   LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_RX_CLK_ENA |
+                   LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_TX_CLK_ENA);
 
     LAN80XX_CSR_WR(dev, port_no, LAN80XX_HOST_MAC_HOST_MAC_MAC_ENA_CFG,
-                   (LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_RX_CLK_ENA |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_TX_CLK_ENA |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_RX_SW_RST |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_TX_SW_RST |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_RX_ENA |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_TX_ENA));
+                   LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_RX_CLK_ENA |
+                   LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_TX_CLK_ENA |
+                   LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_RX_SW_RST |
+                   LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_TX_SW_RST);
 
     LAN80XX_CSR_WR(dev, port_no, LAN80XX_HOST_MAC_HOST_MAC_MAC_ENA_CFG,
-                   (LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_RX_CLK_ENA |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_TX_CLK_ENA |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_RX_ENA |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_TX_ENA));
-
-    LAN80XX_CSR_WR(dev, port_no, LAN80XX_MAC_FC_BUFFER_MAC_FC_BUFFER_FC_ENA_CFG,
-                   LAN80XX_M_MAC_FC_BUFFER_MAC_FC_BUFFER_FC_ENA_CFG_TX_ENA |
-                   LAN80XX_M_MAC_FC_BUFFER_MAC_FC_BUFFER_FC_ENA_CFG_RX_ENA);
-
+                   LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_RX_CLK_ENA |
+                   LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_TX_CLK_ENA);
 
     /* Specifies FC buffer to insert FCS error or /E/ charcter for frames aborted by BUFFER. Must always be configured to the default value (0 = /E/ character insertion) 
      * as per design team suggestion */
@@ -1167,8 +1176,8 @@ mepa_rc lan80xx_phy_mac_conf_set(const mepa_device_t  *dev, mepa_port_no_t port_
 
 
     LAN80XX_CSR_WRM(port_no, LAN80XX_MAC_FC_BUFFER_MAC_FC_BUFFER_FC_READ_THRESH_CFG,
-                    (LAN80XX_F_MAC_FC_BUFFER_MAC_FC_BUFFER_FC_READ_THRESH_CFG_TX_READ_THRESH(tx_read_thresh) |
-                     LAN80XX_F_MAC_FC_BUFFER_MAC_FC_BUFFER_FC_READ_THRESH_CFG_RX_READ_THRESH(rx_read_thresh)),
+                    LAN80XX_F_MAC_FC_BUFFER_MAC_FC_BUFFER_FC_READ_THRESH_CFG_TX_READ_THRESH(tx_read_thresh) |
+                    LAN80XX_F_MAC_FC_BUFFER_MAC_FC_BUFFER_FC_READ_THRESH_CFG_RX_READ_THRESH(rx_read_thresh),
                     LAN80XX_M_MAC_FC_BUFFER_MAC_FC_BUFFER_FC_READ_THRESH_CFG_TX_READ_THRESH |
                     LAN80XX_M_MAC_FC_BUFFER_MAC_FC_BUFFER_FC_READ_THRESH_CFG_RX_READ_THRESH);
 
@@ -1187,12 +1196,12 @@ mepa_rc lan80xx_phy_mac_conf_set(const mepa_device_t  *dev, mepa_port_no_t port_
     LAN80XX_CSR_WR(dev, port_no, LAN80XX_LINE_MAC_LINE_MAC_MAC_ADDRESS_MSB, LAN80XX_LINE_MAC_ADDRESS_MSB);
 
     LAN80XX_CSR_WR(dev, port_no, LAN80XX_LINE_MAC_LINE_MAC_MAC_ADV_CHK_CFG,
-                   (LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ADV_CHK_CFG_EXT_EOP_CHK_ENA |
-                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ADV_CHK_CFG_EXT_SOP_CHK_ENA |
-                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ADV_CHK_CFG_SFD_CHK_ENA |
-                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ADV_CHK_CFG_PRM_CHK_ENA |
-                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ADV_CHK_CFG_OOR_ERR_ENA |
-                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ADV_CHK_CFG_INR_ERR_ENA));
+                   LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ADV_CHK_CFG_EXT_EOP_CHK_ENA |
+                   LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ADV_CHK_CFG_EXT_SOP_CHK_ENA |
+                   LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ADV_CHK_CFG_SFD_CHK_ENA |
+                   LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ADV_CHK_CFG_PRM_CHK_ENA |
+                   LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ADV_CHK_CFG_OOR_ERR_ENA |
+                   LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ADV_CHK_CFG_INR_ERR_ENA);
 
     LAN80XX_CSR_WR(dev, port_no, LAN80XX_LINE_MAC_LINE_MAC_MAC_MAXLEN_CFG,
                    LAN80XX_F_HOST_MAC_HOST_MAC_MAC_MAXLEN_CFG_MAX_LEN_TAG_CHK(1) |
@@ -1202,11 +1211,11 @@ mepa_rc lan80xx_phy_mac_conf_set(const mepa_device_t  *dev, mepa_port_no_t port_
                    LAN80XX_F_LINE_MAC_LINE_MAC_MAC_NUM_TAGS_CFG_NUM_TAGS(4));
 
     LAN80XX_CSR_WR(dev, port_no, LAN80XX_LINE_MAC_LINE_MAC_MAC_PKTINF_CFG,
-                   (LAN80XX_M_LINE_MAC_LINE_MAC_MAC_PKTINF_CFG_STRIP_FCS_ENA |
-                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_PKTINF_CFG_INSERT_FCS_ENA |
-                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_PKTINF_CFG_STRIP_PREAMBLE_ENA |
-                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_PKTINF_CFG_INSERT_PREAMBLE_ENA |
-                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_PKTINF_CFG_LPI_RELAY_ENA));
+                   LAN80XX_M_LINE_MAC_LINE_MAC_MAC_PKTINF_CFG_STRIP_FCS_ENA |
+                   LAN80XX_M_LINE_MAC_LINE_MAC_MAC_PKTINF_CFG_INSERT_FCS_ENA |
+                   LAN80XX_M_LINE_MAC_LINE_MAC_MAC_PKTINF_CFG_STRIP_PREAMBLE_ENA |
+                   LAN80XX_M_LINE_MAC_LINE_MAC_MAC_PKTINF_CFG_INSERT_PREAMBLE_ENA |
+                   LAN80XX_M_LINE_MAC_LINE_MAC_MAC_PKTINF_CFG_LPI_RELAY_ENA);
 
     LAN80XX_CSR_WR(dev, port_no, LAN80XX_LINE_MAC_LINE_MAC_MAC_TAGS_CFG(0), LAN80XX_LINE_MAC_TAGS_CFG_0);
 
@@ -1231,18 +1240,12 @@ mepa_rc lan80xx_phy_mac_conf_set(const mepa_device_t  *dev, mepa_port_no_t port_
     LAN80XX_CSR_WR(dev, port_no, LAN80XX_HOST_MAC_HOST_MAC_MAC_ADDRESS_MSB, LAN80XX_HOST_MAC_ADDRESS_MSB);
 
     LAN80XX_CSR_WR(dev, port_no, LAN80XX_HOST_MAC_HOST_MAC_MAC_ADV_CHK_CFG,
-                   (LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ADV_CHK_CFG_EXT_EOP_CHK_ENA |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ADV_CHK_CFG_EXT_SOP_CHK_ENA |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ADV_CHK_CFG_SFD_CHK_ENA |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ADV_CHK_CFG_PRM_CHK_ENA |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ADV_CHK_CFG_OOR_ERR_ENA |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ADV_CHK_CFG_INR_ERR_ENA));
-
-    LAN80XX_CSR_WR(dev, port_no, LAN80XX_HOST_MAC_HOST_MAC_MAC_ENA_CFG,
-                   (LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_RX_CLK_ENA |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_TX_CLK_ENA |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_RX_ENA |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_TX_ENA));
+                   LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ADV_CHK_CFG_EXT_EOP_CHK_ENA |
+                   LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ADV_CHK_CFG_EXT_SOP_CHK_ENA |
+                   LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ADV_CHK_CFG_SFD_CHK_ENA |
+                   LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ADV_CHK_CFG_PRM_CHK_ENA |
+                   LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ADV_CHK_CFG_OOR_ERR_ENA |
+                   LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ADV_CHK_CFG_INR_ERR_ENA);
 
     LAN80XX_CSR_WR(dev, port_no, LAN80XX_HOST_MAC_HOST_MAC_MAC_MAXLEN_CFG,
                    LAN80XX_F_HOST_MAC_HOST_MAC_MAC_MAXLEN_CFG_MAX_LEN_TAG_CHK(1) |
@@ -1252,12 +1255,12 @@ mepa_rc lan80xx_phy_mac_conf_set(const mepa_device_t  *dev, mepa_port_no_t port_
                    LAN80XX_F_HOST_MAC_HOST_MAC_MAC_NUM_TAGS_CFG_NUM_TAGS(4));
 
     LAN80XX_CSR_WR(dev, port_no, LAN80XX_HOST_MAC_HOST_MAC_MAC_PKTINF_CFG,
-                   (LAN80XX_M_HOST_MAC_HOST_MAC_MAC_PKTINF_CFG_STRIP_FCS_ENA |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_PKTINF_CFG_INSERT_FCS_ENA |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_PKTINF_CFG_STRIP_PREAMBLE_ENA |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_PKTINF_CFG_INSERT_PREAMBLE_ENA |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_PKTINF_CFG_LPI_RELAY_ENA |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_PKTINF_CFG_ENABLE_TX_PADDING));
+                   LAN80XX_M_HOST_MAC_HOST_MAC_MAC_PKTINF_CFG_STRIP_FCS_ENA |
+                   LAN80XX_M_HOST_MAC_HOST_MAC_MAC_PKTINF_CFG_INSERT_FCS_ENA |
+                   LAN80XX_M_HOST_MAC_HOST_MAC_MAC_PKTINF_CFG_STRIP_PREAMBLE_ENA |
+                   LAN80XX_M_HOST_MAC_HOST_MAC_MAC_PKTINF_CFG_INSERT_PREAMBLE_ENA |
+                   LAN80XX_M_HOST_MAC_HOST_MAC_MAC_PKTINF_CFG_LPI_RELAY_ENA |
+                   LAN80XX_M_HOST_MAC_HOST_MAC_MAC_PKTINF_CFG_ENABLE_TX_PADDING);
 
     LAN80XX_CSR_WR(dev, port_no, LAN80XX_HOST_MAC_HOST_MAC_MAC_TAGS_CFG(0), LAN80XX_HOST_MAC_TAGS_CFG_0);
 
@@ -1340,6 +1343,22 @@ mepa_rc lan80xx_phy_mac_conf_set(const mepa_device_t  *dev, mepa_port_no_t port_
 
     /* Configure DISABLE_DIC and TX_FRM_GAP_COMP based on current state */
     MEPA_RC(lan80xx_dic_config(dev, port_no));
+
+    LAN80XX_CSR_WR(dev, port_no, LAN80XX_MAC_FC_BUFFER_MAC_FC_BUFFER_FC_ENA_CFG,
+                   LAN80XX_M_MAC_FC_BUFFER_MAC_FC_BUFFER_FC_ENA_CFG_TX_ENA |
+                   LAN80XX_M_MAC_FC_BUFFER_MAC_FC_BUFFER_FC_ENA_CFG_RX_ENA);
+
+    LAN80XX_CSR_WR(dev, port_no, LAN80XX_LINE_MAC_LINE_MAC_MAC_ENA_CFG,
+                   (LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_RX_CLK_ENA |
+                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_TX_CLK_ENA |
+                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_TX_ENA |
+                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_RX_ENA));
+
+    LAN80XX_CSR_WR(dev, port_no, LAN80XX_HOST_MAC_HOST_MAC_MAC_ENA_CFG,
+                   (LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_RX_CLK_ENA |
+                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_TX_CLK_ENA |
+                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_TX_ENA |
+                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_RX_ENA));
 
     MEPA_RC(lan80xx_pmac_config(dev, port_no, data->frame_preempt_ena));
 
@@ -2823,6 +2842,13 @@ mepa_rc lan80xx_reset_point(mepa_device_t *dev, const mepa_reset_param_t *rst_co
     case MEPA_RESET_POINT_PRE:
         /* Identify and store the Phy id */
         MEPA_RC(lan80xx_identify_phy(dev, data->port_no));
+
+        /* Reset port_cnt for base port to handle re-initialization after CHIP_FAST_RESET.
+         * Without this, port_cnt keeps incrementing and RAM_INIT condition fails.
+         */
+        if (data->port_no == base_data->port_no) {
+            base_data->port_cnt = 0;
+        }
 
         base_data->chip_ports[base_data->port_cnt] = data->port_no;
         base_data->other_port_dev[base_data->port_cnt] = dev;

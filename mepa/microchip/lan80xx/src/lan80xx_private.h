@@ -501,6 +501,14 @@ mepa_rc lan80xx_operating_mode_set_priv(const mepa_device_t *dev,
                                         const mepa_port_no_t port_no,
                                         phy25g_oper_mode_t phy_mode);
 
+mepa_rc lan80xx_phy_lfs_set_priv(const mepa_device_t *dev,
+                                 const mepa_port_no_t port_no,
+                                 mepa_bool_t terminate_in_phy);
+
+mepa_rc lan80xx_phy_lfs_get_priv(const mepa_device_t *dev,
+                                 const mepa_port_no_t port_no,
+                                 mepa_bool_t *terminate_in_phy);
+
 mepa_rc lan80xx_status_get_priv(const mepa_device_t     *dev,
                                 const mepa_port_no_t    port_no,
                                 phy25g_status_t         *const status);

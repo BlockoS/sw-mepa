@@ -32,6 +32,43 @@ mepa_rc lan80xx_operating_mode_set(const mepa_device_t        *dev,
     return rc;
 }
 
+mepa_rc lan80xx_phy_lfs_set(const mepa_device_t  *dev,
+                            const mepa_port_no_t port_no,
+                            mepa_bool_t          terminate_in_phy)
+{
+    mepa_rc rc = MEPA_RC_ERROR;
+    if (dev == NULL) {
+        T_E(MEPA_TRACE_GRP_GEN, "\nPort instance not created in port : %d", port_no);
+        return MEPA_RC_ERROR;
+    }
+    if (!lan80xx_driver_check(dev)) {
+        T_E(MEPA_TRACE_GRP_GEN, "\nAPI not supported for PHY in port : %d", port_no);
+        return MEPA_RC_ERROR;
+    }
+    MEPA_ENTER(dev);
+    rc = lan80xx_phy_lfs_set_priv(dev, port_no, terminate_in_phy);
+    MEPA_EXIT(dev);
+    return rc;
+}
+
+mepa_rc lan80xx_phy_lfs_get(const mepa_device_t  *dev,
+                            const mepa_port_no_t port_no,
+                            mepa_bool_t          *terminate_in_phy)
+{
+    mepa_rc rc = MEPA_RC_ERROR;
+    if (dev == NULL) {
+        T_E(MEPA_TRACE_GRP_GEN, "\nPort instance not created in port : %d", port_no);
+        return MEPA_RC_ERROR;
+    }
+    if (!lan80xx_driver_check(dev)) {
+        T_E(MEPA_TRACE_GRP_GEN, "\nAPI not supported for PHY in port : %d", port_no);
+        return MEPA_RC_ERROR;
+    }
+    MEPA_ENTER(dev);
+    rc = lan80xx_phy_lfs_get_priv(dev, port_no, terminate_in_phy);
+    MEPA_EXIT(dev);
+    return rc;
+}
 
 mepa_rc lan80xx_rckout_conf_get(mepa_device_t     *dev,
                                 const mepa_port_no_t    port_no,

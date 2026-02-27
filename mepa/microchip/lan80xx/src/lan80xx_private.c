@@ -625,6 +625,9 @@ mepa_rc lan80xx_xconnect_hostfailover_Protection(mepa_device_t  *dev, mepa_port_
     data->is_mac_change = conf->is_mac_change;
     data->mode = conf->mode;
 
+    /* Store host_protection_ena in base_dev so all channels can access it */
+    base_data->host_protection_ena = conf->enable;
+
     LAN80XX_CSR_WRM(base_port, switch_sel ? LAN80XX_CROSS_CONNECT_WPS0_FILTER_COUNTA_LSB : LAN80XX_CROSS_CONNECT_WPS1_FILTER_COUNTA_LSB, LAN80XX_F_CROSS_CONNECT_WPS0_FILTER_COUNTA_LSB_COUNTA_LSB(conf->assert_filter_val & 0xFFFF), LAN80XX_M_CROSS_CONNECT_WPS0_FILTER_COUNTA_LSB_COUNTA_LSB);
 
     LAN80XX_CSR_WRM(base_port, switch_sel ? LAN80XX_CROSS_CONNECT_WPS0_FILTER_COUNTA_MSB : LAN80XX_CROSS_CONNECT_WPS1_FILTER_COUNTA_MSB, LAN80XX_F_CROSS_CONNECT_WPS0_FILTER_COUNTA_MSB_COUNTA_MSB((conf->assert_filter_val >> 16) & 0xFF), LAN80XX_M_CROSS_CONNECT_WPS0_FILTER_COUNTA_MSB_COUNTA_MSB);
@@ -3102,12 +3105,20 @@ static mepa_rc lan80xx_pcs_pma_status_get_priv(const mepa_device_t    *dev,
                                                phy25g_status_t        *const status)
 {
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
+    mepa_device_t *base_dev;
+    phy25g_phy_state_t *base_data;
+    LAN80XX_BASE_DEV(data, base_dev, base_data)
     u32 value = 0, state = 0;
     memset(status, 0, sizeof(phy25g_status_t));
     phy25g_oper_speed_mode_t phy_speed;
     mepa_bool_t line_lp_enabled = 0;
     u8 xmit_mode = 0;
     u8 line_xmit_mode = 0, host_xmit_mode = 0;
+
+    /* When Host Protection is enabled, check if this channel's LINE side is the standby one.
+     * The standby LINE side may not be connected, so skip LINE check for that channel only.
+     * The active LINE side channel should still check both HOST and LINE. */
+    mepa_bool_t skip_line_check = FALSE;
 
     /* When H3P or H3M Loopback is Enabled Line side Rx Link Goes down, eliminating LINE Side link
      * check in poll when H3M or H3P loopback is enabled, so traffic can be forwared from HOST */
@@ -3204,10 +3215,40 @@ static mepa_rc lan80xx_pcs_pma_status_get_priv(const mepa_device_t    *dev,
         MEPA_RC(lan80xx_aneg_status(dev, port_no));
         data->port_state.speed = data->line_aneg_status.neg_speed;
     }
+
+    /* First check software flag (fast path when Host Protection is disabled) */
+    if (base_data->host_protection_ena) {
+        uint32_t wps_cfg;
+        uint8_t default_active_sel;
+        uint8_t ch_id = data->channel_id;
+
+        /* Read WPS_DEFAULT_ACTIVE_SEL to determine which channel is default standby */
+        if (ch_id < 2) {
+            LAN80XX_CSR_RD(dev, port_no, LAN80XX_CROSS_CONNECT_WPS0_CFG, &wps_cfg);
+            default_active_sel = LAN80XX_X_CROSS_CONNECT_WPS0_CFG_WPS_DEFAULT_ACTIVE_SEL(wps_cfg);
+        } else {
+            LAN80XX_CSR_RD(dev, port_no, LAN80XX_CROSS_CONNECT_WPS1_CFG, &wps_cfg);
+            default_active_sel = LAN80XX_X_CROSS_CONNECT_WPS1_CFG_WPS_DEFAULT_ACTIVE_SEL(wps_cfg);
+        }
+
+        /* Determine if this channel's LINE side is the default standby (may not be connected):
+         * WPS0: SEL=0 → H0 active, H1 standby; SEL=1 → H1 active, H0 standby
+         * WPS1: SEL=0 → H2 active, H3 standby; SEL=1 → H3 active, H2 standby
+         * Even channels (0,2): LINE standby if SEL=1
+         * Odd channels (1,3): LINE standby if SEL=0
+        */
+        if ((ch_id % 2) == 0) {
+            skip_line_check = (default_active_sel == 1);
+        } else {
+            skip_line_check = (default_active_sel == 0);
+        }
+    }
+
     phy_speed = data->port_state.speed;
     switch (phy_speed) {
     case SPEED_1G :
-        if (line_lp_enabled) {
+        if (line_lp_enabled || skip_line_check) {
+            /* When loopback or LINE side is standby, only check HOST side */
             status->phy_status = (status->host_pcs1g.link_status) ? TRUE : FALSE;
         } else {
             status->phy_status = (status->pma.rx_link && status->line_pcs1g.link_status && status->host_pcs1g.link_status &&
@@ -3216,7 +3257,8 @@ static mepa_rc lan80xx_pcs_pma_status_get_priv(const mepa_device_t    *dev,
         break;
     case SPEED_10G:
     case SPEED_25G:
-        if (line_lp_enabled) {
+        if (line_lp_enabled || skip_line_check) {
+            /* When loopback or LINE side is standby, only check HOST side */
             status->phy_status = (status->host_pcs25g.rx_link) ? TRUE : FALSE;
         } else {
             status->phy_status = (status->pma.rx_link && status->line_pcs25g.rx_link && status->host_pcs25g.rx_link) ? TRUE : FALSE;

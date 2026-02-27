@@ -226,6 +226,7 @@ typedef struct phy25g_state_s {
     mepa_bool_t                     reversion;
     mepa_bool_t                     is_mac_change;
     phy25g_host_protect_mode_t      mode;
+    mepa_bool_t                     host_protection_ena;      /* Host Protection enabled */
     phy25g_ext_events_t             ext_events;
     mepa_bool_t                     frame_preempt_ena;
     mepa_bool_t                     flow_control_ena;

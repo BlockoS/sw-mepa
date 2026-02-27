@@ -124,6 +124,7 @@ typedef struct {
     mepa_macsec_rx_sc_conf_t      conf;
     mepa_macsec_rx_sa_counters_t  del_rx_sa_cnt;
     u64                           in_octets_validation_disabled;
+    u32                           hw_sc_idx;  /* Globally unique RXSC_CAM/SC_SA_MAP index */
 } phy25g_macsec_internal_rx_sc_t;
 
 // Structure to configure Tx Secure Channel
@@ -178,6 +179,7 @@ typedef struct {
     phy25g_macsec_internal_tx_sa_t        tx_sa[LAN80XX_MACSEC_MAX_SA];
     phy25g_macsec_internal_glb_t          glb;
     mepa_macsec_rc_dbg_counters_t         rc_dbg_counters;
+    u64                                   rx_sc_hw_idx_in_use;  /* Bitmap for RXSC_CAM/SC_SA_MAP allocation (64 entries) */
 } phy25g_macsec_internal_conf_t;
 
 // Structure used to get the next inuse SecY

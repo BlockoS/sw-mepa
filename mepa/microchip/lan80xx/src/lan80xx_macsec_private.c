@@ -1847,7 +1847,7 @@ static mepa_rc lan80xx_macsec_cleartags_conf_set_(mepa_device_t  *dev, mepa_port
 }
 
 static mepa_rc lan80xx_macsec_sa_flow_set(mepa_device_t *dev, mepa_port_no_t port_no, mepa_bool_t egr, u32 record, phy25g_macsec_internal_secy_t *secy,
-                                          u16 an, u32 sc, mepa_macsec_match_action_t action)
+                                          u16 an, u32 sc, u32 secy_id, mepa_macsec_match_action_t action)
 {
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
     phy25g_macsec_cleartags_conf_t *tags_conf;
@@ -1933,9 +1933,9 @@ static mepa_rc lan80xx_macsec_sa_flow_set(mepa_device_t *dev, mepa_port_no_t por
         sectag_offset = LAN80XX_MAC_ADDRESS_LEN_BYTES + (LAN80XX_VLAN_TAG_LEN_BYTE * tag_bypass);
     }
 
-    if (sc < LAN80XX_MACSEC_SC_REC_PAGE0_NUM) {
+    if (secy_id < LAN80XX_MACSEC_SC_REC_PAGE0_NUM) {
         if (egr) {
-            LAN80XX_CSR_WARM_WR(port_no, LAN80XX_MACSEC_EGR_CORE_EIP_FLOW_CTRL_PAGE0_FLOW_CTRL_1(sc),
+            LAN80XX_CSR_WARM_WR(port_no, LAN80XX_MACSEC_EGR_CORE_EIP_FLOW_CTRL_PAGE0_FLOW_CTRL_1(secy_id),
                                 LAN80XX_F_MACSEC_EGR_CORE_EIP_FLOW_CTRL_PAGE0_FLOW_CTRL_1_FLOW_TYPE(flow_type) |
                                 LAN80XX_F_MACSEC_EGR_CORE_EIP_FLOW_CTRL_PAGE0_FLOW_CTRL_1_DEST_PORT(dest_port) |
                                 LAN80XX_F_MACSEC_EGR_CORE_EIP_FLOW_CTRL_PAGE0_FLOW_CTRL_1_DROP_ACTION(2)       |
@@ -1949,13 +1949,13 @@ static mepa_rc lan80xx_macsec_sa_flow_set(mepa_device_t *dev, mepa_port_no_t por
                                 (tags_conf->is_pw_ctrl_word ? LAN80XX_M_MACSEC_EGR_CORE_EIP_FLOW_CTRL_PAGE0_FLOW_CTRL_1_EOMPLS_CTRL_WORD : 0) |
                                 LAN80XX_M_MACSEC_EGR_CORE_EIP_FLOW_CTRL_PAGE0_FLOW_CTRL_1_PREEMPT_EOP_GROWTH);
 
-            LAN80XX_CSR_WARM_WR(port_no, LAN80XX_MACSEC_EGR_CORE_EIP_FLOW_CTRL_PAGE0_FLOW_CTRL_2(sc),
+            LAN80XX_CSR_WARM_WR(port_no, LAN80XX_MACSEC_EGR_CORE_EIP_FLOW_CTRL_PAGE0_FLOW_CTRL_2(secy_id),
                                 LAN80XX_F_MACSEC_EGR_CORE_EIP_FLOW_CTRL_PAGE0_FLOW_CTRL_2_PRE_SECTAG_AUTH_START(0)  |
                                 LAN80XX_F_MACSEC_EGR_CORE_EIP_FLOW_CTRL_PAGE0_FLOW_CTRL_2_PRE_SECTAG_AUTH_LEN(auth_len) |
                                 LAN80XX_F_MACSEC_EGR_CORE_EIP_FLOW_CTRL_PAGE0_FLOW_CTRL_2_SECTAG_OFFSET(sectag_offset) |
                                 LAN80XX_F_MACSEC_EGR_CORE_EIP_FLOW_CTRL_PAGE0_FLOW_CTRL_2_CONFIDENTIALITY_OFFSET(offset));
         } else {
-            LAN80XX_CSR_WARM_WR(port_no, LAN80XX_MACSEC_INGR_CORE_EIP_FLOW_CTRL_PAGE0_FLOW_CTRL_1(sc),
+            LAN80XX_CSR_WARM_WR(port_no, LAN80XX_MACSEC_INGR_CORE_EIP_FLOW_CTRL_PAGE0_FLOW_CTRL_1(secy_id),
                                 LAN80XX_F_MACSEC_INGR_CORE_EIP_FLOW_CTRL_PAGE0_FLOW_CTRL_1_FLOW_TYPE(flow_type) |
                                 LAN80XX_F_MACSEC_INGR_CORE_EIP_FLOW_CTRL_PAGE0_FLOW_CTRL_1_DEST_PORT(dest_port) |
                                 LAN80XX_F_MACSEC_INGR_CORE_EIP_FLOW_CTRL_PAGE0_FLOW_CTRL_1_DROP_ACTION(2)       |
@@ -1966,7 +1966,7 @@ static mepa_rc lan80xx_macsec_sa_flow_set(mepa_device_t *dev, mepa_port_no_t por
                                 (tags_conf->is_eo_mpls ? LAN80XX_M_MACSEC_INGR_CORE_EIP_FLOW_CTRL_PAGE0_FLOW_CTRL_1_EOMPLS_SUBPORT : 0) |
                                 (tags_conf->is_pw_ctrl_word ? LAN80XX_M_MACSEC_INGR_CORE_EIP_FLOW_CTRL_PAGE0_FLOW_CTRL_1_EOMPLS_CTRL_WORD : 0));
 
-            LAN80XX_CSR_WARM_WR(port_no, LAN80XX_MACSEC_INGR_CORE_EIP_FLOW_CTRL_PAGE0_FLOW_CTRL_2(sc),
+            LAN80XX_CSR_WARM_WR(port_no, LAN80XX_MACSEC_INGR_CORE_EIP_FLOW_CTRL_PAGE0_FLOW_CTRL_2(secy_id),
                                 LAN80XX_F_MACSEC_INGR_CORE_EIP_FLOW_CTRL_PAGE0_FLOW_CTRL_2_PRE_SECTAG_AUTH_START(0)  |
                                 LAN80XX_F_MACSEC_INGR_CORE_EIP_FLOW_CTRL_PAGE0_FLOW_CTRL_2_PRE_SECTAG_AUTH_LEN(auth_len) |
                                 LAN80XX_F_MACSEC_INGR_CORE_EIP_FLOW_CTRL_PAGE0_FLOW_CTRL_2_CONFIDENTIALITY_OFFSET(offset));
@@ -1974,7 +1974,7 @@ static mepa_rc lan80xx_macsec_sa_flow_set(mepa_device_t *dev, mepa_port_no_t por
         }
     } else {
         if (egr) {
-            LAN80XX_CSR_WARM_WR(port_no, LAN80XX_MACSEC_EGR_CORE_EIP_FLOW_CTRL_PAGE1_FLOW_CTRL_1(sc - 32),
+            LAN80XX_CSR_WARM_WR(port_no, LAN80XX_MACSEC_EGR_CORE_EIP_FLOW_CTRL_PAGE1_FLOW_CTRL_1(secy_id - LAN80XX_MACSEC_SC_REC_PAGE0_NUM),
                                 LAN80XX_F_MACSEC_EGR_CORE_EIP_FLOW_CTRL_PAGE1_FLOW_CTRL_1_FLOW_TYPE(flow_type) |
                                 LAN80XX_F_MACSEC_EGR_CORE_EIP_FLOW_CTRL_PAGE1_FLOW_CTRL_1_DEST_PORT(dest_port) |
                                 LAN80XX_F_MACSEC_EGR_CORE_EIP_FLOW_CTRL_PAGE1_FLOW_CTRL_1_DROP_ACTION(2)       |
@@ -1988,13 +1988,13 @@ static mepa_rc lan80xx_macsec_sa_flow_set(mepa_device_t *dev, mepa_port_no_t por
                                 (tags_conf->is_pw_ctrl_word ? LAN80XX_M_MACSEC_EGR_CORE_EIP_FLOW_CTRL_PAGE1_FLOW_CTRL_1_EOMPLS_CTRL_WORD : 0) |
                                 LAN80XX_M_MACSEC_EGR_CORE_EIP_FLOW_CTRL_PAGE1_FLOW_CTRL_1_PREEMPT_EOP_GROWTH);
 
-            LAN80XX_CSR_WARM_WR(port_no, LAN80XX_MACSEC_EGR_CORE_EIP_FLOW_CTRL_PAGE1_FLOW_CTRL_2(sc - 32),
+            LAN80XX_CSR_WARM_WR(port_no, LAN80XX_MACSEC_EGR_CORE_EIP_FLOW_CTRL_PAGE1_FLOW_CTRL_2(secy_id - LAN80XX_MACSEC_SC_REC_PAGE0_NUM),
                                 LAN80XX_F_MACSEC_EGR_CORE_EIP_FLOW_CTRL_PAGE1_FLOW_CTRL_2_PRE_SECTAG_AUTH_START(0)  |
                                 LAN80XX_F_MACSEC_EGR_CORE_EIP_FLOW_CTRL_PAGE1_FLOW_CTRL_2_PRE_SECTAG_AUTH_LEN(auth_len) |
                                 LAN80XX_F_MACSEC_EGR_CORE_EIP_FLOW_CTRL_PAGE1_FLOW_CTRL_2_SECTAG_OFFSET(sectag_offset) |
                                 LAN80XX_F_MACSEC_EGR_CORE_EIP_FLOW_CTRL_PAGE1_FLOW_CTRL_2_CONFIDENTIALITY_OFFSET(offset));
         } else {
-            LAN80XX_CSR_WARM_WR(port_no, LAN80XX_MACSEC_INGR_CORE_EIP_FLOW_CTRL_PAGE0_FLOW_CTRL_1(sc),
+            LAN80XX_CSR_WARM_WR(port_no, LAN80XX_MACSEC_INGR_CORE_EIP_FLOW_CTRL_PAGE1_FLOW_CTRL_1(secy_id - LAN80XX_MACSEC_SC_REC_PAGE0_NUM),
                                 LAN80XX_F_MACSEC_INGR_CORE_EIP_FLOW_CTRL_PAGE1_FLOW_CTRL_1_FLOW_TYPE(flow_type) |
                                 LAN80XX_F_MACSEC_INGR_CORE_EIP_FLOW_CTRL_PAGE1_FLOW_CTRL_1_DEST_PORT(dest_port) |
                                 LAN80XX_F_MACSEC_INGR_CORE_EIP_FLOW_CTRL_PAGE1_FLOW_CTRL_1_DROP_ACTION(2)       |
@@ -2006,7 +2006,7 @@ static mepa_rc lan80xx_macsec_sa_flow_set(mepa_device_t *dev, mepa_port_no_t por
                                 (tags_conf->is_pw_ctrl_word ? LAN80XX_M_MACSEC_INGR_CORE_EIP_FLOW_CTRL_PAGE1_FLOW_CTRL_1_EOMPLS_CTRL_WORD : 0));
 
 
-            LAN80XX_CSR_WARM_WR(port_no, LAN80XX_MACSEC_INGR_CORE_EIP_FLOW_CTRL_PAGE1_FLOW_CTRL_2(sc),
+            LAN80XX_CSR_WARM_WR(port_no, LAN80XX_MACSEC_INGR_CORE_EIP_FLOW_CTRL_PAGE1_FLOW_CTRL_2(secy_id - LAN80XX_MACSEC_SC_REC_PAGE0_NUM),
                                 LAN80XX_F_MACSEC_INGR_CORE_EIP_FLOW_CTRL_PAGE1_FLOW_CTRL_2_PRE_SECTAG_AUTH_START(0)  |
                                 LAN80XX_F_MACSEC_INGR_CORE_EIP_FLOW_CTRL_PAGE1_FLOW_CTRL_2_PRE_SECTAG_AUTH_LEN(auth_len) |
                                 LAN80XX_F_MACSEC_INGR_CORE_EIP_FLOW_CTRL_PAGE1_FLOW_CTRL_2_CONFIDENTIALITY_OFFSET(offset));
@@ -2133,6 +2133,7 @@ static mepa_rc lan80xx_macsec_sa_tcam_key_mask_set(mepa_device_t *dev,
         T_E(MEPA_TRACE_GRP_GEN, "Pattern priority should be less than 15");
         return MEPA_RC_ERROR;
     }
+    /* TCAM_POLICY VPORT_INDEX must match FLOW_CTRL index */
     LAN80XX_CSR_WR(dev, port_no,
                    (page1 ? LAN80XX_EGR_INGR_REG_EXPAN(LAN80XX, egr, CORE_EIP_TCAM_POLICY_PAGE1_TCAM_POLICY(record - LAN80XX_MACSEC_XFORM_REC_NUM_PAGE0)) :
                     LAN80XX_EGR_INGR_REG_EXPAN(LAN80XX, egr, CORE_EIP_TCAM_POLICY_PAGE0_TCAM_POLICY(record))),
@@ -2194,15 +2195,12 @@ static mepa_rc lan80xx_sa_sam_in_flight(mepa_device_t *dev, mepa_port_no_t port_
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
     u32 val = 0, count = 0;
 
-    LAN80XX_CSR_WRM(port_no, LAN80XX_EGR_INGR_REG_EXPAN(LAN80XX, egr, CORE_SAM_ENB_CTRL_SAM_IN_FLIGHT),
-                    LAN80XX_EGR_INGR_REG_EXPAN(LAN80XX_M, egr, CORE_SAM_ENB_CTRL_SAM_IN_FLIGHT_LOAD_UNSAFE),
-                    LAN80XX_EGR_INGR_REG_EXPAN(LAN80XX_M, egr, CORE_SAM_ENB_CTRL_SAM_IN_FLIGHT_LOAD_UNSAFE));
     do {
         LAN80XX_CSR_RD(dev, port_no, LAN80XX_EGR_INGR_REG_EXPAN(LAN80XX, egr, CORE_SAM_ENB_CTRL_SAM_IN_FLIGHT), &val);
         MEPA_MSLEEP(1);
         count++;
         if (count == 100) {
-            T_E(MEPA_TRACE_GRP_GEN, "timeout, bailing out");
+            T_E(MEPA_TRACE_GRP_GEN, "timeout after %u iterations (val=0x%x), bailing out", count, val);
             return dbg_counter_incr(dev, port_no, MEPA_RC_ERR_MACSEC_TIMEOUT_ISSUE);
         }
     } while (LAN80XX_F_MACSEC_EGR_CORE_SAM_ENB_CTRL_SAM_IN_FLIGHT_UNSAFE(val)); /* wait until UNSAFE field become zero */
@@ -3387,7 +3385,7 @@ static mepa_rc lan80xx_macsec_rx_sa_disable_(mepa_device_t   *dev,
         MEPA_RC(dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_AN_NOT_EXIST));
     }
 
-    if (lan80xx_macsec_sa_inuse(dev, port.port_no, secy->rx_sc[sc]->sa[an]->record, sc, an, INGRESS, MACSEC_DISABLE) != MEPA_RC_OK) {
+    if (lan80xx_macsec_sa_inuse(dev, port.port_no, secy->rx_sc[sc]->sa[an]->record, secy->rx_sc[sc]->hw_sc_idx, an, INGRESS, MACSEC_DISABLE) != MEPA_RC_OK) {
         T_E(MEPA_TRACE_GRP_GEN, "Could not set SA:%u to 'in_use, port_no:%d, secy_id:%d", secy->rx_sc[sc]->sa[an]->record, port.port_no, secy_id);
         return dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_COULD_NOT_SET_SA);
     }
@@ -3491,8 +3489,8 @@ static mepa_rc lan80xx_macsec_rx_sa_activate_(mepa_device_t *dev,
     LAN80XX_MACSEC_ASSERT(an >= MEPA_MACSEC_SA_PER_SC_MAX, "AN is invalid");
     LAN80XX_MACSEC_ASSERT(secy->rx_sc[sc]->sa[an] == NULL, "AN does not exist");
 
-    /* Activate chip SA Flow */
-    if (MACSEC_RC_COLD(lan80xx_macsec_sa_inuse(dev, port.port_no, secy->rx_sc[sc]->sa[an]->record, sc, an, INGRESS, MACSEC_ENABLE)) != MEPA_RC_OK) {
+    /* Activate chip SA Flow - use hw_sc_idx for SC_SA_MAP to match SC_INDEX from RXSC_CAM */
+    if (MACSEC_RC_COLD(lan80xx_macsec_sa_inuse(dev, port.port_no, secy->rx_sc[sc]->sa[an]->record, secy->rx_sc[sc]->hw_sc_idx, an, INGRESS, MACSEC_ENABLE)) != MEPA_RC_OK) {
         T_E(MEPA_TRACE_GRP_GEN, "Could not set SA:%u to 'in_use'", secy->rx_sc[sc]->sa[an]->record);
         return dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_COULD_NOT_SET_SA);
     }
@@ -3776,6 +3774,7 @@ static mepa_rc lan80xx_macsec_rx_sc_cam_set(mepa_device_t *dev, mepa_port_no_t p
     mepa_mac_t  mac_addr = {0};
     mepa_mac_t broadcast = {.addr = LAN80XX_MAC_ADDR_BROADCAST};
     u16 port_id = 0;
+    u32 hw_sc_idx = secy->rx_sc[sc]->hw_sc_idx;  /* Globally unique RXSC_CAM/SC_SA_MAP index */
 
     /* Accroding to MACsec IP and IEEE MACsec Standard when SCI is Explicitly available in Packet, Ingress engine will use that SCI
      * If SCI is not avaialble Explicitly SCI program should be as follows
@@ -3797,27 +3796,30 @@ static mepa_rc lan80xx_macsec_rx_sc_cam_set(mepa_device_t *dev, mepa_port_no_t p
         port_id = LAN80XX_BROADCAST_PORT_ID;
     }
 
-    if (sc < LAN80XX_MACSEC_XFORM_REC_NUM_PAGE0) {
-        LAN80XX_CSR_WR(dev, port_no, LAN80XX_MACSEC_INGR_CORE_RXSC_CAM_KEY_PAGE0_RXSC_SCI_LO(sc), lan80xx_get_u32(&mac_addr.addr[0]));
+    /* RXSC_CAM: PAGE0 has entries 0-31, PAGE1 has entries 32-63 */
+    if (hw_sc_idx < LAN80XX_MACSEC_SC_REC_PAGE0_NUM) {
+        LAN80XX_CSR_WR(dev, port_no, LAN80XX_MACSEC_INGR_CORE_RXSC_CAM_KEY_PAGE0_RXSC_SCI_LO(hw_sc_idx), lan80xx_get_u32(&mac_addr.addr[0]));
 
-        LAN80XX_CSR_WR(dev, port_no, LAN80XX_MACSEC_INGR_CORE_RXSC_CAM_KEY_PAGE0_RXSC_SCI_HI(sc),
+        LAN80XX_CSR_WR(dev, port_no, LAN80XX_MACSEC_INGR_CORE_RXSC_CAM_KEY_PAGE0_RXSC_SCI_HI(hw_sc_idx),
                        (mac_addr.addr[4] | (mac_addr.addr[5] << 8) | (MACSEC_BS(port_id) << 16)));
 
-        LAN80XX_CSR_WR(dev, port_no, LAN80XX_MACSEC_INGR_CORE_RXSC_CAM_KEY_PAGE0_RXSC_CAM_CTRL(sc),
+        /* VPORT_INDEX = secyid for filtering by SecY during lookup */
+        LAN80XX_CSR_WR(dev, port_no, LAN80XX_MACSEC_INGR_CORE_RXSC_CAM_KEY_PAGE0_RXSC_CAM_CTRL(hw_sc_idx),
                        LAN80XX_F_MACSEC_INGR_CORE_RXSC_CAM_KEY_PAGE0_RXSC_CAM_CTRL_VPORT_INDEX(secyid));
     } else {
-        LAN80XX_CSR_WR(dev, port_no, LAN80XX_MACSEC_INGR_CORE_RXSC_CAM_KEY_PAGE1_RXSC_SCI_LO(sc - LAN80XX_MACSEC_XFORM_REC_NUM_PAGE0),
+        LAN80XX_CSR_WR(dev, port_no, LAN80XX_MACSEC_INGR_CORE_RXSC_CAM_KEY_PAGE1_RXSC_SCI_LO(hw_sc_idx - LAN80XX_MACSEC_SC_REC_PAGE0_NUM),
                        lan80xx_get_u32(&mac_addr.addr[0]));
 
-        LAN80XX_CSR_WR(dev, port_no, LAN80XX_MACSEC_INGR_CORE_RXSC_CAM_KEY_PAGE1_RXSC_SCI_HI(sc - LAN80XX_MACSEC_XFORM_REC_NUM_PAGE0),
+        LAN80XX_CSR_WR(dev, port_no, LAN80XX_MACSEC_INGR_CORE_RXSC_CAM_KEY_PAGE1_RXSC_SCI_HI(hw_sc_idx - LAN80XX_MACSEC_SC_REC_PAGE0_NUM),
                        (mac_addr.addr[4] | (mac_addr.addr[5] << 8) | (MACSEC_BS(port_id) << 16)));
 
-        LAN80XX_CSR_WR(dev, port_no, LAN80XX_MACSEC_INGR_CORE_RXSC_CAM_KEY_PAGE1_RXSC_CAM_CTRL(sc - LAN80XX_MACSEC_XFORM_REC_NUM_PAGE0),
+        /* VPORT_INDEX = secyid for filtering by SecY during lookup */
+        LAN80XX_CSR_WR(dev, port_no, LAN80XX_MACSEC_INGR_CORE_RXSC_CAM_KEY_PAGE1_RXSC_CAM_CTRL(hw_sc_idx - LAN80XX_MACSEC_SC_REC_PAGE0_NUM),
                        LAN80XX_F_MACSEC_INGR_CORE_RXSC_CAM_KEY_PAGE0_RXSC_CAM_CTRL_VPORT_INDEX(secyid));
     }
 
     LAN80XX_CSR_WR(dev, port_no, LAN80XX_MACSEC_INGR_CORE_RXSC_ENTRY_ENABLE_CTRL,
-                   LAN80XX_F_MACSEC_INGR_CORE_RXSC_ENTRY_ENABLE_CTRL_SC_INDEX_SET(sc) |
+                   LAN80XX_F_MACSEC_INGR_CORE_RXSC_ENTRY_ENABLE_CTRL_SC_INDEX_SET(hw_sc_idx) |
                    LAN80XX_M_MACSEC_INGR_CORE_RXSC_ENTRY_ENABLE_CTRL_SET_ENABLE);
 
     return MEPA_RC_OK;
@@ -3882,7 +3884,7 @@ static mepa_rc lan80xx_macsec_rx_sa_set_(mepa_device_t   *dev,
         T_E(MEPA_TRACE_GRP_GEN, "Could not program the RXCAM match rule");
         return dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_COULD_NOT_PRG_SA_MATCH);
     }
-    if (lan80xx_macsec_sa_flow_set(dev, port.port_no, INGRESS, secy->rx_sc[sc]->sa[an]->record, secy, an, sc, MEPA_MACSEC_MATCH_ACTION_CONTROLLED_PORT) != MEPA_RC_OK) {
+    if (lan80xx_macsec_sa_flow_set(dev, port.port_no, INGRESS, secy->rx_sc[sc]->sa[an]->record, secy, an, sc, secy_id, MEPA_MACSEC_MATCH_ACTION_CONTROLLED_PORT) != MEPA_RC_OK) {
         T_E(MEPA_TRACE_GRP_GEN, "Could not program the SA flow, port_no:%d  secy_id:%d", port.port_no, secy_id);
         return dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_COULD_NOT_PRG_SA_FLOW);
     }
@@ -4088,7 +4090,7 @@ static mepa_rc lan80xx_macsec_tx_sa_set_(mepa_device_t *dev, const u32 secy_id, 
         T_E(MEPA_TRACE_GRP_GEN, "Could not program the xform record");
         return dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_COULD_NOT_PRG_XFORM);
     }
-    if (lan80xx_macsec_sa_flow_set(dev, port.port_no, EGRESS, record, secy, an, secy_id, MEPA_MACSEC_MATCH_ACTION_CONTROLLED_PORT) != MEPA_RC_OK) {
+    if (lan80xx_macsec_sa_flow_set(dev, port.port_no, EGRESS, record, secy, an, 0, secy_id, MEPA_MACSEC_MATCH_ACTION_CONTROLLED_PORT) != MEPA_RC_OK) {
         T_E(MEPA_TRACE_GRP_GEN, "Could not program the SA flow");
         return dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_COULD_NOT_PRG_SA_FLOW);
     }
@@ -4129,6 +4131,10 @@ static mepa_rc lan80xx_macsec_rx_sc_del_(mepa_device_t             *dev,
             }
         }
     }
+    LAN80XX_CSR_WR(dev, port.port_no, LAN80XX_MACSEC_INGR_CORE_RXSC_ENTRY_ENABLE_CTRL,
+                   LAN80XX_F_MACSEC_INGR_CORE_RXSC_ENTRY_ENABLE_CTRL_SC_INDEX_SET(secy->rx_sc[sc]->hw_sc_idx));
+    /* Free the hw_sc_idx back to the pool */
+    data->macsec_conf.rx_sc_hw_idx_in_use &= ~(1ULL << secy->rx_sc[sc]->hw_sc_idx);
     memset(secy->rx_sc[sc], 0, sizeof(*secy->rx_sc[sc]));
     secy->rx_sc[sc] = NULL;
     //If no Secure channel is found then the frame validation will be done based on the update_glb_validate
@@ -4172,8 +4178,21 @@ static mepa_rc lan80xx_macsec_rx_sc_add_(mepa_device_t  *dev, const mepa_macsec_
         return dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_SC_RESOURCE_NOT_FOUND);
     }
 
-    T_I(MEPA_TRACE_GRP_GEN, "Adding new RX-SC: Port: "MACSEC_PORT_FMT" SCI: "LAN80XX_SCI_FMT", sc-in-secy:%u", LAN80XX_MACSEC_PORT_ARG(&port), LAN80XX_SCI_ARG(*sci),
-        sc_secy);
+    /* Allocate globally unique hw_sc_idx for RXSC_CAM/SC_SA_MAP */
+    u32 hw_sc_idx;
+    for (hw_sc_idx = 0; hw_sc_idx < LAN80XX_MACSEC_MAX_RX_SC; hw_sc_idx++) {
+        if (!(data->macsec_conf.rx_sc_hw_idx_in_use & (1ULL << hw_sc_idx))) {
+            break;
+        }
+    }
+    if (hw_sc_idx >= LAN80XX_MACSEC_MAX_RX_SC) {
+        T_E(MEPA_TRACE_GRP_GEN, "No free hw_sc_idx available, port_no:%d", port.port_no);
+        return dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_SC_RESOURCE_NOT_FOUND);
+    }
+    data->macsec_conf.rx_sc_hw_idx_in_use |= (1ULL << hw_sc_idx);
+
+    T_I(MEPA_TRACE_GRP_GEN, "Adding new RX-SC: Port: "MACSEC_PORT_FMT" SCI: "LAN80XX_SCI_FMT", sc-in-secy:%u, hw_sc_idx:%u", LAN80XX_MACSEC_PORT_ARG(&port), LAN80XX_SCI_ARG(*sci),
+        sc_secy, hw_sc_idx);
     secy->rx_sc[sc_secy] = &data->macsec_conf.rx_sc[sc_conf];
     memcpy(&secy->rx_sc[sc_secy]->sci, sci, sizeof(mepa_macsec_sci_t));
     secy->rx_sc[sc_secy]->conf.validate_frames = secy->conf.validate_frames;
@@ -4182,6 +4201,7 @@ static mepa_rc lan80xx_macsec_rx_sc_add_(mepa_device_t  *dev, const mepa_macsec_
     secy->rx_sc[sc_secy]->conf.confidentiality_offset = secy->conf.confidentiality_offset;
     secy->rx_sc[sc_secy]->status.created_time = MEPA_UPTIME_SECONDS(); // TimeOfDay in seconds
     secy->rx_sc[sc_secy]->in_use = 1;
+    secy->rx_sc[sc_secy]->hw_sc_idx = hw_sc_idx;
 
     return MEPA_RC_OK;
 }

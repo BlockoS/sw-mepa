@@ -23,11 +23,50 @@ static mepa_bool_t lan8814_is_lan8814(mepa_device_t *dev)
 }
 
 // Return true if the PHY is the internal PHY of lan966x
+static mepa_bool_t lan8814_is_lan8842(mepa_device_t *dev)
+{
+    phy_data_t *data = (phy_data_t *) dev->data;
+
+    return data->dev.model == 0xc0;
+}
+
+// Return true if the PHY is the internal PHY of lan966x
 static mepa_bool_t lan8814_is_lan966x(mepa_device_t *dev)
 {
     phy_data_t *data = (phy_data_t *) dev->data;
 
     return data->dev.model == 0x27;
+}
+
+static const char *lan8814_get_name(mepa_device_t *dev)
+{
+    if (lan8814_is_lan8814(dev)) {
+        return "lan8814";
+    }
+    if (lan8814_is_lan8842(dev)) {
+        return "lan8842";
+    }
+    if (lan8814_is_lan966x(dev)) {
+        return "lan966x internal";
+    }
+
+    T_W(MEPA_TRACE_GRP_GEN, "Unknown name for the device");
+    return "";
+}
+
+static const char *lan8814_mac_if_to_str(mesa_port_interface_t mac_if)
+{
+    switch (mac_if) {
+    case MESA_PORT_INTERFACE_QSGMII:
+        return "QSGMII";
+    case MESA_PORT_INTERFACE_SGMII:
+        return "SGMII";
+    case MESA_PORT_INTERFACE_GMII:
+        return "GMII";
+    default:
+        T_W(MEPA_TRACE_GRP_GEN, "Unknown interface type");
+        return "";
+    }
 }
 
 mepa_rc lan8814_direct_reg_rd(mepa_device_t *dev, uint16_t addr, uint16_t *value)
@@ -732,7 +771,13 @@ static uint8_t led_num_to_gpio_mapping(mepa_device_t *dev, mepa_led_num_t led_nu
     uint8_t gpio = 11;// port 0 as default.
     switch (data->packet_idx % 4) {
     case 0:
-        gpio = led_num == MEPA_LED0 ? 11 : 12;
+        if (lan8814_is_lan8814(dev) ||
+            lan8814_is_lan966x(dev)) {
+                gpio = led_num == MEPA_LED0 ? 11 : 12;
+        }
+        if (lan8814_is_lan8842(dev)) {
+                gpio = led_num == MEPA_LED0 ? 14 : 15;
+        }
         break;
     case 1:
         gpio = led_num == MEPA_LED0 ? 17 : 18;
@@ -811,7 +856,7 @@ static mepa_rc lan8814_led_mode_set(mepa_device_t *dev, mepa_gpio_mode_t led_mod
 
     // LAN8814 supports only LED0 and LED1
     if ((led_num != MEPA_LED0) && (led_num != MEPA_LED1)) {
-        T_W(MEPA_TRACE_GRP_GEN, "8814 supports only leds 0 & 1\n");
+        T_W(MEPA_TRACE_GRP_GEN, "%s supports only leds 0 & 1\n", lan8814_get_name(dev));
         return MEPA_RC_NOT_IMPLEMENTED;
     }
     if ((mode = led_mepa_mode_to_lan8814(led_mode)) == 0xff) {// Not valid
@@ -857,8 +902,8 @@ static mepa_rc lan8814_gpio_mode_private(mepa_device_t *dev, const mepa_gpio_con
             EP_WRM(dev, LAN8814_GPIO_DIR1, dir, val);
         }
     } else {
-        // Not supported. Illegal for LAN8814.
-        T_W(MEPA_TRACE_GRP_GEN, "Not valid gpio on 8814 phy");
+        // Not supported.
+        T_W(MEPA_TRACE_GRP_GEN, "Not valid gpio on %s phy", lan8814_get_name(dev));
     }
     return MEPA_RC_OK;
 }
@@ -1825,6 +1870,9 @@ static mepa_device_t *lan8814_probe(mepa_driver_t *drv,
     if (sku == LAN8804_SKU) {
         drv = &lan8814_drv.phy_drv[1];
     }
+    if (sku == LAN8832_SKU) {
+        drv = &lan8814_drv.phy_drv[4];
+    }
     // MEPA-692: Workaround ends
 
     dev = mepa_create_int(drv, callout, callout_ctx, board_conf, sizeof(phy_data_t));
@@ -1966,11 +2014,13 @@ static mepa_rc lan8814_gpio_mode_set(mepa_device_t *dev, const mepa_gpio_conf_t 
 {
     mepa_rc rc = MEPA_RC_OK;
 
-    // LAN8814 has 0-23 gpios.
-    if (gpio_conf->gpio_no > 23) {
-        T_W(MEPA_TRACE_GRP_GEN, "Not valid gpio on 8814 phy");
+    if ((lan8814_is_lan8814(dev) && gpio_conf->gpio_no > 23) ||
+        (lan8814_is_lan966x(dev) && gpio_conf->gpio_no > 23) ||
+        (lan8814_is_lan8842(dev) && gpio_conf->gpio_no > 15)) {
+        T_W(MEPA_TRACE_GRP_GEN, "Not valid gpio on %s phy", lan8814_get_name(dev));
         return MEPA_RC_NOT_IMPLEMENTED;
     }
+
     MEPA_ENTER(dev);
     rc = lan8814_gpio_mode_private(dev, gpio_conf);
     MEPA_EXIT(dev);
@@ -1981,8 +2031,10 @@ static mepa_rc lan8814_gpio_out_set(mepa_device_t *dev, uint8_t gpio_no, mepa_bo
 {
     uint16_t val = 0;
 
-    // LAN8814 has 0-23 gpios.
-    if (gpio_no > 23) {
+    if ((lan8814_is_lan8814(dev) && gpio_no > 23) ||
+        (lan8814_is_lan966x(dev) && gpio_no > 23) ||
+        (lan8814_is_lan8842(dev) && gpio_no > 15)) {
+        T_W(MEPA_TRACE_GRP_GEN, "Not valid gpio on %s phy", lan8814_get_name(dev));
         return MEPA_RC_NOT_IMPLEMENTED;
     }
 
@@ -2006,9 +2058,10 @@ static mepa_rc lan8814_gpio_in_get(mepa_device_t *dev, uint8_t gpio_no, mepa_boo
 {
     uint16_t val = 0;
 
-    // LAN8814 has 0-23 gpios.
-    if (gpio_no > 23) {
-        T_W(MEPA_TRACE_GRP_GEN, "Not valid gpio on 8814 phy");
+    if ((lan8814_is_lan8814(dev) && gpio_no > 23) ||
+        (lan8814_is_lan966x(dev) && gpio_no > 23) ||
+        (lan8814_is_lan8842(dev) && gpio_no > 15)) {
+        T_W(MEPA_TRACE_GRP_GEN, "Not valid gpio on %s phy", lan8814_get_name(dev));
         return MEPA_RC_NOT_IMPLEMENTED;
     }
 
@@ -2048,7 +2101,7 @@ static uint32_t lan8814_capability_priv(mepa_device_t *dev, uint32_t capability)
         c = lan8814_is_lan966x(dev);
         break;
     case MEPA_CAP_TS_GEN_3:
-        c = lan8814_is_lan8814(dev);
+        c = lan8814_is_lan8814(dev) || lan8814_is_lan8842(dev);
         break;
     case MEPA_CAP_SPEED_1G:
         c = 1;
@@ -2387,7 +2440,7 @@ static mepa_rc lan8814_debug_info_dump(struct mepa_device *dev,
     MEPA_ENTER(dev);
     if (info->layer == MEPA_DEBUG_LAYER_AIL || info->layer == MEPA_DEBUG_LAYER_ALL) {
         pr("Port:%d   Family:LAN8814   Type:%d   Rev:%d   MacIf:%s\n", (int)dev->numeric_handle,
-           phy_info.part_number, phy_info.revision, (mac_if == MESA_PORT_INTERFACE_QSGMII) ? "QSGMII" : "?");
+           phy_info.part_number, phy_info.revision, lan8814_mac_if_to_str(mac_if));
     }
 
     if (info->layer == MEPA_DEBUG_LAYER_CIL || info->layer == MEPA_DEBUG_LAYER_ALL) {
@@ -2400,7 +2453,7 @@ static mepa_rc lan8814_debug_info_dump(struct mepa_device *dev,
     MEPA_EXIT(dev);
 
     // PHY_TS Debugging
-    if (!(dev->drv->id == LAN8804_SKU)) { // not applicable to LAN8804
+    if (dev->drv->mepa_ts != NULL) {
         lan8814_ts_debug_info_dump(dev, pr, info);
     }
 
@@ -2780,9 +2833,116 @@ do_exit:
 }
 #endif
 
+static mepa_rc lan8842_if_set(mepa_device_t *dev,
+                              mepa_port_interface_t mac_if)
+{
+    if (mac_if != MESA_PORT_INTERFACE_SGMII) {
+        return MEPA_RC_ERROR;
+    }
+
+    return MEPA_RC_OK;
+}
+
+static mepa_rc lan8842_if_get(mepa_device_t *dev, mepa_port_speed_t speed,
+                              mepa_port_interface_t *mac_if)
+{
+    *mac_if = MESA_PORT_INTERFACE_SGMII;
+    return MEPA_RC_OK;
+}
+
+static mepa_rc lan8842_get_device_info(mepa_device_t *dev)
+{
+    mepa_rc rc;
+
+    MEPA_ENTER(dev);
+    rc = lan8814_get_device_info(dev);
+    MEPA_EXIT(dev);
+
+    return rc;
+}
+
+static mepa_rc lan8842_info_get(mepa_device_t *dev, mepa_phy_info_t *const phy_info)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+    mepa_rc rc;
+
+    rc = lan8842_get_device_info(dev);
+    if (rc != MEPA_RC_OK) {
+        return rc;
+    }
+
+    phy_info->manufactor_name = "Microchip";
+    if (dev->drv->id == LAN8842_DRV_ID) {
+        phy_info->part_number = 8842;
+        phy_info->model_name = "LAN8842";
+    } else {
+        phy_info->part_number = 8832;
+        phy_info->model_name = "LAN8832";
+    }
+    phy_info->revision = data->dev.rev;
+    phy_info->ts_base_port = 0;
+    phy_info->ts_base = NULL;
+
+    phy_info->cap = MEPA_CAP_SPEED_MASK_1G | MEPA_CAP_TS_MASK_NONE;
+
+    return MEPA_RC_OK;
+}
+
+#if !defined(MEPA_LAN8814_LIGHT)
+static mepa_rc lan8842_start_of_frame_conf_set(mepa_device_t *dev,
+                                               const mepa_start_of_frame_conf_t *const sof_conf)
+{
+    phy_data_t *data = (phy_data_t *)dev->data;
+    mepa_gpio_conf_t gpio_conf;
+    int rc;
+    uint16_t val;
+
+    MEPA_ENTER(dev);
+
+    if (sof_conf->sof_no != 0) {
+        rc = MEPA_RC_ERROR;
+        goto do_exit;
+    }
+
+    if (sof_conf->sof_preemption_mode > 3) {
+        rc = MEPA_RC_ERROR;
+        goto do_exit;
+    }
+
+    // Enable SOF pulse to be generated on the GPIO
+    EP_RD(dev, LAN8814_GPIO_SOF_SEL, &val);
+    val = sof_conf->ingress ? 1 : 0;
+    EP_WR(dev, LAN8814_GPIO_SOF_SEL, val);
+
+    // Enabling SOF preemption
+    EP_RD(dev, LAN8814_SOF, &val);
+    val &= ~LAN8814_M_SOF_PREEMPTION_ENABLE;
+    val |= sof_conf->sof_preemption_mode << 8;
+    EP_WR(dev, LAN8814_SOF, val);
+
+    // Enable GPIO as output to generated the SOF
+    gpio_conf.gpio_no = 13;
+    gpio_conf.mode = MEPA_GPIO_MODE_OUT;
+    rc = lan8814_gpio_mode_private(dev, &gpio_conf);
+    if (rc != MEPA_RC_OK) {
+        goto do_exit;
+    }
+
+    data->sof_conf = *sof_conf;
+    rc = MEPA_RC_OK;
+
+do_exit:
+    MEPA_EXIT(dev);
+    return rc;
+}
+#endif
+
 mepa_drivers_t mepa_lan8814_driver_init()
 {
-    static const int nr_lan8814_drivers = 3;
+    // All the new drivers need to be added at the end of the array, otherwise
+    // the lan8814_probe function might break as it is accessing directly this
+    // array.
+    static const int nr_lan8814_drivers = 5;
     static mepa_driver_t lan8814_drivers[] = {
         {
             .id = LAN8814_DEF_DRV_ID,  // LAN8814 QSGMII standalone PHY
@@ -2921,6 +3081,105 @@ mepa_drivers_t mepa_lan8814_driver_init()
             .mepa_debug_info_dump = lan8814_debug_info_dump,
             .mepa_driver_sqi_read = lan8814_sqi_read,
             .mepa_driver_start_of_frame_conf_set = lan8814_start_of_frame_conf_set,
+            .mepa_driver_start_of_frame_conf_get = lan8814_start_of_frame_conf_get,
+            .mepa_driver_framepreempt_set = lan8814_framepreempt_set,
+            .mepa_driver_framepreempt_get = lan8814_framepreempt_get,
+            .mepa_driver_selftest_start = lan8814_selftest_start,
+            .mepa_driver_selftest_read = lan8814_selftest_read,
+            .mepa_driver_prbs_set = lan8814_prbs_set,
+            .mepa_driver_prbs_get = lan8814_prbs_get,
+            .mepa_driver_prbs_monitor_set = lan8814_prbs_monitor_set,
+            .mepa_driver_prbs_monitor_get = lan8814_prbs_monitor_get,
+            .mepa_driver_serdes_tx_conf_set = lan8814_serdes_tx_conf_set,
+#endif //!defined MEPA_LAN8814_LIGHT
+        },
+        {
+            .id = LAN8842_DRV_ID,
+            .mask = 0xfffff0,
+            .mepa_driver_delete = lan8814_delete,
+            .mepa_driver_reset = lan8814_reset,
+            .mepa_driver_poll = lan8814_poll,
+            .mepa_driver_conf_set = lan8814_conf_set,
+            .mepa_driver_conf_get = lan8814_conf_get,
+            .mepa_driver_if_set = lan8842_if_set,
+            .mepa_driver_if_get = lan8842_if_get,
+            .mepa_driver_probe = lan8814_probe,
+            .mepa_driver_aneg_status_get = lan8814_aneg_status_get,
+            .mepa_driver_clause22_read = lan8814_direct_reg_read,
+            .mepa_driver_clause22_write = lan8814_direct_reg_write,
+            .mepa_driver_clause45_read  = lan8814_ext_mmd_reg_read,
+            .mepa_driver_clause45_write = lan8814_ext_mmd_reg_write,
+            .mepa_driver_event_enable_set = lan8814_event_enable_set,
+            .mepa_driver_event_enable_get = lan8814_event_enable_get,
+            .mepa_driver_event_poll = lan8814_event_status_poll,
+            .mepa_driver_gpio_mode_set = lan8814_gpio_mode_set,
+            .mepa_driver_gpio_out_set = lan8814_gpio_out_set,
+            .mepa_driver_gpio_in_get = lan8814_gpio_in_get,
+            .mepa_capability = lan8814_capability,
+            .mepa_driver_phy_info_get = lan8842_info_get,
+            .mepa_driver_eee_mode_conf_set = lan8814_eee_mode_conf_set,
+            .mepa_driver_eee_mode_conf_get = lan8814_eee_mode_conf_get,
+            .mepa_driver_eee_status_get = lan8814_eee_status_get,
+#if !defined MEPA_LAN8814_LIGHT
+            .mepa_driver_cable_diag_start = lan8814_cab_diag_start,
+            .mepa_driver_cable_diag_get = lan8814_cab_diag_get,
+            .mepa_driver_loopback_set = lan8814_loopback_set,
+            .mepa_driver_loopback_get = lan8814_loopback_get,
+            .mepa_ts = &lan8814_ts_drivers,
+            .mepa_driver_synce_clock_conf_set = lan8814_recovered_clk_set,
+            .mepa_driver_isolate_mode_conf = lan8814_isolate_mode_conf,
+            .mepa_debug_info_dump = lan8814_debug_info_dump,
+            .mepa_driver_sqi_read = lan8814_sqi_read,
+            .mepa_driver_start_of_frame_conf_set = lan8842_start_of_frame_conf_set,
+            .mepa_driver_start_of_frame_conf_get = lan8814_start_of_frame_conf_get,
+            .mepa_driver_framepreempt_set = lan8814_framepreempt_set,
+            .mepa_driver_framepreempt_get = lan8814_framepreempt_get,
+            .mepa_driver_selftest_start = lan8814_selftest_start,
+            .mepa_driver_selftest_read = lan8814_selftest_read,
+            .mepa_driver_prbs_set = lan8814_prbs_set,
+            .mepa_driver_prbs_get = lan8814_prbs_get,
+            .mepa_driver_prbs_monitor_set = lan8814_prbs_monitor_set,
+            .mepa_driver_prbs_monitor_get = lan8814_prbs_monitor_get,
+            .mepa_driver_serdes_tx_conf_set = lan8814_serdes_tx_conf_set,
+#endif //!defined MEPA_LAN8814_LIGHT
+        },
+        {
+            .id = LAN8832_SKU, // Without SyncE and 1588
+            .mask = 0xffff,
+            .mepa_driver_delete = lan8814_delete,
+            .mepa_driver_reset = lan8814_reset,
+            .mepa_driver_poll = lan8814_poll,
+            .mepa_driver_conf_set = lan8814_conf_set,
+            .mepa_driver_conf_get = lan8814_conf_get,
+            .mepa_driver_if_set = lan8842_if_set,
+            .mepa_driver_if_get = lan8842_if_get,
+            .mepa_driver_probe = lan8814_probe,
+            .mepa_driver_aneg_status_get = lan8814_aneg_status_get,
+            .mepa_driver_clause22_read = lan8814_direct_reg_read,
+            .mepa_driver_clause22_write = lan8814_direct_reg_write,
+            .mepa_driver_clause45_read  = lan8814_ext_mmd_reg_read,
+            .mepa_driver_clause45_write = lan8814_ext_mmd_reg_write,
+            .mepa_driver_event_enable_get = lan8814_event_enable_get,
+            .mepa_driver_event_enable_set = lan8814_event_enable_set,
+            .mepa_driver_event_poll = lan8814_event_status_poll,
+            .mepa_driver_gpio_mode_set = lan8814_gpio_mode_set,
+            .mepa_driver_gpio_out_set = lan8814_gpio_out_set,
+            .mepa_driver_gpio_in_get = lan8814_gpio_in_get,
+            .mepa_capability = lan8814_capability,
+            .mepa_driver_phy_info_get = lan8842_info_get,
+            .mepa_driver_eee_mode_conf_set = lan8814_eee_mode_conf_set,
+            .mepa_driver_eee_mode_conf_get = lan8814_eee_mode_conf_get,
+            .mepa_driver_eee_status_get = lan8814_eee_status_get,
+#if !defined MEPA_LAN8814_LIGHT
+            .mepa_driver_cable_diag_start = lan8814_cab_diag_start,
+            .mepa_driver_cable_diag_get = lan8814_cab_diag_get,
+            .mepa_driver_loopback_set = lan8814_loopback_set,
+            .mepa_driver_loopback_get = lan8814_loopback_get,
+            .mepa_driver_synce_clock_conf_set = lan8814_recovered_clk_set,
+            .mepa_driver_isolate_mode_conf = lan8814_isolate_mode_conf,
+            .mepa_debug_info_dump = lan8814_debug_info_dump,
+            .mepa_driver_sqi_read = lan8814_sqi_read,
+            .mepa_driver_start_of_frame_conf_set = lan8842_start_of_frame_conf_set,
             .mepa_driver_start_of_frame_conf_get = lan8814_start_of_frame_conf_get,
             .mepa_driver_framepreempt_set = lan8814_framepreempt_set,
             .mepa_driver_framepreempt_get = lan8814_framepreempt_get,

@@ -13,6 +13,23 @@
 
 extern mepa_ts_driver_t lan8814_ts_drivers;
 
+
+// Return true if the PHY is the lan8814
+static mepa_bool_t lan8814_is_lan8814(mepa_device_t *dev)
+{
+    phy_data_t *data = (phy_data_t *) dev->data;
+
+    return data->dev.model == 0x26;
+}
+
+// Return true if the PHY is the internal PHY of lan966x
+static mepa_bool_t lan8814_is_lan966x(mepa_device_t *dev)
+{
+    phy_data_t *data = (phy_data_t *) dev->data;
+
+    return data->dev.model == 0x27;
+}
+
 mepa_rc lan8814_direct_reg_rd(mepa_device_t *dev, uint16_t addr, uint16_t *value)
 {
     if (dev->callout->miim_read(dev->callout_ctx, addr, value) != MESA_RC_OK) {
@@ -136,7 +153,7 @@ static mepa_rc lan8814_init_conf(mepa_device_t *dev)
     lan8814_get_device_info(dev);
 
     // Set config only for base port of phy.
-    if (data->dev.model == 0x26) {
+    if (lan8814_is_lan8814(dev)) {
         if ((data->packet_idx % 4) == 0) {
             //EP_WR(dev, LAN8814_CHIP_HARD_RESET, 1);
             MEPA_MSLEEP(1);
@@ -182,9 +199,7 @@ static void lan8814_qsgmii_tx_abilities(mepa_device_t *dev, mepa_port_speed_t sp
 
 static mepa_rc lan8814_qsgmii_aneg(mepa_device_t *dev, mepa_bool_t ena)
 {
-    phy_data_t *data = (phy_data_t *) dev->data;
-
-    if (data->dev.model != 0x26) {
+    if (lan8814_is_lan966x(dev)) {
         return MEPA_RC_OK;
     }
     T_I(MEPA_TRACE_GRP_GEN, "qsgmii aneg ena %d", ena);
@@ -203,7 +218,7 @@ static mepa_rc lan8814_rev_workaround(mepa_device_t *dev)
     phy_data_t *data = (phy_data_t *) dev->data;
     uint16_t val;
 
-    // work-arounds applicable for both models 0x26 & 0x27
+    // work-arounds applicable for both models lan8814 & lan966x internal phy
     do {
         // work-around for Rev C done.
         if (data->dev.rev >= 2) {
@@ -212,8 +227,8 @@ static mepa_rc lan8814_rev_workaround(mepa_device_t *dev)
         // MDI-X setting for swap A,B transmit
         EP_WRM(dev, LAN8814_ALIGN_SWAP, LAN8814_F_ALIGN_TX_A_B_SWAP, LAN8814_M_ALIGN_TX_SWAP);
     } while (0);
-    // work-around for model 0x27 only
-    if (data->dev.model == 0x27 && data->dev.rev <= 2) {
+    // work-around for model lan966x internal PHY only
+    if (lan8814_is_lan966x(dev) && data->dev.rev <= 2) {
         EP_WR(dev, LAN8814_1000BT_FIX_LATENCY_ENABLE, 1);
         // In LAN8814 internal phy clock generation stops when link goes down.
         EP_WR(dev, LAN8814_CLOCK_MANAGEMENT_MODE_5, 0x27e);
@@ -222,11 +237,11 @@ static mepa_rc lan8814_rev_workaround(mepa_device_t *dev)
         // This forces LAN8814 internal phy clock generation even when link is down.
         EP_WRM(dev, LAN8814_OPERATION_MODE_STRAP_LOW,  0x8, 0x8);
     }
-    // work-around for model 0x27 done.
-    if (data->dev.model != 0x26) {
+    // work-around for model lan8814_is_lan966x done.
+    if (lan8814_is_lan966x(dev)) {
         return MEPA_RC_OK;
     }
-    // work-arounds applicable for only model 0x26
+    // work-arounds applicable for only model lan8814
     // Rev A, B, C
     // PLL trim
     EP_WR(dev, LAN8814_ANALOG_CONTROL_1, 0x40);
@@ -542,7 +557,7 @@ static mepa_rc lan8814_conf_set_(mepa_device_t *dev, const mepa_conf_t *config)
         WRM(dev, LAN8814_BASIC_CONTROL, LAN8814_F_BASIC_CTRL_SOFT_POW_DOWN, LAN8814_F_BASIC_CTRL_SOFT_POW_DOWN);
     }
 
-    if (data->dev.model == 0x27) {
+    if (lan8814_is_lan966x(dev)) {
         /* APPL-5492:
            9662 platform: set bit 14 in reg 31. The bit is defined as reserved, but used
            as 'polarity invert' for CU-phy interrupts. Due to
@@ -617,7 +632,7 @@ static mepa_rc lan8814_reset_(mepa_device_t *dev, const mepa_reset_param_t *rst_
             lan8814_qsgmii_aneg(dev, FALSE);
             data->init_done = TRUE;
             data->rep_cnt = data->rep_cnt ? data->rep_cnt : 1;
-            if (data->dev.model == 0x26) {
+            if (lan8814_is_lan8814(dev)) {
                 data->crc_workaround = TRUE;
                 data->aneg_after_link_up = FALSE;
             }
@@ -640,7 +655,7 @@ static mepa_rc lan8814_reset_(mepa_device_t *dev, const mepa_reset_param_t *rst_
         }
         // To avoid qsgmii serdes and Gphy blocks settling in different speeds, use qsgmii soft reset and restart aneg.
         // This must be applied after Mac serdes is configured
-        if (data->dev.model == 0x26) {
+        if (lan8814_is_lan8814(dev)) {
             EP_WR(dev, LAN8814_QSGMII_SOFT_RESET, 0x1);
             WRM(dev, LAN8814_BASIC_CONTROL, LAN8814_F_BASIC_CTRL_RESTART_ANEG, LAN8814_F_BASIC_CTRL_RESTART_ANEG);
             data->post_mac_rst = TRUE;
@@ -1706,7 +1721,7 @@ static mepa_rc lan8814_poll(mepa_device_t *dev, mepa_status_t *status)
     }
 
 end:
-    if (data->dev.model == 0x26) {
+    if (lan8814_is_lan8814(dev)) {
         if (status->link != data->link_status) {
             if (status->link) { // link up
                 if ( data->conf.speed == MEPA_SPEED_AUTO || data->conf.speed == MEPA_SPEED_1G) {
@@ -2026,15 +2041,14 @@ static mepa_rc lan8814_link_base_port(mepa_device_t *dev, mepa_device_t *base_de
 
 static uint32_t lan8814_capability_priv(mepa_device_t *dev, uint32_t capability)
 {
-    phy_data_t *data = (phy_data_t *)(dev->data);
     uint32_t c;
 
     switch (capability) {
     case MEPA_CAP_TS_NONE:
-        c = data->dev.model != 0x26;
+        c = lan8814_is_lan966x(dev);
         break;
     case MEPA_CAP_TS_GEN_3:
-        c = data->dev.model == 0x26;
+        c = lan8814_is_lan8814(dev);
         break;
     case MEPA_CAP_SPEED_1G:
         c = 1;

@@ -572,9 +572,9 @@ typedef struct {
     mepa_bool_t media_serdes_input_ena; /**< Media side serdes input loopback where traffic is looped towards Mac. */
     mepa_bool_t media_serdes_facility_ena; /**< Media side serdes facility loopback where traffic is looped towards link partner. */
     mepa_bool_t media_serdes_equip_ena; /**< Media side serdes equipment loopback where traffic is looped back towards link partner. */
-    mepa_bool_t qsgmii_pcs_tbi_ena;  /**< QSGMII tbi loopback where traffic is looped towards link partner from QSGMII pcs. */
-    mepa_bool_t qsgmii_pcs_gmii_ena; /**< QSGMII gmi loopback where traffic is looped towards Mac from QSGMII pcs. */
-    mepa_bool_t qsgmii_serdes_ena;   /**< QSGMII serdes loopback where traffic is looped towards link partner from QSGMII serdes. This would affect all the 4 ports of PHY. */
+    mepa_bool_t qsgmii_pcs_tbi_ena;  /**< QSGMII/SGMII tbi loopback where traffic is looped towards link partner from QSGMII/SGMII pcs. */
+    mepa_bool_t qsgmii_pcs_gmii_ena; /**< QSGMII/SGMII gmi loopback where traffic is looped towards Mac from QSGMII/SGMII pcs. */
+    mepa_bool_t qsgmii_serdes_ena;   /**< QSGMII/SGMII serdes loopback where traffic is looped towards link partner from QSGMII/SGMII serdes. This would affect all the 4 ports of PHY. */
 } mepa_loopback_t;
 
 /* =========================================================================

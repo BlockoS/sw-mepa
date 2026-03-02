@@ -921,6 +921,7 @@ and corresponding 'x' value:
 | VSC8574       | QSGMII             | VSC8574        | QSGMII            |   5
 | LAN89x1       | SGMII              | LAN8574        | QSGMII            |   6
 | LAN8814       | QSGMII             | VSC8574        | QSGMII            |   7
+| LAN8842       | SGMII              |    -           |     -             |   8
 |===
 
 Appropriate value of 'x' needs to be selected as per PHY's connected on SLOT 1 and 2.

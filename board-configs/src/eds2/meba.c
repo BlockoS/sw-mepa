@@ -34,6 +34,7 @@ typedef enum {
     SLOT1_VSC8574_SLOT2_VSC8574,
     SLOT1_LAN89X1_SLOT2_VSC8574,
     SLOT1_LAN8814_SLOT2_VSC8574,
+    SLOT1_LAN8842_SLOT2_EMPTY,
 } eds2_phy_options_t;
 
 /* Local mapping table */
@@ -204,6 +205,9 @@ static mesa_rc eds2_phy_addr_map(meba_inst_t inst, const int mux)
     case SLOT1_LAN8814_SLOT2_VSC8574:
         inst->props.mux_mode = MESA_PORT_MUX_MODE_0;
         break;
+    case SLOT1_LAN8842_SLOT2_EMPTY:
+        inst->props.mux_mode = MESA_PORT_MUX_MODE_1;
+        break;
     default:
         valid = MESA_RC_ERROR;
         break;
@@ -331,6 +335,19 @@ static mesa_rc eds2_port_table_fill(meba_inst_t inst, uint32_t *const port_cnt, 
             eds2_port_table[i].cap = MEBA_PORT_CAP_COPPER |
                                      MEBA_PORT_CAP_TRI_SPEED |
                                      (i < 4) ? MEBA_PORT_CAP_SERDES_TX_INVERT : 0;
+        }
+        break;
+    case SLOT1_LAN8842_SLOT2_EMPTY:
+        *port_cnt = 3;
+        for (int i = 0; i < *port_cnt; ++i) {
+            eds2_port_table[i].chip_port = (i < 2) ? i : 3;
+            eds2_port_table[i].poe_port = i;
+            eds2_port_table[i].miim_controller = (i < 2) ? MESA_MIIM_CONTROLLER_1 : MESA_MIIM_CONTROLLER_0;
+            eds2_port_table[i].mac_if = MESA_PORT_INTERFACE_SGMII;
+            eds2_port_table[i].miim_addr = (i < 2) ? (i + 1) : 0;
+            eds2_port_table[i].poe_support = 1;
+            eds2_port_table[i].cap = MEBA_PORT_CAP_COPPER |
+                                     MEBA_PORT_CAP_TRI_SPEED;
         }
         break;
     }

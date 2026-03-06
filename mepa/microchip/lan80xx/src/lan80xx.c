@@ -435,7 +435,7 @@ static mepa_rc lan80xx_loopback_get(mepa_device_t *dev, mepa_loopback_t *const l
     MEPA_ENTER(dev);
     memset(loopback, 0, sizeof(mepa_loopback_t));
     loopback->far_end_ena = data->port_state.loopback_conf.l2_lp;
-    loopback->near_end_ena = data->port_state.loopback_conf.h2_lp;
+    loopback->near_end_ena = data->port_state.loopback_conf.h3p_lp;
     loopback->mac_serdes_equip_ena = data->port_state.loopback_conf.h1_lp;
     loopback->media_serdes_equip_ena = data->port_state.loopback_conf.l1_lp;
     loopback->media_serdes_facility_ena = data->port_state.loopback_conf.l5_lp;

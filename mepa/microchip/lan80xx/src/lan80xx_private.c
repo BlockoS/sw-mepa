@@ -4603,10 +4603,17 @@ mepa_rc lan80xx_loopback_set_priv(mepa_device_t         *dev,
                     LAN80XX_M_HOST_SLICE_L2_LPBK_L2_LPBK);
     data->port_state.loopback_conf.l2_lp = loopback->far_end_ena;
 
-    /* H2 Loopback */
-    LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_SLICE_H2_LPBK, loopback->near_end_ena ? LAN80XX_M_LINE_SLICE_H2_LPBK_H2_LPBK : 0,
-                    LAN80XX_M_LINE_SLICE_H2_LPBK_H2_LPBK);
-    data->port_state.loopback_conf.h2_lp = loopback->near_end_ena;
+
+    /* Workarround
+     * Near-End Loopback is supposed to work without any Media Side connections, but in LAN8044 Near-End Loopback which is H2 Loopback works only when the
+     * Line side Media is connected, Data traffic works only with Media side link partner is connected, due to following reason from design team
+     * "H2 is after Line PCS,Line PCS uses clock from CDR and CDR is active when link partner is connected"
+     * So in LAN80XX H3P loopback is assigned as Near-end loopback which will work without any Media Side connections
+    */
+    /* H3P Loopback */
+    LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_SLICE_H3P_LPBK, loopback->near_end_ena ? LAN80XX_M_LINE_SLICE_H3P_LPBK_H3P_LPBK : 0,
+                    LAN80XX_M_LINE_SLICE_H3P_LPBK_H3P_LPBK);
+    data->port_state.loopback_conf.h3p_lp = loopback->near_end_ena;
 
 
     LAN80XX_CSR_WR(dev, port_no, LAN80XX_HOST_LINE_REG(LAN80XX, 1, PMA_8BIT_CMU_FF), 0x00); /* Select LANE */

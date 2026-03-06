@@ -126,6 +126,7 @@ typedef struct {
     mepa_bool_t  h3m_lp_ena;   /* Enable H3M Loopback */
     mepa_bool_t  l3m_lp_ena;   /* Enable L3M Loopback */
     mepa_bool_t  h7_lp_ena;    /* Enable H7 Loopback */
+    mepa_bool_t  h2_lp_ena;    /* Enable H2 Loopback */
 } phy25g_lp_types_t;
 
 /** \brief loopback status get */

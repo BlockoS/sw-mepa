@@ -4776,6 +4776,11 @@ mepa_rc lan80xx_phy_loopback_conf_set_priv(mepa_device_t            *dev,
                          LAN80XX_M_HOST_SLICE_DATAPATH_CONTROL_IGR_XGMII_PG_SEL2);
     data->port_state.loopback_conf.h7_lp = loopback->h7_lp_ena;
 
+    /* H2 Loopback */
+    LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_SLICE_H2_LPBK, loopback->h2_lp_ena ? LAN80XX_M_LINE_SLICE_H2_LPBK_H2_LPBK : 0,
+                    LAN80XX_M_LINE_SLICE_H2_LPBK_H2_LPBK);
+    data->port_state.loopback_conf.h2_lp = loopback->h2_lp_ena;
+
     return MEPA_RC_OK;
 }
 

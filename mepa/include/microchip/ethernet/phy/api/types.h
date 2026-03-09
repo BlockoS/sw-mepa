@@ -603,12 +603,12 @@ typedef enum {
 
 /** \brief synce recovered clock */
 typedef enum {
-    MEPA_SYNCE_CLOCK_DST_NONE = 0,
-    MEPA_SYNCE_CLOCK_DST_1,
+    MEPA_SYNCE_CLOCK_DST_1 = 0,
     MEPA_SYNCE_CLOCK_DST_2,
     MEPA_SYNCE_CLOCK_DST_3,
     MEPA_SYNCE_CLOCK_DST_4,
     MEPA_SYNCE_CLOCK_DST_SCKOUT,
+    MEPA_SYNCE_CLOCK_DST_NONE,
     MEPA_SYNCE_CLOCK_DST_MAX,
 } mepa_synce_clock_dst_t;
 

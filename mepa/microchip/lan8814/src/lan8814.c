@@ -54,6 +54,25 @@ static const char *lan8814_get_name(mepa_device_t *dev)
     return "";
 }
 
+static mepa_bool_t lan8814_has_ptp(mepa_device_t *dev)
+{
+    phy_data_t *data = (phy_data_t *) dev->data;
+
+    if (lan8814_is_lan966x(dev)) {
+        return FALSE;
+    }
+
+    if (lan8814_is_lan8814(dev)) {
+        return data->dev.sku == 0x8814 || data->dev.sku == 0x8818;
+    }
+
+    if (lan8814_is_lan8842(dev)) {
+        return data->dev.sku == 0x8842;
+    }
+
+    return FALSE;
+}
+
 static const char *lan8814_mac_if_to_str(mesa_port_interface_t mac_if)
 {
     switch (mac_if) {
@@ -1885,6 +1904,9 @@ static mepa_device_t *lan8814_probe(mepa_driver_t *drv,
     data->port_no = board_conf->numeric_handle;
     data->events = 0;
 
+    lan8814_get_device_info(dev);
+    data->dev.sku = sku;
+
 #ifdef REG_DBG
     (void)lan8814_reg_dump(dev);
 #endif
@@ -2098,10 +2120,10 @@ static uint32_t lan8814_capability_priv(mepa_device_t *dev, uint32_t capability)
 
     switch (capability) {
     case MEPA_CAP_TS_NONE:
-        c = lan8814_is_lan966x(dev);
+        c = !lan8814_has_ptp(dev);
         break;
     case MEPA_CAP_TS_GEN_3:
-        c = lan8814_is_lan8814(dev) || lan8814_is_lan8842(dev);
+        c = lan8814_has_ptp(dev);
         break;
     case MEPA_CAP_SPEED_1G:
         c = 1;

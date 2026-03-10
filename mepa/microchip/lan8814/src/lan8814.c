@@ -2905,7 +2905,15 @@ static mepa_rc lan8842_info_get(mepa_device_t *dev, mepa_phy_info_t *const phy_i
     phy_info->ts_base_port = 0;
     phy_info->ts_base = NULL;
 
-    phy_info->cap = MEPA_CAP_SPEED_MASK_1G | MEPA_CAP_TS_MASK_NONE;
+    if (lan8814_capability_priv(dev, MEPA_CAP_TS_GEN_3)) {
+        phy_info->cap |= MEPA_CAP_TS_MASK_GEN_3;
+    }
+    if (lan8814_capability_priv(dev, MEPA_CAP_TS_NONE)) {
+        phy_info->cap |= MEPA_CAP_TS_MASK_NONE;
+    }
+    if (lan8814_capability_priv(dev, MEPA_CAP_SPEED_1G)) {
+        phy_info->cap |= MEPA_CAP_SPEED_MASK_1G;
+    }
 
     return MEPA_RC_OK;
 }

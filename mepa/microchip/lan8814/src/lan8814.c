@@ -73,21 +73,6 @@ static mepa_bool_t lan8814_has_ptp(mepa_device_t *dev)
     return FALSE;
 }
 
-static const char *lan8814_mac_if_to_str(mesa_port_interface_t mac_if)
-{
-    switch (mac_if) {
-    case MESA_PORT_INTERFACE_QSGMII:
-        return "QSGMII";
-    case MESA_PORT_INTERFACE_SGMII:
-        return "SGMII";
-    case MESA_PORT_INTERFACE_GMII:
-        return "GMII";
-    default:
-        T_W(MEPA_TRACE_GRP_GEN, "Unknown interface type");
-        return "";
-    }
-}
-
 mepa_rc lan8814_direct_reg_rd(mepa_device_t *dev, uint16_t addr, uint16_t *value)
 {
     if (dev->callout->miim_read(dev->callout_ctx, addr, value) != MESA_RC_OK) {
@@ -2448,6 +2433,22 @@ static mepa_rc lan8814_isolate_mode_conf(mepa_device_t *dev, const mepa_bool_t i
 #endif
 
 #if !defined(MEPA_LAN8814_LIGHT)
+static const char *lan8814_mac_if_to_str(mesa_port_interface_t mac_if)
+{
+    switch (mac_if) {
+    case MESA_PORT_INTERFACE_QSGMII:
+        return "QSGMII";
+    case MESA_PORT_INTERFACE_SGMII:
+        return "SGMII";
+    case MESA_PORT_INTERFACE_GMII:
+        return "GMII";
+    default:
+        T_W(MEPA_TRACE_GRP_GEN, "Unknown interface type");
+        return "";
+    }
+}
+
+
 static mepa_rc lan8814_debug_info_dump(struct mepa_device *dev,
                                        const mepa_debug_print_t pr,
                                        const mepa_debug_info_t   *const info)

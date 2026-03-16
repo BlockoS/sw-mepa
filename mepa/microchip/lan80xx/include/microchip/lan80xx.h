@@ -121,7 +121,6 @@ typedef struct {
 
 /** \brief Loopback types */
 typedef struct {
-    mepa_bool_t  h3p_lp_ena;   /* Enable H3P loopback */
     mepa_bool_t  l3p_lp_ena;   /* Enable L3P Loopback */
     mepa_bool_t  h3m_lp_ena;   /* Enable H3M Loopback */
     mepa_bool_t  l3m_lp_ena;   /* Enable L3M Loopback */

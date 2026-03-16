@@ -56,10 +56,10 @@ static int validate_loopback_config(mepa_loopback_t conf, phy25g_lp_types_t loop
         }
     }
     if (phy_family.family == PHY_FAMILY_MALIBU_25G) {
-        chipspecific_loopback = ((loopback_25g.h3p_lp_ena << 0) | (loopback_25g.l3p_lp_ena << 1) | (loopback_25g.h3m_lp_ena << 2) |
-                                 (loopback_25g.l3m_lp_ena << 3) | (loopback_25g.h7_lp_ena << 4));
+        chipspecific_loopback = ((loopback_25g.l3p_lp_ena << 0) | (loopback_25g.h3m_lp_ena << 1) |
+                                 (loopback_25g.l3m_lp_ena << 2) | (loopback_25g.h7_lp_ena << 3));
 
-        for (int iter = 0; iter < 5; iter++) {
+        for (int iter = 0; iter < 4; iter++) {
             if ((chipspecific_loopback >> iter) & 0x1) {
                 lp_count++;
             }

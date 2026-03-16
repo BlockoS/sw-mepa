@@ -4755,11 +4755,6 @@ mepa_rc lan80xx_phy_loopback_conf_set_priv(mepa_device_t            *dev,
                     LAN80XX_M_HOST_SLICE_L3P_LPBK_L3P_LPBK);
     data->port_state.loopback_conf.l3p_lp = loopback->l3p_lp_ena;
 
-    /* H3P Loopback */
-    LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_SLICE_H3P_LPBK, loopback->h3p_lp_ena ? LAN80XX_M_LINE_SLICE_H3P_LPBK_H3P_LPBK : 0,
-                    LAN80XX_M_LINE_SLICE_H3P_LPBK_H3P_LPBK);
-    data->port_state.loopback_conf.h3p_lp = loopback->h3p_lp_ena;
-
     /* L3M Loopback */
     LAN80XX_CSR_WRM(port_no, LAN80XX_HOST_MAC_HOST_MAC_MAC_LB_CFG, loopback->l3m_lp_ena ? LAN80XX_M_HOST_MAC_HOST_MAC_MAC_LB_CFG_XGMII_HOST_LB_ENA : 0,
                     LAN80XX_M_HOST_MAC_HOST_MAC_MAC_LB_CFG_XGMII_HOST_LB_ENA);

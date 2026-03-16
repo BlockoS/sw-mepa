@@ -492,12 +492,13 @@ The API configuration settings are listed in the following table:
 |`phy25g_lp_types_t`
 a|
 
-* h3p_lp_ena -- Enable/Disable H3P Loopback
 * l3p_lp_ena -- Enable/Disable L3P Loopback
 * h3m_lp_ena -- Enable/Disable H3M Loopback
 * l3m_lp_ena -- Enable/Disable L3M Loopback
 * h7_lp_ena  -- Enable/Disable H7  Loopback
 * h2_lp_ena  -- Enable/Disable H2  Loopback
+
+NOTE: H3P Loopback removed - use `mepa_loopback_set()` with `near_end_ena` instead.
 |===
 
 API Configuration of other Loopbacks through *mepa_loopback_set*

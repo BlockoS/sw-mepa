@@ -32,7 +32,6 @@
 		"qsgmii_serdes_ena": 0
 	},
 	"chipspecific_loopback": {
-		"h3p_lp_ena": 0,
 		"l3p_lp_ena": 0,
 		"h3m_lp_ena": 0,
 		"l3m_lp_ena": 0,

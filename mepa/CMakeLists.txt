@@ -100,6 +100,10 @@ MEPA_LIB(LIB_NAME mepa_lan966x ADVANCED
          DEFS     -DMEPA_HAS_VTSS  -DMEPA_HAS_KSZ9031  -D MEPA_HAS_LAN8814 -DMEPA_HAS_LAN884x
          DRVS     mepa_drv_vtss    mepa_drv_ksz9031    mepa_drv_lan8814   mepa_drv_lan884x)
 
+MEPA_LIB(LIB_NAME mepa_lan966x_macsec ADVANCED
+         DEFS     -DMEPA_HAS_VTSS  -DMEPA_HAS_KSZ9031  -D MEPA_HAS_LAN8814 -DMEPA_HAS_LAN884x
+         DRVS     mepa_drv_vtss_10g_macsec_ts   mepa_drv_ksz9031    mepa_drv_lan8814   mepa_drv_lan884x)
+
 MEPA_LIB(LIB_NAME mepa_eds2 ADVANCED
          DEFS     -DMEPA_HAS_VTSS  -DMEPA_HAS_KSZ9031  -D MEPA_HAS_LAN8814 -DMEPA_HAS_LAN884x
          DRVS     mepa_drv_vtss_ts    mepa_drv_ksz9031    mepa_drv_lan8814   mepa_drv_lan884x)

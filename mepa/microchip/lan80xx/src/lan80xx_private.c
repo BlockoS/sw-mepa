@@ -6164,6 +6164,17 @@ static mepa_rc lan80xx_ram_init(mepa_device_t    *dev, mepa_port_no_t  port_no)
     /* Wait for 50us to do RAM Initialization */
     MEPA_NSLEEP(50000);
 
+    /* MEPA-1330: Reset FC buffer controller after RAM_INIT to recover from
+     * any corruption caused by RAM_INIT while traffic was flowing.
+     * This resets the FC buffer pointers/state to a clean initial state. */
+    LAN80XX_CSR_WRM(port_no, LAN80XX_MAC_FC_BUFFER_MAC_FC_BUFFER_INGR_FC_BUFFER_ECC_CTL,
+                    LAN80XX_M_MAC_FC_BUFFER_MAC_FC_BUFFER_INGR_FC_BUFFER_ECC_CTL_INGR_FC_BUFFER_SWRST,
+                    LAN80XX_M_MAC_FC_BUFFER_MAC_FC_BUFFER_INGR_FC_BUFFER_ECC_CTL_INGR_FC_BUFFER_SWRST);
+
+    LAN80XX_CSR_WRM(port_no, LAN80XX_MAC_FC_BUFFER_MAC_FC_BUFFER_EGR_FC_BUFFER_ECC_CTL,
+                    LAN80XX_M_MAC_FC_BUFFER_MAC_FC_BUFFER_EGR_FC_BUFFER_ECC_CTL_EGR_FC_BUFFER_SWRST,
+                    LAN80XX_M_MAC_FC_BUFFER_MAC_FC_BUFFER_EGR_FC_BUFFER_ECC_CTL_EGR_FC_BUFFER_SWRST);
+
     if (data->port_state.port_mode.oper_mode == PCS_RETIMER) {
         /* Switch to PCS Retimer mode back and Do not replace DESCLK with SERCLK */
         LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_SLICE_SLICE_CONFIG, 0x0, LAN80XX_BIT(7) | LAN80XX_BIT(8));
@@ -6227,6 +6238,16 @@ static mepa_rc lan80xx_post1_bist_trigger(mepa_device_t  *dev, mepa_port_no_t  p
 
     /* Wait for 350us to run BIST */
     MEPA_NSLEEP(350000);
+
+    /* MEPA-1330: Reset FC buffer controller after BIST to recover from
+     * any corruption caused by BIST while traffic was flowing. */
+    LAN80XX_CSR_WRM(port_no, LAN80XX_MAC_FC_BUFFER_MAC_FC_BUFFER_INGR_FC_BUFFER_ECC_CTL,
+                    LAN80XX_M_MAC_FC_BUFFER_MAC_FC_BUFFER_INGR_FC_BUFFER_ECC_CTL_INGR_FC_BUFFER_SWRST,
+                    LAN80XX_M_MAC_FC_BUFFER_MAC_FC_BUFFER_INGR_FC_BUFFER_ECC_CTL_INGR_FC_BUFFER_SWRST);
+
+    LAN80XX_CSR_WRM(port_no, LAN80XX_MAC_FC_BUFFER_MAC_FC_BUFFER_EGR_FC_BUFFER_ECC_CTL,
+                    LAN80XX_M_MAC_FC_BUFFER_MAC_FC_BUFFER_EGR_FC_BUFFER_ECC_CTL_EGR_FC_BUFFER_SWRST,
+                    LAN80XX_M_MAC_FC_BUFFER_MAC_FC_BUFFER_EGR_FC_BUFFER_ECC_CTL_EGR_FC_BUFFER_SWRST);
 
     if (data->port_state.port_mode.oper_mode == PCS_RETIMER) {
         /* Switch to PCS Retimer mode back and Do not replace DESCLK with SERCLK */

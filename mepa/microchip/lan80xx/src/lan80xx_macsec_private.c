@@ -623,18 +623,6 @@ static mepa_rc lan80xx_macsec_init_set_(mepa_device_t *dev, mepa_port_no_t port_
 
     if (init->enable) {
 
-        /* Resetiing the MACsec Block When Disabling the MACsec Block of the Port */
-        LAN80XX_CSR_WR(dev, port_no, LAN80XX_LINE_SLICE_LINE_MACSEC_RESET,
-                       LAN80XX_M_LINE_SLICE_LINE_MACSEC_RESET_MACSEC_LPART_INGR_RST |
-                       LAN80XX_M_LINE_SLICE_LINE_MACSEC_RESET_MACSEC_LPART_EGR_RST  |
-                       LAN80XX_M_LINE_SLICE_LINE_MACSEC_RESET_MACSEC_HPART_INGR_RST |
-                       LAN80XX_M_LINE_SLICE_LINE_MACSEC_RESET_MACSEC_HPART_EGR_RST  |
-                       LAN80XX_M_LINE_SLICE_LINE_MACSEC_RESET_MACSEC_IP_INGR_RST    |
-                       LAN80XX_M_LINE_SLICE_LINE_MACSEC_RESET_MACSEC_IP_EGR_RST);
-
-
-        LAN80XX_CSR_WR(dev, port_no, LAN80XX_LINE_SLICE_LINE_MACSEC_RESET, 0x0);
-
         /* Ingress MacSec block Enable Clock */
         LAN80XX_CSR_COLD_WR(port_no, LAN80XX_MACSEC_INGR_MACSEC_INGR_MACSEC_ENA_CFG,
                             LAN80XX_M_MACSEC_INGR_MACSEC_INGR_MACSEC_ENA_CFG_CLK_ENA |
@@ -652,6 +640,17 @@ static mepa_rc lan80xx_macsec_init_set_(mepa_device_t *dev, mepa_port_no_t port_
         /* Egress MacSec block Out of SW Reset and Enable Clock */
         LAN80XX_CSR_COLD_WR(port_no, LAN80XX_MACSEC_EGR_MACSEC_EGR_MACSEC_ENA_CFG,
                             LAN80XX_M_MACSEC_EGR_MACSEC_EGR_MACSEC_ENA_CFG_CLK_ENA);
+
+        /* Reset LPART/HPART FIFOs after MACsec block is out of reset */
+        LAN80XX_CSR_WR(dev, port_no, LAN80XX_LINE_SLICE_LINE_MACSEC_RESET,
+                       LAN80XX_M_LINE_SLICE_LINE_MACSEC_RESET_MACSEC_LPART_INGR_RST |
+                       LAN80XX_M_LINE_SLICE_LINE_MACSEC_RESET_MACSEC_LPART_EGR_RST  |
+                       LAN80XX_M_LINE_SLICE_LINE_MACSEC_RESET_MACSEC_HPART_INGR_RST |
+                       LAN80XX_M_LINE_SLICE_LINE_MACSEC_RESET_MACSEC_HPART_EGR_RST |
+                       LAN80XX_M_LINE_SLICE_LINE_MACSEC_RESET_MACSEC_IP_INGR_RST |
+                       LAN80XX_M_LINE_SLICE_LINE_MACSEC_RESET_MACSEC_IP_EGR_RST);
+
+        LAN80XX_CSR_WR(dev, port_no, LAN80XX_LINE_SLICE_LINE_MACSEC_RESET, 0x0);
 
         /* Set the context */
         /* Selcting the Ethertype to be insterted secTag which is 88E5 represented in little endian format and enabling sequence number threshold mode */

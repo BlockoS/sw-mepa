@@ -3384,6 +3384,13 @@ static mepa_rc lan80xx_macsec_rx_sa_disable_(mepa_device_t   *dev,
         MEPA_RC(dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_AN_NOT_EXIST));
     }
 
+    /* Disable chip SA Flow - disable TCAM matching first */
+    if (lan80xx_macsec_sa_enable(dev, port.port_no, secy->rx_sc[sc]->sa[an]->record, INGRESS, MACSEC_DISABLE) != MEPA_RC_OK) {
+        T_E(MEPA_TRACE_GRP_GEN, "Could not disable the SA:%u, port_no:%d, secy_id:%d", an, port.port_no, secy_id);
+        return dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_COULD_NOT_DISABLE_SA);
+    }
+
+    /* Then clear SC_SA_MAP */
     if (lan80xx_macsec_sa_inuse(dev, port.port_no, secy->rx_sc[sc]->sa[an]->record, secy->rx_sc[sc]->hw_sc_idx, an, INGRESS, MACSEC_DISABLE) != MEPA_RC_OK) {
         T_E(MEPA_TRACE_GRP_GEN, "Could not set SA:%u to 'in_use, port_no:%d, secy_id:%d", secy->rx_sc[sc]->sa[an]->record, port.port_no, secy_id);
         return dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_COULD_NOT_SET_SA);
@@ -3418,17 +3425,29 @@ static mepa_rc lan80xx_macsec_rx_sa_del_(mepa_device_t   *dev,
     }
     record = secy->rx_sc[sc]->sa[an]->record;
 
-    /* Disable chip SA Flow */
-    if (lan80xx_macsec_sa_enable(dev, port.port_no, record, INGRESS, MACSEC_DISABLE) != MEPA_RC_OK) {
-        T_E(MEPA_TRACE_GRP_GEN, "Could not Enable the SA:%u", an);
-        return dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_COULD_NOT_ENA_SA);
+    /* To remove an expired ingress SA:
+     * 1. Clear sa_in_use bit in SC_SA_MAP (new packets won't use this SA)
+     * 2. Perform in-flight synchronization (wait for packets in pipeline to finish)
+     */
+
+    /* Step 1: Clear SC_SA_MAP sa_in_use bit - use hw_sc_idx for SC_SA_MAP indexing */
+    if (lan80xx_macsec_sa_inuse(dev, port.port_no, record, secy->rx_sc[sc]->hw_sc_idx, an, INGRESS, MACSEC_DISABLE) != MEPA_RC_OK) {
+        T_E(MEPA_TRACE_GRP_GEN, "Could not clear SA_IN_USE for SA:%u", an);
+        return dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_COULD_NOT_SET_SA);
     }
 
-    // Wait until the unsafe field has reached zero, i.e. while there are packet in the system
+    /* Step 2: Wait until the unsafe field has reached zero (packets in pipeline finished) */
     if (lan80xx_sa_sam_in_flight(dev, port.port_no, INGRESS) != MEPA_RC_OK) {
         T_E(MEPA_TRACE_GRP_GEN, "Could not empty the ingress pipeline");
         return dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_COULD_NOT_EMPTY_INGRESS);
     }
+
+    /* Disable chip SA Flow (TCAM) - done after sam_in_flight per datasheet */
+    if (lan80xx_macsec_sa_enable(dev, port.port_no, record, INGRESS, MACSEC_DISABLE) != MEPA_RC_OK) {
+        T_E(MEPA_TRACE_GRP_GEN, "Could not disable the SA:%u", an);
+        return dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_COULD_NOT_ENA_SA);
+    }
+
     /* Get Rx Sa counters going to be deleted.., and just ignore even if there is a error on reading */
     if ((lan80xx_macsec_rx_sa_counters_get_(dev, port.port_no, sci, an, &rx_sa_counters, secy_id)) == MEPA_RC_OK) {
         secy->rx_sc[sc]->del_rx_sa_cnt.in_pkts_ok            += rx_sa_counters.in_pkts_ok;
@@ -3492,6 +3511,12 @@ static mepa_rc lan80xx_macsec_rx_sa_activate_(mepa_device_t *dev,
     if (MACSEC_RC_COLD(lan80xx_macsec_sa_inuse(dev, port.port_no, secy->rx_sc[sc]->sa[an]->record, secy->rx_sc[sc]->hw_sc_idx, an, INGRESS, MACSEC_ENABLE)) != MEPA_RC_OK) {
         T_E(MEPA_TRACE_GRP_GEN, "Could not set SA:%u to 'in_use'", secy->rx_sc[sc]->sa[an]->record);
         return dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_COULD_NOT_SET_SA);
+    }
+
+    /* Enable chip SA Flow */
+    if (lan80xx_macsec_sa_enable(dev, port.port_no, secy->rx_sc[sc]->sa[an]->record, INGRESS, MACSEC_ENABLE) != MEPA_RC_OK) {
+        T_E(MEPA_TRACE_GRP_GEN, "Could not Enable the SA:%u", an);
+        return dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_COULD_NOT_ENA_SA);
     }
 
     secy->rx_sc[sc]->sa[an]->status.started_time = MEPA_UPTIME_SECONDS(); // TimeOfDay in seconds
@@ -3600,23 +3625,29 @@ static mepa_rc lan80xx_macsec_tx_sa_disable_(mepa_device_t  *dev, const u32 secy
         T_E(MEPA_TRACE_GRP_GEN, "Could not disable the AN:%u", an);
         return dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_COULD_NOT_DISABLE_AN);
     }
-    if (lan80xx_macsec_sa_inuse(dev, port.port_no, secy->tx_sc.sa[an]->record, secy_id, an, EGRESS, MACSEC_DISABLE) != MEPA_RC_OK) {
-        T_E(MEPA_TRACE_GRP_GEN, "Could not set SA:%u to 'in_use, port_no:%d, secy_id:%d", secy->tx_sc.sa[an]->record, port.port_no, secy_id);
-        return dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_COULD_NOT_SET_SA);
-    }
-    if (lan80xx_macsec_sam_entry_ctrl(dev, port.port_no, secy->tx_sc.sa[an]->record, EGRESS, 0) != MEPA_RC_OK) {
-        T_E(MEPA_TRACE_GRP_GEN, "Could not clear the TCAM entry, record:%d, port_no:%d, port_id:%d, secy_id:%d", secy->tx_sc.sa[an]->record, port.port_no,
-            port.port_id, secy_id);
-        return dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_COULD_NOT_ENA_SA);
+
+    /* Only touch SC_SA_MAP if this AN is the currently encoding SA.
+     * If another SA is already active (after rollover), we must NOT touch:
+     * - SC_SA_MAP (sa_inuse) - would overwrite new SA's mapping
+     * - SAM_ENTRY_ENABLE_CTRL (sam_entry_ctrl) - would affect TCAM entry
+     * The SC_SA_MAP was already updated to point to new SA during tx_sa_activate(). */
+    if (an == secy->tx_sc.status.encoding_sa) {
+        if (lan80xx_macsec_sa_inuse(dev, port.port_no, secy->tx_sc.sa[an]->record, secy_id, an, EGRESS, MACSEC_DISABLE) != MEPA_RC_OK) {
+            T_E(MEPA_TRACE_GRP_GEN, "Could not set SA:%u to 'in_use, port_no:%d, secy_id:%d", secy->tx_sc.sa[an]->record, port.port_no, secy_id);
+            return dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_COULD_NOT_SET_SA);
+        }
+        if (lan80xx_macsec_sam_entry_ctrl(dev, port.port_no, secy->tx_sc.sa[an]->record, EGRESS, 0) != MEPA_RC_OK) {
+            T_E(MEPA_TRACE_GRP_GEN, "Could not clear the TCAM entry, record:%d, port_no:%d, port_id:%d, secy_id:%d", secy->tx_sc.sa[an]->record, port.port_no,
+                port.port_id, secy_id);
+            return dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_COULD_NOT_ENA_SA);
+        }
+        secy->tx_sc.status.encoding_sa = 0;
+        secy->tx_sc.status.enciphering_sa = 0;
     }
 
     // Update TX SA/SC/SecY counters
     secy->tx_sc.sa[an]->status.in_use = 0;
     secy->tx_sc.sa[an]->enabled = 0;
-    if (an == secy->tx_sc.status.encoding_sa) {
-        secy->tx_sc.status.encoding_sa = 0;
-        secy->tx_sc.status.enciphering_sa = 0;
-    }
     secy->tx_sc.sa[an]->status.stopped_time = MEPA_UPTIME_SECONDS(); // TimeOfDay in seconds
     return MEPA_RC_OK;
 }
@@ -3633,11 +3664,18 @@ static mepa_rc lan80xx_macsec_tx_sa_del_(mepa_device_t  *dev, const u32  secy_id
 
     record = secy->tx_sc.sa[an]->record;
 
-    /* Wait until the unsafe field has reached zero, i.e. while there are packet in the system*/
-    if (lan80xx_sa_sam_in_flight(dev, port.port_no, EGRESS) != MEPA_RC_OK) {
-        T_E(MEPA_TRACE_GRP_GEN, "Could not empty the egress pipeline");
-        dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_COULD_NOT_EMPTY_EGRESS);
+    /* Disable chip SA Flow - disable TCAM matching first */
+    if (lan80xx_macsec_sa_enable(dev, port.port_no, record, EGRESS, MACSEC_DISABLE) != MEPA_RC_OK) {
+        T_E(MEPA_TRACE_GRP_GEN, "Could not disable the SA:%u", an);
+        return dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_COULD_NOT_DISABLE_SA);
+    }
 
+    /* Wait until the unsafe field has reached zero, i.e. while there are packet in the system
+     * Note: Ignore errors per VTSS reference - sam_in_flight failure is non-fatal for TX SA delete
+     * because SC_SA_MAP already points to new SA after activation */
+    if (lan80xx_sa_sam_in_flight(dev, port.port_no, EGRESS) != MEPA_RC_OK) {
+        T_D(MEPA_TRACE_GRP_GEN, "Could not empty the egress pipeline (ignored)");
+        (void)dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_COULD_NOT_EMPTY_EGRESS);
     }
 
     /* Update SC counters before the SA is deleted*/
@@ -3879,18 +3917,13 @@ static mepa_rc lan80xx_macsec_rx_sa_set_(mepa_device_t   *dev,
         T_E(MEPA_TRACE_GRP_GEN, "Could not program the TCAM match rule");
         return dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_COULD_NOT_PRG_SA_MATCH);
     }
-    if (lan80xx_macsec_rx_sc_cam_set(dev, port.port_no, record, secy, an, secy_id, sc, match) != MEPA_RC_OK) {
-        T_E(MEPA_TRACE_GRP_GEN, "Could not program the RXCAM match rule");
-        return dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_COULD_NOT_PRG_SA_MATCH);
-    }
     if (lan80xx_macsec_sa_flow_set(dev, port.port_no, INGRESS, secy->rx_sc[sc]->sa[an]->record, secy, an, sc, secy_id, MEPA_MACSEC_MATCH_ACTION_CONTROLLED_PORT) != MEPA_RC_OK) {
         T_E(MEPA_TRACE_GRP_GEN, "Could not program the SA flow, port_no:%d  secy_id:%d", port.port_no, secy_id);
         return dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_COULD_NOT_PRG_SA_FLOW);
     }
-    /* Enable chip SA Flow */
-    if (lan80xx_macsec_sa_enable(dev, port.port_no, secy->rx_sc[sc]->sa[an]->record, INGRESS, MACSEC_ENABLE) != MEPA_RC_OK) {
-        T_E(MEPA_TRACE_GRP_GEN, "Could not Enable the SA:%u", an);
-        return dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_COULD_NOT_ENA_SA);
+    if (lan80xx_macsec_rx_sc_cam_set(dev, port.port_no, record, secy, an, secy_id, sc, match) != MEPA_RC_OK) {
+        T_E(MEPA_TRACE_GRP_GEN, "Could not program the RXCAM match rule");
+        return dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_COULD_NOT_PRG_SA_MATCH);
     }
     return MEPA_RC_OK;
 }
@@ -4097,11 +4130,6 @@ static mepa_rc lan80xx_macsec_tx_sa_set_(mepa_device_t *dev, const u32 secy_id, 
     if (lan80xx_macsec_sa_tcam_key_mask_set(dev, port.port_no, EGRESS, record, secy, an, secy_id, match) != MEPA_RC_OK) {
         T_E(MEPA_TRACE_GRP_GEN, "Could not program the TCAM match rule");
         return dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_COULD_NOT_PRG_SA_MATCH);
-    }
-
-    if (lan80xx_macsec_sa_enable(dev, port.port_no, record, EGRESS, 1) != MEPA_RC_OK) {
-        T_E(MEPA_TRACE_GRP_GEN, "Could not enable the SA, record:%d, port_no:%d, port_id:%d, secy_id:%d", record, port.port_no, port.port_id, secy_id);
-        return dbg_counter_incr(dev, port.port_no, MEPA_RC_ERR_MACSEC_COULD_NOT_ENA_SA);
     }
     return MEPA_RC_OK;
 }

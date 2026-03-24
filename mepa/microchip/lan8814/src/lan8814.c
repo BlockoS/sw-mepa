@@ -27,7 +27,7 @@ static mepa_bool_t lan8814_is_lan8842(mepa_device_t *dev)
 {
     phy_data_t *data = (phy_data_t *) dev->data;
 
-    return data->dev.model == 0xc0;
+    return data->dev.model == 0x2c;
 }
 
 // Return true if the PHY is the internal PHY of lan966x

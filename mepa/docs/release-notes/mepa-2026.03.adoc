@@ -1,0 +1,58 @@
+// Copyright (c) 2004-2020 Microchip Technology Inc. and its subsidiaries.
+// SPDX-License-Identifier: MIT
+
+= MEPA-2026.03
+
+== MEPA-2026.03
+[cols="25%,75%"]
+|===
+|Version:          |MEPA-2026.03
+|Previous Version: |MEPA-2025.12
+|Date:             |2026-03-26
+|Description:      |Release Notes
+|===
+
+=== Important Notice
+
+v2026.03 is the final MEPA release in the https://github.com/microchip-ung/sw-mepa[sw-mepa] repository.
+
+The MEPA source code will be integrated into the https://github.com/microchip-ung/mesa[mesa] repository, and future MEPA releases will be published alongside MESA.
+
+=== Release Status
+
+==== Bugs Fixed
+
+  * *MEPA-1340*      : Fix Synce for sparx5 with VSC8514 PHYs
+  * *MEPA-1335*      : LAN80XX MACsec - Track the usage of RX SC hardware register usage in software and assign free RXSC Instance correctly and fixed TX hang issue when configuring MACsec
+  * *MEPA-1330*      : Fix for Intermittent FCS Error seen in MAC Retimer Mode in LAN80XX PHY
+  * *MEPA-1332*      : Rx IPG shrink errors seen randomly when MACsec is enabled on a port, Fixed by MAC Block DIC Config in LAN80XX PHY
+  * *MEPA-1325*      : Fix for UNDERFLOW_DROP_CNT intermittently seen causing FCS errors at HOST MAC in LAN80XX PHY
+  * *MEPA-1329*      : Fixed Incorrect address in register dump for LAN80XX PHYs
+  * *MEPA-1323*      : TS Classifier Get API fix for LAN80XX PHYs
+  * *MEPA-1248*      : Watson link status not working as expected
+  * *MEPA-1109*      : Skip Line side PCS Status check for standby channel when Cross-connect Host Protection is enabled in LAN80XX
+
+==== Documentation update
+
+  * Added documentation for LAN8842 PHY support in mepa_demo
+  * Updated getting-started.adoc with instructions regarding 'sym read' command
+  * Added documentation for mepa_capability API
+
+==== New features and API enhancements
+
+  * *MEPA-1333*      : Removed H3P Loopback from chip-specific API, Added support for H2 Loopback configuration. H3P Loopback mapped to Near-end loopback as SW work-around for HW Errata in M25G
+  * *MEPA-1338*      : Added new LAN80XX APIs for Link Fault Signaling configuration:
+                      ** `lan80xx_phy_lfs_set()` - Configure LFS to terminate in PHY or pass to HOST MAC
+                      ** `lan80xx_phy_lfs_get()` - Get current LFS configuration
+  * *MEPA-1321*      : Extended `mepa_phy_info_t` structure with new members:
+                      ** `manufactor_name` - Manufacturer name
+                      ** `model_name` - Model name
+                      ** `firmware_rev` - Firmware revision
+                      ** `serial_number[16]` - Serial number
+  * Added support for LAN8842 PHY driver (based on LAN8814 driver)
+  * Extended mepa_cap_t and updated all PHY drivers (lan80xx, lan867x, lan8770, lan8814, lan884x, lan887x, lan8x8x, intel, aqr, vtss, ksz9031) to implement mepa_capability
+  * Updated 1-step and 2-step latencies for LAN8814
+
+==== MEPA Sample Applications new features
+
+  * Added EDS2 MEBA configuration: SLOT1_LAN8842_SLOT2_EMPTY

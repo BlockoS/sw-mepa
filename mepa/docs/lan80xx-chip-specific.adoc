@@ -480,10 +480,10 @@ Following are the list of Loopbacks which LAN80XX PHY Supports :
 
 === Loopback Configuration Set
 
-The MEPA API `mepa_loopback_set()` Supports configuring H1, L1, H2, L2, H5, L5, H6 and L6 loopbacks. MEPA doesn't support
-configuring H3M, L3M, H3P, L3P and H7 loopbacks, so to support these loopback Chip Specific API is provided.
+The MEPA API `mepa_loopback_set()` Supports configuring H1, L1, H3P, L2, H5, L5, H6 and L6 loopbacks. MEPA doesn't support
+configuring H3M, L3M, H2, L3P and H7 loopbacks, so to support these loopback Chip Specific API is provided.
 
-    * `lan80xx_phy_loopback_conf_set()` -- Chip Specific API used to Configure H3M,L3M,H3P,L3P and H7 Loopbacks.
+    * `lan80xx_phy_loopback_conf_set()` -- Chip Specific API used to Configure H3M,L3M,H3P,L3P,H2 and H7 Loopbacks.
 
 The API configuration settings are listed in the following table:
 [%autowidth.stretch, options="header"]
@@ -492,11 +492,13 @@ The API configuration settings are listed in the following table:
 |`phy25g_lp_types_t`
 a|
 
-* h3p_lp_ena -- Enable/Disable H3P Loopback
 * l3p_lp_ena -- Enable/Disable L3P Loopback
 * h3m_lp_ena -- Enable/Disable H3M Loopback
 * l3m_lp_ena -- Enable/Disable L3M Loopback
 * h7_lp_ena  -- Enable/Disable H7  Loopback
+* h2_lp_ena  -- Enable/Disable H2  Loopback
+
+NOTE: H3P Loopback removed - use `mepa_loopback_set()` with `near_end_ena` instead.
 |===
 
 API Configuration of other Loopbacks through *mepa_loopback_set*
@@ -507,7 +509,7 @@ API Configuration of other Loopbacks through *mepa_loopback_set*
 a|
 
 * far_end_ena             	-- Enable/Disable L2 Loopback
-* near_end_ena            	-- Enable/Disable H2 Loopback
+* near_end_ena            	-- Enable/Disable H3P Loopback
 * mac_serdes_equip_ena  	-- Enable/Disable H1 Loopback
 * media_serdes_equip_ena    	-- Enable/Disable L1 Loopback
 * media_serdes_facility_ena  	-- Enable/Disable L5 Loopback

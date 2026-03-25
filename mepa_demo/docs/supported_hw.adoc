@@ -43,4 +43,5 @@ Below diagram illustrates the port number to channel ID mapping in LAN80XX PHY.
 | PHY         | SKU          | Host Interface
 | LAN8814     | 8814/8804    | QSGMII
 | LAN884x     | 8840         | RGMII
+| LAN8842     | 8842/8832    | SGMII
 |===

@@ -1653,6 +1653,7 @@ mepa_rc vtss_phy_1588_csr_read(struct mepa_device *dev, const uint16_t mmd,
 {
     mepa_rc rc = MEPA_RC_ERROR;
     phy_data_t *data = (phy_data_t *)dev->data;
+#if defined(VTSS_OPT_PHY_TIMESTAMP)
     BOOL isphy10g, isphy_1588_capable;
 
     if (vtss_phy_check_10g_and_1588(data->vtss_instance, data->port_no, &isphy10g, &isphy_1588_capable) != VTSS_RC_OK) {
@@ -1667,6 +1668,7 @@ mepa_rc vtss_phy_1588_csr_read(struct mepa_device *dev, const uint16_t mmd,
         // Handle 1G csr_read_write()
         rc = vtss_phy_csr_rd(data->vtss_instance, VTSS_PHY_PAGE_1588, data->port_no, mmd, csr_address, value);
     }
+#endif
 
     if (rc == MEPA_RC_OK) {
         T_D(data, MEPA_TRACE_GRP_TS, "1588 CSR Write success at Port:%d csr_addr:%x reg_val:%x", data->port_no, csr_address, *value);
@@ -1682,6 +1684,7 @@ mepa_rc vtss_phy_1588_csr_write(struct mepa_device *dev, const uint16_t mmd,
 {
     mepa_rc rc = MEPA_RC_ERROR;
     phy_data_t *data = (phy_data_t *)dev->data;
+#if defined(VTSS_OPT_PHY_TIMESTAMP)
     BOOL isphy10g, isphy_1588_capable;
 
     if (vtss_phy_check_10g_and_1588(data->vtss_instance, data->port_no, &isphy10g, &isphy_1588_capable) != VTSS_RC_OK) {
@@ -1696,6 +1699,7 @@ mepa_rc vtss_phy_1588_csr_write(struct mepa_device *dev, const uint16_t mmd,
         // Handle 1G csr_read_write()
         rc = vtss_phy_csr_wr(data->vtss_instance, VTSS_PHY_PAGE_1588, data->port_no, mmd, csr_address, *value);
     }
+#endif
 
     if (rc == MEPA_RC_OK) {
         T_D(data, MEPA_TRACE_GRP_TS, "1588 CSR Write success at Port:%d csr_addr:%x reg_val:%x", data->port_no, csr_address, *value);

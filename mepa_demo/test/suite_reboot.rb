@@ -5,8 +5,7 @@
 
 require_relative 'libeasy/suite'
 
-$suite_name = "vop"
+$suite_name = "reboot"
 
-run %w{./check_wireing.rb}, {:name => "check_wireing@vop", :abort_on_err => true}
-run %w{./vop_evlan_all.rb}
+run %w{./reboot.rb}
 

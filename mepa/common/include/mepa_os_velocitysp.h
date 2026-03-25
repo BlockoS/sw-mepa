@@ -6,6 +6,7 @@
 
 #include "lm_utils.h"
 #include "lm_os.h"
+#include <string.h>
 
 typedef signed char        i8;
 typedef signed short       i16;

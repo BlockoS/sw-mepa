@@ -254,11 +254,13 @@ error:
 
 mepa_rc lan867x_get_link_status(mepa_device_t *const dev, mepa_status_t *const status)
 {
+    uint16_t plca = 0;
     mepa_rc rc = MEPA_RC_ERROR;
-
-#ifdef LINK_STATUS_ENHANCED
-    uint16_t plca = 0, id = 0, beacon = 0;
     phy_data_t *data = (phy_data_t *) dev->data;
+
+    MEPA_RC(rc, lan867x_mmd_reg_rd(dev, MMD_MISC, PLCA_CTRL_0, &plca));
+#ifdef LINK_STATUS_ENHANCED
+    uint16_t id = 0, beacon = 0;
 
     MEPA_RC(rc, lan867x_mmd_reg_rd(dev, MMD_MISC, PLCA_CTRL_0, &plca));
     MEPA_RC(rc, lan867x_mmd_reg_rd(dev, MMD_MISC, PLCA_CTRL_1, &id));
@@ -278,9 +280,16 @@ mepa_rc lan867x_get_link_status(mepa_device_t *const dev, mepa_status_t *const s
 #else
     uint16_t bmsr = 0;
 
-    MEPA_RC(rc, lan867x_miim_reg_rd(dev, LAN867X_BASIC_STATUS_REG, &bmsr));
+    if (data->dev.rev >= LAN867X_REVD && ((plca & PLCA_ENABLE) == 0U)) {
 
-    status->link = ((bmsr & BIT(2)) != 0U) ? true : false;
+        status->link = (data->conf.admin.enable) ? true : false;
+
+    } else {
+
+        MEPA_RC(rc, lan867x_miim_reg_rd(dev, LAN867X_BASIC_STATUS_REG, &bmsr));
+
+        status->link = ((bmsr & BIT(2)) != 0U) ? true : false;
+    }
 #endif
 
     status->speed = MESA_SPEED_10M;

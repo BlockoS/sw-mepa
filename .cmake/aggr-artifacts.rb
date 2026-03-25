@@ -82,28 +82,13 @@ else
 end
 
 report_name = "static-analysis-report-#{git_id}-#{git_branch}"
-
 if File.exist? "#{report_name}"
     run "rm -rf #{report_name}"
 end
-
 sys "mkdir #{report_name}"
-
 sys "cp -r static_analysis_reports/* #{report_name}"
-
-cmd = [".cmake/artifactory-ci"]
-cmd << "-vvv"
-cmd << "--dep-file .cmake/deps-bsp.json"
-cmd << "--dep-file .cmake/deps-docker.json"
-cmd << "--dep-file .cmake/deps-toolchain.json"
-cmd << report_name
-
-sys cmd.join(" ")
-
 run "cp -r #{report_name} images/." if File.exist? "./images"
-
-run "rm -rf #{report_name}"
-
+run "tar -czvf #{report_name}.tar.gz #{report_name}"
 
 out_name = "mepa-#{git_id}-#{git_branch}"
 
@@ -116,6 +101,7 @@ sys "cp -r ws #{out_name}"
 sys "mkdir #{out_name}/bin"
 sys "tar -C #{out_name}/bin -f arm64.tar -x"
 sys "tar -C #{out_name}/bin -f arm.tar -x"
+sys "tar -C #{out_name}/bin -f mipsel.tar -x"
 run "tar -czvf #{out_name}.tar.gz #{out_name}"
 
 if File.exist? "./images"
@@ -133,9 +119,14 @@ cmd << "--dep-file .cmake/deps-bsp.json"
 cmd << "--dep-file .cmake/deps-docker.json"
 cmd << "--dep-file .cmake/deps-toolchain.json"
 cmd << "#{out_name}.tar.gz"
+cmd << "#{report_name}.tar.gz"
 sys cmd.join(" ")
 
+run "rm -rf #{report_name}"
+run "rm -rf #{report_name}.tar.gz"
+
 run "cp #{out_name}.tar.gz images/." if File.exist? "./images"
+run "rm -rf #{out_name}.tar.gz"
 
 exit $res
 

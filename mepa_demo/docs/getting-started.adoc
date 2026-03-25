@@ -921,6 +921,7 @@ and corresponding 'x' value:
 | VSC8574       | QSGMII             | VSC8574        | QSGMII            |   5
 | LAN89x1       | SGMII              | LAN8574        | QSGMII            |   6
 | LAN8814       | QSGMII             | VSC8574        | QSGMII            |   7
+| LAN8842       | SGMII              |    -           |     -             |   8
 |===
 
 Appropriate value of 'x' needs to be selected as per PHY's connected on SLOT 1 and 2.
@@ -1142,7 +1143,7 @@ Enable debug trace for port API at AIL and show the trace level:
 ----
 
 Read chip ID in different ways using symbolic register access:
-Command `sym read` and `sym write` are used to Read/Write EDSx/EDS2 Registers.
+Command `sym read` and `sym write` are used to Read/Write EDSx Registers.
 
 ----
 # mepa-cmd debug sym read help
@@ -1184,3 +1185,13 @@ DEVCPU_GCB:CHIP_REGS:CHIP_ID 0x174150e9  390156521 0001.0111.0100.0001.0101.0000
 1 match found
 
 ----
+
+For EDS2, it is possible to use the tool `symreg` to read/write different
+registers. To example to read the chip id the following command can be used:
+
+----
+symreg CHIP_ID
+GCB_CHIP_ID                                                               = 0x19668445
+----
+
+For more details about the tool use `symreg --help`

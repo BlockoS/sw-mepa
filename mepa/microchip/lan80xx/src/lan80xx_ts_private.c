@@ -4341,6 +4341,10 @@ static void lan80xx_get_class_from_flow(const phy25g_ts_engine_flow_conf_t *flow
     lan80xx_get_eth_class_from_flow(&flow->flow_conf.ptp.eth2_opt, flow_id, &cls_conf->eth2_class_conf);
     lan80xx_get_ip_class_from_flow(&flow->flow_conf.ptp.ip2_opt, flow_id, &cls_conf->ip2_class_conf);
     lan80xx_get_mpls_class_from_flow(&flow->flow_conf.ptp.mpls_opt, flow_id, &cls_conf->mpls_class_conf);
+    const phy25g_ts_ptp_engine_flow_conf_t *flow_en_get = &flow->flow_conf.ptp;
+
+    cls_conf->enable = ((flow_en_get->eth1_opt.flow_opt[flow_id].flow_en) | (flow_en_get->eth2_opt.flow_opt[flow_id].flow_en) | (flow_en_get->ip1_opt.flow_opt[flow_id].flow_en) |
+                       (flow_en_get->ip2_opt.flow_opt[flow_id].flow_en) | (flow_en_get->mpls_opt.flow_opt[flow_id].flow_en));
 }
 
 mepa_rc lan80xx_rx_classifier_conf_get_priv(mepa_device_t         *dev,
@@ -4368,7 +4372,6 @@ mepa_rc lan80xx_rx_classifier_conf_get_priv(mepa_device_t         *dev,
         return MEPA_RC_ERR_TS_FLOW_GET_FAIL;
     }
     out_conf->pkt_encap_type = lan80xx_to_mepa_encap(eng_conf->encap_type);
-    out_conf->enable = eng_conf->eng_used;
     lan80xx_get_class_from_flow(&flow_conf, flow_id, out_conf);
     out_conf->clock_id = eng_id; // 1 clock per engine
 
@@ -4398,7 +4401,6 @@ mepa_rc lan80xx_tx_classifier_conf_get_priv(mepa_device_t *dev,
         return MEPA_RC_ERR_TS_FLOW_GET_FAIL;
     }
     out_conf->pkt_encap_type = lan80xx_to_mepa_encap(eng_conf->encap_type);
-    out_conf->enable = eng_conf->eng_used;
     lan80xx_get_class_from_flow(&flow_conf, flow_id, out_conf);
     out_conf->clock_id = eng_id; // 1 clock per engine
     return MEPA_RC_OK;

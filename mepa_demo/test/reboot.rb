@@ -9,7 +9,7 @@ require_relative 'libeasy/et'
 
 meta = {
     "owner" => "anielsen",
-    "desc"  => "Reboot, load new SW, and start mesa-demo",
+    "desc"  => "Reboot, load new SW, and start mepa-demo-edsx",
 }
 
 $ts = get_test_setup("mesa_pc_b2b_2x")

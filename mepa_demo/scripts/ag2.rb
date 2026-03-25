@@ -1442,7 +1442,7 @@ $sl.each do |s|
     x[:members].each do |m|
         if member_is_union(m)
             is_union = true
-        elsif m[:member_type] != "void *"
+        elsif m[:member_type] != "void *" and m[:member_type] != "const char *"
             add_member_get_func m
         end
     end
@@ -1474,7 +1474,7 @@ $sl.each do |s|
     x[:members].each do |m|
         if member_is_union(m)
             is_union = true
-        elsif m[:member_type] != "void *"
+        elsif m[:member_type] != "void *" and m[:member_type] != "const char *"
             add_member_add_func m
         end
     end

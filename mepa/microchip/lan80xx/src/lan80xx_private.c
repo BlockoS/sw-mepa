@@ -625,6 +625,9 @@ mepa_rc lan80xx_xconnect_hostfailover_Protection(mepa_device_t  *dev, mepa_port_
     data->is_mac_change = conf->is_mac_change;
     data->mode = conf->mode;
 
+    /* Store host_protection_ena in base_dev so all channels can access it */
+    base_data->host_protection_ena = conf->enable;
+
     LAN80XX_CSR_WRM(base_port, switch_sel ? LAN80XX_CROSS_CONNECT_WPS0_FILTER_COUNTA_LSB : LAN80XX_CROSS_CONNECT_WPS1_FILTER_COUNTA_LSB, LAN80XX_F_CROSS_CONNECT_WPS0_FILTER_COUNTA_LSB_COUNTA_LSB(conf->assert_filter_val & 0xFFFF), LAN80XX_M_CROSS_CONNECT_WPS0_FILTER_COUNTA_LSB_COUNTA_LSB);
 
     LAN80XX_CSR_WRM(base_port, switch_sel ? LAN80XX_CROSS_CONNECT_WPS0_FILTER_COUNTA_MSB : LAN80XX_CROSS_CONNECT_WPS1_FILTER_COUNTA_MSB, LAN80XX_F_CROSS_CONNECT_WPS0_FILTER_COUNTA_MSB_COUNTA_MSB((conf->assert_filter_val >> 16) & 0xFF), LAN80XX_M_CROSS_CONNECT_WPS0_FILTER_COUNTA_MSB_COUNTA_MSB);
@@ -1011,6 +1014,59 @@ mepa_rc lan80xx_ptp_block_preempt_conf(mepa_device_t *dev, mepa_port_no_t port_n
     return MEPA_RC_OK;
 }
 
+/* configure DISABLE_DIC and TX_FRM_GAP_COMP based on current state.
+ *
+ * DISABLE_DIC and TX_FRM_GAP_COMP configuration rules:
+ *
+ * If flow control is enabled:
+ *   - DISABLE_DIC = 0 (always, regardless of mode)
+ *
+ * If flow control is disabled:
+ *   - PCS_RETIMER MODE: DISABLE_DIC = 0 (no effect, LMAC not used)
+ *   - MAC_RETIMER MODE with MACsec enabled (not bypassed): DISABLE_DIC = 0
+ *   - MAC_RETIMER MODE with MACsec bypass/disabled:
+ *       - TX_FRM_GAP_COMP = 0x14 (to disable DIC in FC buffer)
+ *       - DISABLE_DIC = 1 (disable DIC in LMAC)
+ */
+mepa_rc lan80xx_dic_config(const mepa_device_t *dev, mepa_port_no_t port_no)
+{
+    phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
+
+    if (data->flow_control_ena ||
+        data->port_state.port_mode.oper_mode == PCS_RETIMER ||
+        data->macsec_conf.glb.init.enable) {
+        /* DISABLE_DIC = 0 when:
+         * - Flow control is enabled, OR
+         * - PCS_RETIMER mode (LMAC not used), OR
+         * - MACsec is enabled (not bypassed)
+         */
+        LAN80XX_CSR_WRM(port_no, LAN80XX_HOST_MAC_HOST_MAC_MAC_MODE_CFG, 0,
+                        LAN80XX_M_HOST_MAC_HOST_MAC_MAC_MODE_CFG_DISABLE_DIC);
+
+        LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_MAC_LINE_MAC_MAC_MODE_CFG, 0,
+                        LAN80XX_M_LINE_MAC_LINE_MAC_MAC_MODE_CFG_DISABLE_DIC);
+    } else {
+        /* DISABLE_DIC = 1 and TX_FRM_GAP_COMP = 0x14 when:
+         * - Flow control is disabled, AND
+         * - MAC_RETIMER mode, AND
+         * - MACsec is bypassed or disabled
+         */
+        LAN80XX_CSR_WRM(port_no, LAN80XX_HOST_MAC_HOST_MAC_MAC_MODE_CFG,
+                        LAN80XX_M_HOST_MAC_HOST_MAC_MAC_MODE_CFG_DISABLE_DIC,
+                        LAN80XX_M_HOST_MAC_HOST_MAC_MAC_MODE_CFG_DISABLE_DIC);
+
+        LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_MAC_LINE_MAC_MAC_MODE_CFG,
+                        LAN80XX_M_LINE_MAC_LINE_MAC_MAC_MODE_CFG_DISABLE_DIC,
+                        LAN80XX_M_LINE_MAC_LINE_MAC_MAC_MODE_CFG_DISABLE_DIC);
+
+        /* Configure TX_FRM_GAP_COMP to disable DIC in FC buffer */
+        LAN80XX_CSR_WRM(port_no, LAN80XX_MAC_FC_BUFFER_MAC_FC_BUFFER_TX_FRM_GAP_COMP,
+                        LAN80XX_F_MAC_FC_BUFFER_MAC_FC_BUFFER_TX_FRM_GAP_COMP_TX_FRM_GAP_COMP(LAN80XX_TX_FRM_GAP_COMP_MACSEC_BYPASS),
+                        LAN80XX_M_MAC_FC_BUFFER_MAC_FC_BUFFER_TX_FRM_GAP_COMP_TX_FRM_GAP_COMP);
+    }
+    return MEPA_RC_OK; 
+}
+
 /* 'enable' is used for Mac enable or disable */
 mepa_rc lan80xx_phy_mac_conf_set(const mepa_device_t  *dev, mepa_port_no_t port_no, mepa_bool_t enable)
 {
@@ -1018,7 +1074,29 @@ mepa_rc lan80xx_phy_mac_conf_set(const mepa_device_t  *dev, mepa_port_no_t port_
 
     if (!enable) {
         T_I(MEPA_TRACE_GRP_GEN, "Disabling the MAC Block on port : %d\n", port_no);
-        // Disable TX
+
+        /* Disable RX on LINE_MAC and HOST_MAC (stop receiving new packets) */
+        LAN80XX_CSR_WR(dev, port_no, LAN80XX_LINE_MAC_LINE_MAC_MAC_ENA_CFG,
+                       LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_RX_CLK_ENA |
+                       LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_TX_CLK_ENA |
+                       LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_TX_ENA);
+
+        LAN80XX_CSR_WR(dev, port_no, LAN80XX_HOST_MAC_HOST_MAC_MAC_ENA_CFG,
+                       LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_RX_CLK_ENA |
+                       LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_TX_CLK_ENA |
+                       LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_TX_ENA);
+
+        /* Disable FC buffer RX (stop ingress to FC buffer) */
+        LAN80XX_CSR_WR(dev, port_no, LAN80XX_MAC_FC_BUFFER_MAC_FC_BUFFER_FC_ENA_CFG,
+                       LAN80XX_M_MAC_FC_BUFFER_MAC_FC_BUFFER_FC_ENA_CFG_TX_ENA);
+
+        /* Wait for FC buffer to drain */
+        MEPA_MSLEEP(2);
+
+        /* Disable FC buffer TX */
+        LAN80XX_CSR_WR(dev, port_no, LAN80XX_MAC_FC_BUFFER_MAC_FC_BUFFER_FC_ENA_CFG, 0);
+
+        /* Disable TX on LINE_MAC and HOST_MAC */
         LAN80XX_CSR_WR(dev, port_no, LAN80XX_LINE_MAC_LINE_MAC_MAC_ENA_CFG,
                        LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_RX_CLK_ENA |
                        LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_TX_CLK_ENA);
@@ -1027,7 +1105,7 @@ mepa_rc lan80xx_phy_mac_conf_set(const mepa_device_t  *dev, mepa_port_no_t port_
                        LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_RX_CLK_ENA |
                        LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_TX_CLK_ENA);
 
-        // Assert Resets
+        /* Assert Resets on LINE_MAC and HOST_MAC */
         LAN80XX_CSR_WR(dev, port_no, LAN80XX_LINE_MAC_LINE_MAC_MAC_ENA_CFG,
                        LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_RX_CLK_ENA |
                        LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_TX_CLK_ENA |
@@ -1067,40 +1145,29 @@ mepa_rc lan80xx_phy_mac_conf_set(const mepa_device_t  *dev, mepa_port_no_t port_
         break;
     }
     LAN80XX_CSR_WR(dev, port_no, LAN80XX_LINE_MAC_LINE_MAC_MAC_ENA_CFG,
-                   (LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_RX_CLK_ENA |
-                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_TX_CLK_ENA |
-                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_RX_SW_RST |
-                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_TX_SW_RST |
-                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_RX_ENA |
-                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_TX_ENA));
+                   LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_RX_CLK_ENA |
+                   LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_TX_CLK_ENA |
+                   LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_RX_SW_RST |
+                   LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_TX_SW_RST);
 
     LAN80XX_CSR_WR(dev, port_no, LAN80XX_LINE_MAC_LINE_MAC_MAC_ENA_CFG,
-                   (LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_RX_CLK_ENA |
-                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_TX_CLK_ENA |
-                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_RX_ENA |
-                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_TX_ENA));
+                   LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_RX_CLK_ENA |
+                   LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_TX_CLK_ENA);
 
     LAN80XX_CSR_WR(dev, port_no, LAN80XX_HOST_MAC_HOST_MAC_MAC_ENA_CFG,
-                   (LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_RX_CLK_ENA |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_TX_CLK_ENA |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_RX_SW_RST |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_TX_SW_RST |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_RX_ENA |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_TX_ENA));
+                   LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_RX_CLK_ENA |
+                   LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_TX_CLK_ENA |
+                   LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_RX_SW_RST |
+                   LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_TX_SW_RST);
 
     LAN80XX_CSR_WR(dev, port_no, LAN80XX_HOST_MAC_HOST_MAC_MAC_ENA_CFG,
-                   (LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_RX_CLK_ENA |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_TX_CLK_ENA |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_RX_ENA |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_TX_ENA));
+                   LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_RX_CLK_ENA |
+                   LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_TX_CLK_ENA);
 
-    LAN80XX_CSR_WR(dev, port_no, LAN80XX_MAC_FC_BUFFER_MAC_FC_BUFFER_FC_ENA_CFG,
-                   LAN80XX_M_MAC_FC_BUFFER_MAC_FC_BUFFER_FC_ENA_CFG_TX_ENA |
-                   LAN80XX_M_MAC_FC_BUFFER_MAC_FC_BUFFER_FC_ENA_CFG_RX_ENA);
-
-
+    /* Specifies FC buffer to insert FCS error or /E/ charcter for frames aborted by BUFFER. Must always be configured to the default value (0 = /E/ character insertion) 
+     * as per design team suggestion */
     LAN80XX_CSR_WRM(port_no, LAN80XX_MAC_FC_BUFFER_MAC_FC_BUFFER_FC_MODE_CFG,
-                    LAN80XX_M_MAC_FC_BUFFER_MAC_FC_BUFFER_FC_MODE_CFG_DROP_BEHAVIOUR,
+                    0,
                     LAN80XX_M_MAC_FC_BUFFER_MAC_FC_BUFFER_FC_MODE_CFG_DROP_BEHAVIOUR);
 
     /* PPM_RATE_ADAPT_THRESH is configured with (READ_THRESH + 2) */
@@ -1112,8 +1179,8 @@ mepa_rc lan80xx_phy_mac_conf_set(const mepa_device_t  *dev, mepa_port_no_t port_
 
 
     LAN80XX_CSR_WRM(port_no, LAN80XX_MAC_FC_BUFFER_MAC_FC_BUFFER_FC_READ_THRESH_CFG,
-                    (LAN80XX_F_MAC_FC_BUFFER_MAC_FC_BUFFER_FC_READ_THRESH_CFG_TX_READ_THRESH(tx_read_thresh) |
-                     LAN80XX_F_MAC_FC_BUFFER_MAC_FC_BUFFER_FC_READ_THRESH_CFG_RX_READ_THRESH(rx_read_thresh)),
+                    LAN80XX_F_MAC_FC_BUFFER_MAC_FC_BUFFER_FC_READ_THRESH_CFG_TX_READ_THRESH(tx_read_thresh) |
+                    LAN80XX_F_MAC_FC_BUFFER_MAC_FC_BUFFER_FC_READ_THRESH_CFG_RX_READ_THRESH(rx_read_thresh),
                     LAN80XX_M_MAC_FC_BUFFER_MAC_FC_BUFFER_FC_READ_THRESH_CFG_TX_READ_THRESH |
                     LAN80XX_M_MAC_FC_BUFFER_MAC_FC_BUFFER_FC_READ_THRESH_CFG_RX_READ_THRESH);
 
@@ -1132,12 +1199,12 @@ mepa_rc lan80xx_phy_mac_conf_set(const mepa_device_t  *dev, mepa_port_no_t port_
     LAN80XX_CSR_WR(dev, port_no, LAN80XX_LINE_MAC_LINE_MAC_MAC_ADDRESS_MSB, LAN80XX_LINE_MAC_ADDRESS_MSB);
 
     LAN80XX_CSR_WR(dev, port_no, LAN80XX_LINE_MAC_LINE_MAC_MAC_ADV_CHK_CFG,
-                   (LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ADV_CHK_CFG_EXT_EOP_CHK_ENA |
-                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ADV_CHK_CFG_EXT_SOP_CHK_ENA |
-                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ADV_CHK_CFG_SFD_CHK_ENA |
-                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ADV_CHK_CFG_PRM_CHK_ENA |
-                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ADV_CHK_CFG_OOR_ERR_ENA |
-                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ADV_CHK_CFG_INR_ERR_ENA));
+                   LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ADV_CHK_CFG_EXT_EOP_CHK_ENA |
+                   LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ADV_CHK_CFG_EXT_SOP_CHK_ENA |
+                   LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ADV_CHK_CFG_SFD_CHK_ENA |
+                   LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ADV_CHK_CFG_PRM_CHK_ENA |
+                   LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ADV_CHK_CFG_OOR_ERR_ENA |
+                   LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ADV_CHK_CFG_INR_ERR_ENA);
 
     LAN80XX_CSR_WR(dev, port_no, LAN80XX_LINE_MAC_LINE_MAC_MAC_MAXLEN_CFG,
                    LAN80XX_F_HOST_MAC_HOST_MAC_MAC_MAXLEN_CFG_MAX_LEN_TAG_CHK(1) |
@@ -1147,11 +1214,11 @@ mepa_rc lan80xx_phy_mac_conf_set(const mepa_device_t  *dev, mepa_port_no_t port_
                    LAN80XX_F_LINE_MAC_LINE_MAC_MAC_NUM_TAGS_CFG_NUM_TAGS(4));
 
     LAN80XX_CSR_WR(dev, port_no, LAN80XX_LINE_MAC_LINE_MAC_MAC_PKTINF_CFG,
-                   (LAN80XX_M_LINE_MAC_LINE_MAC_MAC_PKTINF_CFG_STRIP_FCS_ENA |
-                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_PKTINF_CFG_INSERT_FCS_ENA |
-                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_PKTINF_CFG_STRIP_PREAMBLE_ENA |
-                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_PKTINF_CFG_INSERT_PREAMBLE_ENA |
-                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_PKTINF_CFG_LPI_RELAY_ENA));
+                   LAN80XX_M_LINE_MAC_LINE_MAC_MAC_PKTINF_CFG_STRIP_FCS_ENA |
+                   LAN80XX_M_LINE_MAC_LINE_MAC_MAC_PKTINF_CFG_INSERT_FCS_ENA |
+                   LAN80XX_M_LINE_MAC_LINE_MAC_MAC_PKTINF_CFG_STRIP_PREAMBLE_ENA |
+                   LAN80XX_M_LINE_MAC_LINE_MAC_MAC_PKTINF_CFG_INSERT_PREAMBLE_ENA |
+                   LAN80XX_M_LINE_MAC_LINE_MAC_MAC_PKTINF_CFG_LPI_RELAY_ENA);
 
     LAN80XX_CSR_WR(dev, port_no, LAN80XX_LINE_MAC_LINE_MAC_MAC_TAGS_CFG(0), LAN80XX_LINE_MAC_TAGS_CFG_0);
 
@@ -1176,18 +1243,12 @@ mepa_rc lan80xx_phy_mac_conf_set(const mepa_device_t  *dev, mepa_port_no_t port_
     LAN80XX_CSR_WR(dev, port_no, LAN80XX_HOST_MAC_HOST_MAC_MAC_ADDRESS_MSB, LAN80XX_HOST_MAC_ADDRESS_MSB);
 
     LAN80XX_CSR_WR(dev, port_no, LAN80XX_HOST_MAC_HOST_MAC_MAC_ADV_CHK_CFG,
-                   (LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ADV_CHK_CFG_EXT_EOP_CHK_ENA |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ADV_CHK_CFG_EXT_SOP_CHK_ENA |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ADV_CHK_CFG_SFD_CHK_ENA |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ADV_CHK_CFG_PRM_CHK_ENA |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ADV_CHK_CFG_OOR_ERR_ENA |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ADV_CHK_CFG_INR_ERR_ENA));
-
-    LAN80XX_CSR_WR(dev, port_no, LAN80XX_HOST_MAC_HOST_MAC_MAC_ENA_CFG,
-                   (LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_RX_CLK_ENA |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_TX_CLK_ENA |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_RX_ENA |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_TX_ENA));
+                   LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ADV_CHK_CFG_EXT_EOP_CHK_ENA |
+                   LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ADV_CHK_CFG_EXT_SOP_CHK_ENA |
+                   LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ADV_CHK_CFG_SFD_CHK_ENA |
+                   LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ADV_CHK_CFG_PRM_CHK_ENA |
+                   LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ADV_CHK_CFG_OOR_ERR_ENA |
+                   LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ADV_CHK_CFG_INR_ERR_ENA);
 
     LAN80XX_CSR_WR(dev, port_no, LAN80XX_HOST_MAC_HOST_MAC_MAC_MAXLEN_CFG,
                    LAN80XX_F_HOST_MAC_HOST_MAC_MAC_MAXLEN_CFG_MAX_LEN_TAG_CHK(1) |
@@ -1197,12 +1258,12 @@ mepa_rc lan80xx_phy_mac_conf_set(const mepa_device_t  *dev, mepa_port_no_t port_
                    LAN80XX_F_HOST_MAC_HOST_MAC_MAC_NUM_TAGS_CFG_NUM_TAGS(4));
 
     LAN80XX_CSR_WR(dev, port_no, LAN80XX_HOST_MAC_HOST_MAC_MAC_PKTINF_CFG,
-                   (LAN80XX_M_HOST_MAC_HOST_MAC_MAC_PKTINF_CFG_STRIP_FCS_ENA |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_PKTINF_CFG_INSERT_FCS_ENA |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_PKTINF_CFG_STRIP_PREAMBLE_ENA |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_PKTINF_CFG_INSERT_PREAMBLE_ENA |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_PKTINF_CFG_LPI_RELAY_ENA |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_PKTINF_CFG_ENABLE_TX_PADDING));
+                   LAN80XX_M_HOST_MAC_HOST_MAC_MAC_PKTINF_CFG_STRIP_FCS_ENA |
+                   LAN80XX_M_HOST_MAC_HOST_MAC_MAC_PKTINF_CFG_INSERT_FCS_ENA |
+                   LAN80XX_M_HOST_MAC_HOST_MAC_MAC_PKTINF_CFG_STRIP_PREAMBLE_ENA |
+                   LAN80XX_M_HOST_MAC_HOST_MAC_MAC_PKTINF_CFG_INSERT_PREAMBLE_ENA |
+                   LAN80XX_M_HOST_MAC_HOST_MAC_MAC_PKTINF_CFG_LPI_RELAY_ENA |
+                   LAN80XX_M_HOST_MAC_HOST_MAC_MAC_PKTINF_CFG_ENABLE_TX_PADDING);
 
     LAN80XX_CSR_WR(dev, port_no, LAN80XX_HOST_MAC_HOST_MAC_MAC_TAGS_CFG(0), LAN80XX_HOST_MAC_TAGS_CFG_0);
 
@@ -1221,45 +1282,8 @@ mepa_rc lan80xx_phy_mac_conf_set(const mepa_device_t  *dev, mepa_port_no_t port_
                     LAN80XX_F_HOST_MAC_HOST_MAC_PAUSE_TX_FRAME_CONTROL_2_MAC_TX_PAUSE_INTERVAL(0xf),
                     LAN80XX_M_HOST_MAC_HOST_MAC_PAUSE_TX_FRAME_CONTROL_2_MAC_TX_PAUSE_INTERVAL);
 
-
-    if (data->terminate_lfs_in_phy) {
-         LAN80XX_CSR_COLD_WRM(port_no, LAN80XX_LINE_SLICE_SLICE_CONFIG, LAN80XX_M_LINE_SLICE_SLICE_CONFIG_LF_RF_LINE_MAC_MODE, LAN80XX_M_LINE_SLICE_SLICE_CONFIG_LF_RF_LINE_MAC_MODE);
-
-        /* Terminate LFS in PHY Line MAC */
-        LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_MAC_LINE_MAC_MAC_LFS_CFG,
-                        LAN80XX_M_LINE_MAC_LINE_MAC_MAC_LFS_CFG_LFS_MODE_ENA | LAN80XX_M_LINE_MAC_LINE_MAC_MAC_LFS_CFG_SPURIOUS_Q_DIS,
-                        LAN80XX_M_LINE_MAC_LINE_MAC_MAC_LFS_CFG_LFS_MODE_ENA | LAN80XX_M_LINE_MAC_LINE_MAC_MAC_LFS_CFG_SPURIOUS_Q_DIS);
-
-        LAN80XX_CSR_WRM(port_no, LAN80XX_HOST_MAC_HOST_MAC_MAC_LFS_CFG,
-                        LAN80XX_M_HOST_MAC_HOST_MAC_MAC_LFS_CFG_LFS_MODE_ENA | LAN80XX_M_HOST_MAC_HOST_MAC_MAC_LFS_CFG_SPURIOUS_Q_DIS,
-                        LAN80XX_M_HOST_MAC_HOST_MAC_MAC_LFS_CFG_LFS_MODE_ENA | LAN80XX_M_HOST_MAC_HOST_MAC_MAC_LFS_CFG_SPURIOUS_Q_DIS);
-
-        LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_MAC_LINE_MAC_MAC_PKTINF_CFG, 0,
-                        LAN80XX_M_LINE_MAC_LINE_MAC_MAC_PKTINF_CFG_LF_RELAY_ENA |
-                        LAN80XX_M_LINE_MAC_LINE_MAC_MAC_PKTINF_CFG_RF_RELAY_ENA);
-
-        LAN80XX_CSR_WRM(port_no, LAN80XX_HOST_MAC_HOST_MAC_MAC_PKTINF_CFG, 0,
-                        LAN80XX_M_HOST_MAC_HOST_MAC_MAC_PKTINF_CFG_LF_RELAY_ENA |
-                        LAN80XX_M_HOST_MAC_HOST_MAC_MAC_PKTINF_CFG_RF_RELAY_ENA);
-
-    } else {
-        LAN80XX_CSR_COLD_WRM(port_no, LAN80XX_LINE_SLICE_SLICE_CONFIG, 0, LAN80XX_M_LINE_SLICE_SLICE_CONFIG_LF_RF_LINE_MAC_MODE);
-
-        /* Pass LFS signal */
-        LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_MAC_LINE_MAC_MAC_LFS_CFG, 0,
-                        LAN80XX_M_LINE_MAC_LINE_MAC_MAC_LFS_CFG_LFS_MODE_ENA | LAN80XX_M_LINE_MAC_LINE_MAC_MAC_LFS_CFG_SPURIOUS_Q_DIS);
-
-        LAN80XX_CSR_WRM(port_no, LAN80XX_HOST_MAC_HOST_MAC_MAC_LFS_CFG, 0,
-                        LAN80XX_M_HOST_MAC_HOST_MAC_MAC_LFS_CFG_LFS_MODE_ENA | LAN80XX_M_HOST_MAC_HOST_MAC_MAC_LFS_CFG_SPURIOUS_Q_DIS);
-
-        LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_MAC_LINE_MAC_MAC_PKTINF_CFG, (LAN80XX_M_LINE_MAC_LINE_MAC_MAC_PKTINF_CFG_LF_RELAY_ENA | LAN80XX_M_LINE_MAC_LINE_MAC_MAC_PKTINF_CFG_RF_RELAY_ENA),
-                        LAN80XX_M_LINE_MAC_LINE_MAC_MAC_PKTINF_CFG_LF_RELAY_ENA |
-                        LAN80XX_M_LINE_MAC_LINE_MAC_MAC_PKTINF_CFG_RF_RELAY_ENA);
-
-        LAN80XX_CSR_WRM(port_no, LAN80XX_HOST_MAC_HOST_MAC_MAC_PKTINF_CFG, (LAN80XX_M_HOST_MAC_HOST_MAC_MAC_PKTINF_CFG_LF_RELAY_ENA | LAN80XX_M_HOST_MAC_HOST_MAC_MAC_PKTINF_CFG_RF_RELAY_ENA),
-                        LAN80XX_M_HOST_MAC_HOST_MAC_MAC_PKTINF_CFG_LF_RELAY_ENA |
-                        LAN80XX_M_HOST_MAC_HOST_MAC_MAC_PKTINF_CFG_RF_RELAY_ENA);
-    }
+    /* Configure LFS */
+    MEPA_RC(lan80xx_phy_lfs_set_priv(dev, port_no, data->terminate_lfs_in_phy));
 
     LAN80XX_CSR_WRM(port_no, LAN80XX_HOST_MAC_HOST_MAC_MAC_PKTINF_CFG,
                     (data->host_mac_tx_pad) ? LAN80XX_M_HOST_MAC_HOST_MAC_MAC_PKTINF_CFG_ENABLE_TX_PADDING : 0,
@@ -1272,21 +1296,118 @@ mepa_rc lan80xx_phy_mac_conf_set(const mepa_device_t  *dev, mepa_port_no_t port_
     /* JIRA "UNG_MALIBU_25G-2457" Fix */
     LAN80XX_CSR_WRM(port_no, LAN80XX_HOST_MAC_HOST_MAC_MAC_MODE_CFG,
                     LAN80XX_F_HOST_MAC_HOST_MAC_MAC_MODE_CFG_FORCE_CW_UPDATE_INTERVAL(64) |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_MODE_CFG_DISABLE_DIC |
                     LAN80XX_M_HOST_MAC_HOST_MAC_MAC_MODE_CFG_UNDERSIZED_FRAME_DROP_DIS,
                     LAN80XX_M_HOST_MAC_HOST_MAC_MAC_MODE_CFG_FORCE_CW_UPDATE_INTERVAL |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_MODE_CFG_UNDERSIZED_FRAME_DROP_DIS |
-                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_MODE_CFG_DISABLE_DIC);
+                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_MODE_CFG_UNDERSIZED_FRAME_DROP_DIS);
 
     LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_MAC_LINE_MAC_MAC_MODE_CFG,
                     LAN80XX_F_LINE_MAC_LINE_MAC_MAC_MODE_CFG_FORCE_CW_UPDATE_INTERVAL(64) |
-                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_MODE_CFG_DISABLE_DIC |
                     LAN80XX_M_LINE_MAC_LINE_MAC_MAC_MODE_CFG_UNDERSIZED_FRAME_DROP_DIS,
                     LAN80XX_M_LINE_MAC_LINE_MAC_MAC_MODE_CFG_FORCE_CW_UPDATE_INTERVAL |
-                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_MODE_CFG_UNDERSIZED_FRAME_DROP_DIS |
-                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_MODE_CFG_DISABLE_DIC);
+                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_MODE_CFG_UNDERSIZED_FRAME_DROP_DIS);
+
+
+    /* Configure DISABLE_DIC and TX_FRM_GAP_COMP based on current state */
+    MEPA_RC(lan80xx_dic_config(dev, port_no));
+
+    LAN80XX_CSR_WR(dev, port_no, LAN80XX_MAC_FC_BUFFER_MAC_FC_BUFFER_FC_ENA_CFG,
+                   LAN80XX_M_MAC_FC_BUFFER_MAC_FC_BUFFER_FC_ENA_CFG_TX_ENA |
+                   LAN80XX_M_MAC_FC_BUFFER_MAC_FC_BUFFER_FC_ENA_CFG_RX_ENA);
+
+    LAN80XX_CSR_WR(dev, port_no, LAN80XX_LINE_MAC_LINE_MAC_MAC_ENA_CFG,
+                   (LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_RX_CLK_ENA |
+                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_TX_CLK_ENA |
+                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_TX_ENA |
+                    LAN80XX_M_LINE_MAC_LINE_MAC_MAC_ENA_CFG_RX_ENA));
+
+    LAN80XX_CSR_WR(dev, port_no, LAN80XX_HOST_MAC_HOST_MAC_MAC_ENA_CFG,
+                   (LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_RX_CLK_ENA |
+                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_TX_CLK_ENA |
+                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_TX_ENA |
+                    LAN80XX_M_HOST_MAC_HOST_MAC_MAC_ENA_CFG_RX_ENA));
 
     MEPA_RC(lan80xx_pmac_config(dev, port_no, data->frame_preempt_ena));
+
+    return MEPA_RC_OK;
+}
+
+mepa_rc lan80xx_phy_lfs_set_priv(const mepa_device_t *dev,
+                                 const mepa_port_no_t port_no,
+                                 mepa_bool_t terminate_in_phy)
+{
+    phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
+
+    if (terminate_in_phy) {
+        LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_SLICE_SLICE_CONFIG,
+                        LAN80XX_M_LINE_SLICE_SLICE_CONFIG_LF_RF_LINE_MAC_MODE,
+                        LAN80XX_M_LINE_SLICE_SLICE_CONFIG_LF_RF_LINE_MAC_MODE);
+
+        /* Terminate LFS in PHY Line MAC */
+        LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_MAC_LINE_MAC_MAC_LFS_CFG,
+                        LAN80XX_M_LINE_MAC_LINE_MAC_MAC_LFS_CFG_LFS_MODE_ENA |
+                        LAN80XX_M_LINE_MAC_LINE_MAC_MAC_LFS_CFG_SPURIOUS_Q_DIS,
+                        LAN80XX_M_LINE_MAC_LINE_MAC_MAC_LFS_CFG_LFS_MODE_ENA |
+                        LAN80XX_M_LINE_MAC_LINE_MAC_MAC_LFS_CFG_SPURIOUS_Q_DIS);
+
+        LAN80XX_CSR_WRM(port_no, LAN80XX_HOST_MAC_HOST_MAC_MAC_LFS_CFG,
+                        LAN80XX_M_HOST_MAC_HOST_MAC_MAC_LFS_CFG_LFS_MODE_ENA |
+                        LAN80XX_M_HOST_MAC_HOST_MAC_MAC_LFS_CFG_SPURIOUS_Q_DIS,
+                        LAN80XX_M_HOST_MAC_HOST_MAC_MAC_LFS_CFG_LFS_MODE_ENA |
+                        LAN80XX_M_HOST_MAC_HOST_MAC_MAC_LFS_CFG_SPURIOUS_Q_DIS);
+
+        /* Disable LF/RF relay - terminate in PHY */
+        LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_MAC_LINE_MAC_MAC_PKTINF_CFG, 0,
+                        LAN80XX_M_LINE_MAC_LINE_MAC_MAC_PKTINF_CFG_LF_RELAY_ENA |
+                        LAN80XX_M_LINE_MAC_LINE_MAC_MAC_PKTINF_CFG_RF_RELAY_ENA);
+
+        LAN80XX_CSR_WRM(port_no, LAN80XX_HOST_MAC_HOST_MAC_MAC_PKTINF_CFG, 0,
+                        LAN80XX_M_HOST_MAC_HOST_MAC_MAC_PKTINF_CFG_LF_RELAY_ENA |
+                        LAN80XX_M_HOST_MAC_HOST_MAC_MAC_PKTINF_CFG_RF_RELAY_ENA);
+    } else {
+        LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_SLICE_SLICE_CONFIG, 0,
+                        LAN80XX_M_LINE_SLICE_SLICE_CONFIG_LF_RF_LINE_MAC_MODE);
+
+        /* Pass LFS signal to HOST MAC */
+        LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_MAC_LINE_MAC_MAC_LFS_CFG, 0,
+                        LAN80XX_M_LINE_MAC_LINE_MAC_MAC_LFS_CFG_LFS_MODE_ENA |
+                        LAN80XX_M_LINE_MAC_LINE_MAC_MAC_LFS_CFG_SPURIOUS_Q_DIS);
+
+        LAN80XX_CSR_WRM(port_no, LAN80XX_HOST_MAC_HOST_MAC_MAC_LFS_CFG, 0,
+                        LAN80XX_M_HOST_MAC_HOST_MAC_MAC_LFS_CFG_LFS_MODE_ENA |
+                        LAN80XX_M_HOST_MAC_HOST_MAC_MAC_LFS_CFG_SPURIOUS_Q_DIS);
+
+        /* Enable LF/RF relay - pass to HOST MAC */
+        LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_MAC_LINE_MAC_MAC_PKTINF_CFG,
+                        LAN80XX_M_LINE_MAC_LINE_MAC_MAC_PKTINF_CFG_LF_RELAY_ENA |
+                        LAN80XX_M_LINE_MAC_LINE_MAC_MAC_PKTINF_CFG_RF_RELAY_ENA,
+                        LAN80XX_M_LINE_MAC_LINE_MAC_MAC_PKTINF_CFG_LF_RELAY_ENA |
+                        LAN80XX_M_LINE_MAC_LINE_MAC_MAC_PKTINF_CFG_RF_RELAY_ENA);
+
+        LAN80XX_CSR_WRM(port_no, LAN80XX_HOST_MAC_HOST_MAC_MAC_PKTINF_CFG,
+                        LAN80XX_M_HOST_MAC_HOST_MAC_MAC_PKTINF_CFG_LF_RELAY_ENA |
+                        LAN80XX_M_HOST_MAC_HOST_MAC_MAC_PKTINF_CFG_RF_RELAY_ENA,
+                        LAN80XX_M_HOST_MAC_HOST_MAC_MAC_PKTINF_CFG_LF_RELAY_ENA |
+                        LAN80XX_M_HOST_MAC_HOST_MAC_MAC_PKTINF_CFG_RF_RELAY_ENA);
+    }
+
+    /* Update internal state */
+    data->terminate_lfs_in_phy = terminate_in_phy;
+    T_I(MEPA_TRACE_GRP_GEN, "LFS %s in PHY on port : %d", terminate_in_phy ? "terminated" : "passed to HOST MAC", port_no);
+
+    return MEPA_RC_OK;
+}
+
+mepa_rc lan80xx_phy_lfs_get_priv(const mepa_device_t *dev,
+                                 const mepa_port_no_t port_no,
+                                 mepa_bool_t *terminate_in_phy)
+{
+    phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
+
+    if (terminate_in_phy == NULL) {
+        return MEPA_RC_ERROR;
+    }
+
+    *terminate_in_phy = data->terminate_lfs_in_phy;
 
     return MEPA_RC_OK;
 }
@@ -2445,12 +2566,19 @@ static mepa_rc lan80xx_fec_configuration(mepa_device_t *dev, mepa_port_no_t port
 mepa_rc lan80xx_operating_mode_set_priv(const mepa_device_t *dev, const mepa_port_no_t port_no, phy25g_oper_mode_t phy_mode)
 {
     phy25g_phy_state_t *data = (phy25g_phy_state_t *) dev->data;
+    phy25g_oper_mode_t old_mode = data->port_state.port_mode.oper_mode;
+
     if (phy_mode == PCS_RETIMER) {
         /* Configuring PHY in PCS Retimer Mode */
         LAN80XX_CSR_COLD_WRM(port_no, LAN80XX_LINE_SLICE_SLICE_CONFIG, 0, LAN80XX_M_LINE_SLICE_SLICE_CONFIG_MAC_RETIMING_MODE);
+
+        /* Update oper_mode before lan80xx_phy_mac_conf_set() so lan80xx_dic_config() reads correct mode */
+        data->port_state.port_mode.oper_mode = PCS_RETIMER;
+
         /* Disabling MAC Block */
         if (lan80xx_phy_mac_conf_set(dev, port_no, FALSE) != MEPA_RC_OK) {
             T_E(MEPA_TRACE_GRP_GEN, "Error is disabling MAC block in port : %d", port_no);
+            data->port_state.port_mode.oper_mode = old_mode;  /* Restore on failure */
             return MEPA_RC_ERROR;
         }
 
@@ -2460,8 +2588,6 @@ mepa_rc lan80xx_operating_mode_set_priv(const mepa_device_t *dev, const mepa_por
 
         LAN80XX_CSR_WRM(port_no, LAN80XX_PTP_PROC_INGR_CFG_OPERATION_MODE, LAN80XX_M_PTP_PROC_INGR_CFG_OPERATION_MODE_INGR_CFG_RETIMING_MODE,
                         LAN80XX_M_PTP_PROC_INGR_CFG_OPERATION_MODE_INGR_CFG_RETIMING_MODE);
-
-        data->port_state.port_mode.oper_mode = PCS_RETIMER;
 
         if (data->flow_control_ena) {
             if (lan80xx_flow_control_set_priv(dev, port_no, FALSE) != MEPA_RC_OK) {
@@ -2474,17 +2600,19 @@ mepa_rc lan80xx_operating_mode_set_priv(const mepa_device_t *dev, const mepa_por
         LAN80XX_CSR_COLD_WRM(port_no, LAN80XX_LINE_SLICE_SLICE_CONFIG, LAN80XX_M_LINE_SLICE_SLICE_CONFIG_MAC_RETIMING_MODE,
                              LAN80XX_M_LINE_SLICE_SLICE_CONFIG_MAC_RETIMING_MODE);
 
+        /* Update oper_mode before lan80xx_phy_mac_conf_set() so lan80xx_dic_config() reads correct mode */
+        data->port_state.port_mode.oper_mode = MAC_RETIMER;
+
         /* In MAC Retimer Mode MAC block needs to be configured */
         if (lan80xx_phy_mac_conf_set(dev, port_no, TRUE) != MEPA_RC_OK) {
             T_E(MEPA_TRACE_GRP_GEN, "Error is configuring MAC block in port : %d", port_no);
+            data->port_state.port_mode.oper_mode = old_mode;  /* Restore on failure */
             return MEPA_RC_ERROR;
         }
         /* 1588 EGR and INGR in MAC Retimer Mode */
         LAN80XX_CSR_WRM(port_no, LAN80XX_PTP_PROC_EGR_CFG_OPERATION_MODE, 0, LAN80XX_M_PTP_PROC_EGR_CFG_OPERATION_MODE_EGR_CFG_RETIMING_MODE);
 
         LAN80XX_CSR_WRM(port_no, LAN80XX_PTP_PROC_INGR_CFG_OPERATION_MODE, 0, LAN80XX_M_PTP_PROC_INGR_CFG_OPERATION_MODE_INGR_CFG_RETIMING_MODE);
-
-        data->port_state.port_mode.oper_mode = MAC_RETIMER;
     }
     T_I(MEPA_TRACE_GRP_GEN, "PHY is in %s mode on port_no : %d\n", data->port_state.port_mode.oper_mode ? "MAC-RETIMER" : "PCS-RETIMER", port_no);
     return MEPA_RC_OK;
@@ -2762,6 +2890,13 @@ mepa_rc lan80xx_reset_point(mepa_device_t *dev, const mepa_reset_param_t *rst_co
         /* Identify and store the Phy id */
         MEPA_RC(lan80xx_identify_phy(dev, data->port_no));
 
+        /* Reset port_cnt for base port to handle re-initialization after CHIP_FAST_RESET.
+         * Without this, port_cnt keeps incrementing and RAM_INIT condition fails.
+         */
+        if (data->port_no == base_data->port_no) {
+            base_data->port_cnt = 0;
+        }
+
         base_data->chip_ports[base_data->port_cnt] = data->port_no;
         base_data->other_port_dev[base_data->port_cnt] = dev;
         base_data->port_cnt++;
@@ -2970,12 +3105,20 @@ static mepa_rc lan80xx_pcs_pma_status_get_priv(const mepa_device_t    *dev,
                                                phy25g_status_t        *const status)
 {
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
+    mepa_device_t *base_dev;
+    phy25g_phy_state_t *base_data;
+    LAN80XX_BASE_DEV(data, base_dev, base_data)
     u32 value = 0, state = 0;
     memset(status, 0, sizeof(phy25g_status_t));
     phy25g_oper_speed_mode_t phy_speed;
     mepa_bool_t line_lp_enabled = 0;
     u8 xmit_mode = 0;
     u8 line_xmit_mode = 0, host_xmit_mode = 0;
+
+    /* When Host Protection is enabled, check if this channel's LINE side is the standby one.
+     * The standby LINE side may not be connected, so skip LINE check for that channel only.
+     * The active LINE side channel should still check both HOST and LINE. */
+    mepa_bool_t skip_line_check = FALSE;
 
     /* When H3P or H3M Loopback is Enabled Line side Rx Link Goes down, eliminating LINE Side link
      * check in poll when H3M or H3P loopback is enabled, so traffic can be forwared from HOST */
@@ -3072,10 +3215,40 @@ static mepa_rc lan80xx_pcs_pma_status_get_priv(const mepa_device_t    *dev,
         MEPA_RC(lan80xx_aneg_status(dev, port_no));
         data->port_state.speed = data->line_aneg_status.neg_speed;
     }
+
+    /* First check software flag (fast path when Host Protection is disabled) */
+    if (base_data->host_protection_ena) {
+        uint32_t wps_cfg;
+        uint8_t default_active_sel;
+        uint8_t ch_id = data->channel_id;
+
+        /* Read WPS_DEFAULT_ACTIVE_SEL to determine which channel is default standby */
+        if (ch_id < 2) {
+            LAN80XX_CSR_RD(dev, port_no, LAN80XX_CROSS_CONNECT_WPS0_CFG, &wps_cfg);
+            default_active_sel = LAN80XX_X_CROSS_CONNECT_WPS0_CFG_WPS_DEFAULT_ACTIVE_SEL(wps_cfg);
+        } else {
+            LAN80XX_CSR_RD(dev, port_no, LAN80XX_CROSS_CONNECT_WPS1_CFG, &wps_cfg);
+            default_active_sel = LAN80XX_X_CROSS_CONNECT_WPS1_CFG_WPS_DEFAULT_ACTIVE_SEL(wps_cfg);
+        }
+
+        /* Determine if this channel's LINE side is the default standby (may not be connected):
+         * WPS0: SEL=0 → H0 active, H1 standby; SEL=1 → H1 active, H0 standby
+         * WPS1: SEL=0 → H2 active, H3 standby; SEL=1 → H3 active, H2 standby
+         * Even channels (0,2): LINE standby if SEL=1
+         * Odd channels (1,3): LINE standby if SEL=0
+        */
+        if ((ch_id % 2) == 0) {
+            skip_line_check = (default_active_sel == 1);
+        } else {
+            skip_line_check = (default_active_sel == 0);
+        }
+    }
+
     phy_speed = data->port_state.speed;
     switch (phy_speed) {
     case SPEED_1G :
-        if (line_lp_enabled) {
+        if (line_lp_enabled || skip_line_check) {
+            /* When loopback or LINE side is standby, only check HOST side */
             status->phy_status = (status->host_pcs1g.link_status) ? TRUE : FALSE;
         } else {
             status->phy_status = (status->pma.rx_link && status->line_pcs1g.link_status && status->host_pcs1g.link_status &&
@@ -3084,7 +3257,8 @@ static mepa_rc lan80xx_pcs_pma_status_get_priv(const mepa_device_t    *dev,
         break;
     case SPEED_10G:
     case SPEED_25G:
-        if (line_lp_enabled) {
+        if (line_lp_enabled || skip_line_check) {
+            /* When loopback or LINE side is standby, only check HOST side */
             status->phy_status = (status->host_pcs25g.rx_link) ? TRUE : FALSE;
         } else {
             status->phy_status = (status->pma.rx_link && status->line_pcs25g.rx_link && status->host_pcs25g.rx_link) ? TRUE : FALSE;
@@ -4429,10 +4603,17 @@ mepa_rc lan80xx_loopback_set_priv(mepa_device_t         *dev,
                     LAN80XX_M_HOST_SLICE_L2_LPBK_L2_LPBK);
     data->port_state.loopback_conf.l2_lp = loopback->far_end_ena;
 
-    /* H2 Loopback */
-    LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_SLICE_H2_LPBK, loopback->near_end_ena ? LAN80XX_M_LINE_SLICE_H2_LPBK_H2_LPBK : 0,
-                    LAN80XX_M_LINE_SLICE_H2_LPBK_H2_LPBK);
-    data->port_state.loopback_conf.h2_lp = loopback->near_end_ena;
+
+    /* Workarround
+     * Near-End Loopback is supposed to work without any Media Side connections, but in LAN8044 Near-End Loopback which is H2 Loopback works only when the
+     * Line side Media is connected, Data traffic works only with Media side link partner is connected, due to following reason from design team
+     * "H2 is after Line PCS,Line PCS uses clock from CDR and CDR is active when link partner is connected"
+     * So in LAN80XX H3P loopback is assigned as Near-end loopback which will work without any Media Side connections
+    */
+    /* H3P Loopback */
+    LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_SLICE_H3P_LPBK, loopback->near_end_ena ? LAN80XX_M_LINE_SLICE_H3P_LPBK_H3P_LPBK : 0,
+                    LAN80XX_M_LINE_SLICE_H3P_LPBK_H3P_LPBK);
+    data->port_state.loopback_conf.h3p_lp = loopback->near_end_ena;
 
 
     LAN80XX_CSR_WR(dev, port_no, LAN80XX_HOST_LINE_REG(LAN80XX, 1, PMA_8BIT_CMU_FF), 0x00); /* Select LANE */
@@ -4574,11 +4755,6 @@ mepa_rc lan80xx_phy_loopback_conf_set_priv(mepa_device_t            *dev,
                     LAN80XX_M_HOST_SLICE_L3P_LPBK_L3P_LPBK);
     data->port_state.loopback_conf.l3p_lp = loopback->l3p_lp_ena;
 
-    /* H3P Loopback */
-    LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_SLICE_H3P_LPBK, loopback->h3p_lp_ena ? LAN80XX_M_LINE_SLICE_H3P_LPBK_H3P_LPBK : 0,
-                    LAN80XX_M_LINE_SLICE_H3P_LPBK_H3P_LPBK);
-    data->port_state.loopback_conf.h3p_lp = loopback->h3p_lp_ena;
-
     /* L3M Loopback */
     LAN80XX_CSR_WRM(port_no, LAN80XX_HOST_MAC_HOST_MAC_MAC_LB_CFG, loopback->l3m_lp_ena ? LAN80XX_M_HOST_MAC_HOST_MAC_MAC_LB_CFG_XGMII_HOST_LB_ENA : 0,
                     LAN80XX_M_HOST_MAC_HOST_MAC_MAC_LB_CFG_XGMII_HOST_LB_ENA);
@@ -4594,6 +4770,11 @@ mepa_rc lan80xx_phy_loopback_conf_set_priv(mepa_device_t            *dev,
                          loopback->h7_lp_ena ? LAN80XX_M_HOST_SLICE_DATAPATH_CONTROL_IGR_XGMII_PG_SEL2 : 0,
                          LAN80XX_M_HOST_SLICE_DATAPATH_CONTROL_IGR_XGMII_PG_SEL2);
     data->port_state.loopback_conf.h7_lp = loopback->h7_lp_ena;
+
+    /* H2 Loopback */
+    LAN80XX_CSR_WRM(port_no, LAN80XX_LINE_SLICE_H2_LPBK, loopback->h2_lp_ena ? LAN80XX_M_LINE_SLICE_H2_LPBK_H2_LPBK : 0,
+                    LAN80XX_M_LINE_SLICE_H2_LPBK_H2_LPBK);
+    data->port_state.loopback_conf.h2_lp = loopback->h2_lp_ena;
 
     return MEPA_RC_OK;
 }
@@ -5828,7 +6009,10 @@ mepa_rc lan80xx_mamcsec_mem_free(mepa_device_t *dev)
 
 uint32_t lan80xx_phy_capability_priv(struct mepa_device *dev, uint32_t capability)
 {
-    uint32_t c = 0;
+    phy25g_phy_state_t *data = (phy25g_phy_state_t *) dev->data;
+    phy25g_phy_state_t *base_data = data->base_dev ? ((phy25g_phy_state_t *)(data->base_dev->data)) : NULL;
+    uint32_t c;
+
     switch (capability) {
     case MEPA_CAP_MACSEC_SECY_CNT:
         c = LAN80XX_MACSEC_MAX_SA / 2;
@@ -5839,7 +6023,33 @@ uint32_t lan80xx_phy_capability_priv(struct mepa_device *dev, uint32_t capabilit
     case MEPA_CAP_MACSEC_MAX_SC:
         c = LAN80XX_MACSEC_MAX_SA / 2;
         break;
+    case MEPA_CAP_TS_NONE:
+        c = data->dev.devid == LAN80XX_DEV_ID_8022 || data->dev.devid == LAN80XX_DEV_ID_8042;
+        break;
+    case MEPA_CAP_TS_GEN_2:
+        c = !(data->dev.devid == LAN80XX_DEV_ID_8022 || data->dev.devid == LAN80XX_DEV_ID_8042);
+        break;
+    case MEPA_CAP_SPEED_10G:
+        if (!base_data) {
+            c = 0;
+            goto out;
+        }
+
+        c = base_data->features.speed_25g_disable;
+        break;
+    case MEPA_CAP_SPEED_25G:
+        if (!base_data) {
+            c = 0;
+            goto out;
+        }
+
+        c = !(base_data->features.speed_25g_disable);
+        break;
+    default:
+        c = 0;
     }
+
+out:
     return c;
 }
 
@@ -5875,6 +6085,7 @@ mepa_rc lan80xx_flow_control_set_priv(const mepa_device_t     *dev,
                         LAN80XX_M_HOST_MAC_HOST_MAC_PAUSE_RX_FRAME_CONTROL_MAC_RX_PAUSE_FRAME_DROP_ENA);
 
         data->flow_control_ena = 1;
+        MEPA_RC(lan80xx_dic_config(dev, port_no));
         return MEPA_RC_OK;
     }
 
@@ -5898,6 +6109,7 @@ mepa_rc lan80xx_flow_control_set_priv(const mepa_device_t     *dev,
                     LAN80XX_M_HOST_MAC_HOST_MAC_PAUSE_RX_FRAME_CONTROL_MAC_RX_PAUSE_FRAME_DROP_ENA);
 
     data->flow_control_ena = 0;
+    MEPA_RC(lan80xx_dic_config(dev, port_no));
     return MEPA_RC_OK;
 }
 
@@ -5951,6 +6163,17 @@ static mepa_rc lan80xx_ram_init(mepa_device_t    *dev, mepa_port_no_t  port_no)
 
     /* Wait for 50us to do RAM Initialization */
     MEPA_NSLEEP(50000);
+
+    /* MEPA-1330: Reset FC buffer controller after RAM_INIT to recover from
+     * any corruption caused by RAM_INIT while traffic was flowing.
+     * This resets the FC buffer pointers/state to a clean initial state. */
+    LAN80XX_CSR_WRM(port_no, LAN80XX_MAC_FC_BUFFER_MAC_FC_BUFFER_INGR_FC_BUFFER_ECC_CTL,
+                    LAN80XX_M_MAC_FC_BUFFER_MAC_FC_BUFFER_INGR_FC_BUFFER_ECC_CTL_INGR_FC_BUFFER_SWRST,
+                    LAN80XX_M_MAC_FC_BUFFER_MAC_FC_BUFFER_INGR_FC_BUFFER_ECC_CTL_INGR_FC_BUFFER_SWRST);
+
+    LAN80XX_CSR_WRM(port_no, LAN80XX_MAC_FC_BUFFER_MAC_FC_BUFFER_EGR_FC_BUFFER_ECC_CTL,
+                    LAN80XX_M_MAC_FC_BUFFER_MAC_FC_BUFFER_EGR_FC_BUFFER_ECC_CTL_EGR_FC_BUFFER_SWRST,
+                    LAN80XX_M_MAC_FC_BUFFER_MAC_FC_BUFFER_EGR_FC_BUFFER_ECC_CTL_EGR_FC_BUFFER_SWRST);
 
     if (data->port_state.port_mode.oper_mode == PCS_RETIMER) {
         /* Switch to PCS Retimer mode back and Do not replace DESCLK with SERCLK */
@@ -6015,6 +6238,16 @@ static mepa_rc lan80xx_post1_bist_trigger(mepa_device_t  *dev, mepa_port_no_t  p
 
     /* Wait for 350us to run BIST */
     MEPA_NSLEEP(350000);
+
+    /* MEPA-1330: Reset FC buffer controller after BIST to recover from
+     * any corruption caused by BIST while traffic was flowing. */
+    LAN80XX_CSR_WRM(port_no, LAN80XX_MAC_FC_BUFFER_MAC_FC_BUFFER_INGR_FC_BUFFER_ECC_CTL,
+                    LAN80XX_M_MAC_FC_BUFFER_MAC_FC_BUFFER_INGR_FC_BUFFER_ECC_CTL_INGR_FC_BUFFER_SWRST,
+                    LAN80XX_M_MAC_FC_BUFFER_MAC_FC_BUFFER_INGR_FC_BUFFER_ECC_CTL_INGR_FC_BUFFER_SWRST);
+
+    LAN80XX_CSR_WRM(port_no, LAN80XX_MAC_FC_BUFFER_MAC_FC_BUFFER_EGR_FC_BUFFER_ECC_CTL,
+                    LAN80XX_M_MAC_FC_BUFFER_MAC_FC_BUFFER_EGR_FC_BUFFER_ECC_CTL_EGR_FC_BUFFER_SWRST,
+                    LAN80XX_M_MAC_FC_BUFFER_MAC_FC_BUFFER_EGR_FC_BUFFER_ECC_CTL_EGR_FC_BUFFER_SWRST);
 
     if (data->port_state.port_mode.oper_mode == PCS_RETIMER) {
         /* Switch to PCS Retimer mode back and Do not replace DESCLK with SERCLK */

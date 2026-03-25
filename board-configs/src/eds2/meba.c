@@ -26,13 +26,15 @@ typedef enum {
 } board_type_t;
 
 typedef enum {
-    SLOT1_LAN8814_SLOT2_LAN8814 = 1,
+    SLOT1_EMPTY_SLOT2_EMPTY = 0,
+    SLOT1_LAN8814_SLOT2_LAN8814,
     SLOT1_LAN89x1_SLOT2_LAN8814,
     SLOT1_LAN884x_SLOT2_LAN884x,
     SLOT1_LAN89x1_SLOT2_LAN89x1,
     SLOT1_VSC8574_SLOT2_VSC8574,
     SLOT1_LAN89X1_SLOT2_VSC8574,
     SLOT1_LAN8814_SLOT2_VSC8574,
+    SLOT1_LAN8842_SLOT2_EMPTY,
 } eds2_phy_options_t;
 
 /* Local mapping table */
@@ -182,165 +184,181 @@ static void eds2_init_port_table(meba_inst_t inst, int port_cnt, port_map_t *map
     }
 }
 
-static void eds2_phy_addr_map(meba_inst_t inst, const int mux, uint32_t *const port_cnt,
-                              uint16_t *const phy_slot1, uint16_t *const phy_slot2)
+static mesa_rc eds2_phy_addr_map(meba_inst_t inst, const int mux)
 {
     eds2_phy_options_t options = (eds2_phy_options_t) mux;
+    mesa_rc valid = MESA_RC_OK;
+
     switch (options) {
+    case SLOT1_EMPTY_SLOT2_EMPTY:
+        inst->props.mux_mode = MESA_PORT_MUX_MODE_1;
+        break;
     case SLOT1_LAN8814_SLOT2_LAN8814:
         inst->props.mux_mode = MESA_PORT_MUX_MODE_0;
-        *port_cnt = 8;
-        *phy_slot1 = 0x07;
-        *phy_slot2 = 0x0f;
-        break;
-    case SLOT1_LAN89x1_SLOT2_LAN8814:
-        inst->props.mux_mode = MESA_PORT_MUX_MODE_1;
-        *port_cnt = 8;
-        *phy_slot1 = 0x01;
-        *phy_slot2 = 0x0f;
         break;
     case SLOT1_LAN884x_SLOT2_LAN884x:
         inst->props.mux_mode = MESA_PORT_MUX_MODE_2;
-        *port_cnt = 5;
-        *phy_slot1 = 0x01;
-        *phy_slot2 = 0x03;
-        break;
-    case SLOT1_LAN89x1_SLOT2_LAN89x1:
-        inst->props.mux_mode = MESA_PORT_MUX_MODE_5;
-        *port_cnt = 5;
-        *phy_slot1 = 0x01;
-        *phy_slot2 = 0x03;
         break;
     case SLOT1_VSC8574_SLOT2_VSC8574:
         inst->props.mux_mode = MESA_PORT_MUX_MODE_0;
-        *port_cnt = 8;
-        *phy_slot1 = 0x10;
-        *phy_slot2 = 0x14;
-        break;
-    case SLOT1_LAN89X1_SLOT2_VSC8574:
-        inst->props.mux_mode = MESA_PORT_MUX_MODE_1;
-        *port_cnt = 8;
-        *phy_slot1 = 0x01;
-        *phy_slot2 = 0x14;
         break;
     case SLOT1_LAN8814_SLOT2_VSC8574:
         inst->props.mux_mode = MESA_PORT_MUX_MODE_0;
-        *port_cnt = 8;
-        *phy_slot1 = 0x07;
-        *phy_slot2 = 0x14;
+        break;
+    case SLOT1_LAN8842_SLOT2_EMPTY:
+        inst->props.mux_mode = MESA_PORT_MUX_MODE_1;
         break;
     default:
-        inst->props.mux_mode = MESA_PORT_MUX_MODE_2;
-        *port_cnt = 2;
+        valid = MESA_RC_ERROR;
         break;
     }
-    return;
+    return valid;
 }
 
-static void eds2_port_table_fill(meba_inst_t inst, uint32_t *const port_cnt, const int mux, port_map_t *const eds2_port_table)
+static void eds2_port_reorder(const int mux, port_map_t *const eds2_port_table)
 {
-    uint16_t phy_addr_slot1 = 0, phy_addr_slot2 = 0;
-    uint16_t phy_npi_addr = 0x01;
-    mesa_port_mux_mode_t mux_mode;
+    port_map_t tmp;
 
+    switch (mux) {
+    case SLOT1_LAN8814_SLOT2_LAN8814:
+        // The ports on the EVB LAN8814 daughter card are swapped. The left down
+        // port is connected to chip port 2, the left up port is connected to
+        // chip port 3, right down is connected to chip port 0 and right up is
+        // connected to chip port 1. So instead of having the wrong order of the
+        // front ports we swap them here such to follow the logical order.
+        // Here to do the change on both slots because in each slot we have a
+        // lan8814
+        // It would be better to remove this function and set correctly the
+        // ports in eds2_port_table_fill but then I think the logic is to hard
+        // to follow.
+        tmp = eds2_port_table[0];
+        eds2_port_table[0] = eds2_port_table[2];
+        eds2_port_table[2] = tmp;
+        tmp = eds2_port_table[1];
+        eds2_port_table[1] = eds2_port_table[3];
+        eds2_port_table[3] = tmp;
+        tmp = eds2_port_table[4];
+        eds2_port_table[4] = eds2_port_table[6];
+        eds2_port_table[6] = tmp;
+        tmp = eds2_port_table[5];
+        eds2_port_table[5] = eds2_port_table[7];
+        eds2_port_table[7] = tmp;
+        break;
+    case SLOT1_LAN8814_SLOT2_VSC8574:
+        // See the comment from the previous case statement.
+        tmp = eds2_port_table[0];
+        eds2_port_table[0] = eds2_port_table[2];
+        eds2_port_table[2] = tmp;
+        tmp = eds2_port_table[1];
+        eds2_port_table[1] = eds2_port_table[3];
+        eds2_port_table[3] = tmp;
+        break;
+    default:
+        break;
+    }
+}
+
+static mesa_rc eds2_port_table_fill(meba_inst_t inst, uint32_t *const port_cnt, const int mux, port_map_t *const eds2_port_table)
+{
     memset(eds2_port_table, 0, 8 * sizeof(port_map_t));
-    eds2_phy_addr_map(inst, mux, port_cnt, &phy_addr_slot1, &phy_addr_slot2);
-    mux_mode = inst->props.mux_mode;
-    for (int i = 0; i < *port_cnt; i++) {
-        eds2_port_table[i].chip_port = i;
-        eds2_port_table[i].poe_port = i;
-        if (mux_mode == MESA_PORT_MUX_MODE_0) { //port_cnt will be 8
+    if (eds2_phy_addr_map(inst, mux) != MESA_RC_OK) {
+        return MESA_RC_ERROR;
+    }
+
+    switch (mux) {
+    case SLOT1_EMPTY_SLOT2_EMPTY:
+        // Even that both slots are empty the ports that are on the EDS2 board
+        // are in used, therefore the port_cnt has a value of 2.
+        *port_cnt = 2;
+        for (int i = 0; i < *port_cnt; ++i) {
+            eds2_port_table[i].chip_port = i;
+            eds2_port_table[i].poe_port = i;
+            eds2_port_table[i].miim_controller = MESA_MIIM_CONTROLLER_1;
+            eds2_port_table[i].mac_if = MESA_PORT_INTERFACE_SGMII;
+            eds2_port_table[i].miim_addr = i == 0 ? 1 : 2;
+            eds2_port_table[i].poe_support = 1;
+            eds2_port_table[i].cap = MEBA_PORT_CAP_COPPER |
+                                     MEBA_PORT_CAP_TRI_SPEED;
+        }
+        break;
+    case SLOT1_LAN8814_SLOT2_LAN8814:
+        *port_cnt = 8;
+        for (int i = 0; i < *port_cnt; ++i) {
+            eds2_port_table[i].chip_port = i;
+            eds2_port_table[i].poe_port = i;
             eds2_port_table[i].miim_controller = MESA_MIIM_CONTROLLER_0;
             eds2_port_table[i].mac_if = MESA_PORT_INTERFACE_QSGMII;
-            eds2_port_table[i].miim_addr = ((i < 4) ? (phy_addr_slot1) : (phy_addr_slot2)) + (i % 4);
-        } else if (mux_mode == MESA_PORT_MUX_MODE_1) { // port_cnt will be 8
-            // handle MAC IF
-            eds2_port_table[i].miim_controller = MESA_MIIM_CONTROLLER_0;
-            if (i < *port_cnt - 6) { // internal 2 xCU phy's
-                eds2_port_table[i].miim_controller = MESA_MIIM_CONTROLLER_1;
-                eds2_port_table[i].mac_if = MESA_PORT_INTERFACE_SGMII;
-                eds2_port_table[i].miim_addr = phy_npi_addr++;
-            } else if (i >= 2 && i < *port_cnt - 5) {
-                eds2_port_table[i].mac_if = MESA_PORT_INTERFACE_SGMII_2G5;
-                eds2_port_table[i].miim_addr = phy_addr_slot1;
-            } else if (i == 3) {
-                eds2_port_table[i].mac_if = MESA_PORT_INTERFACE_NO_CONNECTION;
-                eds2_port_table[i].miim_addr = 0;
-            } else {
-                eds2_port_table[i].mac_if = MESA_PORT_INTERFACE_QSGMII;
-                eds2_port_table[i].miim_addr = phy_addr_slot2 + (i % 4);
-            }
-        } else if (mux_mode == MESA_PORT_MUX_MODE_2) {
-            // port_cnt will be 2 if mux is 0 (Default config for internal ports) else port_cnt is 5
-            // handle MAC IF
-            eds2_port_table[i].miim_controller = MESA_MIIM_CONTROLLER_0;
-            if (i < *port_cnt - 3) {
-                eds2_port_table[i].miim_controller = MESA_MIIM_CONTROLLER_1;
-                eds2_port_table[i].mac_if = MESA_PORT_INTERFACE_SGMII;
-                eds2_port_table[i].miim_addr = phy_npi_addr++;
-            } else if (i >= 2 && i < *port_cnt) {
-                eds2_port_table[i].mac_if = (i < 4) ? MESA_PORT_INTERFACE_RGMII : MESA_PORT_INTERFACE_NO_CONNECTION;
-                if (i < 4) {
-                    eds2_port_table[i].miim_addr = (i == 2) ? phy_addr_slot1 : phy_addr_slot2;
-                } else {
-                    eds2_port_table[i].miim_addr = 0;
-                }
-            }
-        } else if (mux_mode == MESA_PORT_MUX_MODE_5) { // port_cnt will be 5
-            if (i < *port_cnt - 3) {
-                eds2_port_table[i].miim_controller = MESA_MIIM_CONTROLLER_1;
-                eds2_port_table[i].mac_if = MESA_PORT_INTERFACE_SGMII;
-                eds2_port_table[i].miim_addr = phy_npi_addr++;
-            } else if (i >= 2 && i < *port_cnt) {
-                eds2_port_table[i].miim_controller = MESA_MIIM_CONTROLLER_0;
-                eds2_port_table[i].mac_if = MESA_PORT_INTERFACE_SGMII_2G5;
-                if (i > 2) {
-                    eds2_port_table[i].miim_addr = (i == 3) ? phy_addr_slot1 : phy_addr_slot2;
-                } else {
-                    eds2_port_table[i].miim_addr = 0;
-                }
-            }
+            eds2_port_table[i].miim_addr = ((i < 4) ? 7 : 15) + (i % 4);
+            eds2_port_table[i].poe_support = 1;
+            eds2_port_table[i].cap = MEBA_PORT_CAP_COPPER |
+                                     MEBA_PORT_CAP_TRI_SPEED |
+                                     MEBA_PORT_CAP_SERDES_TX_INVERT;
         }
-        eds2_port_table[i].poe_support = 1;
-        eds2_port_table[i].cap = MEBA_EDS2_CAP;
+        break;
+    case SLOT1_LAN884x_SLOT2_LAN884x:
+        // Also the ports found on EDS2 board are used in this case. And each
+        // LAN884X is a single PHY therefore the port_cnt is 4.
+        *port_cnt = 4;
+        for (int i = 0; i < *port_cnt; ++i) {
+            eds2_port_table[i].chip_port = i;
+            eds2_port_table[i].poe_port = i;
+            eds2_port_table[i].miim_controller = (i < 2) ? MESA_MIIM_CONTROLLER_1 : MESA_MIIM_CONTROLLER_0;
+            eds2_port_table[i].mac_if = (i < 2) ? MESA_PORT_INTERFACE_SGMII : MESA_PORT_INTERFACE_RGMII;
+            eds2_port_table[i].miim_addr = (i < 2) ? (i + 1) : (i == 2) ? 1 : 3;
+            eds2_port_table[i].poe_support = 1;
+            eds2_port_table[i].cap = MEBA_PORT_CAP_COPPER |
+                                     MEBA_PORT_CAP_TRI_SPEED;
+        }
+        break;
+    case SLOT1_VSC8574_SLOT2_VSC8574:
+        *port_cnt = 8;
+        for (int i = 0; i < *port_cnt; ++i) {
+            eds2_port_table[i].chip_port = i;
+            eds2_port_table[i].poe_port = i;
+            eds2_port_table[i].miim_controller = MESA_MIIM_CONTROLLER_0;
+            eds2_port_table[i].mac_if = MESA_PORT_INTERFACE_QSGMII;
+            eds2_port_table[i].miim_addr = ((i < 4) ? 16 : 20) + (i % 4);
+            eds2_port_table[i].poe_support = 1;
+            eds2_port_table[i].cap = MEBA_PORT_CAP_COPPER |
+                                     MEBA_PORT_CAP_TRI_SPEED;
+        }
+        break;
+    case SLOT1_LAN8814_SLOT2_VSC8574:
+        *port_cnt = 8;
+        for (int i = 0; i < *port_cnt; ++i) {
+            eds2_port_table[i].chip_port = i;
+            eds2_port_table[i].poe_port = i;
+            eds2_port_table[i].miim_controller = MESA_MIIM_CONTROLLER_0;
+            eds2_port_table[i].mac_if = MESA_PORT_INTERFACE_QSGMII;
+            eds2_port_table[i].miim_addr = ((i < 4) ? 7 : 20) + (i % 4);
+            eds2_port_table[i].poe_support = 1;
+            eds2_port_table[i].cap = MEBA_PORT_CAP_COPPER |
+                                     MEBA_PORT_CAP_TRI_SPEED |
+                                     (i < 4) ? MEBA_PORT_CAP_SERDES_TX_INVERT : 0;
+        }
+        break;
+    case SLOT1_LAN8842_SLOT2_EMPTY:
+        *port_cnt = 3;
+        for (int i = 0; i < *port_cnt; ++i) {
+            eds2_port_table[i].chip_port = (i < 2) ? i : 3;
+            eds2_port_table[i].poe_port = i;
+            eds2_port_table[i].miim_controller = (i < 2) ? MESA_MIIM_CONTROLLER_1 : MESA_MIIM_CONTROLLER_0;
+            eds2_port_table[i].mac_if = MESA_PORT_INTERFACE_SGMII;
+            eds2_port_table[i].miim_addr = (i < 2) ? (i + 1) : 0;
+            eds2_port_table[i].poe_support = 1;
+            eds2_port_table[i].cap = MEBA_PORT_CAP_COPPER |
+                                     MEBA_PORT_CAP_TRI_SPEED;
+        }
+        break;
+    }
+
+    eds2_port_reorder(mux, eds2_port_table);
+
+    for (int i = 0; i < *port_cnt; ++i) {
         T_D(inst, " eds2_port_table[%d]:%d, MAC_IF:%d, miim_addr:%d", i, eds2_port_table[i].chip_port, eds2_port_table[i].mac_if, eds2_port_table[i].miim_addr);
     }
 
-    return ;
-}
-
-static void eds2_port_reorder(const eds2_phy_options_t options, const uint32_t port_cnt, port_map_t *const eds2_port_table)
-{
-    port_map_t temp[4];
-    int port_start = 0;
-    int port_end = port_cnt;
-
-    if (!((options == SLOT1_LAN8814_SLOT2_LAN8814) || (options == SLOT1_LAN89x1_SLOT2_LAN8814) || (options == SLOT1_LAN8814_SLOT2_VSC8574))) {
-        return;
-    }
-
-    switch (options) {
-    case SLOT1_LAN8814_SLOT2_LAN8814:
-        break;
-    case SLOT1_LAN89x1_SLOT2_LAN8814:
-        port_start = 4;
-        break;
-    case SLOT1_LAN8814_SLOT2_VSC8574:
-        port_end = port_cnt - 4;
-        break;
-    default:
-        break;
-    }
-
-    for (int i = port_start; i < port_end; i++) {
-        for (int j = 0, k = i; j < 4; j++, k++) {
-            temp[(j + 2) % 4] = eds2_port_table[k];
-        }
-        memcpy(&eds2_port_table[i], temp, 4 * sizeof(port_map_t));
-        i = i + 3;
-    }
-
-    return;
+    return MESA_RC_OK;
 }
 
 static mesa_rc eds2_ptp_rs422_conf_get(meba_inst_t inst,
@@ -841,6 +859,14 @@ static mesa_rc eds2_event_enable(meba_inst_t inst,
     case MEBA_EVENT_EGR_FIFO_OVERFLOW:
         mepa_ts_event_t event = meba_generic_phy_ts_source_to_event(inst, event_id);
         for (port_no = 0; port_no < board->port_cnt; port_no++) {
+            // Get the PHY capabilities and if it doesn't support timestamping
+            // then don't enable events
+            if (meba_capability(inst, port_no, MEPA_CAP_TS_GEN_1) == 0 &&
+                meba_capability(inst, port_no, MEPA_CAP_TS_GEN_2) == 0 &&
+                meba_capability(inst, port_no, MEPA_CAP_TS_GEN_3) == 0) {
+                continue;
+            }
+
             if ((rc = meba_phy_ts_event_set(inst, port_no, enable, event)) != MESA_RC_OK) {
                 T_E(inst, "vtss_phy_ts_event_enable_set(%d, %d, %d) = %d", port_no, enable, event, rc);
             }
@@ -897,8 +923,10 @@ meba_inst_t meba_initialize(size_t callouts_size,
     }
     T_D(inst, "board type=%d, mux_mode %d", board->type, mux_mode);
 
-    eds2_port_table_fill(inst, &board->port_cnt, mux_mode, eds2_port_table);
-    eds2_port_reorder((eds2_phy_options_t)mux_mode, board->port_cnt, eds2_port_table);
+    if (eds2_port_table_fill(inst, &board->port_cnt, mux_mode, eds2_port_table) != MESA_RC_OK) {
+        fprintf(stderr, "Port table fill failure\n");
+        goto error_out;
+    }
     eds2_init_port_table(inst, board->port_cnt, eds2_port_table);
     inst->props.board_type = board->type;
 

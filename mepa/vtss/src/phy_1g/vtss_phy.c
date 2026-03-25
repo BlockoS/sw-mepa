@@ -9343,7 +9343,7 @@ static vtss_rc vtss_phy_wait_for_1588_command_busy(vtss_state_t *vtss_state,
 static vtss_rc vtss_phy_wait_for_macsec_command_busy(vtss_state_t *vtss_state, const vtss_port_no_t  port_no, u32 page)
 {
     u16 val;
-    u8 timeout = 255; // For making sure that we don't get stucked
+    u16 timeout = 512; // For making sure that we don't get stucked
 
     // Wait for bit 15 to be set (or timeout)
     if (page == 19) {

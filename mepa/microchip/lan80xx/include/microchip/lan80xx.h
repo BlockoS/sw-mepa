@@ -121,11 +121,11 @@ typedef struct {
 
 /** \brief Loopback types */
 typedef struct {
-    mepa_bool_t  h3p_lp_ena;   /* Enable H3P loopback */
     mepa_bool_t  l3p_lp_ena;   /* Enable L3P Loopback */
     mepa_bool_t  h3m_lp_ena;   /* Enable H3M Loopback */
     mepa_bool_t  l3m_lp_ena;   /* Enable L3M Loopback */
     mepa_bool_t  h7_lp_ena;    /* Enable H7 Loopback */
+    mepa_bool_t  h2_lp_ena;    /* Enable H2 Loopback */
 } phy25g_lp_types_t;
 
 /** \brief loopback status get */
@@ -257,6 +257,42 @@ mepa_rc lan80xx_operating_mode_set(const mepa_device_t        *dev,
                                    const mepa_port_no_t       port_no,
                                    const phy25g_mode_conf_t   phy_mode);
 
+/**
+ * \brief Configure Link Fault Signaling (LFS) behavior
+ *
+ * This function configures whether LFS is terminated inside the PHY or passed
+ * through to the HOST MAC. This can be called independently of operating mode
+ * changes to avoid unnecessary MAC reconfiguration and potential frame drops.
+ *
+ * \param dev [IN]                  mepa driver
+ * \param port_no [IN]              port number
+ * \param terminate_in_phy [IN]     TRUE: Terminate LFS in PHY (PHY handles link faults)
+ *                                  FALSE: Pass LFS to HOST MAC (default behavior)
+ *
+ * \return Return code.
+ *  MEPA_RC_OK on Success
+ *  MEPA_RC_ERROR on Fail
+ **/
+mepa_rc lan80xx_phy_lfs_set(const mepa_device_t  *dev,
+                            const mepa_port_no_t port_no,
+                            mepa_bool_t          terminate_in_phy);
+
+/**
+ * \brief Get current Link Fault Signaling (LFS) configuration
+ *
+ * \param dev [IN]                  mepa driver
+ * \param port_no [IN]              port number
+ * \param terminate_in_phy [OUT]    Current LFS configuration
+ *                                  TRUE: LFS terminated in PHY
+ *                                  FALSE: LFS passed to HOST MAC
+ *
+ * \return Return code.
+ *  MEPA_RC_OK on Success
+ *  MEPA_RC_ERROR on Fail
+ **/
+mepa_rc lan80xx_phy_lfs_get(const mepa_device_t  *dev,
+                            const mepa_port_no_t port_no,
+                            mepa_bool_t          *terminate_in_phy);
 
 /**
  * \brief Get the configuration for SyncE

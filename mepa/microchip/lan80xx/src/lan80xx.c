@@ -395,16 +395,21 @@ static mepa_rc lan80xx_phy_info_get(mepa_device_t *dev, mepa_phy_info_t *const p
         return MEPA_RC_ERROR;
     }
 
-    /* 1588 Capability */
-    if ((data->dev.devid == LAN80XX_DEV_ID_8022) || (data->dev.devid == LAN80XX_DEV_ID_8042)) {
-        phy_info->cap = MEPA_CAP_TS_MASK_NONE;
-    } else {
-        phy_info->cap = MEPA_CAP_TS_MASK_GEN_2;
+    /* This is just to support backwards compatibility.
+     * It is required to use the lan80xx_phy_capability_priv and not
+     * mepa_capability functionc because that will take also the MEPA lock
+     */
+    phy_info->cap = 0;
+    if (lan80xx_phy_capability_priv(dev, MEPA_CAP_TS_NONE)) {
+        phy_info->cap |= MEPA_CAP_TS_MASK_NONE;
     }
-    /* Speed Capability */
-    if (base_data->features.speed_25g_disable) {
+    if (lan80xx_phy_capability_priv(dev, MEPA_CAP_TS_GEN_2)) {
+        phy_info->cap |= MEPA_CAP_TS_MASK_GEN_2;
+    }
+    if (lan80xx_phy_capability_priv(dev, MEPA_CAP_SPEED_10G)) {
         phy_info->cap |= MEPA_CAP_SPEED_MASK_10G;
-    } else {
+    }
+    if (lan80xx_phy_capability_priv(dev, MEPA_CAP_SPEED_25G)) {
         phy_info->cap |= MEPA_CAP_SPEED_MASK_25G;
     }
     phy_info->ts_base_port = base_data->port_no;
@@ -430,7 +435,7 @@ static mepa_rc lan80xx_loopback_get(mepa_device_t *dev, mepa_loopback_t *const l
     MEPA_ENTER(dev);
     memset(loopback, 0, sizeof(mepa_loopback_t));
     loopback->far_end_ena = data->port_state.loopback_conf.l2_lp;
-    loopback->near_end_ena = data->port_state.loopback_conf.h2_lp;
+    loopback->near_end_ena = data->port_state.loopback_conf.h3p_lp;
     loopback->mac_serdes_equip_ena = data->port_state.loopback_conf.h1_lp;
     loopback->media_serdes_equip_ena = data->port_state.loopback_conf.l1_lp;
     loopback->media_serdes_facility_ena = data->port_state.loopback_conf.l5_lp;
@@ -487,7 +492,9 @@ static mepa_rc lan80xx_debug_info_dump(mepa_device_t *dev,
     lan80xx_gpio_glb_slice_reg_dump(dev, data->port_no, pr);
     lan80xx_mac_reg_dump(dev, data->port_no, pr);
     lan80xx_ptp_reg_dump(dev, data->port_no, pr);
+#ifdef MEPA_LAN80XX_MSEC
     lan80xx_macsec_dbg_reg_dump_priv(dev, data->port_no, pr);
+#endif
     MEPA_EXIT(dev);
     return MEPA_RC_OK;
 }
@@ -544,12 +551,7 @@ mepa_bool_t lan80xx_driver_check(const mepa_device_t   *dev)
 static void lan80xx_driver_create(uint32_t id, mepa_driver_t *drv)
 {
     T_D(MEPA_TRACE_GRP_GEN, "\n Driver assign for phy id : 0x%x", id);
-    mepa_bool_t macsec_supported = TRUE;
     mepa_bool_t ts_supported = TRUE;
-
-    if (id == LAN80XX_DEV_ID_8263 || id == LAN80XX_DEV_ID_8267 || id == LAN80XX_DEV_ID_8023 || id == LAN80XX_DEV_ID_8043) {
-        macsec_supported = FALSE;
-    }
 
     if (id == LAN80XX_DEV_ID_8262 || id == LAN80XX_DEV_ID_8022 || id == LAN80XX_DEV_ID_8042) {
         ts_supported = FALSE;
@@ -594,9 +596,18 @@ static void lan80xx_driver_create(uint32_t id, mepa_driver_t *drv)
     if (ts_supported == TRUE) {
         drv->mepa_ts                      = &lan80xx_ts_drivers;
     }
-    if (macsec_supported == TRUE) {
-        drv->mepa_macsec                  = &lan80xx_macsec_drivers;
+
+#ifdef MEPA_LAN80XX_MSEC
+    if (id == LAN80XX_DEV_ID_8044 ||
+        id == LAN80XX_DEV_ID_8042 ||
+        id == LAN80XX_DEV_ID_8024 ||
+        id == LAN80XX_DEV_ID_8022 ||
+        id == LAN80XX_DEV_ID_8268 ||
+        id == LAN80XX_DEV_ID_8264 ||
+        id == LAN80XX_DEV_ID_8262) {
+        drv->mepa_macsec = &lan80xx_macsec_drivers;
     }
+#endif
 }
 
 

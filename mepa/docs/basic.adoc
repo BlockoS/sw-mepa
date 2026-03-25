@@ -37,6 +37,17 @@ revision number of the PHY and PTP capability of the PHY..
 NOTE: For this `mepa_phy_info_get()` API to work, `mepa_reset()` API with `reset_point = MEPA_RESET_POINT_PRE` needs to be called 
 at-least once after the Port Instance is created.
 
+== PHY Capabilities
+
+The API `mepa_capability()` allows to interogate the PHY capabilities. These
+will describe for example which features like speed, timestamping, cable
+diagnostics, etc are supported by the PHY.
+
+NOTE: For now `mepa_capability()` returns the same capabilities as the function
+`mepa_phy_info_get()`. In the future new capabilities will be added to
+`mepa_capability()` and the capabilities from `mepa_phy_info_get` will be
+removed.
+
 == Port Interface
 
 Based on speed (`mepa_port_speed_t`) of the port, PHY interface details
@@ -229,4 +240,5 @@ NOTE: PRBS CHECK DOES NOT RESTORE QSGMII SETTINGS AFTER OPERATION SO A CHIP RESE
 `mepa_prbs_set()` +
 `mepa_prbs_get()` +
 `mepa_prbs_monitor_set` +
-`mepa_prbs_monitor_get`
+`mepa_prbs_monitor_get` +
+`mepa_capability`

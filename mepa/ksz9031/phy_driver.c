@@ -332,6 +332,15 @@ static mesa_rc ksz_delete(mepa_device_t *dev)
     return mepa_delete_int(dev);
 }
 
+static uint32_t ksz_capability(mepa_device_t *dev, uint32_t capability)
+{
+    /* As this driver doesn't implement the mepa_driver_phy_info_get then we
+     * don't need to return any capabilities. This needs to be extended once we
+     * add new capabilities
+     */
+    return 0;
+}
+
 mepa_drivers_t mepa_ksz9031_driver_init()
 {
     mepa_drivers_t res;
@@ -350,6 +359,7 @@ mepa_drivers_t mepa_ksz9031_driver_init()
     ksz_drivers[0].mepa_driver_media_set = NULL;
     ksz_drivers[0].mepa_driver_probe = ksz_probe;
     ksz_drivers[0].mepa_driver_aneg_status_get = ksz_status_1g_get;
+    ksz_drivers[0].mepa_capability = ksz_capability;
 
     res.phy_drv = ksz_drivers;
     res.count = 1;

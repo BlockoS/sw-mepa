@@ -88,9 +88,21 @@ pipeline {
                     steps {
                         container('pod-mepa-build') {
                             unstash name: "src"
-                                    sh "tar -xf ws.tar && rm ws.tar"
-                                    sh "./.cmake/create_cmake_project.rb -vfnp arm arm"
-                                    stash name: "bin-arm", includes: "arm.tar"
+                            sh "tar -xf ws.tar && rm ws.tar"
+                            sh "./.cmake/create_cmake_project.rb -vfnp arm arm"
+                            stash name: "bin-arm", includes: "arm.tar"
+                        }
+                    }
+                }
+
+                stage("mipsel") {
+                    agent { kubernetes { yamlFile '.cmake/pod-build.yaml' } }
+                    steps {
+                        container('pod-mepa-build') {
+                            unstash name: "src"
+                            sh "tar -xf ws.tar && rm ws.tar"
+                            sh "./.cmake/create_cmake_project.rb -vfnp mipsel mipsel"
+                            stash name: "bin-mipsel", includes: "mipsel.tar"
                         }
                     }
                 }
@@ -111,7 +123,6 @@ pipeline {
                             steps {
                                 container('pod-mepa-base') {
                                     warnError(message: "License error") {
-                                        sh "chmod +x -R ${env.top}"
                                         sh "./.cmake/build-licenses.rb"
                                     }
                                 }
@@ -134,12 +145,14 @@ pipeline {
 
         stage("aggr-bin's") {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'Test', usernameVariable: 'ARTIFACTORY_USER', passwordVariable: 'ARTIFACTORY_PASS')]) {
+                withCredentials([usernamePassword(credentialsId: 'Test4', usernameVariable: 'ARTIFACTORY_USER', passwordVariable: 'ARTIFACTORY_PASS')]) {
                     container('pod-mepa-base') {
                         unstash name: "bin-arm64"
                         unstash name: "bin-arm"
+                        unstash name: "bin-mipsel"
                         unstash name: "ana-report"
                         sh ".cmake/aggr-artifacts.rb"
+                        sh "tar -czf images/et.tar.gz -C mepa_demo test"
                     }
                 }
             }

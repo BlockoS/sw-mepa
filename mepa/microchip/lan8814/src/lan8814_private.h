@@ -86,6 +86,7 @@ mepa_rc lan8814_ts_debug_info_dump(struct mepa_device *dev,
 typedef struct {
     uint8_t  model;
     uint8_t  rev;
+    uint16_t sku;
 } phy_dev_info_t;
 
 typedef enum {

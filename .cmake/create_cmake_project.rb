@@ -154,12 +154,20 @@ global = OptionParser.new do |opts|
     $opt[:all] = true
   end
 
+  opts.on("--external", "Assumed running out-side Microchip network (default is auto-detect)") do
+    $opt[:run_external] = true
+  end
+
   opts.on("-f", "--force", "Delete the output folder if it exist already") do
     $opt[:force] = true
   end
 
   opts.on("-i", "--incremental", "Do not clean before building") do
     $opt[:incremental] = true
+  end
+
+  opts.on("--internal", "Assumed running in-side Microchip network (default is auto-detect)") do
+    $opt[:run_internal] = true
   end
 
   opts.on("-n", "--ninja", "Use ninja generator") do
@@ -178,10 +186,6 @@ def url_concat a, b
   else
     "#{a}/#{b}"
   end
-end
-
-def render_template(template, arch)
-  template.gsub(/\{\{arch\}\}/, arch.to_s)
 end
 
 $cmake_presents = YAML.load_file("#{$top}/.cmake/cmake-presets_new.yaml")
@@ -228,7 +232,7 @@ base = nil
 
 if c[:mesa]
   mesa_name = "mesa-#{$mesa_deps["release-version"]}"
-  mesa_base = "/opt/mscc/#{mesa_name}"
+  mesa_base = "/opt/mchp/#{mesa_name}"
   puts "{MESA}: #{mesa_name}"
 
   if File.exist? "sw-mesa"
@@ -236,42 +240,67 @@ if c[:mesa]
     run "sh -c \"rm -r sw-mesa\""
   end
   puts "Fetching latest copy..."
-  
+
   if not File.exist? mesa_base
     sys "sudo -v"
-    sys "wget -O- #{$mesa_deps["build-artifact-url"]}/#{$mesa_deps["release-version"]}/#{mesa_name}.tar.gz | sudo tar -xz -C /opt/mscc/"
+    sys "wget -O- #{$mesa_deps["build-artifact-url"]}/#{$mesa_deps["release-version"]}/#{mesa_name}.tar.gz | sudo tar -xz -C /opt/mchp/"
   end
 
-  run "mkdir -p sw-mesa && cp -r /opt/mscc/#{mesa_name}/* sw-mesa"
+  run "mkdir -p sw-mesa && cp -r /opt/mchp/#{mesa_name}/* sw-mesa"
 end
 
 # Not all presets uses a brsdk, some only uses the toolchain
 if c[:brsdk_arch]
-  brsdk_ext_name = $bsp_deps["build-artifact-version-string"]
-  brsdk_name = render_template(brsdk_ext_name, c[:arch])
-  brsdk_base = "/opt/mscc/#{brsdk_name}"
+  if is_internal?
+    brsdk_name = "mchp-brsdk-#{c[:arch]}-#{$bsp_deps["build-artifact-version-string"]}"
+  else
+    brsdk_name = "mchp-brsdk-#{c[:arch]}-#{$bsp_deps["build-artifact-version-string-ext"]}"
+  end
+
+  brsdk_base = "/opt/mchp/#{brsdk_name}"
   base = brsdk_base
   puts "{BSP}: #{brsdk_name}"
 
   if not File.exist? brsdk_base
-    sys "sudo -v"
-    sys "wget -O- #{$bsp_deps["build-artifact-url"]}/#{brsdk_name}.tar.gz | sudo tar -xz -C /opt/mscc/"
+    if is_internal?
+      bsp_link = url_concat($bsp_deps["build-artifact-url"], "#{brsdk_name}.tar.gz")
+      sys "sudo -v"
+      sys "wget -O- #{bsp_link} | sudo tar -xz -C /opt/mchp/"
+    else
+      puts "Please install the BSP: #{brsdk_base}"
+      puts ""
+      puts "This may be done by using the following command (ensure you have the needed permissions):"
+      puts "sh -c \"mkdir -p /opt/mchp && wget -O- #{$bsp_deps["build-artifact-url-ext"]}/#{brsdk_name}.tar.gz | tar -xz -C /opt/mchp/\""
+      exit 1
+    end
   end
 else
   raise "not supported"
 end
 
 $tc = JSON.load_file("#{$top}/.cmake/deps-toolchain.json").find{|x| x["id"] == "toolchain"}
-$tc_name = "#{$tc["build-artifact-version-string"]}"
-$tc_path = "/opt/mscc/#{$tc_name}"
+if is_internal?
+  $tc_name = "mchp-toolchain-bin-#{$tc["build-artifact-version-string"]}"
+else
+  $tc_name = "mchp-toolchain-bin-#{$tc["build-artifact-version-string-ext"]}"
+end
+$tc_path = "/opt/mchp/#{$tc_name}"
 puts "{Toolchain}: #{$tc_name}"
 
 if not File.exist? $tc_path
-  tc_link = "#{$tc["build-artifact-url"]}/#{$tc_name}.tar.gz"
-  sys "sudo -v"
-  sys "wget -O- #{tc_link} | sudo tar -xz -C /opt/mscc/"
+  if is_internal?
+    tc_link = url_concat($tc["build-artifact-url"], "#{$tc_name}.tar.gz")
+    sys "sudo -v"
+    sys "wget -O- #{tc_link} | sudo tar -xz -C /opt/mchp/"
+  else
+    tc_link = url_concat($tc["build-artifact-url-ext"], "#{$tc_name}.tar.gz")
+    puts "Please install the Toolchain: #{$tc_path}"
+    puts ""
+    puts "This may be done by using the following command (ensure you have the needed permissions):"
+    puts "sh -c \"mkdir -p /opt/mchp && wget -O- #{$tc["build-artifact-url-ext"]}/#{$tc_name}.tar.gz | tar -xz -C /opt/mchp/\""
+    exit 1
+  end
 end
-
 
 if not File.exist? out
   run "mkdir -p #{out}"

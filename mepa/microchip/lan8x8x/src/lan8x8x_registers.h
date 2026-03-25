@@ -108,6 +108,9 @@
                      QSGMII_PCS1G_SW_RESOLVE_PRIORITY | \
                      QSGMII_PCS1G_ANEG_RESTART)
 
+#define QSGMII_PCS1G_DEBUG              (PCS1G_REG + 0x8U)
+#define QSGMII_PCS1G_RA_ENA     BIT(4)
+
 #define QSGMII_ANEG_EN_REG                  (PCS1G_REG + 0xBU)
 #define QSGMII_NP_DISABLE           BIT(2)
 #define QSGMII_SGMII_USGMII_TX_CFG_EN       BIT(1)
@@ -157,6 +160,9 @@
 #define MACSEC_MEGABLK_BYPASS_SEL   BIT(2)
 #define GMII_BYPASS_SEL         BIT(1)
 #define XGMII_BYPASS_SEL        BIT(0)
+
+#define MAC_NE_LPBK         (CHIPTOP + 0x1FU)
+#define MAC_NE_LPBK_ENA         BIT(0)
 
 #define OTP_STRAP_READ_REG              (CHIPTOP + 0x38U)
 #define OTP_STRAP_READ_AUTO_MODE_EN     BIT(3)

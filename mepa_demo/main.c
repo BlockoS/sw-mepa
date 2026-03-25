@@ -200,8 +200,9 @@ static mesa_bool_t int_from_str(const char *s, int *res)
     }
     local[i] = '\n';
 
+    errno = 0;
     tmp = strtol(local, 0, 10);
-    if (tmp < 1 || tmp > 99999) {
+    if (errno != 0) {
         return 0;
     }
     *res = tmp;
@@ -246,6 +247,67 @@ void get_mac_addr(uint8_t *mac)
     }
 }
 
+static char cmdline[1024];
+static uint8_t cmdline_arguments;
+
+static void kernel_cmdline_get(void)
+{
+    if (cmdline[0] == 0) {
+        uint8_t cmdline_size;
+        FILE* fp;
+
+        if ( (fp = fopen ("/proc/cmdline", "r")) == NULL) {
+            T_E("fopen /proc/cmdline FAILED! [%s]\n", strerror(errno));
+            return;
+        }
+        if ((fgets(cmdline, sizeof(cmdline), fp)) == NULL) {
+            T_E("fgets FAILED! [%s]\n", strerror(errno));
+            fclose(fp);
+            return;
+        }
+        /* cleanup */
+        fclose(fp);
+
+        cmdline_size = strlen(cmdline);
+        if (cmdline_size > 0) {
+            cmdline_arguments++;
+        }
+
+        for (unsigned int i=0; i < cmdline_size; i++) {
+            if (cmdline[i] == ' ') {
+                cmdline[i] = 0;
+                cmdline_arguments++;
+            }
+        }
+    }
+    return;
+}
+
+const char* cmdline_get(const char *key)
+{
+    const char *pcmdline = cmdline;
+    int key_len=strlen(key);
+
+    kernel_cmdline_get();
+
+    for (uint8_t i = 0; i < cmdline_arguments; i++, pcmdline += strlen(pcmdline) + 1) {
+        const char *delimiter = strchr(pcmdline, '=');
+
+        if (delimiter > pcmdline) {
+            if (key_len != delimiter-pcmdline) {
+                continue;
+            }
+
+            if (strncmp(key, pcmdline, key_len) != 0) {
+                continue;
+            }
+
+            return delimiter+1;
+        }
+    }
+    return 0;
+}
+
 // Read the uboot env var and return the results as integer
 // FA PCB 134 (12x10G + 8x25G + NPI)
 // FA PCB 135 (48x1G + 4x10G + 4x25G + NPI)
@@ -254,11 +316,20 @@ void get_mac_addr(uint8_t *mac)
 // fw_setenv pcb_var 21
 static mesa_bool_t get_uboot_env_int(const char *env, int *res)
 {
+    const char *boot_source;
     FILE *fp;
     char cmd[100];
-    int ret = 0;
-    *res = 0;
-    strcpy(cmd, "/usr/sbin/fw_printenv -n ");
+    int ret;
+
+    strcpy(cmd, "/usr/sbin/fw_printenv -n");
+
+    boot_source = cmdline_get("boot_source");
+    if (boot_source && strncmp(boot_source, "mmc", strlen("mmc")) == 0) {
+        strcat(cmd, " --config /etc/fw_env_mmc.config ");
+    } else {
+        strcat(cmd, " --config /etc/fw_env.config ");
+    }
+
     strcat(cmd, env);
     strcat(cmd, " 2> /dev/null");
     fp = popen(cmd, "r");

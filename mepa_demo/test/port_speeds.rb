@@ -6,23 +6,6 @@
 require_relative 'libeasy/et'
 $ts = get_test_setup("mesa_pc_b2b_2x")
 
-#---------- Capabilities -----------------------------------------------------
-hdx_support = true
-check_capabilities do
-    conf = $ts.dut.call "mesa_port_conf_get", $ts.dut.p[0]
-    assert(!(conf["if_type"] != "MESA_PORT_INTERFACE_SGMII" &&
-             conf["if_type"] != "MESA_PORT_INTERFACE_QSGMII"),
-           "SGMII support is required")
-
-    c = $ts.dut.call("mesa_capability", "MESA_CAP_MISC_CHIP_FAMILY")
-    if (c == chip_family_to_id("MESA_CHIP_FAMILY_SERVALT"))
-        hdx_support = false
-    end
-
-    $cap_fpga = $ts.dut.call("mesa_capability", "MESA_CAP_MISC_FPGA")
-    assert(($cap_fpga == 0), "Feature not supported on FPGA")
-end
-
 #---------- Description -------------------------------------------------------
 # Purpose:
 # Verify that the speed and duplex settings can be changed to all legal values.
@@ -61,14 +44,11 @@ cmd += "rx #{$ts.pc.p[$port_tx1]} name f#{$port_tx2} "
 
 $speed_list.each do |spd_entry|
     test "Mode:'#{spd_entry[:speed]}#{spd_entry[:dpx]} Sending #{$num_of_frames} #{$frame_size} byte frames between ports #{$port_tx1} and #{$port_tx2}" do
-        if spd_entry[:dpx] == "hdx" && !hdx_support
-            next
-        end
         speed = spd_entry[:speed]
         duplex = spd_entry[:dpx]
         cli_port1 = $ts.dut.p[$port_tx1] + 1
         cli_ports = cli_port1.to_s
-        $ts.dut.run "mesa-cmd port mode #{cli_ports} #{speed}#{duplex}"
+        $ts.dut.run "mepa-cmd port mode #{cli_ports} #{speed}#{duplex}"
         t_i "Wait until DUT ports are operational"
         sleep 5
         for i in 1..10 do
@@ -79,8 +59,8 @@ $speed_list.each do |spd_entry|
             end
         end
         # Get port statis in case of failures
-        $ts.dut.run("mesa-cmd port statis clear")
+        $ts.dut.run("mepa-cmd port statis clear")
         $ts.pc.run cmd
-        $ts.dut.run("mesa-cmd port statis pac")
+        $ts.dut.run("mepa-cmd port statis pac")
     end
 end

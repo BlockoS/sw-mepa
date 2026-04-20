@@ -15,9 +15,12 @@ MEPA_DRV(LIB_NAME mepa_drv_lan887x
          SRCS     ../common/src/phy_lib.c
                   src/lan887x.c
                   src/lan887x_tc10.c
-		 DEFS	  ${MEPA_lan887x_custom_defs}
-         INCL_PUB ../../../me/include ../../include ../common/include
-         INCL_PRI lan887x)
+		 DEFS	  MEPA_HAS_LAN887x ${MEPA_lan887x_custom_defs}
+         INCL_PUB ${CMAKE_SOURCE_DIR}/me/include
+                  ${MEPA_SOURCE_DIR}/include
+                  ${MEPA_SOURCE_DIR}/common/include
+                  ${MEPA_SOURCE_DIR}/microchip/common/include
+)
 
 option(MEPA_lan887x "Add LAN887X support in libmeba" OFF)
 if (${MEPA_lan887x})

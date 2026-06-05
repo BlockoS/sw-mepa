@@ -545,6 +545,12 @@ static mepa_rc lan80xx_ts_block_init(const mepa_device_t  *dev)
     }
 
     clk_src =  base_data->phy_ts_port_conf.clk_src;
+    printf("[ts_dbg] block_init: clk_src=%u (25M=0,50M=1,125M=2) "
+           "PLL r=%u div_fi=%u divff=0x%02x%04x divq=%u clk_sel=%u\n",
+           clk_src, phy25g_ts_pll_map[clk_src].pll_r,
+           phy25g_ts_pll_map[clk_src].pll_div_fi,
+           phy25g_ts_pll_map[clk_src].pll_divff_hi, phy25g_ts_pll_map[clk_src].pll_divff_lo,
+           phy25g_ts_pll_map[clk_src].pll_divq, phy25g_ts_pll_map[clk_src].clk_sel);
 
     //LTC PLL is shared resource for all port, so init only once for baseport.
     if (!base_data->ptp_shared_ltc_pll_init) {
@@ -594,9 +600,26 @@ static mepa_rc lan80xx_ts_block_init(const mepa_device_t  *dev)
                         LAN80XX_M_CLK_CFG_LTCPLL_CMD_REG_LTCPLL_UPDATE);
 
         /* Wait for PLL lock */
+        {
+            u32 dbg_r = 0, dbg_fi = 0, dbg_ffhi = 0, dbg_fflo = 0;
+            u32 dbg_dq = 0, dbg_csel = 0, dbg_ref = 0;
+            LAN80XX_CSR_RD(dev, base_port, LAN80XX_CLK_CFG_LTCPLL_DIVR_REG, &dbg_r);
+            LAN80XX_CSR_RD(dev, base_port, LAN80XX_CLK_CFG_LTCPLL_DIVFI_REG, &dbg_fi);
+            LAN80XX_CSR_RD(dev, base_port, LAN80XX_CLK_CFG_LTCPLL_DIVFF_HI_REG, &dbg_ffhi);
+            LAN80XX_CSR_RD(dev, base_port, LAN80XX_CLK_CFG_LTCPLL_DIVFF_LO_REG, &dbg_fflo);
+            LAN80XX_CSR_RD(dev, base_port, LAN80XX_CLK_CFG_LTCPLL_DIVQ_REG, &dbg_dq);
+            LAN80XX_CSR_RD(dev, base_port, LAN80XX_CLK_CFG_LTC_CLK_CFG_REG, &dbg_csel);
+            LAN80XX_CSR_RD(dev, base_port, LAN80XX_PTP_LTC_PTP_CLK_REF_CFG, &dbg_ref);
+            printf("[ts_dbg] readback: DIVR=0x%x DIVFI=0x%x DIVFF=0x%x:0x%x "
+                   "DIVQ=0x%x LTC_CLK_CFG=0x%x PTP_CLK_REF_CFG=0x%x\n",
+                   dbg_r, dbg_fi, dbg_ffhi, dbg_fflo, dbg_dq, dbg_csel, dbg_ref);
+        }
         u8 u8timeout = 0;
         while (1) {
             LAN80XX_CSR_RD(dev, base_port, LAN80XX_CLK_CFG_LTCPLL_STS_REG, &value);
+            if (u8timeout == 0 || u8timeout == 10 || u8timeout == 25) {
+                printf("[ts_dbg] LTCPLL_STS @ %u ms = 0x%08x\n", u8timeout, value);
+            }
             if (value & LAN80XX_M_CLK_CFG_LTCPLL_STS_REG_LTCPLL_STS) {
                 T_I(MEPA_TRACE_GRP_TS, "LTC PLL Locked after %d ms \n", u8timeout);
                 base_data->ptp_shared_ltc_pll_init = TRUE;
@@ -605,6 +628,7 @@ static mepa_rc lan80xx_ts_block_init(const mepa_device_t  *dev)
             MEPA_MSLEEP(1); /* 1 ms sleep */
             u8timeout++;
             if (u8timeout >= 50) {
+                printf("[ts_dbg] PLL LOCK FAIL: LTCPLL_STS=0x%08x after 50ms\n", value);
                 T_E(MEPA_TRACE_GRP_GEN, "LTC PLL Lock FAIL after %d ms\n", u8timeout);
                 return MEPA_RC_ERROR;
             }

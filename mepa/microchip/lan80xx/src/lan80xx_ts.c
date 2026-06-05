@@ -260,7 +260,19 @@ static mepa_rc lan80xx_ts_init_conf_set(mepa_device_t *dev, const mepa_ts_init_c
         break;
     case MEPA_TS_CLOCK_SRC_EXT_1588_REF_CLOCK:
     case MEPA_TS_CLOCK_SRC_EXTERNAL:
-        init_conf.clk_src = LAN80XX_PHY_TS_CLOCK_SRC_EXTERNAL_25MHZ;
+        switch (ts_init_conf->clk_freq) {
+        case MEPA_TS_CLOCK_FREQ_25M:
+            init_conf.clk_src = LAN80XX_PHY_TS_CLOCK_SRC_EXTERNAL_25MHZ;
+            break;
+        case MEPA_TS_CLOCK_FREQ_125M:
+            init_conf.clk_src = LAN80XX_PHY_TS_CLOCK_SRC_EXTERNAL_125MHZ;
+            break;
+        default:
+            T_E(MEPA_TRACE_GRP_TS, "%s: external clk_src requires clk_freq in {25M, 125M}, got %d\n",
+                __FUNCTION__, ts_init_conf->clk_freq);
+            MEPA_EXIT(dev);
+            return MEPA_RC_ERROR;
+        }
         break;
 
     default:

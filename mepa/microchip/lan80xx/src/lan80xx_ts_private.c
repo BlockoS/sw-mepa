@@ -529,6 +529,59 @@ static mepa_rc lan80xx_phy_ts_read_csr(const mepa_device_t *dev,
     return MEPA_RC_OK;
 }
 
+/* Write divisors + trigger UPDATE + poll lock for one PLL source */
+static mepa_rc ltcpll_configure_and_lock(const mepa_device_t *dev,
+                                         mepa_port_no_t base_port,
+                                         u16 clk_src_idx)
+{
+    phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
+
+    const lan80xx_phy_ts_pll_map_t *pll = &phy25g_ts_pll_map[clk_src_idx];
+    u32 value = 0;
+    u8  timeout = 0;
+
+    LAN80XX_CSR_WRM(base_port, LAN80XX_CLK_CFG_LTC_CLK_CFG_REG,
+                    LAN80XX_F_CLK_CFG_LTC_CLK_CFG_REG_LTC_CLK_SEL(pll->clk_sel),
+                    LAN80XX_M_CLK_CFG_LTC_CLK_CFG_REG_LTC_CLK_SEL);
+
+    LAN80XX_CSR_WRM(base_port, LAN80XX_CLK_CFG_LTCPLL_DIVR_REG,
+                    LAN80XX_F_CLK_CFG_LTCPLL_DIVR_REG_LTCPLL_DIVR(pll->pll_r),
+                    LAN80XX_M_CLK_CFG_LTCPLL_DIVR_REG_LTCPLL_DIVR);
+
+    LAN80XX_CSR_WRM(base_port, LAN80XX_CLK_CFG_LTCPLL_DIVFI_REG,
+                    LAN80XX_F_CLK_CFG_LTCPLL_DIVFI_REG_LTCPLL_DIVFI(pll->pll_div_fi),
+                    LAN80XX_M_CLK_CFG_LTCPLL_DIVFI_REG_LTCPLL_DIVFI);
+
+    LAN80XX_CSR_WRM(base_port, LAN80XX_CLK_CFG_LTCPLL_DIVFF_HI_REG,
+                    LAN80XX_F_CLK_CFG_LTCPLL_DIVFF_HI_REG_LTCPLL_DIVFF_HI(pll->pll_divff_hi),
+                    LAN80XX_M_CLK_CFG_LTCPLL_DIVFF_HI_REG_LTCPLL_DIVFF_HI);
+
+    LAN80XX_CSR_WRM(base_port, LAN80XX_CLK_CFG_LTCPLL_DIVFF_LO_REG,
+                    LAN80XX_F_CLK_CFG_LTCPLL_DIVFF_LO_REG_LTCPLL_DIVFF_LO(pll->pll_divff_lo),
+                    LAN80XX_M_CLK_CFG_LTCPLL_DIVFF_LO_REG_LTCPLL_DIVFF_LO);
+
+    LAN80XX_CSR_WRM(base_port, LAN80XX_CLK_CFG_LTCPLL_DIVQ_REG,
+                    LAN80XX_F_CLK_CFG_LTCPLL_DIVQ_REG_LTCPLL_DIVQ(pll->pll_divq),
+                    LAN80XX_M_CLK_CFG_LTCPLL_DIVQ_REG_LTCPLL_DIVQ);
+
+    LAN80XX_CSR_WRM(base_port, LAN80XX_CLK_CFG_LTCPLL_CMD_REG,
+                    LAN80XX_F_CLK_CFG_LTCPLL_CMD_REG_LTCPLL_UPDATE(1),
+                    LAN80XX_M_CLK_CFG_LTCPLL_CMD_REG_LTCPLL_UPDATE);
+
+    while (1) {
+        LAN80XX_CSR_RD(dev, base_port, LAN80XX_CLK_CFG_LTCPLL_STS_REG, &value);
+        if (value & LAN80XX_M_CLK_CFG_LTCPLL_STS_REG_LTCPLL_STS) {
+            T_I(MEPA_TRACE_GRP_TS, "LTC PLL (src %d) locked after %d ms\n", clk_src_idx, timeout);
+            return MEPA_RC_OK;
+        }
+        MEPA_MSLEEP(1);
+        if (++timeout >= 50) {
+            T_E(MEPA_TRACE_GRP_GEN, "LTC PLL Lock FAIL after %d ms\n", timeout);
+            return MEPA_RC_ERROR;
+        }
+    }
+}
+
 static mepa_rc lan80xx_ts_block_init(const mepa_device_t  *dev)
 {
     phy25g_phy_state_t *data = (phy25g_phy_state_t *)dev->data;
@@ -548,67 +601,33 @@ static mepa_rc lan80xx_ts_block_init(const mepa_device_t  *dev)
 
     //LTC PLL is shared resource for all port, so init only once for baseport.
     if (!base_data->ptp_shared_ltc_pll_init) {
-        /*setting the LTC clock src*/
-        LAN80XX_CSR_WRM(base_port, LAN80XX_CLK_CFG_LTCPLL_DIVR_REG,
-                        LAN80XX_F_CLK_CFG_LTCPLL_DIVR_REG_LTCPLL_DIVR(phy25g_ts_pll_map[clk_src].pll_r),
-                        LAN80XX_M_CLK_CFG_LTCPLL_DIVR_REG_LTCPLL_DIVR);
+        mepa_bool_t external = (clk_src != LAN80XX_PHY_TS_CLOCK_SRC_SYSREFCLK);
 
-        LAN80XX_CSR_WRM(base_port, LAN80XX_CLK_CFG_LTCPLL_DIVFI_REG,
-                        LAN80XX_F_CLK_CFG_LTCPLL_DIVFI_REG_LTCPLL_DIVFI((phy25g_ts_pll_map[clk_src].pll_div_fi)),
-                        LAN80XX_M_CLK_CFG_LTCPLL_DIVFI_REG_LTCPLL_DIVFI);
+        /* Disable PTP domain before reconfiguring PLL */
+        LAN80XX_CSR_WRM(base_port, LAN80XX_PTP_LTC_PTP_DOM_CFG,
+                        LAN80XX_F_PTP_LTC_PTP_DOM_CFG_PTP_ENA(0),
+                        LAN80XX_M_PTP_LTC_PTP_DOM_CFG_PTP_ENA);
 
-        LAN80XX_CSR_WRM(base_port, LAN80XX_CLK_CFG_LTCPLL_DIVFF_HI_REG,
-                        LAN80XX_F_CLK_CFG_LTCPLL_DIVFF_HI_REG_LTCPLL_DIVFF_HI(phy25g_ts_pll_map[clk_src].pll_divff_hi),
-                        LAN80XX_M_CLK_CFG_LTCPLL_DIVFF_HI_REG_LTCPLL_DIVFF_HI);
+        if (external) {
+            /* Must lock on SYSREFCLK first before switching to any other reference clock. */
+            rc = ltcpll_configure_and_lock(dev, base_port, LAN80XX_PHY_TS_CLOCK_SRC_SYSREFCLK);
+            if (rc != MEPA_RC_OK) {
+                return rc;
+            }
 
-        LAN80XX_CSR_WRM(base_port, LAN80XX_CLK_CFG_LTCPLL_DIVFF_LO_REG,
-                        LAN80XX_F_CLK_CFG_LTCPLL_DIVFF_LO_REG_LTCPLL_DIVFF_LO(phy25g_ts_pll_map[clk_src].pll_divff_lo),
-                        LAN80XX_M_CLK_CFG_LTCPLL_DIVFF_LO_REG_LTCPLL_DIVFF_LO);
-
-        LAN80XX_CSR_WRM(base_port, LAN80XX_CLK_CFG_LTCPLL_DIVQ_REG,
-                        LAN80XX_F_CLK_CFG_LTCPLL_DIVQ_REG_LTCPLL_DIVQ(phy25g_ts_pll_map[clk_src].pll_divq),
-                        LAN80XX_M_CLK_CFG_LTCPLL_DIVQ_REG_LTCPLL_DIVQ);
-
-        LAN80XX_CSR_WRM(base_port, LAN80XX_CLK_CFG_LTCPLL_CMD_REG,
-                        LAN80XX_F_CLK_CFG_LTCPLL_CMD_REG_LTCPLL_POWERDOWN(1),
-                        LAN80XX_M_CLK_CFG_LTCPLL_CMD_REG_LTCPLL_POWERDOWN);
-
-        LAN80XX_CSR_WRM(base_port, LAN80XX_CLK_CFG_LTC_CLK_CFG_REG,
-                        LAN80XX_F_CLK_CFG_LTC_CLK_CFG_REG_LTC_CLK_SEL(phy25g_ts_pll_map[clk_src].clk_sel)
-                        | LAN80XX_F_CLK_CFG_LTC_CLK_CFG_REG_LTC_CLK_DIV(0),
-                        LAN80XX_M_CLK_CFG_LTC_CLK_CFG_REG_LTC_CLK_SEL);
-
-        if ((clk_src == LAN80XX_PHY_TS_CLOCK_SRC_EXTERNAL_25MHZ) || (clk_src == LAN80XX_PHY_TS_CLOCK_SRC_EXTERNAL_50MHZ) || (clk_src == LAN80XX_PHY_TS_CLOCK_SRC_EXTERNAL_125MHZ)) {
-            //configure the LSC differential pin.
-            value = PTP1588_LSC_3_P_N;
+            /* Configure external reference pin (LSC3) while PLL is stable */
             LAN80XX_CSR_WRM(base_port, LAN80XX_PTP_LTC_PTP_CLK_REF_CFG,
-                            LAN80XX_F_PTP_LTC_PTP_CLK_REF_CFG_PTP_CLK_REF_SELECT(value),
+                            LAN80XX_F_PTP_LTC_PTP_CLK_REF_CFG_PTP_CLK_REF_SELECT(PTP1588_LSC_3_P_N),
                             LAN80XX_M_PTP_LTC_PTP_CLK_REF_CFG_PTP_CLK_REF_SELECT);
         }
-        LAN80XX_CSR_WRM(base_port, LAN80XX_CLK_CFG_LTCPLL_CMD_REG,
-                        LAN80XX_F_CLK_CFG_LTCPLL_CMD_REG_LTCPLL_POWERDOWN(0),
-                        LAN80XX_M_CLK_CFG_LTCPLL_CMD_REG_LTCPLL_POWERDOWN);
 
-        LAN80XX_CSR_WRM(base_port, LAN80XX_CLK_CFG_LTCPLL_CMD_REG,
-                        LAN80XX_F_CLK_CFG_LTCPLL_CMD_REG_LTCPLL_UPDATE(1),
-                        LAN80XX_M_CLK_CFG_LTCPLL_CMD_REG_LTCPLL_UPDATE);
-
-        /* Wait for PLL lock */
-        u8 u8timeout = 0;
-        while (1) {
-            LAN80XX_CSR_RD(dev, base_port, LAN80XX_CLK_CFG_LTCPLL_STS_REG, &value);
-            if (value & LAN80XX_M_CLK_CFG_LTCPLL_STS_REG_LTCPLL_STS) {
-                T_I(MEPA_TRACE_GRP_TS, "LTC PLL Locked after %d ms \n", u8timeout);
-                base_data->ptp_shared_ltc_pll_init = TRUE;
-                break;
-            }
-            MEPA_MSLEEP(1); /* 1 ms sleep */
-            u8timeout++;
-            if (u8timeout >= 50) {
-                T_E(MEPA_TRACE_GRP_GEN, "LTC PLL Lock FAIL after %d ms\n", u8timeout);
-                return MEPA_RC_ERROR;
-            }
+        /* Lock PLL on the target clock source */
+        rc = ltcpll_configure_and_lock(dev, base_port, clk_src);
+        if (rc != MEPA_RC_OK) {
+            return rc;
         }
+
+        base_data->ptp_shared_ltc_pll_init = TRUE;
 
         /* setting the clock value */
         LAN80XX_CSR_WR(dev, base_port, LAN80XX_PTP_LTC_CLK_PER_CFG(1), LAN80XX_PTP_LTC_CLK_PER_CFG_1);

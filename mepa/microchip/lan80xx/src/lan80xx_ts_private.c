@@ -603,11 +603,6 @@ static mepa_rc lan80xx_ts_block_init(const mepa_device_t  *dev)
     if (!base_data->ptp_shared_ltc_pll_init) {
         mepa_bool_t external = (clk_src != LAN80XX_PHY_TS_CLOCK_SRC_SYSREFCLK);
 
-        /* Disable PTP domain before reconfiguring PLL */
-        LAN80XX_CSR_WRM(base_port, LAN80XX_PTP_LTC_PTP_DOM_CFG,
-                        LAN80XX_F_PTP_LTC_PTP_DOM_CFG_PTP_ENA(0),
-                        LAN80XX_M_PTP_LTC_PTP_DOM_CFG_PTP_ENA);
-
         if (external) {
             /* Must lock on SYSREFCLK first before switching to any other reference clock. */
             rc = ltcpll_configure_and_lock(dev, base_port, LAN80XX_PHY_TS_CLOCK_SRC_SYSREFCLK);
